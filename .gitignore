@@ -1,0 +1,9 @@
+*.exe
+*.lib
+*.exp
+*.pdb
+*.cmd
+*.log
+*.ilk
+*.iobj
+*.ipdb

@@ -1,0 +1,160 @@
+/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+ * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+ * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
+
+#ifndef DE_DENGINE_H
+#define DE_DENGINE_H
+
+ /* Suppress compiler-specific warnings */
+#ifdef _MSC_VER
+#  define _CRT_SECURE_NO_WARNINGS
+#  pragma warning(disable : 4204)
+#else
+#  pragma GCC diagnostic ignored "-Woverlength-strings" /* built-in shaders does not fit in C89 limits of 512 chars */
+#endif
+
+#define DE_UNUSED(x) ((void)x)
+
+/* Standard library */
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <time.h>
+#include <math.h>
+#include <float.h>
+#include <assert.h>
+#include <ctype.h>
+
+/* Platform-specific */
+#ifdef _WIN32
+#  define WIN32_LEAN_AND_MEAN
+#  include <windows.h>
+#endif
+
+/* OpenGL */
+#include <gl/gl.h>
+
+/* External header-only dependencies */
+#ifdef _WIN32
+#  include "external/wglext.h"
+#endif
+
+#include "external/glext.h"
+
+#if 0
+#include "external/stb_image_write.h"
+#endif
+
+/* Forward declarations */
+typedef struct de_renderer_t de_renderer_t;
+typedef struct de_node_t de_node_t;
+typedef struct de_surface_t de_surface_t;
+typedef struct de_body_t de_body_t;
+typedef struct de_animation_track_t de_animation_track_t;
+typedef struct de_texture_t de_texture_t;
+typedef struct de_static_triangle_t de_static_triangle_t;
+typedef struct de_static_geometry_t de_static_geometry_t;
+typedef struct de_mesh_t de_mesh_t;
+typedef struct de_light_t de_light_t;
+typedef struct de_engine_t de_engine_t;
+typedef struct de_scene_t de_scene_t;
+
+/* Engine core */
+#include "core/bool.h"
+#include "core/log.h"
+#include "core/array.h"
+#include "core/byteorder.h"
+#include "core/memmgr.h"
+#include "core/thread.h"
+#include "core/string.h"
+#include "core/linked_list.h"
+#include "core/time.h"
+#include "core/color.h"
+#include "math/mathlib.h"
+#include "de_rect.h"
+#include "de_vertex.h"	   
+#include "vg/vgraster.h"
+#include "de_rectpack.h"
+#include "de_image.h"
+#include "de_input.h"
+#include "scene/camera.h"
+#include "scene/mesh.h"
+#include "scene/light.h"
+#include "scene/node.h"
+#include "scene/animation.h"
+#include "scene/scene.h"
+#include "physics/collision.h"
+#include "de_surface.h"
+#include "de_fbx.h"
+#include "renderer/renderer.h"
+#include "resources/texture.h"
+#include "font/font.h"
+#include "de_text.h"
+#include "de_utility.h"
+#include "gui/gui.h"
+#include "de_engine.h"
+
+/* Sound */
+#include "sound/de_sound.h"
+
+/* Engine implementation */
+#ifdef DE_IMPLEMENTATION
+#  ifdef _WIN32
+#    include "platform/impl/win32.h"
+#  else
+#    include "platform/impl/x11.h"
+#  endif
+#  include "impl/de_image.h"
+#  include "core/impl/byteorder.h"
+#  include "core/impl/color.h"
+#  include "core/impl/log.h"
+#  include "core/impl/memmgr.h"
+#  include "core/impl/string.h"
+#  include "physics/impl/collision.h"
+#  include "impl/de_engine.h"
+#  include "impl/de_fbx.h"
+#  include "font/impl/font.h"
+#  include "math/impl/mathlib.h"
+#  include "scene/impl/animation.h"
+#  include "scene/impl/camera.h"
+#  include "scene/impl/light.h"
+#  include "scene/impl/mesh.h"
+#  include "scene/impl/node.h"
+#  include "scene/impl/scene.h"
+#  include "renderer/impl/renderer.h"
+#  include "impl/de_surface.h"
+#  include "resources/impl/texture.h"
+#  include "impl/de_utility.h"
+#  include "impl/de_text.h"
+#  include "gui/impl/gui.h"
+#  include "vg/impl/vgraster.h"
+#  include "impl/de_rectpack.h"
+#  include "impl/de_rect.h"
+
+#  define STB_IMAGE_WRITE_IMPLEMENTATION
+/* Sound */
+#  include "sound/impl/de_sound.h"
+
+#endif
+
+#endif

@@ -52,7 +52,7 @@
 #endif
 
 /* OpenGL */
-#include <gl/gl.h>
+#include <GL/GL.h>
 
 /* External header-only dependencies */
 #ifdef _WIN32
@@ -60,10 +60,6 @@
 #endif
 
 #include "external/glext.h"
-
-#if 0
-#include "external/stb_image_write.h"
-#endif
 
 /* Forward declarations */
 typedef struct de_renderer_t de_renderer_t;
@@ -79,7 +75,10 @@ typedef struct de_light_t de_light_t;
 typedef struct de_engine_t de_engine_t;
 typedef struct de_scene_t de_scene_t;
 
-/* Engine core */
+/** 
+ * Order is important here, because some parts depends on other 
+ * Modules with minimum dependencies should be placed before others.
+ **/
 #include "core/bool.h"
 #include "core/log.h"
 #include "core/array.h"
@@ -91,12 +90,12 @@ typedef struct de_scene_t de_scene_t;
 #include "core/time.h"
 #include "core/color.h"
 #include "math/mathlib.h"
-#include "de_rect.h"
-#include "de_vertex.h"	   
+#include "core/rect.h"
+#include "renderer/vertex.h"	
+#include "core/rectpack.h"
+#include "resources/image.h"
+#include "input/input.h"
 #include "vg/vgraster.h"
-#include "de_rectpack.h"
-#include "de_image.h"
-#include "de_input.h"
 #include "scene/camera.h"
 #include "scene/mesh.h"
 #include "scene/light.h"
@@ -104,35 +103,38 @@ typedef struct de_scene_t de_scene_t;
 #include "scene/animation.h"
 #include "scene/scene.h"
 #include "physics/collision.h"
-#include "de_surface.h"
-#include "de_fbx.h"
+#include "renderer/surface.h"
+#include "resources/fbx.h"
 #include "renderer/renderer.h"
 #include "resources/texture.h"
 #include "font/font.h"
-#include "de_text.h"
-#include "de_utility.h"
+#include "core/utility.h"
 #include "gui/gui.h"
-#include "de_engine.h"
+#include "core/core.h" 
+#include "sound/sound.h"
 
-/* Sound */
-#include "sound/de_sound.h"
-
-/* Engine implementation */
+/** 
+ * Implementation.
+ * Not sensitive to order of includes. 
+ **/
 #ifdef DE_IMPLEMENTATION
 #  ifdef _WIN32
 #    include "platform/impl/win32.h"
 #  else
 #    include "platform/impl/x11.h"
 #  endif
-#  include "impl/de_image.h"
+#  include "resources/impl/image.h"
 #  include "core/impl/byteorder.h"
 #  include "core/impl/color.h"
-#  include "core/impl/log.h"
+#  include "core/impl/log.h" 
 #  include "core/impl/memmgr.h"
 #  include "core/impl/string.h"
+#  include "core/impl/rectpack.h"
+#  include "core/impl/rect.h"
+#  include "core/impl/utility.h"
+#  include "core/impl/core.h"
 #  include "physics/impl/collision.h"
-#  include "impl/de_engine.h"
-#  include "impl/de_fbx.h"
+#  include "resources/impl/fbx.h"
 #  include "font/impl/font.h"
 #  include "math/impl/mathlib.h"
 #  include "scene/impl/animation.h"
@@ -142,19 +144,11 @@ typedef struct de_scene_t de_scene_t;
 #  include "scene/impl/node.h"
 #  include "scene/impl/scene.h"
 #  include "renderer/impl/renderer.h"
-#  include "impl/de_surface.h"
+#  include "renderer/impl/surface.h"
 #  include "resources/impl/texture.h"
-#  include "impl/de_utility.h"
-#  include "impl/de_text.h"
-#  include "gui/impl/gui.h"
+#  include "gui/impl/gui.h" 
 #  include "vg/impl/vgraster.h"
-#  include "impl/de_rectpack.h"
-#  include "impl/de_rect.h"
-
-#  define STB_IMAGE_WRITE_IMPLEMENTATION
-/* Sound */
-#  include "sound/impl/de_sound.h"
-
+#  include "sound/impl/sound.h"
 #endif
 
 #endif

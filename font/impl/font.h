@@ -580,15 +580,6 @@ static void de_ttf_render_glyph(de_true_type_t* ttf, int glyph_index, de_glyph_t
 	out_glyph->bitmap_top = ttf_glyph->yMin * back_scaler;
 	out_glyph->has_outline = ttf_glyph->has_outline;
 
-
-	#if DE_TTF_TEMP_RENDER_OUPUT
-	{
-		char buffer[512];
-		sprintf(buffer, "font/%d.bmp", glyph_index);
-		stbi_write_bmp(buffer, final_bitmap.width, final_bitmap.height, 1, final_bitmap.pixels);
-	}
-	#endif
-
 	de_free(final_bitmap.pixels);
 }
 
@@ -787,11 +778,6 @@ de_font_t* de_font_load_ttf(const char * filename, float height, const int* char
 	DE_ARRAY_QSORT(font->charmap, de_compare_charmap_entry);
 
 	de_font_pack(font);
-
-	#if DE_TTF_TEMP_RENDER_OUPUT
-	stbi_write_png("font/_atlas.png", font->texture->width, font->texture->height, font->texture->byte_per_pixel, font->texture->pixels, 0);
-	#endif
-
 	de_ttf_clear(&ttf);
 
 	DE_LINKED_LIST_APPEND(de_engine->fonts, font);

@@ -61,4 +61,8 @@ de_font_t* de_font_load_ttf(const char * ttf, float height, const int* char_set,
  */
 void de_font_free(de_font_t* font);
 
+/**
+ * @brief Tries to find a glyph by its unicode value. 
+ * Returns NULL if glyph not found
+ */
 de_glyph_t* de_font_get_glyph(const de_font_t* font, uint32_t code);

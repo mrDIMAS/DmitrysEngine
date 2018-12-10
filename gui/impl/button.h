@@ -100,6 +100,9 @@ static de_bool_t de_gui_button_get_property(de_gui_node_t* n, const char* name, 
 /*=======================================================================================*/
 de_gui_node_t* de_gui_button_create()
 {
+	de_gui_node_t* n;
+	de_gui_button_t* b;
+	
 	static de_gui_dispatch_table_t dispatch_table;
 	{
 		static de_bool_t init = DE_FALSE;
@@ -112,8 +115,8 @@ de_gui_node_t* de_gui_button_create()
 		}
 	}
 
-	de_gui_node_t* n = de_gui_node_alloc(DE_GUI_NODE_BUTTON, &dispatch_table);
-	de_gui_button_t* b = &n->s.button;
+	n = de_gui_node_alloc(DE_GUI_NODE_BUTTON, &dispatch_table);
+	b = &n->s.button;
 	de_color_set(&b->normal_color, 120, 120, 120, 255);
 	de_color_set(&b->pressed_color, 100, 100, 100, 255);
 	de_color_set(&b->hover_color, 140, 140, 140, 255);

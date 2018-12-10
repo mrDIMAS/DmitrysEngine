@@ -58,15 +58,15 @@ static void de_gui_text_break_on_lines(de_gui_node_t* node)
 /*=======================================================================================*/
 static void de_gui_text_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting)
 {
-	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_TEXT);
-	DE_UNUSED(nesting);
 	size_t i;
 	const de_vec2_t* scr_pos = &n->screen_position;
-	const de_gui_text_t* txt = &n->s.text;
+	const de_gui_text_t* txt = &n->s.text;	
+	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_TEXT);
+	DE_UNUSED(nesting);
 	if (txt->font)
 	{
-		de_gui_text_break_on_lines(n);
 		de_vec2_t pos = n->screen_position;
+		de_gui_text_break_on_lines(n);		
 		if (txt->alignment == DE_GUI_TA_CENTER)
 		{
 			pos.y = scr_pos->y + n->actual_size.y * 0.5f - txt->total_lines_height * 0.5f;
@@ -94,6 +94,9 @@ static void de_gui_text_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t
 /*=======================================================================================*/
 de_gui_node_t* de_gui_text_create(void)
 {
+	de_gui_node_t* n; 
+	de_gui_text_t* txt;
+	
 	static de_gui_dispatch_table_t dispatch_table;
 	{
 		static de_bool_t init = DE_FALSE;
@@ -105,9 +108,9 @@ de_gui_node_t* de_gui_text_create(void)
 		}
 	}
 
-	de_gui_node_t* n = de_gui_node_alloc(DE_GUI_NODE_TEXT, &dispatch_table);
+	n = de_gui_node_alloc(DE_GUI_NODE_TEXT, &dispatch_table);
 
-	de_gui_text_t* txt = &n->s.text;
+	txt = &n->s.text;
 	txt->font = de_engine->gui.default_font;
 	DE_ARRAY_INIT(txt->str);
 

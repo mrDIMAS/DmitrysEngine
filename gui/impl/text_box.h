@@ -8,6 +8,9 @@ static void de_gui_text_box_deinit(de_gui_node_t* n)
 /*=======================================================================================*/
 de_gui_node_t* de_gui_text_box_create(void)
 {
+	de_gui_node_t* n;
+	de_gui_text_box_t* tb;
+	
 	static de_gui_dispatch_table_t dispatch_table;
 	{
 		static de_bool_t init = DE_FALSE;
@@ -18,9 +21,9 @@ de_gui_node_t* de_gui_text_box_create(void)
 		}
 	}
 
-	de_gui_node_t* n = de_gui_node_alloc(DE_GUI_NODE_TEXT_BOX, &dispatch_table);
+	n = de_gui_node_alloc(DE_GUI_NODE_TEXT_BOX, &dispatch_table);
 
-	de_gui_text_box_t* tb = &n->s.text_box;
+	tb = &n->s.text_box;
 
 	tb->border = de_gui_border_create();
 	de_gui_node_attach(tb->border, n);

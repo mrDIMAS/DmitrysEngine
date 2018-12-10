@@ -30,10 +30,10 @@ static int de_remap_key(WPARAM key, LPARAM flags)
 	{
 		UINT lShift = MapVirtualKey(VK_LSHIFT, MAPVK_VK_TO_VSC);
 		UINT scancode = (UINT)((flags & (0xFF << 16)) >> 16);
-		return scancode == lShift ? DE_KEY_LShift : DE_KEY_RShift;
+		return scancode == lShift ? DE_KEY_LSHIFT : DE_KEY_RShift;
 	}
 	case VK_MENU: return (HIWORD(flags) & KF_EXTENDED) ? DE_KEY_RAlt : DE_KEY_LAlt;
-	case VK_CONTROL: return (HIWORD(flags) & KF_EXTENDED) ? DE_KEY_RControl : DE_KEY_LControl;
+	case VK_CONTROL: return (HIWORD(flags) & KF_EXTENDED) ? DE_KEY_RControl : DE_KEY_LCONTROL;
 	case VK_LWIN: return DE_KEY_LSystem;
 	case VK_RWIN: return DE_KEY_RSystem;
 	case VK_APPS: return DE_KEY_Menu;
@@ -62,37 +62,37 @@ static int de_remap_key(WPARAM key, LPARAM flags)
 	case VK_ADD: return DE_KEY_Add;
 	case VK_SUBTRACT: return DE_KEY_Subtract;
 	case VK_MULTIPLY: return DE_KEY_Multiply;
-	case VK_DIVIDE: return DE_KEY_Divide;
-	case VK_PAUSE: return DE_KEY_Pause;
-	case VK_F1: return DE_KEY_F1;
-	case VK_F2: return DE_KEY_F2;
-	case VK_F3: return DE_KEY_F3;
-	case VK_F4: return DE_KEY_F4;
-	case VK_F5: return DE_KEY_F5;
-	case VK_F6: return DE_KEY_F6;
-	case VK_F7: return DE_KEY_F7;
-	case VK_F8: return DE_KEY_F8;
-	case VK_F9: return DE_KEY_F9;
-	case VK_F10: return DE_KEY_F10;
-	case VK_F11: return DE_KEY_F11;
-	case VK_F12: return DE_KEY_F12;
-	case VK_F13: return DE_KEY_F13;
-	case VK_F14: return DE_KEY_F14;
-	case VK_F15: return DE_KEY_F15;
-	case VK_LEFT: return DE_KEY_Left;
-	case VK_RIGHT: return DE_KEY_Right;
-	case VK_UP: return DE_KEY_Up;
-	case VK_DOWN: return DE_KEY_Down;
-	case VK_NUMPAD0: return DE_KEY_Numpad0;
-	case VK_NUMPAD1: return DE_KEY_Numpad1;
-	case VK_NUMPAD2: return DE_KEY_Numpad2;
-	case VK_NUMPAD3: return DE_KEY_Numpad3;
-	case VK_NUMPAD4: return DE_KEY_Numpad4;
-	case VK_NUMPAD5: return DE_KEY_Numpad5;
-	case VK_NUMPAD6: return DE_KEY_Numpad6;
-	case VK_NUMPAD7: return DE_KEY_Numpad7;
-	case VK_NUMPAD8: return DE_KEY_Numpad8;
-	case VK_NUMPAD9: return DE_KEY_Numpad9;
+	case VK_DIVIDE:   return DE_KEY_Divide;
+	case VK_PAUSE:    return DE_KEY_Pause;
+	case VK_F1:       return DE_KEY_F1;
+	case VK_F2:       return DE_KEY_F2;
+	case VK_F3:       return DE_KEY_F3;
+	case VK_F4:       return DE_KEY_F4;
+	case VK_F5:       return DE_KEY_F5;
+	case VK_F6:       return DE_KEY_F6;
+	case VK_F7:       return DE_KEY_F7;
+	case VK_F8:       return DE_KEY_F8;
+	case VK_F9:       return DE_KEY_F9;
+	case VK_F10:      return DE_KEY_F10;
+	case VK_F11:      return DE_KEY_F11;
+	case VK_F12:      return DE_KEY_F12;
+	case VK_F13:      return DE_KEY_F13;
+	case VK_F14:      return DE_KEY_F14;
+	case VK_F15:      return DE_KEY_F15;
+	case VK_LEFT:     return DE_KEY_Left;
+	case VK_RIGHT:    return DE_KEY_Right;
+	case VK_UP:       return DE_KEY_Up;
+	case VK_DOWN:     return DE_KEY_Down;
+	case VK_NUMPAD0:  return DE_KEY_Numpad0;
+	case VK_NUMPAD1:  return DE_KEY_Numpad1;
+	case VK_NUMPAD2:  return DE_KEY_Numpad2;
+	case VK_NUMPAD3:  return DE_KEY_Numpad3;
+	case VK_NUMPAD4:  return DE_KEY_Numpad4;
+	case VK_NUMPAD5:  return DE_KEY_Numpad5;
+	case VK_NUMPAD6:  return DE_KEY_Numpad6;
+	case VK_NUMPAD7:  return DE_KEY_Numpad7;
+	case VK_NUMPAD8:  return DE_KEY_Numpad8;
+	case VK_NUMPAD9:  return DE_KEY_Numpad9;
 	case 'A': return DE_KEY_A;
 	case 'Z': return DE_KEY_Z;
 	case 'E': return DE_KEY_E;
@@ -122,16 +122,16 @@ static int de_remap_key(WPARAM key, LPARAM flags)
 	case '0': return DE_KEY_NUM0;
 	case '1': return DE_KEY_NUM1;
 	case '2': return DE_KEY_NUM2;
-	case '3': return DE_KEY_Num3;
-	case '4': return DE_KEY_Num4;
-	case '5': return DE_KEY_Num5;
-	case '6': return DE_KEY_Num6;
-	case '7': return DE_KEY_Num7;
-	case '8': return DE_KEY_Num8;
-	case '9': return DE_KEY_Num9;
+	case '3': return DE_KEY_NUM3;
+	case '4': return DE_KEY_NUM4;
+	case '5': return DE_KEY_NUM5;
+	case '6': return DE_KEY_NUM6;
+	case '7': return DE_KEY_NUM7;
+	case '8': return DE_KEY_NUM8;
+	case '9': return DE_KEY_NUM9;
 	}
 
-	return DE_KEY_Unknown;
+	return DE_KEY_UKNOWN;
 }
 
 static LRESULT CALLBACK de_win32_dummy_winproc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam)

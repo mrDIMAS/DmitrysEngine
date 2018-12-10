@@ -130,9 +130,10 @@ int de_utf8_to_utf32(const char* inString, uint32_t* out, int bufferSize)
 void de_tokenize_string(const char* str, de_string_array_t* tokens, const char* delim)
 {
 	static char buffer[1024];
+	char* token;
 	strcpy(buffer, str);
 	DE_ARRAY_CLEAR(*tokens);
-	char* token = strtok(buffer, delim);
+	token = strtok(buffer, delim);
 	while (token)
 	{
 		DE_ARRAY_APPEND(*tokens, token);

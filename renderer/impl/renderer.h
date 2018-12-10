@@ -176,59 +176,59 @@ static void de_renderer_upload_surface(de_surface_t* s);
 /*=======================================================================================*/
 static void de_renderer_load_extensions()
 {
-	de_renderer_t* r = &de_engine->renderer;
+	#define GET_GL_EXT(type, func) func = (type)de_engine_platform_get_proc_address(#func); \
+							       if(!func) de_error("Unable to load "#func" function pointer");
 
-	#define GET_GL_EXT(type, func) r->gl.func = (type)de_engine_platform_get_proc_address("gl"#func); \
-							   if(!r->gl.func) de_error("Unable to load gl"#func" function pointer");
+	GET_GL_EXT(PFNGLCREATESHADERPROC, glCreateShader);
+	GET_GL_EXT(PFNGLDELETESHADERPROC, glDeleteShader);
+	GET_GL_EXT(PFNGLSHADERSOURCEPROC, glShaderSource);
+	GET_GL_EXT(PFNGLCOMPILESHADERPROC, glCompileShader);
+	GET_GL_EXT(PFNGLGETSHADERINFOLOGPROC, glGetShaderInfoLog);
+	GET_GL_EXT(PFNGLGETSHADERIVPROC, glGetShaderiv);
 
-	GET_GL_EXT(PFNGLCREATESHADERPROC, CreateShader);
-	GET_GL_EXT(PFNGLDELETESHADERPROC, DeleteShader);
-	GET_GL_EXT(PFNGLSHADERSOURCEPROC, ShaderSource);
-	GET_GL_EXT(PFNGLCOMPILESHADERPROC, CompileShader);
-	GET_GL_EXT(PFNGLGETSHADERINFOLOGPROC, GetShaderInfoLog);
-	GET_GL_EXT(PFNGLGETSHADERIVPROC, GetShaderiv);
+	GET_GL_EXT(PFNGLCREATEPROGRAMPROC, glCreateProgram);
+	GET_GL_EXT(PFNGLATTACHSHADERPROC, glAttachShader);
+	GET_GL_EXT(PFNGLLINKPROGRAMPROC, glLinkProgram);
+	GET_GL_EXT(PFNGLGETPROGRAMINFOLOGPROC, glGetProgramInfoLog);
+	GET_GL_EXT(PFNGLUSEPROGRAMPROC, glUseProgram);
+	GET_GL_EXT(PFNGLDELETEPROGRAMPROC, glDeleteProgram);
+	GET_GL_EXT(PFNGLGETUNIFORMLOCATIONPROC, glGetUniformLocation);
+	GET_GL_EXT(PFNGLUNIFORM4FPROC, glUniform4f);
+	GET_GL_EXT(PFNGLUNIFORMMATRIX4FVPROC, glUniformMatrix4fv);
+	GET_GL_EXT(PFNGLUNIFORM1IPROC, glUniform1i);
+	GET_GL_EXT(PFNGLGETPROGRAMIVPROC, glGetProgramiv);
+	GET_GL_EXT(PFNGLUNIFORM3FPROC, glUniform3f);
+	GET_GL_EXT(PFNGLUNIFORM1FPROC, glUniform1f);
 
-	GET_GL_EXT(PFNGLCREATEPROGRAMPROC, CreateProgram);
-	GET_GL_EXT(PFNGLATTACHSHADERPROC, AttachShader);
-	GET_GL_EXT(PFNGLLINKPROGRAMPROC, LinkProgram);
-	GET_GL_EXT(PFNGLGETPROGRAMINFOLOGPROC, GetProgramInfoLog);
-	GET_GL_EXT(PFNGLUSEPROGRAMPROC, UseProgram);
-	GET_GL_EXT(PFNGLDELETEPROGRAMPROC, DeleteProgram);
-	GET_GL_EXT(PFNGLGETUNIFORMLOCATIONPROC, GetUniformLocation);
-	GET_GL_EXT(PFNGLUNIFORM4FPROC, Uniform4f);
-	GET_GL_EXT(PFNGLUNIFORMMATRIX4FVPROC, UniformMatrix4fv);
-	GET_GL_EXT(PFNGLUNIFORM1IPROC, Uniform1i);
-	GET_GL_EXT(PFNGLGETPROGRAMIVPROC, GetProgramiv);
-	GET_GL_EXT(PFNGLUNIFORM3FPROC, Uniform3f);
-	GET_GL_EXT(PFNGLUNIFORM1FPROC, Uniform1f);
+	GET_GL_EXT(PFNGLGENBUFFERSPROC, glGenBuffers);
+	GET_GL_EXT(PFNGLBINDBUFFERPROC, glBindBuffer);
+	GET_GL_EXT(PFNGLDELETEBUFFERSPROC, glDeleteBuffers);
+	GET_GL_EXT(PFNGLBUFFERDATAPROC, glBufferData);
 
-	GET_GL_EXT(PFNGLGENBUFFERSPROC, GenBuffers);
-	GET_GL_EXT(PFNGLBINDBUFFERPROC, BindBuffer);
-	GET_GL_EXT(PFNGLDELETEBUFFERSPROC, DeleteBuffers);
-	GET_GL_EXT(PFNGLBUFFERDATAPROC, BufferData);
+	GET_GL_EXT(PFNGLVERTEXATTRIBPOINTERPROC, glVertexAttribPointer);
+	GET_GL_EXT(PFNGLENABLEVERTEXATTRIBARRAYPROC, glEnableVertexAttribArray);
+	GET_GL_EXT(PFNGLGENVERTEXARRAYSPROC, glGenVertexArrays);
+	GET_GL_EXT(PFNGLBINDVERTEXARRAYPROC, glBindVertexArray);
+	GET_GL_EXT(PFNGLDELETEVERTEXARRAYSPROC, glDeleteVertexArrays);
 
-	GET_GL_EXT(PFNGLVERTEXATTRIBPOINTERPROC, VertexAttribPointer);
-	GET_GL_EXT(PFNGLENABLEVERTEXATTRIBARRAYPROC, EnableVertexAttribArray);
-	GET_GL_EXT(PFNGLGENVERTEXARRAYSPROC, GenVertexArrays);
-	GET_GL_EXT(PFNGLBINDVERTEXARRAYPROC, BindVertexArray);
-	GET_GL_EXT(PFNGLDELETEVERTEXARRAYSPROC, DeleteVertexArrays);
+#ifdef _WIN32	
+	GET_GL_EXT(PFNGLACTIVETEXTUREPROC, glActiveTexture);
+	GET_GL_EXT(PFNGLCLIENTACTIVETEXTUREPROC, glClientActiveTexture);
+#endif
+	GET_GL_EXT(PFNGLGENERATEMIPMAPPROC, glGenerateMipmap);
 
-	GET_GL_EXT(PFNGLACTIVETEXTUREPROC, ActiveTexture);
-	GET_GL_EXT(PFNGLCLIENTACTIVETEXTUREPROC, ClientActiveTexture);
-	GET_GL_EXT(PFNGLGENERATEMIPMAPPROC, GenerateMipmap);
+	GET_GL_EXT(PFNGLGETSTRINGIPROC, glGetStringi);
 
-	GET_GL_EXT(PFNGLGETSTRINGIPROC, GetStringi);
-
-	GET_GL_EXT(PFNGLFRAMEBUFFERTEXTURE2DPROC, FramebufferTexture2D);
-	GET_GL_EXT(PFNGLGENFRAMEBUFFERSPROC, GenFramebuffers);
-	GET_GL_EXT(PFNGLGENRENDERBUFFERSPROC, GenRenderbuffers);
-	GET_GL_EXT(PFNGLBINDRENDERBUFFERPROC, BindRenderbuffer);
-	GET_GL_EXT(PFNGLRENDERBUFFERSTORAGEPROC, RenderbufferStorage);
-	GET_GL_EXT(PFNGLFRAMEBUFFERRENDERBUFFERPROC, FramebufferRenderbuffer);
-	GET_GL_EXT(PFNGLFRAMEBUFFERTEXTUREPROC, FramebufferTexture);
-	GET_GL_EXT(PFNGLDRAWBUFFERSPROC, DrawBuffers);
-	GET_GL_EXT(PFNGLCHECKFRAMEBUFFERSTATUSPROC, CheckFramebufferStatus);
-	GET_GL_EXT(PFNGLBINDFRAMEBUFFERPROC, BindFramebuffer);
+	GET_GL_EXT(PFNGLFRAMEBUFFERTEXTURE2DPROC, glFramebufferTexture2D);
+	GET_GL_EXT(PFNGLGENFRAMEBUFFERSPROC, glGenFramebuffers);
+	GET_GL_EXT(PFNGLGENRENDERBUFFERSPROC, glGenRenderbuffers);
+	GET_GL_EXT(PFNGLBINDRENDERBUFFERPROC, glBindRenderbuffer);
+	GET_GL_EXT(PFNGLRENDERBUFFERSTORAGEPROC, glRenderbufferStorage);
+	GET_GL_EXT(PFNGLFRAMEBUFFERRENDERBUFFERPROC, glFramebufferRenderbuffer);
+	GET_GL_EXT(PFNGLFRAMEBUFFERTEXTUREPROC, glFramebufferTexture);
+	GET_GL_EXT(PFNGLDRAWBUFFERSPROC, glDrawBuffers);
+	GET_GL_EXT(PFNGLCHECKFRAMEBUFFERSTATUSPROC, glCheckFramebufferStatus);
+	GET_GL_EXT(PFNGLBINDFRAMEBUFFERPROC, glBindFramebuffer);
 
 	#undef GET_GL_EXT
 
@@ -239,31 +239,30 @@ static void de_renderer_load_extensions()
 static void de_create_gbuffer(int width, int height)
 {
 	de_renderer_t* r = &de_engine->renderer;
-	de_gbuffer_t * gbuf = &r->gbuffer;
-	de_gl_ext_t* gl = &r->gl;
+	de_gbuffer_t * gbuf = &r->gbuffer;	
 
-	DE_GL_CALL(gl->GenFramebuffers(1, &gbuf->fbo));
-	DE_GL_CALL(gl->BindFramebuffer(GL_FRAMEBUFFER, gbuf->fbo));
+	DE_GL_CALL(glGenFramebuffers(1, &gbuf->fbo));
+	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, gbuf->fbo));
 
-	DE_GL_CALL(gl->GenRenderbuffers(1, &gbuf->depth_rt));
-	DE_GL_CALL(gl->BindRenderbuffer(GL_RENDERBUFFER, gbuf->depth_rt));
-	DE_GL_CALL(gl->RenderbufferStorage(GL_RENDERBUFFER, GL_R32F, width, height));
-	DE_GL_CALL(gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, gbuf->depth_rt));
+	DE_GL_CALL(glGenRenderbuffers(1, &gbuf->depth_rt));
+	DE_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, gbuf->depth_rt));
+	DE_GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_R32F, width, height));
+	DE_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, gbuf->depth_rt));
 
-	DE_GL_CALL(gl->GenRenderbuffers(1, &gbuf->color_rt));
-	DE_GL_CALL(gl->BindRenderbuffer(GL_RENDERBUFFER, gbuf->color_rt));
-	DE_GL_CALL(gl->RenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height));
-	DE_GL_CALL(gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_RENDERBUFFER, gbuf->color_rt));
+	DE_GL_CALL(glGenRenderbuffers(1, &gbuf->color_rt));
+	DE_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, gbuf->color_rt));
+	DE_GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height));
+	DE_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_RENDERBUFFER, gbuf->color_rt));
 
-	DE_GL_CALL(gl->GenRenderbuffers(1, &gbuf->normal_rt));
-	DE_GL_CALL(gl->BindRenderbuffer(GL_RENDERBUFFER, gbuf->normal_rt));
-	DE_GL_CALL(gl->RenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height));
-	DE_GL_CALL(gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_RENDERBUFFER, gbuf->normal_rt));
+	DE_GL_CALL(glGenRenderbuffers(1, &gbuf->normal_rt));
+	DE_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, gbuf->normal_rt));
+	DE_GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height));
+	DE_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_RENDERBUFFER, gbuf->normal_rt));
 
-	DE_GL_CALL(gl->GenRenderbuffers(1, &gbuf->depth_buffer));
-	DE_GL_CALL(gl->BindRenderbuffer(GL_RENDERBUFFER, gbuf->depth_buffer));
-	DE_GL_CALL(gl->RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height));
-	DE_GL_CALL(gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, gbuf->depth_buffer));
+	DE_GL_CALL(glGenRenderbuffers(1, &gbuf->depth_buffer));
+	DE_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, gbuf->depth_buffer));
+	DE_GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height));
+	DE_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, gbuf->depth_buffer));
 
 	DE_GL_CALL(glGenTextures(1, &gbuf->depth_texture));
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, gbuf->depth_texture));
@@ -271,7 +270,7 @@ static void de_create_gbuffer(int width, int height)
 	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 	DE_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_BGRA, GL_FLOAT, NULL));
 
-	DE_GL_CALL(gl->FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gbuf->depth_texture, 0));
+	DE_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gbuf->depth_texture, 0));
 
 	DE_GL_CALL(glGenTextures(1, &gbuf->color_texture));
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, gbuf->color_texture));
@@ -279,7 +278,7 @@ static void de_create_gbuffer(int width, int height)
 	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 	DE_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
 
-	DE_GL_CALL(gl->FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gbuf->color_texture, 0));
+	DE_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gbuf->color_texture, 0));
 
 	DE_GL_CALL(glGenTextures(1, &gbuf->normal_texture));
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, gbuf->normal_texture));
@@ -287,18 +286,18 @@ static void de_create_gbuffer(int width, int height)
 	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 	DE_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
 
-	DE_GL_CALL(gl->FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gbuf->normal_texture, 0));
+	DE_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gbuf->normal_texture, 0));
 
-	if (gl->CheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		de_error("Unable to construct G-Buffer FBO.");
 	}
 
-	DE_GL_CALL(gl->BindFramebuffer(GL_FRAMEBUFFER, 0));
+	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
 	/* Create another framebuffer for stencil optimizations */
-	DE_GL_CALL(gl->GenFramebuffers(1, &gbuf->opt_fbo));
-	DE_GL_CALL(gl->BindFramebuffer(GL_FRAMEBUFFER, gbuf->opt_fbo));
+	DE_GL_CALL(glGenFramebuffers(1, &gbuf->opt_fbo));
+	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, gbuf->opt_fbo));
 
 	DE_GL_CALL(glGenTextures(1, &gbuf->frame_texture));
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, gbuf->frame_texture));
@@ -306,31 +305,30 @@ static void de_create_gbuffer(int width, int height)
 	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 	DE_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
 
-	DE_GL_CALL(gl->FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gbuf->frame_texture, 0));
+	DE_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gbuf->frame_texture, 0));
 
-	DE_GL_CALL(gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, gbuf->depth_buffer));
+	DE_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, gbuf->depth_buffer));
 
-	if (gl->CheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
 		de_error("Unable to initialize Stencil FBO.");
 	}
 
-	DE_GL_CALL(gl->BindFramebuffer(GL_FRAMEBUFFER, 0));
+	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
 /*=======================================================================================*/
 static void de_create_builtin_shaders()
 {
 	de_renderer_t* r = &de_engine->renderer;
-	de_gl_ext_t* gl = &r->gl;
-
+	
 	/* Flat shader */
 	{
 		de_flag_shader_t* s = &r->flat_shader;
 
 		s->program = de_renderer_create_gpu_program(de_flat_vs, de_flat_fs);
-		s->wvp_matrix = gl->GetUniformLocation(s->program, "worldViewProjection");
-		s->diffuse_texture = gl->GetUniformLocation(s->program, "diffuseTexture");
+		s->wvp_matrix = glGetUniformLocation(s->program, "worldViewProjection");
+		s->diffuse_texture = glGetUniformLocation(s->program, "diffuseTexture");
 	}
 
 	/* gui shader */
@@ -338,8 +336,8 @@ static void de_create_builtin_shaders()
 		de_gui_shader_t* s = &r->gui_shader;
 
 		s->program = de_renderer_create_gpu_program(de_gui_vs, de_gui_fs);
-		s->wvp_matrix = gl->GetUniformLocation(s->program, "worldViewProjection");
-		s->diffuse_texture = gl->GetUniformLocation(s->program, "diffuseTexture");
+		s->wvp_matrix = glGetUniformLocation(s->program, "worldViewProjection");
+		s->diffuse_texture = glGetUniformLocation(s->program, "diffuseTexture");
 	}
 
 	/* GBuffer shader */
@@ -347,12 +345,12 @@ static void de_create_builtin_shaders()
 		de_gbuffer_shader_t* s = &r->gbuffer_shader;
 
 		s->program = de_renderer_create_gpu_program(de_gbuffer_vs, de_gbuffer_fs);
-		s->wvp_matrix = gl->GetUniformLocation(s->program, "worldViewProjection");
-		s->world_matrix = gl->GetUniformLocation(s->program, "worldMatrix");
+		s->wvp_matrix = glGetUniformLocation(s->program, "worldViewProjection");
+		s->world_matrix = glGetUniformLocation(s->program, "worldMatrix");
 
-		s->diffuse_texture = gl->GetUniformLocation(s->program, "diffuseTexture");
-		s->diffuse_color = gl->GetUniformLocation(s->program, "diffuseColor");
-		s->self_emittance = gl->GetUniformLocation(s->program, "selfEmittance");
+		s->diffuse_texture = glGetUniformLocation(s->program, "diffuseTexture");
+		s->diffuse_color = glGetUniformLocation(s->program, "diffuseColor");
+		s->self_emittance = glGetUniformLocation(s->program, "selfEmittance");
 	}
 
 	/* Lighting Shader */
@@ -361,18 +359,18 @@ static void de_create_builtin_shaders()
 
 		s->program = de_renderer_create_gpu_program(de_light_vs, de_light_fs);
 
-		s->wvp_matrix = gl->GetUniformLocation(s->program, "worldViewProjection");
+		s->wvp_matrix = glGetUniformLocation(s->program, "worldViewProjection");
 
-		s->depth_sampler = gl->GetUniformLocation(s->program, "depthTexture");
-		s->color_sampler = gl->GetUniformLocation(s->program, "colorTexture");
-		s->normal_sampler = gl->GetUniformLocation(s->program, "normalTexture");
+		s->depth_sampler = glGetUniformLocation(s->program, "depthTexture");
+		s->color_sampler = glGetUniformLocation(s->program, "colorTexture");
+		s->normal_sampler = glGetUniformLocation(s->program, "normalTexture");
 
-		s->light_position = gl->GetUniformLocation(s->program, "lightPos");
-		s->light_radius = gl->GetUniformLocation(s->program, "lightRadius");
-		s->light_color = gl->GetUniformLocation(s->program, "lightColor");
-		s->light_direction = gl->GetUniformLocation(s->program, "lightDirection");
-		s->light_cone_angle_cos = gl->GetUniformLocation(s->program, "coneAngleCos");
-		s->inv_view_proj_matrix = gl->GetUniformLocation(s->program, "invViewProj");
+		s->light_position = glGetUniformLocation(s->program, "lightPos");
+		s->light_radius = glGetUniformLocation(s->program, "lightRadius");
+		s->light_color = glGetUniformLocation(s->program, "lightColor");
+		s->light_direction = glGetUniformLocation(s->program, "lightDirection");
+		s->light_cone_angle_cos = glGetUniformLocation(s->program, "coneAngleCos");
+		s->inv_view_proj_matrix = glGetUniformLocation(s->program, "invViewProj");
 	}
 }
 
@@ -435,9 +433,9 @@ void de_engine_init_renderer()
 		de_renderer_upload_surface(r->quad);
 	}
 
-	r->gl.GenVertexArrays(1, &r->gui_render_buffers.vao);
-	r->gl.GenBuffers(1, &r->gui_render_buffers.vbo);
-	r->gl.GenBuffers(1, &r->gui_render_buffers.ebo);
+	glGenVertexArrays(1, &r->gui_render_buffers.vao);
+	glGenBuffers(1, &r->gui_render_buffers.vbo);
+	glGenBuffers(1, &r->gui_render_buffers.ebo);
 
 	r->test_surface = de_renderer_create_surface(r);
 	{
@@ -478,7 +476,7 @@ static void de_render_surface_normals(de_surface_t* surface)
 	}
 	de_surface_upload(r->test_surface);
 
-	DE_GL_CALL(r->gl.BindVertexArray(r->test_surface->vao));
+	DE_GL_CALL(glBindVertexArray(r->test_surface->vao));
 	DE_GL_CALL(glDrawElements(GL_LINES, r->test_surface->indices.size, GL_UNSIGNED_INT, NULL));
 }
 
@@ -488,19 +486,17 @@ GLuint de_renderer_create_shader(GLenum type, const char* source)
 	GLint compiled;
 	GLuint shader;
 
-	de_gl_ext_t* gl = &de_engine->renderer.gl;
+	shader = glCreateShader(type);
+	DE_GL_CALL(glShaderSource(shader, 1, &source, NULL));
 
-	shader = gl->CreateShader(type);
-	DE_GL_CALL(gl->ShaderSource(shader, 1, &source, NULL));
+	DE_GL_CALL(glCompileShader(shader));
 
-	DE_GL_CALL(gl->CompileShader(shader));
-
-	DE_GL_CALL(gl->GetShaderiv(shader, GL_COMPILE_STATUS, &compiled));
+	DE_GL_CALL(glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled));
 
 	if (!compiled)
 	{
 		static char buffer[2048];
-		DE_GL_CALL(gl->GetShaderInfoLog(shader, 2048, NULL, buffer));
+		DE_GL_CALL(glGetShaderInfoLog(shader, 2048, NULL, buffer));
 		de_error(buffer);
 	}
 
@@ -512,26 +508,25 @@ GLuint de_renderer_create_gpu_program(const char* vertexSource, const char* frag
 {
 	GLint linked;
 	GLuint vertex_shader, fragment_shader, program;
-	de_gl_ext_t* gl = &de_engine->renderer.gl;
-
+	
 	vertex_shader = de_renderer_create_shader(GL_VERTEX_SHADER, vertexSource);
 	fragment_shader = de_renderer_create_shader(GL_FRAGMENT_SHADER, fragmentSource);
-	program = gl->CreateProgram();
+	program = glCreateProgram();
 
-	DE_GL_CALL(gl->AttachShader(program, vertex_shader));
-	DE_GL_CALL(gl->DeleteShader(vertex_shader));
+	DE_GL_CALL(glAttachShader(program, vertex_shader));
+	DE_GL_CALL(glDeleteShader(vertex_shader));
 
-	DE_GL_CALL(gl->AttachShader(program, fragment_shader));
-	DE_GL_CALL(gl->DeleteShader(fragment_shader));
+	DE_GL_CALL(glAttachShader(program, fragment_shader));
+	DE_GL_CALL(glDeleteShader(fragment_shader));
 
-	DE_GL_CALL(gl->LinkProgram(program));
+	DE_GL_CALL(glLinkProgram(program));
 
-	DE_GL_CALL(gl->GetProgramiv(program, GL_LINK_STATUS, &linked));
+	DE_GL_CALL(glGetProgramiv(program, GL_LINK_STATUS, &linked));
 
 	if (!linked)
 	{
 		static char buffer[2048];
-		DE_GL_CALL(gl->GetProgramInfoLog(program, 2048, NULL, buffer));
+		DE_GL_CALL(glGetProgramInfoLog(program, 2048, NULL, buffer));
 		de_error(buffer);
 	}
 
@@ -540,27 +535,25 @@ GLuint de_renderer_create_gpu_program(const char* vertexSource, const char* frag
 
 /*=======================================================================================*/
 static void de_renderer_upload_surface(de_surface_t* s)
-{
-	de_gl_ext_t* gl = &de_engine->renderer.gl;
+{	
+	glBindVertexArray(s->vao);
 
-	gl->BindVertexArray(s->vao);
+	glBindBuffer(GL_ARRAY_BUFFER, s->vbo);
+	glBufferData(GL_ARRAY_BUFFER, DE_ARRAY_SIZE_BYTES(s->vertices), s->vertices.data, GL_STATIC_DRAW);
 
-	gl->BindBuffer(GL_ARRAY_BUFFER, s->vbo);
-	gl->BufferData(GL_ARRAY_BUFFER, DE_ARRAY_SIZE_BYTES(s->vertices), s->vertices.data, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s->ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, DE_ARRAY_SIZE_BYTES(s->indices), s->indices.data, GL_STATIC_DRAW);
 
-	gl->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, s->ebo);
-	gl->BufferData(GL_ELEMENT_ARRAY_BUFFER, DE_ARRAY_SIZE_BYTES(s->indices), s->indices.data, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(de_vertex_t), (void*)0);
+	glEnableVertexAttribArray(0);
 
-	gl->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(de_vertex_t), (void*)0);
-	gl->EnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, tex_coord));
+	glEnableVertexAttribArray(1);
 
-	gl->VertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, tex_coord));
-	gl->EnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, normal));
+	glEnableVertexAttribArray(2);
 
-	gl->VertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, normal));
-	gl->EnableVertexAttribArray(2);
-
-	gl->BindVertexArray(0);
+	glBindVertexArray(0);
 
 	s->need_upload = DE_FALSE;
 }
@@ -568,15 +561,14 @@ static void de_renderer_upload_surface(de_surface_t* s)
 /*=======================================================================================*/
 de_surface_t* de_renderer_create_surface()
 {
-	de_renderer_t* r = &de_engine->renderer;
 	de_surface_t* surf = DE_NEW(de_surface_t);
 
 	surf->need_upload = DE_TRUE;
 
 	/* Create gpu-side buffers */
-	r->gl.GenVertexArrays(1, &surf->vao);
-	r->gl.GenBuffers(1, &surf->vbo);
-	r->gl.GenBuffers(1, &surf->ebo);
+	glGenVertexArrays(1, &surf->vao);
+	glGenBuffers(1, &surf->vbo);
+	glGenBuffers(1, &surf->ebo);
 
 	return surf;
 }
@@ -584,15 +576,13 @@ de_surface_t* de_renderer_create_surface()
 /*=======================================================================================*/
 void de_renderer_free_surface(de_surface_t* surf)
 {
-	de_renderer_t* r = &de_engine->renderer;
-
 	/* Unref texture */
 	de_texture_release(surf->texture);
 
 	/* Delete gpu buffers */
-	r->gl.DeleteBuffers(1, &surf->vbo);
-	r->gl.DeleteBuffers(1, &surf->ebo);
-	r->gl.DeleteVertexArrays(1, &surf->vao);
+	glDeleteBuffers(1, &surf->vbo);
+	glDeleteBuffers(1, &surf->ebo);
+	glDeleteVertexArrays(1, &surf->vao);
 
 	/* Delete buffers */
 	DE_ARRAY_FREE(surf->indices);
@@ -691,7 +681,6 @@ static void de_upload_texture(de_texture_t* texture)
 	GLint internalFormat;
 	GLint format;
 	GLfloat max_anisotropy;
-	de_renderer_t* r = &de_engine->renderer;
 
 	switch (texture->byte_per_pixel)
 	{
@@ -717,7 +706,7 @@ static void de_upload_texture(de_texture_t* texture)
 	DE_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, texture->width, texture->height, 0, format, GL_UNSIGNED_BYTE, texture->pixels));
 	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
-	DE_GL_CALL(r->gl.GenerateMipmap(GL_TEXTURE_2D));
+	DE_GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
 	DE_GL_CALL(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_anisotropy));
 	DE_GL_CALL(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy));
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
@@ -728,15 +717,14 @@ static void de_upload_texture(de_texture_t* texture)
 static void de_render_fullscreen_quad()
 {
 	de_renderer_t* r = &de_engine->renderer;
-	DE_GL_CALL(r->gl.BindVertexArray(r->quad->vao));
+	DE_GL_CALL(glBindVertexArray(r->quad->vao));
 	DE_GL_CALL(glDrawElements(GL_TRIANGLES, r->quad->indices.size, GL_UNSIGNED_INT, NULL));
 }
 
 static void de_render_mesh(de_mesh_t* mesh)
 {
 	size_t i;
-	de_gl_ext_t* gl = &de_engine->renderer.gl;
-
+	
 	for (i = 0; i < mesh->surfaces.size; ++i)
 	{
 		de_surface_t* surf = mesh->surfaces.data[i];
@@ -746,7 +734,7 @@ static void de_render_mesh(de_mesh_t* mesh)
 			de_renderer_upload_surface(surf);
 		}
 
-		DE_GL_CALL(gl->ActiveTexture(GL_TEXTURE0));
+		DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
 		if (surf->texture)
 		{
 			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, surf->texture->id));
@@ -756,7 +744,7 @@ static void de_render_mesh(de_mesh_t* mesh)
 			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, de_engine->renderer.white_dummy->id));
 		}
 
-		DE_GL_CALL(gl->BindVertexArray(surf->vao));
+		DE_GL_CALL(glBindVertexArray(surf->vao));
 		DE_GL_CALL(glDrawElements(GL_TRIANGLES, surf->indices.size, GL_UNSIGNED_INT, NULL));
 	}
 }
@@ -795,8 +783,7 @@ static void de_upload_textures()
 
 void de_render()
 {
-	de_renderer_t* r = &de_engine->renderer;
-	de_gl_ext_t* gl = &r->gl;
+	de_renderer_t* r = &de_engine->renderer;	
 	static int last_time_ms;
 	int current_time_ms;
 	int time_limit_ms;
@@ -810,15 +797,15 @@ void de_render()
 	/* Upload textures first */
 	de_upload_textures(r);
 
-	DE_GL_CALL(gl->BindFramebuffer(GL_FRAMEBUFFER, r->gbuffer.fbo));
+	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, r->gbuffer.fbo));
 	glClearColor(0.1f, 0.1f, 0.1f, 0);
 	DE_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 	glClearColor(0.0f, 0.0f, 0.0f, 0);
 
-	DE_GL_CALL(gl->DrawBuffers(3, buffers));
+	DE_GL_CALL(glDrawBuffers(3, buffers));
 
-	DE_GL_CALL(gl->UseProgram(r->gbuffer_shader.program));
-	DE_GL_CALL(gl->Uniform1i(r->gbuffer_shader.diffuse_texture, 0));
+	DE_GL_CALL(glUseProgram(r->gbuffer_shader.program));
+	DE_GL_CALL(glUniform1i(r->gbuffer_shader.diffuse_texture, 0));
 
 	/* render each scene */
 	DE_LINKED_LIST_FOR_EACH(de_engine->scenes, scene)
@@ -841,8 +828,8 @@ void de_render()
 
 			de_mat4_mul(&wvp_matrix, &camera->view_projection_matrix, &node->global_matrix);
 
-			DE_GL_CALL(gl->UniformMatrix4fv(r->gbuffer_shader.wvp_matrix, 1, GL_FALSE, wvp_matrix.f));
-			DE_GL_CALL(gl->UniformMatrix4fv(r->gbuffer_shader.world_matrix, 1, GL_FALSE, node->global_matrix.f));
+			DE_GL_CALL(glUniformMatrix4fv(r->gbuffer_shader.wvp_matrix, 1, GL_FALSE, wvp_matrix.f));
+			DE_GL_CALL(glUniformMatrix4fv(r->gbuffer_shader.world_matrix, 1, GL_FALSE, node->global_matrix.f));
 
 			if (node->type == DE_NODE_MESH)
 			{
@@ -850,28 +837,28 @@ void de_render()
 			}
 		}
 
-		DE_GL_CALL(gl->BindFramebuffer(GL_FRAMEBUFFER, 0));
+		DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 		DE_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
-		DE_GL_CALL(gl->UseProgram(r->lighting_shader.program));
+		DE_GL_CALL(glUseProgram(r->lighting_shader.program));
 
 		DE_GL_CALL(glDisable(GL_CULL_FACE));
 		DE_GL_CALL(glDisable(GL_DEPTH_TEST));
 
 		de_mat4_ortho(&y_flip_ortho, 0, w, 0, h, -1, 1);
-		DE_GL_CALL(gl->UniformMatrix4fv(r->lighting_shader.wvp_matrix, 1, GL_FALSE, y_flip_ortho.f));
+		DE_GL_CALL(glUniformMatrix4fv(r->lighting_shader.wvp_matrix, 1, GL_FALSE, y_flip_ortho.f));
 
-		DE_GL_CALL(gl->ActiveTexture(GL_TEXTURE0));
+		DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
 		DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.depth_texture));
-		DE_GL_CALL(gl->Uniform1i(r->lighting_shader.depth_sampler, 0));
+		DE_GL_CALL(glUniform1i(r->lighting_shader.depth_sampler, 0));
 
-		DE_GL_CALL(gl->ActiveTexture(GL_TEXTURE1));
+		DE_GL_CALL(glActiveTexture(GL_TEXTURE1));
 		DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.color_texture));
-		DE_GL_CALL(gl->Uniform1i(r->lighting_shader.color_sampler, 1));
+		DE_GL_CALL(glUniform1i(r->lighting_shader.color_sampler, 1));
 
-		DE_GL_CALL(gl->ActiveTexture(GL_TEXTURE2));
+		DE_GL_CALL(glActiveTexture(GL_TEXTURE2));
 		DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.normal_texture));
-		DE_GL_CALL(gl->Uniform1i(r->lighting_shader.normal_sampler, 2));
+		DE_GL_CALL(glUniform1i(r->lighting_shader.normal_sampler, 2));
 
 		DE_GL_CALL(glEnable(GL_BLEND));
 		DE_GL_CALL(glBlendFunc(GL_ONE, GL_ONE));
@@ -893,12 +880,12 @@ void de_render()
 				clr[2] = light->color.b / 255.0f;
 				clr[3] = 1.0f;
 
-				DE_GL_CALL(gl->Uniform3f(r->lighting_shader.light_position, pos.x, pos.y, pos.z));
-				DE_GL_CALL(gl->Uniform1f(r->lighting_shader.light_radius, light->radius));
-				DE_GL_CALL(gl->UniformMatrix4fv(r->lighting_shader.inv_view_proj_matrix, 1, GL_FALSE, camera->inv_view_proj.f));
-				DE_GL_CALL(gl->Uniform4f(r->lighting_shader.light_color, clr[0], clr[1], clr[2], clr[3]));
-				DE_GL_CALL(gl->Uniform1f(r->lighting_shader.light_cone_angle_cos, -1));
-				DE_GL_CALL(gl->Uniform3f(r->lighting_shader.light_direction, 0, 0, 1));
+				DE_GL_CALL(glUniform3f(r->lighting_shader.light_position, pos.x, pos.y, pos.z));
+				DE_GL_CALL(glUniform1f(r->lighting_shader.light_radius, light->radius));
+				DE_GL_CALL(glUniformMatrix4fv(r->lighting_shader.inv_view_proj_matrix, 1, GL_FALSE, camera->inv_view_proj.f));
+				DE_GL_CALL(glUniform4f(r->lighting_shader.light_color, clr[0], clr[1], clr[2], clr[3]));
+				DE_GL_CALL(glUniform1f(r->lighting_shader.light_cone_angle_cos, -1));
+				DE_GL_CALL(glUniform3f(r->lighting_shader.light_direction, 0, 0, 1));
 
 				de_render_fullscreen_quad(r);
 			}
@@ -910,7 +897,7 @@ void de_render()
 
 		if (r->render_normals)
 		{
-			DE_GL_CALL(gl->UseProgram(r->flat_shader.program));
+			DE_GL_CALL(glUseProgram(r->flat_shader.program));
 
 			de_set_viewport(&camera->viewport, de_engine->params.width, de_engine->params.height);
 
@@ -921,7 +908,7 @@ void de_render()
 
 				de_node_calculate_transforms(node);
 				de_mat4_mul(&wvp_matrix, &camera->view_projection_matrix, &node->global_matrix);
-				DE_GL_CALL(gl->UniformMatrix4fv(r->flat_shader.wvp_matrix, 1, GL_FALSE, wvp_matrix.f));
+				DE_GL_CALL(glUniformMatrix4fv(r->flat_shader.wvp_matrix, 1, GL_FALSE, wvp_matrix.f));
 
 				if (node->type == DE_NODE_MESH)
 				{
@@ -940,32 +927,32 @@ void de_render()
 		int index_bytes, vertex_bytes;
 		de_gui_draw_list_t* draw_list = de_gui_render(&de_engine->gui);
 
-		DE_GL_CALL(gl->UseProgram(r->gui_shader.program));
-		DE_GL_CALL(gl->ActiveTexture(GL_TEXTURE0));
+		DE_GL_CALL(glUseProgram(r->gui_shader.program));
+		DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
 
 		index_bytes = DE_ARRAY_SIZE_BYTES(draw_list->index_buffer);
 		vertex_bytes = DE_ARRAY_SIZE_BYTES(draw_list->vertex_buffer);
 
 		/* upload to gpu */
-		DE_GL_CALL(gl->BindVertexArray(r->gui_render_buffers.vao));
+		DE_GL_CALL(glBindVertexArray(r->gui_render_buffers.vao));
 
-		DE_GL_CALL(gl->BindBuffer(GL_ARRAY_BUFFER, r->gui_render_buffers.vbo));
-		DE_GL_CALL(gl->BufferData(GL_ARRAY_BUFFER, vertex_bytes, draw_list->vertex_buffer.data, GL_STATIC_DRAW));
+		DE_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, r->gui_render_buffers.vbo));
+		DE_GL_CALL(glBufferData(GL_ARRAY_BUFFER, vertex_bytes, draw_list->vertex_buffer.data, GL_STATIC_DRAW));
 
-		DE_GL_CALL(gl->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, r->gui_render_buffers.ebo));
-		DE_GL_CALL(gl->BufferData(GL_ELEMENT_ARRAY_BUFFER, index_bytes, draw_list->index_buffer.data, GL_STATIC_DRAW));
+		DE_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, r->gui_render_buffers.ebo));
+		DE_GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_bytes, draw_list->index_buffer.data, GL_STATIC_DRAW));
 
-		DE_GL_CALL(gl->VertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(de_gui_vertex_t), (void*)0));
-		DE_GL_CALL(gl->EnableVertexAttribArray(0));
+		DE_GL_CALL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(de_gui_vertex_t), (void*)0));
+		DE_GL_CALL(glEnableVertexAttribArray(0));
 
-		DE_GL_CALL(gl->VertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(de_gui_vertex_t), (void*)offsetof(de_gui_vertex_t, tex_coord)));
-		DE_GL_CALL(gl->EnableVertexAttribArray(1));
+		DE_GL_CALL(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(de_gui_vertex_t), (void*)offsetof(de_gui_vertex_t, tex_coord)));
+		DE_GL_CALL(glEnableVertexAttribArray(1));
 
-		DE_GL_CALL(gl->VertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(de_gui_vertex_t), (void*)offsetof(de_gui_vertex_t, color)));
-		DE_GL_CALL(gl->EnableVertexAttribArray(2));
+		DE_GL_CALL(glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(de_gui_vertex_t), (void*)offsetof(de_gui_vertex_t, color)));
+		DE_GL_CALL(glEnableVertexAttribArray(2));
 
 		de_mat4_ortho(&ortho, 0, w, h, 0, -1, 1);
-		DE_GL_CALL(gl->UniformMatrix4fv(r->gui_shader.wvp_matrix, 1, GL_FALSE, ortho.f));
+		DE_GL_CALL(glUniformMatrix4fv(r->gui_shader.wvp_matrix, 1, GL_FALSE, ortho.f));
 
 		/* draw */
 		for (i = 0; i < draw_list->commands.size; ++i)
@@ -1005,18 +992,18 @@ void de_render()
 			DE_GL_CALL(glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, (void*)(cmd->index_offset * sizeof(GLuint))));
 		}
 
-		gl->BindVertexArray(0);
+		glBindVertexArray(0);
 	}
 	DE_GL_CALL(glDisable(GL_STENCIL_TEST));
 	DE_GL_CALL(glDisable(GL_BLEND));
 	DE_GL_CALL(glEnable(GL_DEPTH_TEST));
 
 	/* Unbind FBO textures */
-	DE_GL_CALL(gl->ActiveTexture(GL_TEXTURE0));
+	DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
-	DE_GL_CALL(gl->ActiveTexture(GL_TEXTURE1));
+	DE_GL_CALL(glActiveTexture(GL_TEXTURE1));
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
-	DE_GL_CALL(gl->ActiveTexture(GL_TEXTURE2));
+	DE_GL_CALL(glActiveTexture(GL_TEXTURE2));
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 
 	de_engine_platform_swap_buffers(de_engine);

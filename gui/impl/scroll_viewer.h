@@ -42,14 +42,6 @@ static void de_gui_scroll_viewer_hor_scroll_changed(de_gui_node_t* sv_node)
 }
 
 /*=======================================================================================*/
-static void de_gui_scroll_viewer_arrange(de_gui_node_t* n)
-{
-	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_SCROLL_VIEWER);
-
-	de_gui_node_default_layout(n);
-}
-
-/*=======================================================================================*/
 static void de_gui_scroll_viewer_deinit(de_gui_node_t* n)
 {
 	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_SCROLL_BAR);
@@ -118,6 +110,9 @@ void de_gui_scroll_viewer_update(de_gui_node_t* n)
 /*=======================================================================================*/
 de_gui_node_t* de_gui_scroll_viewer_create(void)
 {
+	de_gui_node_t* n;
+	de_gui_scroll_viewer_t* sv;
+	
 	static de_gui_dispatch_table_t dispatch_table;
 	{
 		static de_bool_t init = DE_FALSE;
@@ -130,9 +125,10 @@ de_gui_node_t* de_gui_scroll_viewer_create(void)
 			init = DE_TRUE;
 		}
 	}
-	de_gui_node_t* n = de_gui_node_alloc(DE_GUI_NODE_SCROLL_VIEWER, &dispatch_table);
+	
+	n = de_gui_node_alloc(DE_GUI_NODE_SCROLL_VIEWER, &dispatch_table);
 
-	de_gui_scroll_viewer_t* sv = &n->s.scroll_viewer;
+	sv = &n->s.scroll_viewer;
 
 	sv->border = de_gui_border_create();
 	de_gui_node_set_color_rgba(sv->border, 100, 100, 100, 255);

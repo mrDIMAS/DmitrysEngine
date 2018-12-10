@@ -162,6 +162,9 @@ static void de_gui_scroll_bar_deinit(de_gui_node_t* n)
 /*=======================================================================================*/
 de_gui_node_t* de_gui_scroll_bar_create(void)
 {
+	de_gui_node_t* n;
+	de_gui_scroll_bar_t* sb;
+	
 	static de_gui_dispatch_table_t dispatch_table;
 	{
 		static de_bool_t init = DE_FALSE;
@@ -173,9 +176,10 @@ de_gui_node_t* de_gui_scroll_bar_create(void)
 			init = DE_TRUE;
 		}
 	}
-	de_gui_node_t* n = de_gui_node_alloc(DE_GUI_NODE_SCROLL_BAR, &dispatch_table);
+	
+	n = de_gui_node_alloc(DE_GUI_NODE_SCROLL_BAR, &dispatch_table);
 
-	de_gui_scroll_bar_t* sb = &n->s.scroll_bar;
+	sb = &n->s.scroll_bar;
 
 	sb->min = 0;
 	sb->max = 100;

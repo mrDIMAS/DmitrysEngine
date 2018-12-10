@@ -49,17 +49,22 @@
 #ifdef _WIN32
 #  define WIN32_LEAN_AND_MEAN
 #  include <windows.h>
+#else
+#  include <X11/Xlib.h>
+#  define __USE_MISC
+#  include <unistd.h>
 #endif
 
 /* OpenGL */
-#include <GL/GL.h>
+#include <GL/gl.h>
+#include <GL/glext.h>
 
 /* External header-only dependencies */
 #ifdef _WIN32
 #  include "external/wglext.h"
+#else
+#  include "GL/glx.h"
 #endif
-
-#include "external/glext.h"
 
 /* Forward declarations */
 typedef struct de_renderer_t de_renderer_t;

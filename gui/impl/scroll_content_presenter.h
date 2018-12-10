@@ -51,6 +51,9 @@ static void de_gui_scroll_content_presenter_perform_layout(de_gui_node_t* n)
 /*=======================================================================================*/
 de_gui_node_t* de_gui_scroll_content_presenter_create(void)
 {
+	de_gui_node_t* n;
+	de_gui_scroll_content_presenter_t* scp;
+	
 	static de_gui_dispatch_table_t dispatch_table;
 	{
 		static de_bool_t init = DE_FALSE;
@@ -63,9 +66,10 @@ de_gui_node_t* de_gui_scroll_content_presenter_create(void)
 			init = DE_TRUE;
 		}
 	}
-	de_gui_node_t* n = de_gui_node_alloc(DE_GUI_NODE_SCROLL_CONTENT_PRESENTER, &dispatch_table);
+	
+	n = de_gui_node_alloc(DE_GUI_NODE_SCROLL_CONTENT_PRESENTER, &dispatch_table);
 
-	de_gui_scroll_content_presenter_t* scp = &n->s.scroll_content_presenter;
+	scp = &n->s.scroll_content_presenter;
 	scp->scroll.x = 0;
 	scp->scroll.y = 0;
 

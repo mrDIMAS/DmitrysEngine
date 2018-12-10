@@ -187,8 +187,7 @@ void main_menu_create(void)
 	{
 		de_gui_node_t* test_grid = de_gui_grid_create();
 		de_gui_node_set_desired_size(test_grid, 300, 630);
-		de_gui_node_parse_property(test_grid, "DesiredPosition", "320, 10");
-		//de_gui_node_set_desired_local_position(test_grid, 320, 10);
+		de_gui_node_parse_property(test_grid, "DesiredPosition", "320, 10");		
 		de_gui_grid_add_column(test_grid, 0, DE_GUI_SIZE_MODE_STRETCH);
 		de_gui_grid_add_row(test_grid, 0, DE_GUI_SIZE_MODE_STRETCH);
 		de_gui_grid_enable_draw_borders(test_grid, DE_FALSE);
@@ -330,12 +329,11 @@ int main(int argc, char** argv)
 	de_node_t* fbx2;
 	de_vec3_t rp = { -1, 1, 1 };
 
-
 	DE_UNUSED(argc);
 	DE_UNUSED(argv);
 
-	params.width = 2540;
-	params.height = 1380;
+	params.width = 1200;
+	params.height = 1000;
 
 	de_init(&params);
 	de_set_framerate_limit(0);

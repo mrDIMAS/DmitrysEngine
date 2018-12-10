@@ -51,13 +51,13 @@ static de_bool_t de_gui_node_contains_point(de_gui_node_t* node, const de_vec2_t
 		} \
 	} 
 
-DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_mouse_down, mouse_down);
-DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_mouse_up, mouse_up);
-DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_mouse_leave, mouse_leave);
-DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_mouse_enter, mouse_enter);
-DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_mouse_move, mouse_move);
-DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_got_focus, got_focus);
-DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_lost_focus, lost_focus);
+DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_mouse_down, mouse_down)
+DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_mouse_up, mouse_up)
+DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_mouse_leave, mouse_leave)
+DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_mouse_enter, mouse_enter)
+DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_mouse_move, mouse_move)
+DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_got_focus, got_focus)
+DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_lost_focus, lost_focus)
 
 #undef DE_DECLARE_ROUTED_EVENT_TRACER
 
@@ -243,9 +243,11 @@ static de_gui_node_t* de_gui_node_pick(de_gui_node_t* n, const de_vec2_t* mouse_
 
 	for (i = 0; i < n->children.size; ++i)
 	{
+		de_gui_node_t* picked_child;
+		
 		++(*level);
 
-		de_gui_node_t* picked_child = de_gui_node_pick(n->children.data[i], mouse_pos, level);
+		picked_child = de_gui_node_pick(n->children.data[i], mouse_pos, level);
 
 		if (picked_child && (*level) > topmost_picked_level)
 		{
@@ -469,7 +471,7 @@ static void de_gui_node_handle_mouse_input(de_gui_node_t* n, const de_vec2_t* mo
 }
 
 /*=======================================================================================*/
-static void de_gui_node_handle_keyboard_input()
+void de_gui_node_handle_keyboard_input()
 {
 
 }
@@ -479,8 +481,7 @@ void de_gui_update()
 {
 	de_gui_t* gui = &de_engine->gui;
 	static size_t count = 0;
-
-	//if (count < 1)
+	
 	{
 		++count;
 
@@ -817,6 +818,8 @@ de_bool_t de_gui_node_set_property(de_gui_node_t* n, const char* name, const voi
 /*=======================================================================================*/
 de_bool_t de_gui_node_parse_property(de_gui_node_t* n, const char* name, const char* value)
 {
+	static de_string_array_t tokens;
+	
 	if (n->dispatch_table->parse_property)
 	{
 		if (n->dispatch_table->parse_property(n, name, value))
@@ -824,7 +827,7 @@ de_bool_t de_gui_node_parse_property(de_gui_node_t* n, const char* name, const c
 			return DE_TRUE;
 		}
 	}
-	static de_string_array_t tokens;
+	
 	de_tokenize_string(value, &tokens, ";, ");
 
 	if (strcmp(name, DE_GUI_NODE_DESIRED_POSITION_PROPERTY) == 0)

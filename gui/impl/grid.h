@@ -333,6 +333,9 @@ static void de_gui_grid_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t
 /*=======================================================================================*/
 de_gui_node_t* de_gui_grid_create()
 {
+	de_gui_node_t* n;
+	de_gui_grid_t* grid;
+	
 	static de_gui_dispatch_table_t dispatch_table;
 	{
 		static de_bool_t init = DE_FALSE;
@@ -344,9 +347,10 @@ de_gui_node_t* de_gui_grid_create()
 			init = DE_TRUE;
 		}
 	}
-	de_gui_node_t* n = de_gui_node_alloc(DE_GUI_NODE_GRID, &dispatch_table);
+	
+	n = de_gui_node_alloc(DE_GUI_NODE_GRID, &dispatch_table);
 
-	de_gui_grid_t* grid = &n->s.grid;
+	grid = &n->s.grid;
 	grid->draw_borders = DE_FALSE;
 
 	return n;

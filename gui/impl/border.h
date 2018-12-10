@@ -106,6 +106,9 @@ static void de_gui_border_layout_children(de_gui_node_t* n)
 /*=======================================================================================*/
 de_gui_node_t* de_gui_border_create()
 {
+	de_gui_node_t* n;
+	de_gui_border_t* b;	
+	
 	static de_gui_dispatch_table_t dispatch_table;
 	{
 		static de_bool_t init = DE_FALSE;
@@ -119,9 +122,9 @@ de_gui_node_t* de_gui_border_create()
 		}
 	}
 
-	de_gui_node_t* n = de_gui_node_alloc(DE_GUI_NODE_BORDER, &dispatch_table);
+	n = de_gui_node_alloc(DE_GUI_NODE_BORDER, &dispatch_table);
 
-	de_gui_border_t* b = &n->s.border;
+	b = &n->s.border;
 	de_gui_border_set_thickness_uniform(n, 1);
 	de_color_set(&b->stroke_color, 150, 150, 150, 255);
 

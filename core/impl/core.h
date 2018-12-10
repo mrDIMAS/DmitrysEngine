@@ -50,7 +50,7 @@ int de_init(const de_engine_params_t* params)
 void de_shutdown()
 {
 	de_gui_shutdown(&de_engine->gui);
-	de_engine_platform_shutdown(de_engine);
+	de_engine_platform_shutdown();
 	de_free(de_engine);
 	de_log("Engine shutdown successful!");
 	de_log_close();

@@ -30,9 +30,9 @@ typedef struct de_engine_params_s
 
 struct de_engine_t
 {
-	#ifdef _WIN32
 	struct
 	{
+	#ifdef _WIN32
 		HGLRC gl_context;
 		HWND window;
 		HDC device_context;
@@ -40,9 +40,13 @@ struct de_engine_t
 		HWND dummy_window;
 		HGLRC dummy_context;
 		HDC dummy_dc;
-	} platform;
+	#else
+		Display* display;
+		Window window;
+		GLXContext glContext;
 	#endif
-
+	} platform;
+	
 	de_engine_params_t params;   /**< Initialization parameters */
 	de_bool_t running;              /**< DE_TRUE if engine is running */
 	de_bool_t keyboard_focus;             /**< DE_TRUE if rendering window is in focus */

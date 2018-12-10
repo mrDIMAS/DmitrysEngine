@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Session Name="/home/dmitry/DmitrysEngine/tests/codeliteproj/test.workspace">
+  <int Value="1" Name="m_selectedTab"/>
+  <wxString Value="/home/dmitry/DmitrysEngine/tests/codeliteproj/test.workspace" Name="m_workspaceName"/>
+  <TabInfoArray Name="TabInfoArray">
+    <TabInfo>
+      <wxString Value="/home/dmitry/DmitrysEngine/platform/impl/win32.h" Name="FileName"/>
+      <int Value="56" Name="FirstVisibleLine"/>
+      <int Value="94" Name="CurrentLine"/>
+      <wxArrayString Name="Bookmarks"/>
+      <IntVector Name="CollapsedFolds"/>
+    </TabInfo>
+    <TabInfo>
+      <wxString Value="/home/dmitry/DmitrysEngine/platform/impl/x11.h" Name="FileName"/>
+      <int Value="348" Name="FirstVisibleLine"/>
+      <int Value="383" Name="CurrentLine"/>
+      <wxArrayString Name="Bookmarks"/>
+      <IntVector Name="CollapsedFolds"/>
+    </TabInfo>
+    <TabInfo>
+      <wxString Value="/home/dmitry/DmitrysEngine/input/input.h" Name="FileName"/>
+      <int Value="63" Name="FirstVisibleLine"/>
+      <int Value="85" Name="CurrentLine"/>
+      <wxArrayString Name="Bookmarks"/>
+      <IntVector Name="CollapsedFolds"/>
+    </TabInfo>
+    <TabInfo>
+      <wxString Value="/usr/include/X11/keysymdef.h" Name="FileName"/>
+      <int Value="96" Name="FirstVisibleLine"/>
+      <int Value="315" Name="CurrentLine"/>
+      <wxArrayString Name="Bookmarks"/>
+      <IntVector Name="CollapsedFolds"/>
+    </TabInfo>
+    <TabInfo>
+      <wxString Value="/home/dmitry/DmitrysEngine/core/log.h" Name="FileName"/>
+      <int Value="20" Name="FirstVisibleLine"/>
+      <int Value="30" Name="CurrentLine"/>
+      <wxArrayString Name="Bookmarks"/>
+      <IntVector Name="CollapsedFolds"/>
+    </TabInfo>
+    <TabInfo>
+      <wxString Value="/home/dmitry/DmitrysEngine/core/impl/log.h" Name="FileName"/>
+      <int Value="34" Name="FirstVisibleLine"/>
+      <int Value="55" Name="CurrentLine"/>
+      <wxArrayString Name="Bookmarks"/>
+      <IntVector Name="CollapsedFolds"/>
+    </TabInfo>
+  </TabInfoArray>
+  <SerializedObject Name="m_breakpoints">
+    <long Value="0" Name="Count"/>
+  </SerializedObject>
+</Session>

@@ -77,7 +77,7 @@ typedef enum de_gui_routed_event_type_t
 	DE_GUI_ROUTED_EVENT_MOUSE_LEAVE,
 	DE_GUI_ROUTED_EVENT_MOUSE_MOVE,
 	DE_GUI_ROUTED_EVENT_LOST_FOCUS,
-	DE_GUI_ROUTED_EVENT_GOT_FOCUS,
+	DE_GUI_ROUTED_EVENT_GOT_FOCUS
 } de_gui_routed_event_type_t;
 
 /**

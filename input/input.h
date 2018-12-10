@@ -24,7 +24,7 @@
 */
 enum de_key
 {
-	DE_KEY_Unknown = -1,
+	DE_KEY_UKNOWN = -1,
 	DE_KEY_A = 0,    /**< A key */
 	DE_KEY_B,        /**< B key */
 	DE_KEY_C,        /**< C key */
@@ -54,16 +54,16 @@ enum de_key
 	DE_KEY_NUM0,     /**< Numpad 0 */
 	DE_KEY_NUM1,     /**< Numpad 1 */
 	DE_KEY_NUM2,     /**< Numpad 2 */
-	DE_KEY_Num3,     /**< Numpad 3 */
-	DE_KEY_Num4,     /**< Numpad 4 */
-	DE_KEY_Num5,     /**< Numpad 5 */
-	DE_KEY_Num6,     /**< Numpad 6 */
-	DE_KEY_Num7,     /**< Numpad 7 */
-	DE_KEY_Num8,     /**< Numpad 8 */
-	DE_KEY_Num9,     /**< Numpad 9 */
+	DE_KEY_NUM3,     /**< Numpad 3 */
+	DE_KEY_NUM4,     /**< Numpad 4 */
+	DE_KEY_NUM5,     /**< Numpad 5 */
+	DE_KEY_NUM6,     /**< Numpad 6 */
+	DE_KEY_NUM7,     /**< Numpad 7 */
+	DE_KEY_NUM8,     /**< Numpad 8 */
+	DE_KEY_NUM9,     /**< Numpad 9 */
 	DE_KEY_ESC,      /**< Escape */
-	DE_KEY_LControl, /**< Left control */
-	DE_KEY_LShift,   /**< Left shift */
+	DE_KEY_LCONTROL, /**< Left control */
+	DE_KEY_LSHIFT,   /**< Left shift */
 	DE_KEY_LAlt,     /**< Left alt */
 	DE_KEY_LSystem,  /**< Left system key */
 	DE_KEY_RControl, /**< Right control */

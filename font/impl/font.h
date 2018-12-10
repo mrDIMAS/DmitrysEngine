@@ -283,6 +283,8 @@ static void de_ttf_prepare_contours(de_ttf_glyph_t * glyph, de_point_t* points)
 			de_point_t flipped;
 			de_point_t * p0 = raw_contour->points.data + k;
 			de_point_t * p1;
+			bool p0_off_curve;
+			bool p1_off_curve;
 
 			if (k + 1 < raw_contour->points.size)
 			{
@@ -294,8 +296,8 @@ static void de_ttf_prepare_contours(de_ttf_glyph_t * glyph, de_point_t* points)
 				p1 = raw_contour->points.data;
 			}
 
-			bool p0_off_curve = !(p0->flags & ON_CURVE_POINT);
-			bool p1_off_curve = !(p1->flags & ON_CURVE_POINT);
+			p0_off_curve = !(p0->flags & ON_CURVE_POINT);
+			p1_off_curve = !(p1->flags & ON_CURVE_POINT);
 
 			flipped.flags = p0->flags;
 			flipped.x = p0->x;

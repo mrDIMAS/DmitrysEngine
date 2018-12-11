@@ -46,7 +46,7 @@ struct de_engine_t
 		GLXContext glContext;
 	#endif
 	} platform;
-	
+
 	de_engine_params_t params;   /**< Initialization parameters */
 	de_bool_t running;              /**< DE_TRUE if engine is running */
 	de_bool_t keyboard_focus;             /**< DE_TRUE if rendering window is in focus */
@@ -122,3 +122,4 @@ void de_engine_platform_message_queue();
 de_proc de_engine_platform_get_proc_address(const char *name);
 void de_engine_platform_swap_buffers();
 void de_engine_platform_message_box(const char * msg);
+

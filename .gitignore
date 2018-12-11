@@ -7,3 +7,14 @@
 *.ilk
 *.iobj
 *.ipdb
+*.db
+*.user
+*.opendb
+
+/tests/codeliteproj/.codelite
+/tests/codeliteproj/Debug
+
+/tests/vcproj/Debug
+/tests/vcproj/Release
+/tests/vcproj/.vs
+

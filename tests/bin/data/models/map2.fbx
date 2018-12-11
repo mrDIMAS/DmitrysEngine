@@ -9,12 +9,12 @@ FBXHeaderExtension:  {
     CreationTimeStamp:  {
         Version: 1000
         Year: 2018
-        Month: 9
-        Day: 29
-        Hour: 20
-        Minute: 58
-        Second: 46
-        Millisecond: 507
+        Month: 12
+        Day: 11
+        Hour: 19
+        Minute: 45
+        Second: 51
+        Millisecond: 679
     }
     Creator: "FBX SDK/FBX Plugins version 2012.0"
     SceneInfo: "SceneInfo::GlobalInfo", "UserData" {
@@ -30,19 +30,19 @@ FBXHeaderExtension:  {
             Comment: ""
         }
         Properties70:  {
-            P: "DocumentUrl", "KString", "Url", "", "C:\Users\mrDIMAS\Desktop\de\game\bin\data\models\map2.FBX"
-            P: "SrcDocumentUrl", "KString", "Url", "", "C:\Users\mrDIMAS\Desktop\de\game\bin\data\models\map2.FBX"
+            P: "DocumentUrl", "KString", "Url", "", "C:\DmitrysEngine\DmitrysEngine\tests\bin\data\models\map2.fbx"
+            P: "SrcDocumentUrl", "KString", "Url", "", "C:\DmitrysEngine\DmitrysEngine\tests\bin\data\models\map2.fbx"
             P: "Original", "Compound", "", ""
             P: "Original|ApplicationVendor", "KString", "", "", "Autodesk"
             P: "Original|ApplicationName", "KString", "", "", "3ds Max"
             P: "Original|ApplicationVersion", "KString", "", "", "2012"
-            P: "Original|DateTime_GMT", "DateTime", "", "", "29/09/2018 17:58:46.505"
-            P: "Original|FileName", "KString", "", "", "C:\Users\mrDIMAS\Desktop\de\game\bin\data\models\map2.FBX"
+            P: "Original|DateTime_GMT", "DateTime", "", "", "11/12/2018 16:45:51.678"
+            P: "Original|FileName", "KString", "", "", "C:\DmitrysEngine\DmitrysEngine\tests\bin\data\models\map2.fbx"
             P: "LastSaved", "Compound", "", ""
             P: "LastSaved|ApplicationVendor", "KString", "", "", "Autodesk"
             P: "LastSaved|ApplicationName", "KString", "", "", "3ds Max"
             P: "LastSaved|ApplicationVersion", "KString", "", "", "2012"
-            P: "LastSaved|DateTime_GMT", "DateTime", "", "", "29/09/2018 17:58:46.505"
+            P: "LastSaved|DateTime_GMT", "DateTime", "", "", "11/12/2018 16:45:51.678"
         }
     }
 }
@@ -72,7 +72,7 @@ GlobalSettings:  {
 
 Documents:  {
     Count: 1
-    Document: 811831872, "", "Scene" {
+    Document: 815222432, "", "Scene" {
         Properties70:  {
             P: "SourceObject", "object", "", ""
             P: "ActiveAnimStackName", "KString", "", "", ""
@@ -92,7 +92,7 @@ References:  {
 
 Definitions:  {
     Version: 100
-    Count: 372
+    Count: 142
     ObjectType: "GlobalSettings" {
         Count: 1
     }
@@ -125,7 +125,7 @@ Definitions:  {
         }
     }
     ObjectType: "Model" {
-        Count: 64
+        Count: 18
         PropertyTemplate: "KFbxNode" {
             Properties70:  {
                 P: "QuaternionInterpolate", "enum", "", "",0
@@ -264,7 +264,7 @@ Definitions:  {
         }
     }
     ObjectType: "NodeAttribute" {
-        Count: 60
+        Count: 14
         PropertyTemplate: "KFbxLight" {
             Properties70:  {
                 P: "Color", "Color", "", "A",1,1,1
@@ -292,7 +292,7 @@ Definitions:  {
         }
     }
     ObjectType: "AnimationCurve" {
-        Count: 192
+        Count: 54
     }
     ObjectType: "AnimationCurveNode" {
         Count: 4
@@ -323,7 +323,7 @@ Definitions:  {
 ;------------------------------------------------------------------
 
 Objects:  {
-    Geometry: 179841344, "Geometry::", "Mesh" {
+    Geometry: 815635104, "Geometry::", "Mesh" {
         Properties70:  {
             P: "Color", "ColorRGB", "Color", "",0.101960784313725,0.694117647058824,0.345098039215686
         }
@@ -1252,7 +1252,7 @@ a: 1,1,1,1,1,1,7,7,7,7,7,7,7,1,1,1,1,1,1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
             }
         }
     }
-    NodeAttribute: 180820800, "NodeAttribute::", "Light" {
+    NodeAttribute: 815893312, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "DrawGroundProjection", "bool", "", "",0
             P: "Fog", "Number", "", "A",0
@@ -1284,7 +1284,7 @@ a: 1,1,1,1,1,1,7,7,7,7,7,7,7,1,1,1,1,1,1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 180840288, "NodeAttribute::", "Light" {
+    NodeAttribute: 815905600, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "Color", "Color", "", "A",0.988235354423523,0,0
             P: "DrawGroundProjection", "bool", "", "",0
@@ -1317,7 +1317,7 @@ a: 1,1,1,1,1,1,7,7,7,7,7,7,7,1,1,1,1,1,1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 180826240, "NodeAttribute::", "Light" {
+    NodeAttribute: 815917984, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "Color", "Color", "", "A",0,1,0.211764723062515
             P: "DrawGroundProjection", "bool", "", "",0
@@ -1350,7 +1350,7 @@ a: 1,1,1,1,1,1,7,7,7,7,7,7,7,1,1,1,1,1,1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 180833776, "NodeAttribute::", "Light" {
+    NodeAttribute: 815919632, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "Color", "Color", "", "A",0.984313786029816,0.996078491210938,0.690196096897125
             P: "DrawGroundProjection", "bool", "", "",0
@@ -1383,7 +1383,7 @@ a: 1,1,1,1,1,1,7,7,7,7,7,7,7,1,1,1,1,1,1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 180836432, "NodeAttribute::", "Light" {
+    NodeAttribute: 815363792, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "Color", "Color", "", "A",0.976470649242401,0.94901967048645,0.658823549747467
             P: "DrawGroundProjection", "bool", "", "",0
@@ -1416,238 +1416,7 @@ a: 1,1,1,1,1,1,7,7,7,7,7,7,7,1,1,1,1,1,1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 179838000, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",0.327900350093842
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",0.3279
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 179844400, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",0.327900350093842
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",0.3279
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 179858992, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",0.327900350093842
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",0.3279
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 179861296, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",0.327900350093842
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",0.3279
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180187408, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",0.327900350093842
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",0.3279
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180176352, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",0.327900350093842
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",0.3279
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180162288, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",0.327900350093842
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",0.3279
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    Geometry: 180177760, "Geometry::", "Mesh" {
+    Geometry: 815358240, "Geometry::", "Mesh" {
         Properties70:  {
             P: "Color", "ColorRGB", "Color", "",0.333333333333333,0.109803921568627,0.694117647058824
         }
@@ -1720,7 +1489,7 @@ a: 0
             }
         }
     }
-    NodeAttribute: 180419552, "NodeAttribute::", "Light" {
+    NodeAttribute: 815340048, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "DrawGroundProjection", "bool", "", "",0
             P: "Fog", "Number", "", "A",0
@@ -1752,7 +1521,7 @@ a: 0
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 180397424, "NodeAttribute::", "Light" {
+    NodeAttribute: 815346480, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "DrawGroundProjection", "bool", "", "",0
             P: "Fog", "Number", "", "A",0
@@ -1784,7 +1553,7 @@ a: 0
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 180394144, "NodeAttribute::", "Light" {
+    NodeAttribute: 815307472, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "DrawGroundProjection", "bool", "", "",0
             P: "Fog", "Number", "", "A",0
@@ -1816,71 +1585,7 @@ a: 0
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 180388192, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,1,1
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180402896, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,1,1
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180405184, "NodeAttribute::", "Light" {
+    NodeAttribute: 815382832, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
             P: "DrawGroundProjection", "bool", "", "",0
@@ -1913,7 +1618,7 @@ a: 0
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 180173488, "NodeAttribute::", "Light" {
+    NodeAttribute: 815398704, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
             P: "DrawGroundProjection", "bool", "", "",0
@@ -1946,7 +1651,7 @@ a: 0
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 180442544, "NodeAttribute::", "Light" {
+    NodeAttribute: 815392640, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
             P: "DrawGroundProjection", "bool", "", "",0
@@ -1979,7 +1684,7 @@ a: 0
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 180440752, "NodeAttribute::", "Light" {
+    NodeAttribute: 815380512, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
             P: "DrawGroundProjection", "bool", "", "",0
@@ -2012,271 +1717,7 @@ a: 0
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 180431088, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180422272, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180452352, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180477744, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180460944, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180474656, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180456032, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180465232, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180472144, "NodeAttribute::", "Light" {
+    NodeAttribute: 815374912, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "Color", "Color", "", "A",0.984313786029816,0.996078491210938,0.690196096897125
             P: "DrawGroundProjection", "bool", "", "",0
@@ -2309,964 +1750,7 @@ a: 0
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 180794512, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",0.352941185235977,0,1
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",0.157900348305702
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",0.352941185235977,0,1
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",0.1579
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180798928, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",0.352941185235977,0,1
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",0.157900348305702
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",0.352941185235977,0,1
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",0.1579
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180813456, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",0.352941185235977,0,1
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",0.157900348305702
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",0.352941185235977,0,1
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",0.1579
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180790944, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",0.352941185235977,0,1
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",0.157900348305702
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",0.352941185235977,0,1
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",0.1579
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180803408, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",0.352941185235977,0,1
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",0.157900348305702
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",0.352941185235977,0,1
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",0.1579
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180858672, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",0.352941185235977,0,1
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",0.157900348305702
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",0.352941185235977,0,1
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",0.1579
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180848816, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.988235354423523,0.662745118141174
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.988235354423523,0.662745118141174
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180850960, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.988235354423523,0.662745118141174
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.988235354423523,0.662745118141174
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180863664, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.988235354423523,0.662745118141174
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.988235354423523,0.662745118141174
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180867888, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.988235354423523,0.662745118141174
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.988235354423523,0.662745118141174
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 180878208, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.988235354423523,0.662745118141174
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.988235354423523,0.662745118141174
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 761262144, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.988235354423523,0.662745118141174
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.988235354423523,0.662745118141174
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 761252176, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 761242224, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 761240448, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 761256304, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 761258640, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 761353024, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 761334864, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",0.327900350093842
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",0.3279
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 761337200, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",0.327900350093842
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",0.3279
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 761355888, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",0.327900350093842
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",0.3279
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 761363808, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",0.327900350093842
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",0.99215692281723,0.86274516582489,0
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",0.3279
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 761496544, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 761525504, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 761510096, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 761498208, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 761519360, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 761530464, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    NodeAttribute: 761547888, "NodeAttribute::", "Light" {
-        Properties70:  {
-            P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "DrawGroundProjection", "bool", "", "",0
-            P: "Fog", "Number", "", "A",0
-            P: "DecayStart", "Number", "", "A",2.16720151901245
-            P: "NearAttenuationEnd", "Number", "", "A",40
-            P: "FarAttenuationStart", "Number", "", "A",80
-            P: "FarAttenuationEnd", "Number", "", "A",200
-            P: "3dsMax", "Compound", "", ""
-            P: "3dsMax|ClassIDa", "int", "Integer", "",4113
-            P: "3dsMax|ClassIDb", "int", "Integer", "",0
-            P: "3dsMax|SuperClassID", "int", "Integer", "",48
-            P: "3dsMax|ParamBlock_0", "Compound", "", ""
-            P: "3dsMax|ParamBlock_0|Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
-            P: "3dsMax|ParamBlock_0|Multiplier", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Contrast", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Diffuse Soften", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near Start", "Float", "", "A",0
-            P: "3dsMax|ParamBlock_0|Attenuation Near End", "Float", "", "A",40
-            P: "3dsMax|ParamBlock_0|Attenuation Far Start", "Float", "", "A",80
-            P: "3dsMax|ParamBlock_0|Attenuation Far End", "Float", "", "A",200
-            P: "3dsMax|ParamBlock_0|Decay Falloff", "Float", "", "A",2.167202
-            P: "3dsMax|ParamBlock_0|Shadow Color", "Color", "", "A",0,0,0
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_10", "int", "Integer", "",0
-            P: "3dsMax|ParamBlock_0|Atmosphere Opacity", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Atmosphere Color Amount", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|Shadow Density", "Float", "", "A",1
-            P: "3dsMax|ParamBlock_0|_Unnamed_Parameter_14", "int", "Integer", "",0
-        }
-        TypeFlags: "Light"
-        GeometryVersion: 124
-    }
-    Geometry: 893143856, "Geometry::", "Mesh" {
+    Geometry: 815432032, "Geometry::", "Mesh" {
         Properties70:  {
             P: "Color", "ColorRGB", "Color", "",0.650980392156863,0.898039215686275,0.898039215686275
         }
@@ -3657,7 +2141,7 @@ a: 0
             }
         }
     }
-    NodeAttribute: 893182320, "NodeAttribute::", "Light" {
+    NodeAttribute: 815487904, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "LightType", "enum", "", "",2
             P: "DrawGroundProjection", "bool", "", "",0
@@ -3695,7 +2179,7 @@ a: 0
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    Geometry: 893103680, "Geometry::", "Mesh" {
+    Geometry: 815437328, "Geometry::", "Mesh" {
         Properties70:  {
             P: "Color", "ColorRGB", "Color", "",0.650980392156863,0.898039215686275,0.898039215686275
         }
@@ -4086,7 +2570,7 @@ a: 0
             }
         }
     }
-    Model: 811865824, "Model::Polygon", "Mesh" {
+    Model: 815272544, "Model::Polygon", "Mesh" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -4101,7 +2585,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 811880960, "Model::Omni001", "Light" {
+    Model: 815279408, "Model::Omni001", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -4119,7 +2603,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 811877888, "Model::Omni003", "Light" {
+    Model: 815298592, "Model::Omni003", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -4137,7 +2621,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 811891200, "Model::Omni004", "Light" {
+    Model: 815280720, "Model::Omni004", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -4155,7 +2639,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 811867440, "Model::Omni011", "Light" {
+    Model: 815295760, "Model::Omni011", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -4173,7 +2657,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 811882160, "Model::Omni012", "Light" {
+    Model: 815290912, "Model::Omni012", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -4191,140 +2675,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 811873520, "Model::Omni016", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",5.66269302368164,1.44038641452789,6.34958553314209
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",1.78367495536804,1.78367495536804,1.78367495536804
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",28
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811870448, "Model::Omni021", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",10.340425491333,1.44038641452789,6.34958553314209
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",1.78367495536804,1.78367495536804,1.78367495536804
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",33
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811887136, "Model::Omni024", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",14.2234716415405,1.44038641452789,6.51648330688477
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",1.78367495536804,1.78367495536804,1.78367495536804
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",36
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811863344, "Model::Omni026", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",14.5320148468018,2.43199968338013,9.96544742584229
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",1.78367495536804,1.78367495536804,1.78367495536804
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",38
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811860768, "Model::Omni027", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",14.5320148468018,3.15541100502014,12.1376371383667
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",1.78367495536804,1.78367495536804,1.78367495536804
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",39
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811897456, "Model::Omni029", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",18.6196441650391,3.15541100502014,12.4139518737793
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",1.78367495536804,1.78367495536804,1.78367495536804
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",41
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811919744, "Model::Omni031", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",22.6860771179199,3.15541100502014,12.4139518737793
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",1.78367495536804,1.78367495536804,1.78367495536804
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",43
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811915808, "Model::Box002", "Mesh" {
+    Model: 815283504, "Model::Box002", "Mesh" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -4342,7 +2693,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 811907696, "Model::Omni032", "Light" {
+    Model: 815274080, "Model::Omni032", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -4361,7 +2712,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 811900208, "Model::Omni033", "Light" {
+    Model: 815287600, "Model::Omni033", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -4380,7 +2731,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 811901568, "Model::Omni034", "Light" {
+    Model: 815284640, "Model::Omni034", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -4399,197 +2750,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 811912496, "Model::Omni035", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",-2.07318496704102,4.25562000274658,-11.5310878753662
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.789969563484192,0.789969563484192,0.789969563484192
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",51
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811910992, "Model::Omni036", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",1.64342439174652,4.25562000274658,-11.5310878753662
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.789969563484192,0.789969563484192,0.789969563484192
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",52
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811903152, "Model::Omni037", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",2.46864891052246,7.04700040817261,-15.9854402542114
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",54
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811905440, "Model::Omni039", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",2.46864891052246,7.04700040817261,-25.2137489318848
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",56
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811932976, "Model::Omni040", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",2.46864891052246,7.04700040817261,-29.4717922210693
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",57
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811940944, "Model::Omni042", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",2.46864891052246,7.04700040817261,-37.751392364502
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",59
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811953456, "Model::Omni043", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",-2.16068887710571,7.04700040817261,-37.751392364502
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",60
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811939616, "Model::Omni045", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",-2.16068887710571,7.04700040817261,-29.4717922210693
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",62
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811936384, "Model::Omni046", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",-2.16068887710571,7.04700040817261,-25.2137489318848
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",63
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811950736, "Model::Omni048", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",-2.16068887710571,7.04700040817261,-15.9854402542114
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",65
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811949360, "Model::Omni049", "Light" {
+    Model: 815305424, "Model::Omni049", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -4608,7 +2769,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 811944480, "Model::Omni050", "Light" {
+    Model: 815311376, "Model::Omni050", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -4627,7 +2788,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 811930304, "Model::Omni051", "Light" {
+    Model: 815332048, "Model::Omni051", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -4646,7 +2807,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 811987568, "Model::Omni052", "Light" {
+    Model: 815300896, "Model::Omni052", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -4665,7 +2826,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 811972384, "Model::Omni053", "Light" {
+    Model: 815327776, "Model::Omni053", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -4683,558 +2844,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 811970976, "Model::Omni054", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",1.53627490997314,-0.0229263305664063,2.07623815536499
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",1.50309991836548,1.50309991836548,1.50309991836548
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",72
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811968448, "Model::Omni055", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",1.53627490997314,-0.0229263305664063,0.142599821090698
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",1.50309991836548,1.50309991836548,1.50309991836548
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",73
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811988816, "Model::Omni056", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",1.53627490997314,-0.0229263305664063,-1.85450458526611
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",1.50309991836548,1.50309991836548,1.50309991836548
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",74
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811976096, "Model::Omni057", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",-1.43855381011963,-0.0229263305664063,-1.85450458526611
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",1.50309991836548,1.50309991836548,1.50309991836548
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",75
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811961648, "Model::Omni058", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",-1.43855381011963,-0.0229263305664063,0.142599821090698
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",1.50309991836548,1.50309991836548,1.50309991836548
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",76
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 811960336, "Model::Omni059", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",-1.43855381011963,-0.0229263305664063,2.07623815536499
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",1.50309991836548,1.50309991836548,1.50309991836548
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",77
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812053744, "Model::Omni060", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",-14.7530851364136,2.12170815467834,-2.38372850418091
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.789969563484192,0.789969563484192,0.789969563484192
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",78
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812028512, "Model::Omni061", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",-14.7530851364136,2.12170815467834,2.4963231086731
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.789969563484192,0.789969563484192,0.789969563484192
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",79
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812044832, "Model::Omni062", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",-23.5161094665527,4.5457878112793,2.4963231086731
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.789969563484192,0.789969563484192,0.789969563484192
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",80
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812042384, "Model::Omni063", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",-23.5161094665527,4.5457878112793,-2.38372850418091
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.789969563484192,0.789969563484192,0.789969563484192
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",81
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812050080, "Model::Omni064", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",-33.9450416564941,6.96085214614868,2.4963231086731
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.789969563484192,0.789969563484192,0.789969563484192
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",82
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812069952, "Model::Omni065", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",-33.9450416564941,6.96085214614868,-2.38372850418091
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.789969563484192,0.789969563484192,0.789969563484192
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",83
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812057024, "Model::Omni066", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",4.52689361572266,2.21632289886475,26.1507225036621
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",84
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812068144, "Model::Omni067", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",2.64373779296875,2.21632289886475,29.3305721282959
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",85
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812088032, "Model::Omni068", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",10.9812259674072,2.21632289886475,31.1557884216309
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",86
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812108720, "Model::Omni069", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",10.9812259674072,2.21632289886475,27.4630432128906
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",87
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812118288, "Model::Omni070", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",27.9054584503174,-0.581999778747559,31.25244140625
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",88
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812120608, "Model::Omni071", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",27.9054584503174,-0.581999778747559,27.5596961975098
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",89
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812119104, "Model::Omni072", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",5.29813528060913,0.631483197212219,34.006420135498
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",1.78367495536804,1.78367495536804,1.78367495536804
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",90
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812111904, "Model::Omni073", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",4.27767848968506,0.631483197212219,36.7196426391602
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",1.78367495536804,1.78367495536804,1.78367495536804
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",91
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812105008, "Model::Omni074", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",1.08093047142029,0.631483197212219,37.0028839111328
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",1.78367495536804,1.78367495536804,1.78367495536804
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",92
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812098704, "Model::Omni075", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",-1.65411686897278,0.631483197212219,36.955078125
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",1.78367495536804,1.78367495536804,1.78367495536804
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",93
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812136544, "Model::Omni076", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",29.1916275024414,4.40816688537598,30.1244583129883
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",95
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812137776, "Model::Omni077", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",25.4914932250977,4.40816688537598,30.1244583129883
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",96
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812134656, "Model::Omni078", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",25.4914932250977,2.53827404975891,18.6592254638672
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",97
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812146976, "Model::Omni079", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",29.1916275024414,2.53827404975891,18.6592254638672
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",98
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812141872, "Model::Omni080", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",25.4914932250977,2.53827404975891,7.70749473571777
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",101
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812140496, "Model::Omni081", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",29.1916275024414,2.53827404975891,7.70749473571777
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",102
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812138992, "Model::Omni082", "Light" {
-        Version: 232
-        Properties70:  {
-            P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
-            P: "PostRotation", "Vector3D", "Vector", "",-90,-0,0
-            P: "RotationActive", "bool", "", "",1
-            P: "InheritType", "enum", "", "",1
-            P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
-            P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A",27.4908561706543,2.53827404975891,0.543575286865234
-            P: "Lcl Scaling", "Lcl Scaling", "", "A",0.616886556148529,0.616886556148529,0.616886556148529
-            P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
-            P: "MaxHandle", "int", "Integer", "UH",103
-        }
-        MultiLayer: 0
-        MultiTake: 0
-        Shading: T
-        Culling: "CullingOff"
-    }
-    Model: 812150064, "Model::Teapot001", "Mesh" {
+    Model: 815322880, "Model::Teapot001", "Mesh" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -5252,7 +2862,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 812182560, "Model::Fspot001", "Light" {
+    Model: 815303984, "Model::Fspot001", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -5269,7 +2879,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 812196240, "Model::Teapot002", "Mesh" {
+    Model: 815325856, "Model::Teapot002", "Mesh" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -5288,7 +2898,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Material: 84867264, "Material::Material #275", "" {
+    Material: 815788048, "Material::Material #275", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -5310,7 +2920,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 84854144, "Material::Material #263", "" {
+    Material: 815572288, "Material::Material #263", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -5332,7 +2942,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 84860720, "Material::Material #325", "" {
+    Material: 815591968, "Material::Material #325", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -5354,7 +2964,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 84856944, "Material::Material #312", "" {
+    Material: 815582320, "Material::Material #312", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -5376,7 +2986,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 84769488, "Material::Material #337", "" {
+    Material: 815578112, "Material::Material #337", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -5398,7 +3008,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 84764912, "Material::Material #372", "" {
+    Material: 815591216, "Material::Material #372", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -5420,7 +3030,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 84760288, "Material::Material #407", "" {
+    Material: 815622672, "Material::Material #407", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -5442,7 +3052,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 85689824, "Material::Material #475", "" {
+    Material: 815611152, "Material::Material #475", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -5464,7 +3074,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 85710496, "Material::Material #1027", "" {
+    Material: 815604976, "Material::Material #1027", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -5486,7 +3096,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 85718000, "Material::Material #1201", "" {
+    Material: 815596784, "Material::Material #1201", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -5508,7 +3118,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 85692896, "Material::Material #1214", "" {
+    Material: 815638480, "Material::Material #1214", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -5530,7 +3140,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 85708592, "Material::Material #1227", "" {
+    Material: 815632176, "Material::Material #1227", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -5552,7 +3162,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 85702432, "Material::Material #1241", "" {
+    Material: 815628848, "Material::Material #1241", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -5574,7 +3184,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 85697824, "Material::Material #1257", "" {
+    Material: 815652096, "Material::Material #1257", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -5596,7 +3206,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 893147152, "Material::Material #1417", "" {
+    Material: 815443760, "Material::Material #1417", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -5618,142 +3228,142 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Video: 1044943904, "Video::Map #25", "Clip" {
+    Video: 815722304, "Video::Map #25", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\brick.tga"
         }
         UseMipMap: 0
         Filename: "C:\MedievalGame\data\textures\brick.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\brick.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\brick.tga"
     }
-    Video: 1044954144, "Video::Map #24", "Clip" {
+    Video: 815705008, "Video::Map #24", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\metal2.tga"
         }
         UseMipMap: 0
         Filename: "C:\MedievalGame\data\textures\metal2.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
     }
-    Video: 1044963872, "Video::Map #29", "Clip" {
+    Video: 815712464, "Video::Map #29", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\metal3.tga"
         }
         UseMipMap: 0
         Filename: "C:\MedievalGame\data\textures\metal3.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\metal3.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal3.tga"
     }
-    Video: 1044964880, "Video::Map #28", "Clip" {
+    Video: 815719584, "Video::Map #28", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\metal2.tga"
         }
         UseMipMap: 0
         Filename: "C:\MedievalGame\data\textures\metal2.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
     }
-    Video: 1044941536, "Video::Map #30", "Clip" {
+    Video: 815711136, "Video::Map #30", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\metal2.tga"
         }
         UseMipMap: 0
         Filename: "C:\MedievalGame\data\textures\metal2.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
     }
-    Video: 1044939712, "Video::Map #31", "Clip" {
+    Video: 815725168, "Video::Map #31", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\concrete.tga"
         }
         UseMipMap: 0
         Filename: "C:\MedievalGame\data\textures\concrete.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\concrete.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\concrete.tga"
     }
-    Video: 1044996592, "Video::Map #32", "Clip" {
+    Video: 815723520, "Video::Map #32", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\metal4.tga"
         }
         UseMipMap: 0
         Filename: "C:\MedievalGame\data\textures\metal4.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\metal4.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal4.tga"
     }
-    Video: 1044985840, "Video::Map #33", "Clip" {
+    Video: 815722976, "Video::Map #33", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\brick2.tga"
         }
         UseMipMap: 0
         Filename: "C:\MedievalGame\data\textures\brick2.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\brick2.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\brick2.tga"
     }
-    Video: 1044983616, "Video::Map #34", "Clip" {
+    Video: 815708544, "Video::Map #34", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\metal.tga"
         }
         UseMipMap: 0
         Filename: "C:\MedievalGame\data\textures\metal.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\metal.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal.tga"
     }
-    Video: 1045003312, "Video::Map #35", "Clip" {
+    Video: 815721168, "Video::Map #35", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\metal2.tga"
         }
         UseMipMap: 0
         Filename: "C:\MedievalGame\data\textures\metal2.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
     }
-    Video: 1045001600, "Video::Map #36", "Clip" {
+    Video: 815718112, "Video::Map #36", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\concrete.tga"
         }
         UseMipMap: 0
         Filename: "C:\MedievalGame\data\textures\concrete.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\concrete.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\concrete.tga"
     }
-    Video: 1044979296, "Video::Map #37", "Clip" {
+    Video: 815703408, "Video::Map #37", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\brick2.tga"
         }
         UseMipMap: 0
         Filename: "C:\MedievalGame\data\textures\brick2.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\brick2.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\brick2.tga"
     }
-    Video: 1044977456, "Video::Map #38", "Clip" {
+    Video: 815715648, "Video::Map #38", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\concrete.tga"
         }
         UseMipMap: 0
         Filename: "C:\MedievalGame\data\textures\concrete.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\concrete.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\concrete.tga"
     }
-    Video: 1044999840, "Video::Map #40", "Clip" {
+    Video: 815687168, "Video::Map #40", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\lamp.tga"
         }
         UseMipMap: 0
         Filename: "C:\MedievalGame\data\textures\lamp.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\lamp.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\lamp.tga"
     }
-    Video: 1044998032, "Video::Map #41", "Clip" {
+    Video: 815690560, "Video::Map #41", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\wood1.tga"
         }
         UseMipMap: 0
         Filename: "C:\MedievalGame\data\textures\wood1.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\wood1.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\wood1.tga"
     }
-    Texture: 84847984, "Texture::Map #25", "" {
+    Texture: 815785904, "Texture::Map #25", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #25"
@@ -5763,13 +3373,13 @@ a: 0
         }
         Media: "Video::Map #25"
         FileName: "C:\MedievalGame\data\textures\brick.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\brick.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\brick.tga"
         ModelUVTranslation: 0,0
         ModelUVScaling: 1,1
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 84838368, "Texture::Map #24", "" {
+    Texture: 815593008, "Texture::Map #24", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #24"
@@ -5779,13 +3389,13 @@ a: 0
         }
         Media: "Video::Map #24"
         FileName: "C:\MedievalGame\data\textures\metal2.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
         ModelUVTranslation: 0,0
         ModelUVScaling: 1,1
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 84842896, "Texture::Map #29", "" {
+    Texture: 815586336, "Texture::Map #29", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #29"
@@ -5795,13 +3405,13 @@ a: 0
         }
         Media: "Video::Map #29"
         FileName: "C:\MedievalGame\data\textures\metal3.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\metal3.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal3.tga"
         ModelUVTranslation: 0,0
         ModelUVScaling: 1,1
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 84767008, "Texture::Map #28", "" {
+    Texture: 815576272, "Texture::Map #28", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #28"
@@ -5811,13 +3421,13 @@ a: 0
         }
         Media: "Video::Map #28"
         FileName: "C:\MedievalGame\data\textures\metal2.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
         ModelUVTranslation: 0,0
         ModelUVScaling: 1,1
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 84754912, "Texture::Map #30", "" {
+    Texture: 815569536, "Texture::Map #30", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #30"
@@ -5827,13 +3437,13 @@ a: 0
         }
         Media: "Video::Map #30"
         FileName: "C:\MedievalGame\data\textures\metal2.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
         ModelUVTranslation: 0,0
         ModelUVScaling: 1,1
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 84762304, "Texture::Map #31", "" {
+    Texture: 815534432, "Texture::Map #31", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #31"
@@ -5843,13 +3453,13 @@ a: 0
         }
         Media: "Video::Map #31"
         FileName: "C:\MedievalGame\data\textures\concrete.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\concrete.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\concrete.tga"
         ModelUVTranslation: 0,0
         ModelUVScaling: 1,1
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 84854720, "Texture::Map #32", "" {
+    Texture: 815624576, "Texture::Map #32", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #32"
@@ -5859,13 +3469,13 @@ a: 0
         }
         Media: "Video::Map #32"
         FileName: "C:\MedievalGame\data\textures\metal4.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\metal4.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal4.tga"
         ModelUVTranslation: 0,0
         ModelUVScaling: 1,1
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 85712576, "Texture::Map #33", "" {
+    Texture: 815595632, "Texture::Map #33", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #33"
@@ -5875,13 +3485,13 @@ a: 0
         }
         Media: "Video::Map #33"
         FileName: "C:\MedievalGame\data\textures\brick2.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\brick2.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\brick2.tga"
         ModelUVTranslation: 0,0
         ModelUVScaling: 1,1
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 85720288, "Texture::Map #34", "" {
+    Texture: 815627536, "Texture::Map #34", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #34"
@@ -5891,13 +3501,13 @@ a: 0
         }
         Media: "Video::Map #34"
         FileName: "C:\MedievalGame\data\textures\metal.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\metal.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal.tga"
         ModelUVTranslation: 0,0
         ModelUVScaling: 1,1
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 85695104, "Texture::Map #35", "" {
+    Texture: 815597728, "Texture::Map #35", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #35"
@@ -5907,13 +3517,13 @@ a: 0
         }
         Media: "Video::Map #35"
         FileName: "C:\MedievalGame\data\textures\metal2.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
         ModelUVTranslation: 0,0
         ModelUVScaling: 1,1
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 85715056, "Texture::Map #36", "" {
+    Texture: 815650848, "Texture::Map #36", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #36"
@@ -5923,13 +3533,13 @@ a: 0
         }
         Media: "Video::Map #36"
         FileName: "C:\MedievalGame\data\textures\concrete.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\concrete.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\concrete.tga"
         ModelUVTranslation: 0,0
         ModelUVScaling: 1,1
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 85704384, "Texture::Map #37", "" {
+    Texture: 815656384, "Texture::Map #37", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #37"
@@ -5939,13 +3549,13 @@ a: 0
         }
         Media: "Video::Map #37"
         FileName: "C:\MedievalGame\data\textures\brick2.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\brick2.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\brick2.tga"
         ModelUVTranslation: 0,0
         ModelUVScaling: 1,1
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 85700032, "Texture::Map #38", "" {
+    Texture: 815650016, "Texture::Map #38", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #38"
@@ -5955,13 +3565,13 @@ a: 0
         }
         Media: "Video::Map #38"
         FileName: "C:\MedievalGame\data\textures\concrete.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\concrete.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\concrete.tga"
         ModelUVTranslation: 0,0
         ModelUVScaling: 1,1
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 84770064, "Texture::Map #40", "" {
+    Texture: 815639968, "Texture::Map #40", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #40"
@@ -5971,13 +3581,13 @@ a: 0
         }
         Media: "Video::Map #40"
         FileName: "C:\MedievalGame\data\textures\lamp.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\lamp.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\lamp.tga"
         ModelUVTranslation: 0,0
         ModelUVScaling: 1,1
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 893127008, "Texture::Map #41", "" {
+    Texture: 815463808, "Texture::Map #41", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #41"
@@ -5987,17 +3597,17 @@ a: 0
         }
         Media: "Video::Map #41"
         FileName: "C:\MedievalGame\data\textures\wood1.tga"
-        RelativeFilename: "..\..\..\..\..\..\..\..\MedievalGame\data\textures\wood1.tga"
+        RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\wood1.tga"
         ModelUVTranslation: 0,0
         ModelUVScaling: 1,1
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    AnimationStack: 811824512, "AnimStack::Take 001", "" {
+    AnimationStack: 815244960, "AnimStack::Take 001", "" {
     }
-    AnimationLayer: 811813808, "AnimLayer::BaseLayer", "" {
+    AnimationLayer: 815246944, "AnimLayer::BaseLayer", "" {
     }
-    AnimationCurveNode: 1043575344, "AnimCurveNode::T", "" {
+    AnimationCurveNode: 815494352, "AnimCurveNode::T", "" {
         Properties70:  {
             P: "d", "Compound", "", ""
             P: "d|X", "Number", "", "A",-0.0830111503601074
@@ -6005,7 +3615,7 @@ a: 0
             P: "d|Z", "Number", "", "A",7.3314962387085
         }
     }
-    AnimationCurveNode: 1043579344, "AnimCurveNode::R", "" {
+    AnimationCurveNode: 815478032, "AnimCurveNode::R", "" {
         Properties70:  {
             P: "d", "Compound", "", ""
             P: "d|X", "Number", "", "A",-52.5259792542087
@@ -6013,7 +3623,7 @@ a: 0
             P: "d|Z", "Number", "", "A",-38.7295711563922
         }
     }
-    AnimationCurveNode: 1043627952, "AnimCurveNode::T", "" {
+    AnimationCurveNode: 815473072, "AnimCurveNode::T", "" {
         Properties70:  {
             P: "d", "Compound", "", ""
             P: "d|X", "Number", "", "A",-2.14821743965149
@@ -6021,7 +3631,7 @@ a: 0
             P: "d|Z", "Number", "", "A",9.25737953186035
         }
     }
-    AnimationCurveNode: 1043621088, "AnimCurveNode::R", "" {
+    AnimationCurveNode: 815538096, "AnimCurveNode::R", "" {
         Properties70:  {
             P: "d", "Compound", "", ""
             P: "d|X", "Number", "", "A",113.749934064259
@@ -6029,7 +3639,7 @@ a: 0
             P: "d|Z", "Number", "", "A",39.0571432002458
         }
     }
-    AnimationCurve: 1043565552, "AnimCurve::", "" {
+    AnimationCurve: 815508880, "AnimCurve::", "" {
         Default: 0
         KeyVer: 4008
         KeyTime: *3 {
@@ -6049,7 +3659,7 @@ a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
 a: 1,1,1
 } 
     }
-    AnimationCurve: 1043563952, "AnimCurve::", "" {
+    AnimationCurve: 815507280, "AnimCurve::", "" {
         Default: 0
         KeyVer: 4008
         KeyTime: *3 {
@@ -6069,7 +3679,7 @@ a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
 a: 1,1,1
 } 
     }
-    AnimationCurve: 1043582800, "AnimCurve::", "" {
+    AnimationCurve: 815505680, "AnimCurve::", "" {
         Default: 0
         KeyVer: 4008
         KeyTime: *3 {
@@ -6089,7 +3699,7 @@ a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
 a: 1,1,1
 } 
     }
-    AnimationCurve: 1043581200, "AnimCurve::", "" {
+    AnimationCurve: 815516096, "AnimCurve::", "" {
         Default: 0
         KeyVer: 4008
         KeyTime: *3 {
@@ -6109,7 +3719,7 @@ a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
 a: 1,1,1
 } 
     }
-    AnimationCurve: 1043589120, "AnimCurve::", "" {
+    AnimationCurve: 815515280, "AnimCurve::", "" {
         Default: 0
         KeyVer: 4008
         KeyTime: *3 {
@@ -6129,7 +3739,7 @@ a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
 a: 1,1,1
 } 
     }
-    AnimationCurve: 1043587520, "AnimCurve::", "" {
+    AnimationCurve: 815525968, "AnimCurve::", "" {
         Default: 0
         KeyVer: 4008
         KeyTime: *3 {
@@ -6149,7 +3759,7 @@ a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
 a: 1,1,1
 } 
     }
-    AnimationCurve: 1043592368, "AnimCurve::", "" {
+    AnimationCurve: 815540560, "AnimCurve::", "" {
         Default: 0
         KeyVer: 4008
         KeyTime: *3 {
@@ -6169,7 +3779,7 @@ a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
 a: 1,1,1
 } 
     }
-    AnimationCurve: 1042687136, "AnimCurve::", "" {
+    AnimationCurve: 815555968, "AnimCurve::", "" {
         Default: 0
         KeyVer: 4008
         KeyTime: *3 {
@@ -6189,7 +3799,7 @@ a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
 a: 1,1,1
 } 
     }
-    AnimationCurve: 1042683136, "AnimCurve::", "" {
+    AnimationCurve: 815542864, "AnimCurve::", "" {
         Default: 0
         KeyVer: 4008
         KeyTime: *3 {
@@ -6209,7 +3819,7 @@ a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
 a: 1,1,1
 } 
     }
-    AnimationCurve: 1042707600, "AnimCurve::", "" {
+    AnimationCurve: 815542400, "AnimCurve::", "" {
         Default: 0
         KeyVer: 4008
         KeyTime: *3 {
@@ -6229,7 +3839,7 @@ a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
 a: 1,1,1
 } 
     }
-    AnimationCurve: 1043441664, "AnimCurve::", "" {
+    AnimationCurve: 815541360, "AnimCurve::", "" {
         Default: 0
         KeyVer: 4008
         KeyTime: *3 {
@@ -6249,7 +3859,7 @@ a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
 a: 1,1,1
 } 
     }
-    AnimationCurve: 1043440064, "AnimCurve::", "" {
+    AnimationCurve: 815559312, "AnimCurve::", "" {
         Default: 0
         KeyVer: 4008
         KeyTime: *3 {
@@ -6277,592 +3887,316 @@ a: 1,1,1
 Connections:  {
     
     ;Model::Polygon, Model::RootNode
-    C: "OO",811865824,0
+    C: "OO",815272544,0
     
     ;Model::Omni001, Model::RootNode
-    C: "OO",811880960,0
+    C: "OO",815279408,0
     
     ;Model::Omni003, Model::RootNode
-    C: "OO",811877888,0
+    C: "OO",815298592,0
     
     ;Model::Omni004, Model::RootNode
-    C: "OO",811891200,0
+    C: "OO",815280720,0
     
     ;Model::Omni011, Model::RootNode
-    C: "OO",811867440,0
+    C: "OO",815295760,0
     
     ;Model::Omni012, Model::RootNode
-    C: "OO",811882160,0
-    
-    ;Model::Omni016, Model::RootNode
-    C: "OO",811873520,0
-    
-    ;Model::Omni021, Model::RootNode
-    C: "OO",811870448,0
-    
-    ;Model::Omni024, Model::RootNode
-    C: "OO",811887136,0
-    
-    ;Model::Omni026, Model::RootNode
-    C: "OO",811863344,0
-    
-    ;Model::Omni027, Model::RootNode
-    C: "OO",811860768,0
-    
-    ;Model::Omni029, Model::RootNode
-    C: "OO",811897456,0
-    
-    ;Model::Omni031, Model::RootNode
-    C: "OO",811919744,0
+    C: "OO",815290912,0
     
     ;Model::Box002, Model::RootNode
-    C: "OO",811915808,0
+    C: "OO",815283504,0
     
     ;Model::Omni032, Model::RootNode
-    C: "OO",811907696,0
+    C: "OO",815274080,0
     
     ;Model::Omni033, Model::RootNode
-    C: "OO",811900208,0
+    C: "OO",815287600,0
     
     ;Model::Omni034, Model::RootNode
-    C: "OO",811901568,0
-    
-    ;Model::Omni035, Model::RootNode
-    C: "OO",811912496,0
-    
-    ;Model::Omni036, Model::RootNode
-    C: "OO",811910992,0
-    
-    ;Model::Omni037, Model::RootNode
-    C: "OO",811903152,0
-    
-    ;Model::Omni039, Model::RootNode
-    C: "OO",811905440,0
-    
-    ;Model::Omni040, Model::RootNode
-    C: "OO",811932976,0
-    
-    ;Model::Omni042, Model::RootNode
-    C: "OO",811940944,0
-    
-    ;Model::Omni043, Model::RootNode
-    C: "OO",811953456,0
-    
-    ;Model::Omni045, Model::RootNode
-    C: "OO",811939616,0
-    
-    ;Model::Omni046, Model::RootNode
-    C: "OO",811936384,0
-    
-    ;Model::Omni048, Model::RootNode
-    C: "OO",811950736,0
+    C: "OO",815284640,0
     
     ;Model::Omni049, Model::RootNode
-    C: "OO",811949360,0
+    C: "OO",815305424,0
     
     ;Model::Omni050, Model::RootNode
-    C: "OO",811944480,0
+    C: "OO",815311376,0
     
     ;Model::Omni051, Model::RootNode
-    C: "OO",811930304,0
+    C: "OO",815332048,0
     
     ;Model::Omni052, Model::RootNode
-    C: "OO",811987568,0
+    C: "OO",815300896,0
     
     ;Model::Omni053, Model::RootNode
-    C: "OO",811972384,0
-    
-    ;Model::Omni054, Model::RootNode
-    C: "OO",811970976,0
-    
-    ;Model::Omni055, Model::RootNode
-    C: "OO",811968448,0
-    
-    ;Model::Omni056, Model::RootNode
-    C: "OO",811988816,0
-    
-    ;Model::Omni057, Model::RootNode
-    C: "OO",811976096,0
-    
-    ;Model::Omni058, Model::RootNode
-    C: "OO",811961648,0
-    
-    ;Model::Omni059, Model::RootNode
-    C: "OO",811960336,0
-    
-    ;Model::Omni060, Model::RootNode
-    C: "OO",812053744,0
-    
-    ;Model::Omni061, Model::RootNode
-    C: "OO",812028512,0
-    
-    ;Model::Omni062, Model::RootNode
-    C: "OO",812044832,0
-    
-    ;Model::Omni063, Model::RootNode
-    C: "OO",812042384,0
-    
-    ;Model::Omni064, Model::RootNode
-    C: "OO",812050080,0
-    
-    ;Model::Omni065, Model::RootNode
-    C: "OO",812069952,0
-    
-    ;Model::Omni066, Model::RootNode
-    C: "OO",812057024,0
-    
-    ;Model::Omni067, Model::RootNode
-    C: "OO",812068144,0
-    
-    ;Model::Omni068, Model::RootNode
-    C: "OO",812088032,0
-    
-    ;Model::Omni069, Model::RootNode
-    C: "OO",812108720,0
-    
-    ;Model::Omni070, Model::RootNode
-    C: "OO",812118288,0
-    
-    ;Model::Omni071, Model::RootNode
-    C: "OO",812120608,0
-    
-    ;Model::Omni072, Model::RootNode
-    C: "OO",812119104,0
-    
-    ;Model::Omni073, Model::RootNode
-    C: "OO",812111904,0
-    
-    ;Model::Omni074, Model::RootNode
-    C: "OO",812105008,0
-    
-    ;Model::Omni075, Model::RootNode
-    C: "OO",812098704,0
-    
-    ;Model::Omni076, Model::RootNode
-    C: "OO",812136544,0
-    
-    ;Model::Omni077, Model::RootNode
-    C: "OO",812137776,0
-    
-    ;Model::Omni078, Model::RootNode
-    C: "OO",812134656,0
-    
-    ;Model::Omni079, Model::RootNode
-    C: "OO",812146976,0
-    
-    ;Model::Omni080, Model::RootNode
-    C: "OO",812141872,0
-    
-    ;Model::Omni081, Model::RootNode
-    C: "OO",812140496,0
-    
-    ;Model::Omni082, Model::RootNode
-    C: "OO",812138992,0
+    C: "OO",815327776,0
     
     ;Model::Teapot001, Model::RootNode
-    C: "OO",812150064,0
+    C: "OO",815322880,0
     
     ;Model::Fspot001, Model::RootNode
-    C: "OO",812182560,0
+    C: "OO",815303984,0
     
     ;Model::Teapot002, Model::RootNode
-    C: "OO",812196240,0
+    C: "OO",815325856,0
     
     ;AnimLayer::BaseLayer, AnimStack::Take 001
-    C: "OO",811813808,811824512
+    C: "OO",815246944,815244960
     
     ;AnimCurveNode::T, AnimLayer::BaseLayer
-    C: "OO",1043575344,811813808
+    C: "OO",815494352,815246944
     
     ;AnimCurveNode::R, AnimLayer::BaseLayer
-    C: "OO",1043579344,811813808
+    C: "OO",815478032,815246944
     
     ;AnimCurveNode::T, AnimLayer::BaseLayer
-    C: "OO",1043627952,811813808
+    C: "OO",815473072,815246944
     
     ;AnimCurveNode::R, AnimLayer::BaseLayer
-    C: "OO",1043621088,811813808
+    C: "OO",815538096,815246944
     
     ;Material::Material #275, Model::Polygon
-    C: "OO",84867264,811865824
+    C: "OO",815788048,815272544
     
     ;Material::Material #263, Model::Polygon
-    C: "OO",84854144,811865824
+    C: "OO",815572288,815272544
     
     ;Material::Material #325, Model::Polygon
-    C: "OO",84860720,811865824
+    C: "OO",815591968,815272544
     
     ;Material::Material #312, Model::Polygon
-    C: "OO",84856944,811865824
+    C: "OO",815582320,815272544
     
     ;Material::Material #337, Model::Polygon
-    C: "OO",84769488,811865824
+    C: "OO",815578112,815272544
     
     ;Material::Material #372, Model::Polygon
-    C: "OO",84764912,811865824
+    C: "OO",815591216,815272544
     
     ;Material::Material #407, Model::Polygon
-    C: "OO",84760288,811865824
+    C: "OO",815622672,815272544
     
     ;Material::Material #475, Model::Polygon
-    C: "OO",85689824,811865824
+    C: "OO",815611152,815272544
     
     ;Material::Material #1027, Model::Polygon
-    C: "OO",85710496,811865824
+    C: "OO",815604976,815272544
     
     ;Material::Material #1201, Model::Polygon
-    C: "OO",85718000,811865824
+    C: "OO",815596784,815272544
     
     ;Material::Material #1214, Model::Polygon
-    C: "OO",85692896,811865824
+    C: "OO",815638480,815272544
     
     ;Material::Material #1227, Model::Polygon
-    C: "OO",85708592,811865824
+    C: "OO",815632176,815272544
     
     ;Material::Material #1241, Model::Polygon
-    C: "OO",85702432,811865824
+    C: "OO",815628848,815272544
     
     ;Material::Material #1257, Model::Polygon
-    C: "OO",85697824,811865824
+    C: "OO",815652096,815272544
     
     ;Geometry::, Model::Polygon
-    C: "OO",179841344,811865824
+    C: "OO",815635104,815272544
     
     ;NodeAttribute::, Model::Omni001
-    C: "OO",180820800,811880960
+    C: "OO",815893312,815279408
     
     ;NodeAttribute::, Model::Omni003
-    C: "OO",180840288,811877888
+    C: "OO",815905600,815298592
     
     ;NodeAttribute::, Model::Omni004
-    C: "OO",180826240,811891200
+    C: "OO",815917984,815280720
     
     ;NodeAttribute::, Model::Omni011
-    C: "OO",180833776,811867440
+    C: "OO",815919632,815295760
     
     ;NodeAttribute::, Model::Omni012
-    C: "OO",180836432,811882160
-    
-    ;NodeAttribute::, Model::Omni016
-    C: "OO",179838000,811873520
-    
-    ;NodeAttribute::, Model::Omni021
-    C: "OO",179844400,811870448
-    
-    ;NodeAttribute::, Model::Omni024
-    C: "OO",179858992,811887136
-    
-    ;NodeAttribute::, Model::Omni026
-    C: "OO",179861296,811863344
-    
-    ;NodeAttribute::, Model::Omni027
-    C: "OO",180187408,811860768
-    
-    ;NodeAttribute::, Model::Omni029
-    C: "OO",180176352,811897456
-    
-    ;NodeAttribute::, Model::Omni031
-    C: "OO",180162288,811919744
+    C: "OO",815363792,815290912
     
     ;Material::Material #1257, Model::Box002
-    C: "OO",85697824,811915808
+    C: "OO",815652096,815283504
     
     ;Geometry::, Model::Box002
-    C: "OO",180177760,811915808
+    C: "OO",815358240,815283504
     
     ;NodeAttribute::, Model::Omni032
-    C: "OO",180419552,811907696
+    C: "OO",815340048,815274080
     
     ;NodeAttribute::, Model::Omni033
-    C: "OO",180397424,811900208
+    C: "OO",815346480,815287600
     
     ;NodeAttribute::, Model::Omni034
-    C: "OO",180394144,811901568
-    
-    ;NodeAttribute::, Model::Omni035
-    C: "OO",180388192,811912496
-    
-    ;NodeAttribute::, Model::Omni036
-    C: "OO",180402896,811910992
-    
-    ;NodeAttribute::, Model::Omni037
-    C: "OO",180405184,811903152
-    
-    ;NodeAttribute::, Model::Omni039
-    C: "OO",180173488,811905440
-    
-    ;NodeAttribute::, Model::Omni040
-    C: "OO",180442544,811932976
-    
-    ;NodeAttribute::, Model::Omni042
-    C: "OO",180440752,811940944
-    
-    ;NodeAttribute::, Model::Omni043
-    C: "OO",180431088,811953456
-    
-    ;NodeAttribute::, Model::Omni045
-    C: "OO",180422272,811939616
-    
-    ;NodeAttribute::, Model::Omni046
-    C: "OO",180452352,811936384
-    
-    ;NodeAttribute::, Model::Omni048
-    C: "OO",180477744,811950736
+    C: "OO",815307472,815284640
     
     ;NodeAttribute::, Model::Omni049
-    C: "OO",180460944,811949360
+    C: "OO",815382832,815305424
     
     ;NodeAttribute::, Model::Omni050
-    C: "OO",180474656,811944480
+    C: "OO",815398704,815311376
     
     ;NodeAttribute::, Model::Omni051
-    C: "OO",180456032,811930304
+    C: "OO",815392640,815332048
     
     ;NodeAttribute::, Model::Omni052
-    C: "OO",180465232,811987568
+    C: "OO",815380512,815300896
     
     ;NodeAttribute::, Model::Omni053
-    C: "OO",180472144,811972384
-    
-    ;NodeAttribute::, Model::Omni054
-    C: "OO",180794512,811970976
-    
-    ;NodeAttribute::, Model::Omni055
-    C: "OO",180798928,811968448
-    
-    ;NodeAttribute::, Model::Omni056
-    C: "OO",180813456,811988816
-    
-    ;NodeAttribute::, Model::Omni057
-    C: "OO",180790944,811976096
-    
-    ;NodeAttribute::, Model::Omni058
-    C: "OO",180803408,811961648
-    
-    ;NodeAttribute::, Model::Omni059
-    C: "OO",180858672,811960336
-    
-    ;NodeAttribute::, Model::Omni060
-    C: "OO",180848816,812053744
-    
-    ;NodeAttribute::, Model::Omni061
-    C: "OO",180850960,812028512
-    
-    ;NodeAttribute::, Model::Omni062
-    C: "OO",180863664,812044832
-    
-    ;NodeAttribute::, Model::Omni063
-    C: "OO",180867888,812042384
-    
-    ;NodeAttribute::, Model::Omni064
-    C: "OO",180878208,812050080
-    
-    ;NodeAttribute::, Model::Omni065
-    C: "OO",761262144,812069952
-    
-    ;NodeAttribute::, Model::Omni066
-    C: "OO",761252176,812057024
-    
-    ;NodeAttribute::, Model::Omni067
-    C: "OO",761242224,812068144
-    
-    ;NodeAttribute::, Model::Omni068
-    C: "OO",761240448,812088032
-    
-    ;NodeAttribute::, Model::Omni069
-    C: "OO",761256304,812108720
-    
-    ;NodeAttribute::, Model::Omni070
-    C: "OO",761258640,812118288
-    
-    ;NodeAttribute::, Model::Omni071
-    C: "OO",761353024,812120608
-    
-    ;NodeAttribute::, Model::Omni072
-    C: "OO",761334864,812119104
-    
-    ;NodeAttribute::, Model::Omni073
-    C: "OO",761337200,812111904
-    
-    ;NodeAttribute::, Model::Omni074
-    C: "OO",761355888,812105008
-    
-    ;NodeAttribute::, Model::Omni075
-    C: "OO",761363808,812098704
-    
-    ;NodeAttribute::, Model::Omni076
-    C: "OO",761496544,812136544
-    
-    ;NodeAttribute::, Model::Omni077
-    C: "OO",761525504,812137776
-    
-    ;NodeAttribute::, Model::Omni078
-    C: "OO",761510096,812134656
-    
-    ;NodeAttribute::, Model::Omni079
-    C: "OO",761498208,812146976
-    
-    ;NodeAttribute::, Model::Omni080
-    C: "OO",761519360,812141872
-    
-    ;NodeAttribute::, Model::Omni081
-    C: "OO",761530464,812140496
-    
-    ;NodeAttribute::, Model::Omni082
-    C: "OO",761547888,812138992
+    C: "OO",815374912,815327776
     
     ;Material::Material #1417, Model::Teapot001
-    C: "OO",893147152,812150064
+    C: "OO",815443760,815322880
     
     ;Geometry::, Model::Teapot001
-    C: "OO",893143856,812150064
+    C: "OO",815432032,815322880
     
     ;AnimCurveNode::T, Model::Teapot001
-    C: "OP",1043575344,812150064, "Lcl Translation"
+    C: "OP",815494352,815322880, "Lcl Translation"
     
     ;AnimCurveNode::R, Model::Teapot001
-    C: "OP",1043579344,812150064, "Lcl Rotation"
+    C: "OP",815478032,815322880, "Lcl Rotation"
     
     ;NodeAttribute::, Model::Fspot001
-    C: "OO",893182320,812182560
+    C: "OO",815487904,815303984
     
     ;Material::Material #1417, Model::Teapot002
-    C: "OO",893147152,812196240
+    C: "OO",815443760,815325856
     
     ;Geometry::, Model::Teapot002
-    C: "OO",893103680,812196240
+    C: "OO",815437328,815325856
     
     ;AnimCurveNode::T, Model::Teapot002
-    C: "OP",1043627952,812196240, "Lcl Translation"
+    C: "OP",815473072,815325856, "Lcl Translation"
     
     ;AnimCurveNode::R, Model::Teapot002
-    C: "OP",1043621088,812196240, "Lcl Rotation"
+    C: "OP",815538096,815325856, "Lcl Rotation"
     
     ;Texture::Map #25, Material::Material #275
-    C: "OP",84847984,84867264, "DiffuseColor"
+    C: "OP",815785904,815788048, "DiffuseColor"
     
     ;Video::Map #25, Texture::Map #25
-    C: "OO",1044943904,84847984
+    C: "OO",815722304,815785904
     
     ;Texture::Map #24, Material::Material #263
-    C: "OP",84838368,84854144, "DiffuseColor"
+    C: "OP",815593008,815572288, "DiffuseColor"
     
     ;Video::Map #24, Texture::Map #24
-    C: "OO",1044954144,84838368
+    C: "OO",815705008,815593008
     
     ;Texture::Map #29, Material::Material #325
-    C: "OP",84842896,84860720, "DiffuseColor"
+    C: "OP",815586336,815591968, "DiffuseColor"
     
     ;Video::Map #29, Texture::Map #29
-    C: "OO",1044963872,84842896
+    C: "OO",815712464,815586336
     
     ;Texture::Map #28, Material::Material #312
-    C: "OP",84767008,84856944, "DiffuseColor"
+    C: "OP",815576272,815582320, "DiffuseColor"
     
     ;Video::Map #28, Texture::Map #28
-    C: "OO",1044964880,84767008
+    C: "OO",815719584,815576272
     
     ;Texture::Map #30, Material::Material #337
-    C: "OP",84754912,84769488, "DiffuseColor"
+    C: "OP",815569536,815578112, "DiffuseColor"
     
     ;Video::Map #30, Texture::Map #30
-    C: "OO",1044941536,84754912
+    C: "OO",815711136,815569536
     
     ;Texture::Map #31, Material::Material #372
-    C: "OP",84762304,84764912, "DiffuseColor"
+    C: "OP",815534432,815591216, "DiffuseColor"
     
     ;Video::Map #31, Texture::Map #31
-    C: "OO",1044939712,84762304
+    C: "OO",815725168,815534432
     
     ;Texture::Map #32, Material::Material #407
-    C: "OP",84854720,84760288, "DiffuseColor"
+    C: "OP",815624576,815622672, "DiffuseColor"
     
     ;Video::Map #32, Texture::Map #32
-    C: "OO",1044996592,84854720
+    C: "OO",815723520,815624576
     
     ;Texture::Map #33, Material::Material #475
-    C: "OP",85712576,85689824, "DiffuseColor"
+    C: "OP",815595632,815611152, "DiffuseColor"
     
     ;Video::Map #33, Texture::Map #33
-    C: "OO",1044985840,85712576
+    C: "OO",815722976,815595632
     
     ;Texture::Map #34, Material::Material #1027
-    C: "OP",85720288,85710496, "DiffuseColor"
+    C: "OP",815627536,815604976, "DiffuseColor"
     
     ;Video::Map #34, Texture::Map #34
-    C: "OO",1044983616,85720288
+    C: "OO",815708544,815627536
     
     ;Texture::Map #35, Material::Material #1201
-    C: "OP",85695104,85718000, "DiffuseColor"
+    C: "OP",815597728,815596784, "DiffuseColor"
     
     ;Video::Map #35, Texture::Map #35
-    C: "OO",1045003312,85695104
+    C: "OO",815721168,815597728
     
     ;Texture::Map #36, Material::Material #1214
-    C: "OP",85715056,85692896, "DiffuseColor"
+    C: "OP",815650848,815638480, "DiffuseColor"
     
     ;Video::Map #36, Texture::Map #36
-    C: "OO",1045001600,85715056
+    C: "OO",815718112,815650848
     
     ;Texture::Map #37, Material::Material #1227
-    C: "OP",85704384,85708592, "DiffuseColor"
+    C: "OP",815656384,815632176, "DiffuseColor"
     
     ;Video::Map #37, Texture::Map #37
-    C: "OO",1044979296,85704384
+    C: "OO",815703408,815656384
     
     ;Texture::Map #38, Material::Material #1241
-    C: "OP",85700032,85702432, "DiffuseColor"
+    C: "OP",815650016,815628848, "DiffuseColor"
     
     ;Video::Map #38, Texture::Map #38
-    C: "OO",1044977456,85700032
+    C: "OO",815715648,815650016
     
     ;Texture::Map #40, Material::Material #1257
-    C: "OP",84770064,85697824, "DiffuseColor"
+    C: "OP",815639968,815652096, "DiffuseColor"
     
     ;Video::Map #40, Texture::Map #40
-    C: "OO",1044999840,84770064
+    C: "OO",815687168,815639968
     
     ;Texture::Map #41, Material::Material #1417
-    C: "OP",893127008,893147152, "DiffuseColor"
+    C: "OP",815463808,815443760, "DiffuseColor"
     
     ;Video::Map #41, Texture::Map #41
-    C: "OO",1044998032,893127008
+    C: "OO",815690560,815463808
     
     ;AnimCurve::, AnimCurveNode::T
-    C: "OP",1043565552,1043575344, "d|X"
+    C: "OP",815508880,815494352, "d|X"
     
     ;AnimCurve::, AnimCurveNode::T
-    C: "OP",1043582800,1043575344, "d|Y"
+    C: "OP",815505680,815494352, "d|Y"
     
     ;AnimCurve::, AnimCurveNode::T
-    C: "OP",1043563952,1043575344, "d|Z"
+    C: "OP",815507280,815494352, "d|Z"
     
     ;AnimCurve::, AnimCurveNode::R
-    C: "OP",1043581200,1043579344, "d|X"
+    C: "OP",815516096,815478032, "d|X"
     
     ;AnimCurve::, AnimCurveNode::R
-    C: "OP",1043589120,1043579344, "d|Y"
+    C: "OP",815515280,815478032, "d|Y"
     
     ;AnimCurve::, AnimCurveNode::R
-    C: "OP",1043587520,1043579344, "d|Z"
+    C: "OP",815525968,815478032, "d|Z"
     
     ;AnimCurve::, AnimCurveNode::T
-    C: "OP",1043592368,1043627952, "d|X"
+    C: "OP",815540560,815473072, "d|X"
     
     ;AnimCurve::, AnimCurveNode::T
-    C: "OP",1042683136,1043627952, "d|Y"
+    C: "OP",815542864,815473072, "d|Y"
     
     ;AnimCurve::, AnimCurveNode::T
-    C: "OP",1042687136,1043627952, "d|Z"
+    C: "OP",815555968,815473072, "d|Z"
     
     ;AnimCurve::, AnimCurveNode::R
-    C: "OP",1042707600,1043621088, "d|X"
+    C: "OP",815542400,815538096, "d|X"
     
     ;AnimCurve::, AnimCurveNode::R
-    C: "OP",1043441664,1043621088, "d|Y"
+    C: "OP",815541360,815538096, "d|Y"
     
     ;AnimCurve::, AnimCurveNode::R
-    C: "OP",1043440064,1043621088, "d|Z"
+    C: "OP",815559312,815538096, "d|Z"
 }
 ;Takes section
 ;----------------------------------------------------

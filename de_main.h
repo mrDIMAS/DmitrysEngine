@@ -26,8 +26,10 @@
 #ifdef _MSC_VER
 #  define _CRT_SECURE_NO_WARNINGS
 #  pragma warning(disable : 4204)
-#else
+#elif defined GNUC
 #  pragma GCC diagnostic ignored "-Woverlength-strings" /* built-in shaders does not fit in C89 limits of 512 chars */
+#else
+#error Compiler not supported
 #endif
 
 #define DE_UNUSED(x) ((void)x)
@@ -61,7 +63,7 @@
 
 /* External header-only dependencies */
 #ifdef _WIN32
-#  include "external/wglext.h"
+#  include "GL/wglext.h"
 #else
 #  include "GL/glx.h"
 #endif
@@ -89,6 +91,7 @@ typedef struct de_scene_t de_scene_t;
 #include "core/array.h"
 #include "core/byteorder.h"
 #include "core/memmgr.h"
+#include "core/base64.h"
 #include "core/thread.h"
 #include "core/string.h"
 #include "core/linked_list.h"
@@ -133,6 +136,7 @@ typedef struct de_scene_t de_scene_t;
 #  include "core/impl/color.h"
 #  include "core/impl/log.h" 
 #  include "core/impl/memmgr.h"
+#  include "core/impl/base64.h"
 #  include "core/impl/string.h"
 #  include "core/impl/rectpack.h"
 #  include "core/impl/rect.h"

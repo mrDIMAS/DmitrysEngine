@@ -322,8 +322,6 @@ void main_menu_create(void)
 
 int main(int argc, char** argv)
 {
-	de_base64_test();
-
 	float gameClock, fixedFPS, fixedTimeStep, dt;
 	de_engine_params_t params;
 	player_t* player;

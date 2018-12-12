@@ -189,7 +189,8 @@ void de_gui_init()
 		{
 			char_set[i] = i;
 		}
-		gui->default_font = de_font_load_ttf("data/font.ttf", 14, char_set, CHAR_COUNT);
+		
+		gui->default_font = de_font_load_ttf_from_memory(de_builtin_font_inconsolata, 18, char_set, CHAR_COUNT);
 	}
 }
 

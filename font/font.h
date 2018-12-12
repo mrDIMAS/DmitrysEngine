@@ -57,6 +57,11 @@ typedef struct de_font_t
 de_font_t* de_font_load_ttf(const char * ttf, float height, const int* char_set, int char_count);
 
 /**
+ * @brief Loads font from memory
+ */
+de_font_t* de_font_load_ttf_from_memory(void* data, float height, const int* char_set, int char_count);
+
+/**
  * @brief Frees resources associated with font
  */
 void de_font_free(de_font_t* font);

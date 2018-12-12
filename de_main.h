@@ -97,6 +97,7 @@ typedef struct de_scene_t de_scene_t;
 #include "core/linked_list.h"
 #include "core/time.h"
 #include "core/color.h"
+#include "resources/builtin_fonts.h"
 #include "math/mathlib.h"
 #include "core/rect.h"
 #include "renderer/vertex.h"	

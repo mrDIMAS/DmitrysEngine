@@ -284,5 +284,8 @@
     <ClInclude Include="..\..\core\base64.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\resources\builtin_fonts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

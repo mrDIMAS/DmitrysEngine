@@ -270,7 +270,21 @@ static void de_ttf_prepare_contours(de_ttf_glyph_t * glyph, de_point_t* points)
 		size_t to;
 		if (start_off)
 		{
-			de_polygon_add_vertex(&unpacked_contour, &DE_ARRAY_LAST(raw_contour->points));
+			/* when first point is off-curve we should add middle point between first and last points */
+			de_point_t middle;
+			de_point_t* first;
+			de_point_t* last;
+
+			first = &DE_ARRAY_FIRST(raw_contour->points);
+			last = &DE_ARRAY_LAST(raw_contour->points);
+
+			middle.flags = ON_CURVE_POINT;
+			middle.x = (first->x + last->x) / 2;
+			middle.y = glyph_height - (first->y + last->y) / 2;
+			
+			de_polygon_add_vertex(&unpacked_contour, &middle);
+
+			/* also make sure to iterate not to the end - we already added point */
 			to = raw_contour->points.size - 1;
 		}
 		else
@@ -522,7 +536,9 @@ static void de_convert_curves_to_line_set(de_ttf_glyph_t * glyph)
 			}
 			else
 			{
-				de_error("Invalid point sequence!");
+				j += 2;
+
+				de_log("Invalid point sequence! Probably a bug in de_ttf_prepare_contours");
 			}
 		}
 	}
@@ -601,7 +617,6 @@ void de_ttf_clear(de_true_type_t* ttf)
 		de_free(glyph->contours);
 		de_free(glyph->raw_contours);
 	}
-	de_free(ttf->data);
 	de_free(ttf->glyphs);
 }
 
@@ -718,34 +733,21 @@ static int de_compare_charmap_entry(const void* a, const void* b)
 }
 
 /*=======================================================================================*/
-de_font_t* de_font_load_ttf(const char * filename, float height, const int* char_set, int char_count)
+de_font_t* de_font_load_ttf_from_memory(void* data, float height, const int* char_set, int char_count)
 {
 	int i;
 	de_true_type_t ttf;
-	int size;
-	FILE* fontFile;
 	float oversample_height;
 	float scaler;
 	float back_scaler;
 	de_font_t * font;
 
-	assert(filename);
+	assert(data);
 	assert(char_count);
 	assert(char_count > 0);
 	assert(char_set);
 
-	fontFile = fopen(filename, "rb");
-	if (!fontFile)
-	{
-		return NULL;
-	}
-
-	fseek(fontFile, 0, SEEK_END);
-	size = ftell(fontFile);
-	ttf.data = malloc(size);
-	fseek(fontFile, 0, SEEK_SET);
-	fread(ttf.data, 1, size, fontFile);
-	fclose(fontFile);
+	ttf.data = data;
 
 	de_ttf_find_tables(&ttf);
 	de_ttf_read_glyphs(&ttf);
@@ -784,6 +786,39 @@ de_font_t* de_font_load_ttf(const char * filename, float height, const int* char
 
 	DE_LINKED_LIST_APPEND(de_engine->fonts, font);
 
+	return font;
+}
+
+/*=======================================================================================*/
+de_font_t* de_font_load_ttf(const char * filename, float height, const int* char_set, int char_count)
+{
+	int size;
+	FILE* fontFile;
+	void* data;
+	de_font_t* font;
+
+	assert(filename);
+	assert(char_count);
+	assert(char_count > 0);
+	assert(char_set);
+
+	fontFile = fopen(filename, "rb");
+	if (!fontFile)
+	{
+		return NULL;
+	}
+
+	fseek(fontFile, 0, SEEK_END);
+	size = ftell(fontFile);
+	data = de_malloc(size);
+	fseek(fontFile, 0, SEEK_SET);
+	fread(data, 1, size, fontFile);
+	fclose(fontFile);
+
+	font = de_font_load_ttf_from_memory(data, height, char_set, char_count);
+
+	de_free(data);
+	
 	return font;
 }
 

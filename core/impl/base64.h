@@ -19,16 +19,13 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-size_t de_base64_encode_data_size(size_t size)
-{
-	return 4 * ((size + 2) / 3);
-}
-
-void de_base64_encode(const void* data, size_t size, char* buffer)
+char* de_base64_encode(const void* data, size_t size, size_t* out_size)
 {
 	size_t i, k;
 	char* bytes;
+	char* buffer;
 	int padding;
+	size_t encoded_size;
 
 	static const uint8_t encoding_table[] =
 	{
@@ -41,6 +38,10 @@ void de_base64_encode(const void* data, size_t size, char* buffer)
 		'w', 'x', 'y', 'z', '0', '1', '2', '3',
 		'4', '5', '6', '7', '8', '9', '+', '/'
 	};
+
+	encoded_size = 4 * ((size + 2) / 3);
+
+	buffer = malloc(encoded_size + 1);
 
 	bytes = data;
 
@@ -69,6 +70,13 @@ void de_base64_encode(const void* data, size_t size, char* buffer)
 	}
 
 	buffer[k] = '\0';
+
+	if (out_size)
+	{
+		*out_size = encoded_size;
+	}
+
+	return buffer;
 }
 
 void* de_base64_decode(const char* data, size_t size, size_t* out_size)
@@ -171,9 +179,7 @@ void de_base64_test()
 	for (i = 0; i < 3; ++i)
 	{
 		size_t size = strlen(str[i]);
-		size_t buf_size = de_base64_encode_data_size(size);
-		char* buffer = de_malloc(buf_size + 1);
-		de_base64_encode(str[i], size, buffer);
+		char* buffer = de_base64_encode(str[i], size, NULL);
 		assert(strcmp(buffer, cmp[i]) == 0);
 		de_free(buffer);
 	}

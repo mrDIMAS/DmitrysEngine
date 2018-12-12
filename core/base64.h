@@ -20,15 +20,10 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 /**
- * @brief Returns length of string (without null-terminator!) needed to store base64 encoded data
- */
-size_t de_base64_encode_data_size(size_t size);
-
-/**
  * @brief Encodes data into base64 string. You must provide buffer of 
  * enough size (use de_base64_encode_data_size)
  */
-void de_base64_encode(const void* data, size_t size, char* buffer);
+char* de_base64_encode(const void* data, size_t size, size_t* out_size);
 
 /**
  * @brief Decodes base64 string. Returns pointer to decoded data.

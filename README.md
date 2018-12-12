@@ -11,6 +11,7 @@ Please note, that this engine is at very early development stage and some featur
 - TTF fonts support (compound characters support is not implemented yet)
 - GUI (inspired by WPF)
 - TGA image loading
+- Position-based physics
 
 ## Planned features (by priorities)
 - More complete FBX support (key frame animations, skinning, etc.)

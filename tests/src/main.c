@@ -182,65 +182,13 @@ void quit_on_click(de_gui_node_t* node)
 
 void main_menu_create(void)
 {
-	#if 1
-	/* test grid */
+	/* main window */
 	{
-		de_gui_node_t* test_grid = de_gui_grid_create();
-		de_gui_node_set_desired_size(test_grid, 300, 630);
-		de_gui_node_parse_property(test_grid, "DesiredPosition", "320, 10");		
-		de_gui_grid_add_column(test_grid, 0, DE_GUI_SIZE_MODE_STRETCH);
-		de_gui_grid_add_row(test_grid, 0, DE_GUI_SIZE_MODE_STRETCH);
-		de_gui_grid_enable_draw_borders(test_grid, DE_FALSE);
+		de_gui_node_t* window = de_gui_window_create();
+		de_gui_node_set_desired_size(window, 400, 500);
 
-		/* scroll viewer */
-		{
-			de_gui_node_t* sv = de_gui_scroll_viewer_create();
-			de_gui_node_set_row(sv, 6);
-			de_gui_node_set_column(sv, 1);
-			de_gui_node_attach(sv, test_grid);
-			de_gui_node_set_margin_uniform(sv, 10);
-
-			/* scroll viewer content */
-			{
-				de_gui_node_t* quit;
-				de_gui_node_t* grid;
-
-				grid = de_gui_grid_create();
-				de_gui_node_set_desired_size(grid, 700, 700);
-				de_gui_node_set_horizontal_alignment(grid, DE_GUI_HORIZONTAL_ALIGNMENT_LEFT);
-				de_gui_node_set_vertical_alignment(grid, DE_GUI_VERTICAL_ALIGNMENT_TOP);
-				de_gui_node_set_color_rgba(grid, 120, 120, 120, 255);
-				de_gui_grid_add_column(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
-				de_gui_grid_add_column(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
-				de_gui_grid_add_row(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
-				de_gui_grid_add_row(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
-
-				de_gui_scroll_viewer_set_content(sv, grid);
-
-				quit = de_gui_button_create();
-				de_gui_text_set_text(de_gui_button_get_text(quit), "Quit");
-				de_gui_text_set_alignment(de_gui_button_get_text(quit), DE_GUI_TA_CENTER);
-				de_gui_node_set_row(quit, 1);
-				de_gui_node_set_column(quit, 1);
-				de_gui_node_attach(quit, grid);
-				de_gui_node_set_margin_uniform(quit, 10);
-				de_gui_button_set_click(quit, quit_on_click);
-			}
-		}
-
-		/* test window */
-		{
-			de_gui_node_t* window = de_gui_window_create();
-			de_gui_node_set_desired_size(window, 400, 500);
-			de_gui_node_set_desired_local_position(window, 700, 500);
-			de_gui_window_set_content(window, test_grid);
-		}
-	}
-
-	/* layout */
-	{
 		de_gui_node_t* grid = de_gui_grid_create();
-		de_gui_node_set_desired_size(grid, 300, 630);
+		de_gui_node_set_desired_size(grid, 100, 100);
 		de_gui_node_set_desired_local_position(grid, 10, 10);
 		de_gui_grid_add_column(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
 		de_gui_grid_add_row(grid, 30, DE_GUI_SIZE_MODE_STRICT);
@@ -249,7 +197,7 @@ void main_menu_create(void)
 		de_gui_grid_add_row(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
 		de_gui_grid_add_row(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
 		de_gui_grid_add_row(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
-		de_gui_grid_add_row(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
+		de_gui_grid_add_row(grid, 0, DE_GUI_SIZE_MODE_STRETCH);		
 
 		/* title */
 		{
@@ -310,14 +258,10 @@ void main_menu_create(void)
 			de_gui_node_attach(quit, grid);
 			de_gui_node_set_margin_uniform(quit, 10);
 			de_gui_button_set_click(quit, quit_on_click);
-
-			{
-				de_color_t c = { 255, 0, 0, 255 };
-				de_gui_node_set_property(quit, "HoverColor", &c, sizeof(c));
-			}
 		}
+
+		de_gui_window_set_content(window, grid);
 	}
-	#endif
 }
 
 int main(int argc, char** argv)

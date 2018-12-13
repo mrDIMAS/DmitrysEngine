@@ -21,6 +21,9 @@
 
 /* Inspired by WPF */
 
+/* Set to non-zero to enable visual debugging of GUI */
+#define DE_GUI_ENABLE_GUI_DEBUGGING 0
+
 typedef struct de_gui_node_t de_gui_node_t;
 typedef struct de_gui_draw_list_t de_gui_draw_list_t;
 
@@ -31,6 +34,9 @@ typedef struct de_gui_thickness_t
 	float right;
 	float bottom;
 } de_gui_thickness_t;
+
+#define DE_ASSERT_NODE_TYPE(node, expected_type) \
+	if(node->type != expected_type) de_error("Node must be " #expected_type " type!")
 
 #include "gui/draw.h"
 #include "gui/button.h"

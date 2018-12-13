@@ -19,11 +19,6 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-
-#define DE_ASSERT_NODE_TYPE(node, expected_type) \
-	if(node->type != expected_type)              \
-	de_error("Node must be " #expected_type " type!")
-
 /* Forward declarations for controls */
 static void de_gui_node_default_layout(de_gui_node_t* n);
 static de_bool_t de_gui_node_contains_point(de_gui_node_t* node, const de_vec2_t* point);
@@ -227,8 +222,6 @@ void de_gui_node_update_transform(de_gui_node_t* node)
 	}
 }
 
-
-
 /*=======================================================================================*/
 static de_gui_node_t* de_gui_node_pick(de_gui_node_t* n, const de_vec2_t* mouse_pos, int* level)
 {
@@ -282,7 +275,7 @@ static de_bool_t de_gui_draw_command_contains_point(const de_gui_draw_list_t* dr
 		{
 			de_vec2_t v0, v1, v2;
 			float dot00, dot01, dot02, dot11, dot12;
-			float invDenom, u, v;
+			float denom, invDenom, u, v;
 
 			de_vec2_sub(&v0, &vc->pos, &va->pos);
 			de_vec2_sub(&v1, &vb->pos, &va->pos);
@@ -294,10 +287,18 @@ static de_bool_t de_gui_draw_command_contains_point(const de_gui_draw_list_t* dr
 			dot11 = de_vec2_dot(&v1, &v1);
 			dot12 = de_vec2_dot(&v1, &v2);
 
-			invDenom = 1.0f / (dot00 * dot11 - dot01 * dot01);
+			denom = (dot00 * dot11 - dot01 * dot01);
+						
+			if (denom <= FLT_EPSILON)
+			{
+				/* we don't want floating-point exceptions */
+				return DE_FALSE;
+			}
+
+			invDenom = 1.0f / denom;
 			u = (dot11 * dot02 - dot01 * dot12) * invDenom;
 			v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-
+			
 			if ((u >= 0) && (v >= 0) && (u + v < 1))
 			{
 				return DE_TRUE;
@@ -508,9 +509,7 @@ void de_gui_update()
 			}
 		}
 	}
-
-
-
+	
 	/* calculate screen position */
 	{
 		de_gui_node_t* n;
@@ -921,11 +920,21 @@ void de_gui_node_set_row(de_gui_node_t* node, uint16_t row)
 /*=======================================================================================*/
 static de_bool_t de_gui_node_needs_rendering(const de_gui_node_t* n)
 {
-	de_bool_t result = n->visibility == DE_GUI_NODE_VISIBILITY_VISIBLE;
+	de_bool_t result;
+
+	/* no need to render "nothing" */
+	if (n->actual_size.x == 0 && n->actual_size.y == 0)
+	{
+		return DE_FALSE;
+	}
+
+	result = n->visibility == DE_GUI_NODE_VISIBILITY_VISIBLE;
+
 	if (n->parent)
 	{
 		result &= de_gui_node_needs_rendering(n->parent);
 	}
+
 	return result;
 }
 
@@ -989,22 +998,26 @@ de_gui_draw_list_t* de_gui_render()
 		}
 	}
 
-	#if 1
+	#if DE_GUI_ENABLE_GUI_DEBUGGING
 	if (gui->picked_node)
 	{
 		de_color_t red = { 255, 0, 0, 255 };
-		de_gui_draw_list_set_nesting(dl, 0);
+		de_gui_draw_list_set_nesting(dl, 1);
 		de_gui_draw_list_push_rect(dl, &gui->picked_node->screen_position, &gui->picked_node->actual_size, 1, &red);
 		de_gui_draw_list_commit(dl, DE_GUI_DRAW_COMMAND_TYPE_GEOMETRY, 0, 0);
+
+		printf("p: %f %f\n", gui->picked_node->screen_position.x, gui->picked_node->screen_position.y);
+		printf("s: %f %f\n", gui->picked_node->actual_size.x, gui->picked_node->actual_size.y);		
 	}
 	if (gui->keyboard_focus)
 	{
 		de_color_t green = { 0, 200, 0, 255 };
-		de_gui_draw_list_set_nesting(dl, 0);
+		de_gui_draw_list_set_nesting(dl, 1);
 		de_gui_draw_list_push_rect(dl, &gui->keyboard_focus->screen_position, &gui->keyboard_focus->actual_size, 1, &green);
 		de_gui_draw_list_commit(dl, DE_GUI_DRAW_COMMAND_TYPE_GEOMETRY, 0, 0);
 	}
 	#endif
+
 
 	return dl;
 }

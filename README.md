@@ -15,6 +15,7 @@ Please note, that this engine is at very early development stage and some featur
 
 ## Planned features (by priorities)
 - More complete FBX support (key frame animations, skinning, etc.)
+- More GUI widgets (there are still no text input nodes)
 - Stability
 - Sound 
 - Support more 3D formats (3ds for example)

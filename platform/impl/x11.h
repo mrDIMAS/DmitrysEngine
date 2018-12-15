@@ -261,7 +261,7 @@ void de_engine_platform_init(void)
 		EnterWindowMask | LeaveWindowMask | PointerMotionMask;
 	
 	Window win = XCreateWindow( display, rootWindow, 
-							  0, 0, de_engine->params.width, de_engine->params.height, 0, vi->depth, InputOutput, 
+							  0, 0, de_core->params.width, de_core->params.height, 0, vi->depth, InputOutput, 
 							  vi->visual, 
 							  CWBorderPixel|CWColormap|CWEventMask, &swa );
 	if ( !win )
@@ -349,9 +349,9 @@ void de_engine_platform_init(void)
 	de_log( "Making context current\n" );
 	glXMakeCurrent( display, win, ctx );
 	
-	de_engine->platform.display = display;
-	de_engine->platform.glContext = ctx;
-	de_engine->platform.window = win;
+	de_core->platform.display = display;
+	de_core->platform.glContext = ctx;
+	de_core->platform.window = win;
 }
 
 void de_engine_platform_shutdown(void) 

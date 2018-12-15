@@ -19,29 +19,27 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-de_engine_t* de_engine;
-
-void de_engine_init_renderer();
+de_engine_t* de_core;
 
 /*=======================================================================================*/
 int de_init(const de_engine_params_t* params)
 {
-	de_engine = DE_NEW(de_engine_t);
+	de_core = DE_NEW(de_engine_t);
 
 	de_log_open("dengine.log");
 	de_log("Dmitry's Engine - Logging Started");
 
-	de_engine->params = *params;
-	de_engine->running = DE_TRUE;
+	de_core->params = *params;
+	de_core->running = DE_TRUE;
 
 	/* Call platform-specific initialization routine */
 	de_engine_platform_init();
 
-	DE_ARRAY_INIT(de_engine->scenes);
+	DE_ARRAY_INIT(de_core->scenes);
 
-	de_engine_init_renderer();
+	de_renderer_init();
 
-	de_gui_init(&de_engine->gui);
+	de_gui_init();
 
 	return DE_TRUE;
 }
@@ -49,9 +47,10 @@ int de_init(const de_engine_params_t* params)
 /*=======================================================================================*/
 void de_shutdown()
 {
-	de_gui_shutdown(&de_engine->gui);
+	de_gui_shutdown();
+	de_renderer_free();
 	de_engine_platform_shutdown();
-	de_free(de_engine);
+	de_free(de_core);
 	de_log("Engine shutdown successful!");
 	de_log_close();
 }
@@ -65,50 +64,50 @@ void de_poll_messages()
 /*=======================================================================================*/
 de_bool_t de_is_running()
 {
-	return de_engine->running;
+	return de_core->running;
 }
 
 /*=======================================================================================*/
 void de_stop()
 {
-	de_engine->running = DE_FALSE;
+	de_core->running = DE_FALSE;
 }
 
 /*=======================================================================================*/
 int de_is_key_pressed(enum de_key key)
 {
-	return de_engine->keys[key];
+	return de_core->keys[key];
 }
 
 /*=======================================================================================*/
 int de_is_key_released(enum de_key key)
 {
-	return !de_engine->keys[key];
+	return !de_core->keys[key];
 }
 
 /*=======================================================================================*/
 void de_get_mouse_velocity(de_vec2_t* vel)
 {
-	*vel = de_engine->mouse_vel;
+	*vel = de_core->mouse_vel;
 }
 
 /*=======================================================================================*/
 void de_set_framerate_limit(int limit)
 {
-	de_engine->renderer.frame_rate_limit = limit;
+	de_core->renderer.frame_rate_limit = limit;
 }
 
 /*=======================================================================================*/
 int de_is_mouse_pressed(enum de_mouse_button btn)
 {
-	return de_engine->mouse_buttons[btn];
+	return de_core->mouse_buttons[btn];
 }
 
 /*=======================================================================================*/
 void de_get_mouse_pos(de_vec2_t* pos)
 {
-	pos->x = de_engine->mouse_pos.x;
-	pos->y = de_engine->mouse_pos.y;
+	pos->x = de_core->mouse_pos.x;
+	pos->y = de_core->mouse_pos.y;
 }
 
 /*=======================================================================================*/
@@ -122,7 +121,7 @@ void de_update(float dt)
 	
 	de_physics_step(dt);
 
-	DE_LINKED_LIST_FOR_EACH(de_engine->scenes, scene)
+	DE_LINKED_LIST_FOR_EACH(de_core->scenes, scene)
 	{
 		de_scene_update(scene, dt);
 	}

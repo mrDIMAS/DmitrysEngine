@@ -32,6 +32,12 @@ de_animation_track_t* de_animation_track_create(de_animation_t* anim)
 }
 
 /*=======================================================================================*/
+void de_animation_track_free(de_animation_track_t* track)
+{
+	DE_ARRAY_FREE(track->keyframes);
+}
+
+/*=======================================================================================*/
 void de_animation_track_add_keyframe(de_animation_track_t* track, const de_keyframe_t* keyframe)
 {
 	size_t i;
@@ -56,6 +62,21 @@ void de_animation_track_add_keyframe(de_animation_track_t* track, const de_keyfr
 
 		DE_ARRAY_INSERT(track->keyframes, i, *keyframe);		
 	}
+}
+
+/*=======================================================================================*/
+void de_animation_free(de_animation_t* anim)
+{
+	size_t i;
+
+	DE_LINKED_LIST_REMOVE(anim->parent_scene->animations, anim);
+
+	for (i = 0; i < anim->tracks.size; ++i)
+	{
+		de_animation_track_free(anim->tracks.data[i]);
+	}
+
+	de_free(anim);
 }
 
 /*=======================================================================================*/

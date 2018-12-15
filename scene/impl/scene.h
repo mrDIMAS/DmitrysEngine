@@ -24,7 +24,7 @@ de_scene_t* de_scene_create(void)
 {
 	de_scene_t* s = DE_NEW(de_scene_t);
 	DE_LINKED_LIST_INIT(s->nodes);
-	DE_LINKED_LIST_APPEND(de_engine->scenes, s);
+	DE_LINKED_LIST_APPEND(de_core->scenes, s);
 	return s;
 }
 
@@ -49,7 +49,13 @@ void de_scene_free(de_scene_t* s)
 		de_scene_free_static_geometry(s, s->static_geometries.head);
 	}
 
-	DE_LINKED_LIST_REMOVE(de_engine->scenes, s);
+	/* free animations */
+	while (s->animations.head)
+	{
+		de_animation_free(s->animations.head);
+	}
+
+	DE_LINKED_LIST_REMOVE(de_core->scenes, s);
 
 	de_free(s);
 }

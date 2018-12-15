@@ -92,9 +92,19 @@ void de_animation_add_track(de_animation_t* anim, de_animation_track_t* track);
 de_animation_track_t* de_animation_track_create(de_animation_t* anim);
 
 /**
+ * @brief Frees memory.
+ */
+void de_animation_track_free(de_animation_track_t* track);
+
+/**
  * @brief Adds a keyframe to animation track.
  */
 void de_animation_track_add_keyframe(de_animation_track_t* track, const de_keyframe_t* keyframe);
+
+/**
+ * @brief Frees memory.
+ */
+void de_animation_free(de_animation_t* anim);
 
 /**
  * @brief

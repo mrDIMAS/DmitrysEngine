@@ -166,6 +166,16 @@ struct de_renderer_t
 };
 
 /**
+ * @brief Initializes rendering pipeline.
+ */
+void de_renderer_init(void);
+
+/**
+ * @brief Frees all allocated resources.
+ */
+void de_renderer_free(void);
+
+/**
 * @brief Creates new surface.
 *
 * Also creates buffers on GPU side.

@@ -27,7 +27,7 @@ void de_camera_init(de_camera_t* c)
 	c->fov = 75.0f;
 	c->z_far = 1024.0f;
 	c->z_near = 0.05f;
-	c->aspect = de_engine->params.width / (float)de_engine->params.height;
+	c->aspect = de_core->params.width / (float)de_core->params.height;
 }
 
 /*=======================================================================================*/

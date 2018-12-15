@@ -324,7 +324,7 @@ void de_physics_step(float dt)
 
 	dt2 = dt * dt;
 
-	DE_LINKED_LIST_FOR_EACH(de_engine->scenes, scene)
+	DE_LINKED_LIST_FOR_EACH(de_core->scenes, scene)
 	{
 		DE_LINKED_LIST_FOR_EACH(scene->bodies, body)
 		{

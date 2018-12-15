@@ -784,7 +784,7 @@ de_font_t* de_font_load_ttf_from_memory(void* data, float height, const int* cha
 	de_font_pack(font);
 	de_ttf_clear(&ttf);
 
-	DE_LINKED_LIST_APPEND(de_engine->fonts, font);
+	DE_LINKED_LIST_APPEND(de_core->fonts, font);
 
 	return font;
 }
@@ -825,8 +825,9 @@ de_font_t* de_font_load_ttf(const char * filename, float height, const int* char
 /*=======================================================================================*/
 void de_font_free(de_font_t* font)
 {
-	DE_LINKED_LIST_REMOVE(de_engine->fonts, font);
+	DE_LINKED_LIST_REMOVE(de_core->fonts, font);
 
+	DE_ARRAY_FREE(font->charmap);
 	de_texture_release(font->texture);
 	de_free(font->glyphs);
 	de_free(font);

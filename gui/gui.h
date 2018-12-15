@@ -280,7 +280,7 @@ typedef struct de_gui_t
 /**
  * @brief Initializes GUI. For internal use only!
  */
-void de_gui_init();
+void de_gui_init(void);
 
 /**
  * @brief Shutdowns GUI. For internal use only!

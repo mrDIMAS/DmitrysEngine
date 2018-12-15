@@ -44,7 +44,7 @@ static void de_gui_scroll_viewer_hor_scroll_changed(de_gui_node_t* sv_node)
 /*=======================================================================================*/
 static void de_gui_scroll_viewer_deinit(de_gui_node_t* n)
 {
-	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_SCROLL_BAR);
+	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_SCROLL_VIEWER);
 
 	DE_UNUSED(n);
 }

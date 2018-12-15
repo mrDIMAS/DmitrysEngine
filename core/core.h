@@ -70,7 +70,7 @@ struct de_engine_t
 /*
  * Global pointer to single engine instance. Main entry point for whole engine.
  */
-extern de_engine_t* de_engine;
+extern de_engine_t* de_core;
 
 /**
 * @brief Creates window and initializes OpenGL

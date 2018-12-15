@@ -1340,6 +1340,7 @@ static void de_fbx_free(de_fbx_t* fbx)
 			de_fbx_texture_free(&comp->s.texture);
 			break;
 		}
+		de_free(comp);
 	}
 	DE_ARRAY_FREE(fbx->components);
 	de_free(fbx);

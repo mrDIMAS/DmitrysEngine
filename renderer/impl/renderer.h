@@ -177,7 +177,7 @@ static void de_renderer_upload_surface(de_surface_t* s);
 static void de_renderer_load_extensions()
 {
 	#define GET_GL_EXT(type, func) func = (type)de_engine_platform_get_proc_address(#func); \
-							       if(!func) de_error("Unable to load "#func" function pointer");
+								   if(!func) de_error("Unable to load "#func" function pointer");
 
 	GET_GL_EXT(PFNGLCREATESHADERPROC, glCreateShader);
 	GET_GL_EXT(PFNGLDELETESHADERPROC, glDeleteShader);
@@ -239,7 +239,7 @@ static void de_renderer_load_extensions()
 /*=======================================================================================*/
 static void de_create_gbuffer(int width, int height)
 {
-	de_renderer_t* r = &de_engine->renderer;
+	de_renderer_t* r = &de_core->renderer;
 	de_gbuffer_t * gbuf = &r->gbuffer;	
 
 	DE_GL_CALL(glGenFramebuffers(1, &gbuf->fbo));
@@ -321,7 +321,7 @@ static void de_create_gbuffer(int width, int height)
 /*=======================================================================================*/
 static void de_create_builtin_shaders()
 {
-	de_renderer_t* r = &de_engine->renderer;
+	de_renderer_t* r = &de_core->renderer;
 	
 	/* Flat shader */
 	{
@@ -376,12 +376,12 @@ static void de_create_builtin_shaders()
 }
 
 /*=======================================================================================*/
-void de_engine_init_renderer()
+void de_renderer_init(void)
 {
 	#if VERBOSE_INIT
 	int i, num_extensions;
 	#endif
-	de_renderer_t* r = &de_engine->renderer;
+	de_renderer_t* r = &de_core->renderer;
 
 	de_log("GPU Vendor: %s", glGetString(GL_VENDOR));
 	de_log("GPU: %s", glGetString(GL_RENDERER));
@@ -403,12 +403,12 @@ void de_engine_init_renderer()
 	DE_GL_CALL(glEnable(GL_CULL_FACE));
 	glCullFace(GL_FRONT);
 
-	de_create_gbuffer(de_engine->params.width, de_engine->params.height);
+	de_create_gbuffer(de_core->params.width, de_core->params.height);
 
 	/* Create fullscreen quad */
 	{
-		float w = (float)de_engine->params.width;
-		float h = (float)de_engine->params.height;
+		float w = (float)de_core->params.width;
+		float h = (float)de_core->params.height;
 
 		int faces[] = {
 			0, 1, 2,
@@ -448,10 +448,19 @@ void de_engine_init_renderer()
 }
 
 /*=======================================================================================*/
+void de_renderer_free(void)
+{
+	de_renderer_t* r = &de_core->renderer;
+
+	de_renderer_free_surface(r->quad);
+	de_renderer_free_surface(r->test_surface);
+}
+
+/*=======================================================================================*/
 static void de_render_surface_normals(de_surface_t* surface)
 {
 	size_t i;
-	de_renderer_t* r = &de_engine->renderer;
+	de_renderer_t* r = &de_core->renderer;
 
 	DE_ARRAY_CLEAR(r->test_surface->vertices);
 	DE_ARRAY_CLEAR(r->test_surface->indices);
@@ -596,7 +605,7 @@ de_texture_t* de_renderer_request_texture(const char* file)
 {
 	de_texture_t* tex;
 	de_image_t img = { 0 };
-	de_renderer_t* r = &de_engine->renderer;
+	de_renderer_t* r = &de_core->renderer;
 
 	/* Look for already loaded textures */
 	{
@@ -651,7 +660,7 @@ de_texture_t* de_renderer_request_texture(const char* file)
 de_texture_t* de_renderer_create_texture(size_t w, size_t h, size_t byte_per_pixel)
 {
 	de_texture_t* tex;
-	de_renderer_t* r = &de_engine->renderer;
+	de_renderer_t* r = &de_core->renderer;
 
 	tex = DE_NEW(de_texture_t);
 	tex->width = w;
@@ -673,7 +682,7 @@ de_texture_t* de_renderer_create_texture(size_t w, size_t h, size_t byte_per_pix
 static void de_renderer_remove_texture(de_texture_t* tex)
 {
 	glDeleteTextures(1, &tex->id);
-	DE_LINKED_LIST_REMOVE(de_engine->renderer.textures, tex);
+	DE_LINKED_LIST_REMOVE(de_core->renderer.textures, tex);
 }
 
 /*=======================================================================================*/
@@ -717,7 +726,7 @@ static void de_upload_texture(de_texture_t* texture)
 
 static void de_render_fullscreen_quad()
 {
-	de_renderer_t* r = &de_engine->renderer;
+	de_renderer_t* r = &de_core->renderer;
 	DE_GL_CALL(glBindVertexArray(r->quad->vao));
 	DE_GL_CALL(glDrawElements(GL_TRIANGLES, r->quad->indices.size, GL_UNSIGNED_INT, NULL));
 }
@@ -742,7 +751,7 @@ static void de_render_mesh(de_mesh_t* mesh)
 		}
 		else
 		{
-			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, de_engine->renderer.white_dummy->id));
+			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, de_core->renderer.white_dummy->id));
 		}
 
 		DE_GL_CALL(glBindVertexArray(surf->vao));
@@ -773,7 +782,7 @@ static void de_upload_textures()
 {
 	de_texture_t* texture;
 
-	DE_LINKED_LIST_FOR_EACH(de_engine->renderer.textures, texture)
+	DE_LINKED_LIST_FOR_EACH(de_core->renderer.textures, texture)
 	{
 		if (texture->need_upload)
 		{
@@ -784,7 +793,7 @@ static void de_upload_textures()
 
 void de_render()
 {
-	de_renderer_t* r = &de_engine->renderer;	
+	de_renderer_t* r = &de_core->renderer;	
 	static int last_time_ms;
 	int current_time_ms;
 	int time_limit_ms;
@@ -792,8 +801,8 @@ void de_render()
 	de_scene_t* scene;
 	de_mat4_t y_flip_ortho, ortho;
 	GLenum buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT };
-	float w = (float)de_engine->params.width;
-	float h = (float)de_engine->params.height;
+	float w = (float)de_core->params.width;
+	float h = (float)de_core->params.height;
 
 	/* Upload textures first */
 	de_upload_textures(r);
@@ -809,7 +818,7 @@ void de_render()
 	DE_GL_CALL(glUniform1i(r->gbuffer_shader.diffuse_texture, 0));
 
 	/* render each scene */
-	DE_LINKED_LIST_FOR_EACH(de_engine->scenes, scene)
+	DE_LINKED_LIST_FOR_EACH(de_core->scenes, scene)
 	{
 		de_node_t* node;
 		de_camera_t* camera;
@@ -818,7 +827,7 @@ void de_render()
 
 		de_camera_update(camera);
 
-		de_set_viewport(&camera->viewport, de_engine->params.width, de_engine->params.height);
+		de_set_viewport(&camera->viewport, de_core->params.width, de_core->params.height);
 
 		/* Render each node */
 		DE_LINKED_LIST_FOR_EACH(scene->nodes, node)
@@ -898,7 +907,7 @@ void de_render()
 		{
 			DE_GL_CALL(glUseProgram(r->flat_shader.program));
 
-			de_set_viewport(&camera->viewport, de_engine->params.width, de_engine->params.height);
+			de_set_viewport(&camera->viewport, de_core->params.width, de_core->params.height);
 
 			/* Render each node */
 			DE_LINKED_LIST_FOR_EACH(scene->nodes, node)

@@ -151,7 +151,7 @@ level_t* level_create_test(void)
 
 	level->scene = de_scene_create();
 
-	level->test_fbx = de_fbx_load_to_scene(level->scene, "data/models/rotating_cube.fbx");
+	level->test_fbx = de_fbx_load_to_scene(level->scene, "data/models/skin_test.fbx");
 	de_node_set_local_position(level->test_fbx, &rp);
 
 	de_fbx_load_to_scene(level->scene, "data/models/map2.fbx");

@@ -1,9 +1,14 @@
 /*=======================================================================================*/
 static void de_gui_text_deinit(de_gui_node_t* n)
 {
+	de_gui_text_t* txt;
+
 	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_TEXT);
 
-	DE_ARRAY_FREE(n->s.text.lines);
+	txt = &n->s.text;
+
+	DE_ARRAY_FREE(txt->str);
+	DE_ARRAY_FREE(txt->lines);
 }
 
 /*=======================================================================================*/
@@ -111,7 +116,7 @@ de_gui_node_t* de_gui_text_create(void)
 	n = de_gui_node_alloc(DE_GUI_NODE_TEXT, &dispatch_table);
 
 	txt = &n->s.text;
-	txt->font = de_engine->gui.default_font;
+	txt->font = de_core->gui.default_font;
 	DE_ARRAY_INIT(txt->str);
 
 	return n;
@@ -133,11 +138,11 @@ void de_gui_text_set_text(de_gui_node_t* node, const char* utf8str)
 	size_t len;
 	DE_ASSERT_NODE_TYPE(node, DE_GUI_NODE_TEXT);
 	txt = &node->s.text;
-	len = de_utf8_to_utf32(utf8str, de_engine->gui.text_buffer, de_engine->gui.text_buffer_size);
+	len = de_utf8_to_utf32(utf8str, de_core->gui.text_buffer, de_core->gui.text_buffer_size);
 	DE_ARRAY_CLEAR(txt->str);
 	for (i = 0; i < len; ++i)
 	{
-		DE_ARRAY_APPEND(txt->str, de_engine->gui.text_buffer[i]);
+		DE_ARRAY_APPEND(txt->str, de_core->gui.text_buffer[i]);
 	}
 	de_gui_text_break_on_lines(node);
 }

@@ -164,3 +164,15 @@
 			} \
 		} \
 	} while(0) 
+
+#define DE_ARRAY_INSERT(a, pos, item) \
+    do { \
+        if(a.size == 0) { \
+            DE_ARRAY_APPEND(a, item); \
+		} \
+		if (pos >= 0 && pos < a.size) { \
+			DE_ARRAY_GROW(a, 1); \
+			memmove(a.data + pos + 1, a.data + pos, sizeof(*a.data) * (a.size - pos)); \
+			memcpy(&item, a.data + pos, sizeof(item)); \
+		} \
+	} while(0)

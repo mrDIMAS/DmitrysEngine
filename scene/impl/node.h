@@ -137,6 +137,18 @@ void de_node_calculate_transforms(de_node_t* node)
 		node->position = node->body->position;
 	}
 
+	/**
+	 * TODO: Why there is so much matrices? Because of FBX support.
+	 * FBX uses very complex transformations and there is no way (in my opinion) 
+	 * to convert these to just three parameters: 
+	 *  - translation
+	 *  - rotation quaternion
+	 *  - scale
+	 * So to exclude weird transformations behaviour when using FBX, I just decided
+	 * to use all these matrices. This is not optimized at all, for example 70% of
+	 * these multiplications and matrices creation can be done only once on load.
+	 */
+
 	de_mat4_rotation(&pre_rotation, &node->pre_rotation);
 
 	de_mat4_rotation(&post_rotation, &node->post_rotation);

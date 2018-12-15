@@ -10,11 +10,11 @@ FBXHeaderExtension:  {
         Version: 1000
         Year: 2018
         Month: 12
-        Day: 11
-        Hour: 19
-        Minute: 45
-        Second: 51
-        Millisecond: 679
+        Day: 15
+        Hour: 12
+        Minute: 39
+        Second: 27
+        Millisecond: 23
     }
     Creator: "FBX SDK/FBX Plugins version 2012.0"
     SceneInfo: "SceneInfo::GlobalInfo", "UserData" {
@@ -36,13 +36,13 @@ FBXHeaderExtension:  {
             P: "Original|ApplicationVendor", "KString", "", "", "Autodesk"
             P: "Original|ApplicationName", "KString", "", "", "3ds Max"
             P: "Original|ApplicationVersion", "KString", "", "", "2012"
-            P: "Original|DateTime_GMT", "DateTime", "", "", "11/12/2018 16:45:51.678"
+            P: "Original|DateTime_GMT", "DateTime", "", "", "15/12/2018 09:39:27.022"
             P: "Original|FileName", "KString", "", "", "C:\DmitrysEngine\DmitrysEngine\tests\bin\data\models\map2.fbx"
             P: "LastSaved", "Compound", "", ""
             P: "LastSaved|ApplicationVendor", "KString", "", "", "Autodesk"
             P: "LastSaved|ApplicationName", "KString", "", "", "3ds Max"
             P: "LastSaved|ApplicationVersion", "KString", "", "", "2012"
-            P: "LastSaved|DateTime_GMT", "DateTime", "", "", "11/12/2018 16:45:51.678"
+            P: "LastSaved|DateTime_GMT", "DateTime", "", "", "15/12/2018 09:39:27.022"
         }
     }
 }
@@ -72,7 +72,7 @@ GlobalSettings:  {
 
 Documents:  {
     Count: 1
-    Document: 815222432, "", "Scene" {
+    Document: 505583568, "", "Scene" {
         Properties70:  {
             P: "SourceObject", "object", "", ""
             P: "ActiveAnimStackName", "KString", "", "", ""
@@ -92,7 +92,7 @@ References:  {
 
 Definitions:  {
     Version: 100
-    Count: 142
+    Count: 126
     ObjectType: "GlobalSettings" {
         Count: 1
     }
@@ -292,10 +292,7 @@ Definitions:  {
         }
     }
     ObjectType: "AnimationCurve" {
-        Count: 54
-    }
-    ObjectType: "AnimationCurveNode" {
-        Count: 4
+        Count: 42
     }
     ObjectType: "Video" {
         Count: 15
@@ -323,7 +320,7 @@ Definitions:  {
 ;------------------------------------------------------------------
 
 Objects:  {
-    Geometry: 815635104, "Geometry::", "Mesh" {
+    Geometry: 932835088, "Geometry::", "Mesh" {
         Properties70:  {
             P: "Color", "ColorRGB", "Color", "",0.101960784313725,0.694117647058824,0.345098039215686
         }
@@ -1252,7 +1249,7 @@ a: 1,1,1,1,1,1,7,7,7,7,7,7,7,1,1,1,1,1,1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
             }
         }
     }
-    NodeAttribute: 815893312, "NodeAttribute::", "Light" {
+    NodeAttribute: 565133456, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "DrawGroundProjection", "bool", "", "",0
             P: "Fog", "Number", "", "A",0
@@ -1284,7 +1281,7 @@ a: 1,1,1,1,1,1,7,7,7,7,7,7,7,1,1,1,1,1,1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 815905600, "NodeAttribute::", "Light" {
+    NodeAttribute: 932691472, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "Color", "Color", "", "A",0.988235354423523,0,0
             P: "DrawGroundProjection", "bool", "", "",0
@@ -1317,7 +1314,7 @@ a: 1,1,1,1,1,1,7,7,7,7,7,7,7,1,1,1,1,1,1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 815917984, "NodeAttribute::", "Light" {
+    NodeAttribute: 932693744, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "Color", "Color", "", "A",0,1,0.211764723062515
             P: "DrawGroundProjection", "bool", "", "",0
@@ -1350,7 +1347,7 @@ a: 1,1,1,1,1,1,7,7,7,7,7,7,7,1,1,1,1,1,1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 815919632, "NodeAttribute::", "Light" {
+    NodeAttribute: 932696080, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "Color", "Color", "", "A",0.984313786029816,0.996078491210938,0.690196096897125
             P: "DrawGroundProjection", "bool", "", "",0
@@ -1383,7 +1380,7 @@ a: 1,1,1,1,1,1,7,7,7,7,7,7,7,1,1,1,1,1,1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 815363792, "NodeAttribute::", "Light" {
+    NodeAttribute: 932706304, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "Color", "Color", "", "A",0.976470649242401,0.94901967048645,0.658823549747467
             P: "DrawGroundProjection", "bool", "", "",0
@@ -1416,7 +1413,7 @@ a: 1,1,1,1,1,1,7,7,7,7,7,7,7,1,1,1,1,1,1,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    Geometry: 815358240, "Geometry::", "Mesh" {
+    Geometry: 932720032, "Geometry::", "Mesh" {
         Properties70:  {
             P: "Color", "ColorRGB", "Color", "",0.333333333333333,0.109803921568627,0.694117647058824
         }
@@ -1489,7 +1486,7 @@ a: 0
             }
         }
     }
-    NodeAttribute: 815340048, "NodeAttribute::", "Light" {
+    NodeAttribute: 932713664, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "DrawGroundProjection", "bool", "", "",0
             P: "Fog", "Number", "", "A",0
@@ -1521,7 +1518,7 @@ a: 0
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 815346480, "NodeAttribute::", "Light" {
+    NodeAttribute: 932722256, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "DrawGroundProjection", "bool", "", "",0
             P: "Fog", "Number", "", "A",0
@@ -1553,7 +1550,7 @@ a: 0
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 815307472, "NodeAttribute::", "Light" {
+    NodeAttribute: 932736816, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "DrawGroundProjection", "bool", "", "",0
             P: "Fog", "Number", "", "A",0
@@ -1585,7 +1582,7 @@ a: 0
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 815382832, "NodeAttribute::", "Light" {
+    NodeAttribute: 932739392, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
             P: "DrawGroundProjection", "bool", "", "",0
@@ -1618,7 +1615,7 @@ a: 0
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 815398704, "NodeAttribute::", "Light" {
+    NodeAttribute: 932743760, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
             P: "DrawGroundProjection", "bool", "", "",0
@@ -1651,7 +1648,7 @@ a: 0
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 815392640, "NodeAttribute::", "Light" {
+    NodeAttribute: 472800752, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
             P: "DrawGroundProjection", "bool", "", "",0
@@ -1684,7 +1681,7 @@ a: 0
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 815380512, "NodeAttribute::", "Light" {
+    NodeAttribute: 932845920, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "Color", "Color", "", "A",1,0.921568691730499,0.678431391716003
             P: "DrawGroundProjection", "bool", "", "",0
@@ -1717,7 +1714,7 @@ a: 0
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    NodeAttribute: 815374912, "NodeAttribute::", "Light" {
+    NodeAttribute: 932855600, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "Color", "Color", "", "A",0.984313786029816,0.996078491210938,0.690196096897125
             P: "DrawGroundProjection", "bool", "", "",0
@@ -1750,7 +1747,7 @@ a: 0
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    Geometry: 815432032, "Geometry::", "Mesh" {
+    Geometry: 932883424, "Geometry::", "Mesh" {
         Properties70:  {
             P: "Color", "ColorRGB", "Color", "",0.650980392156863,0.898039215686275,0.898039215686275
         }
@@ -2141,7 +2138,7 @@ a: 0
             }
         }
     }
-    NodeAttribute: 815487904, "NodeAttribute::", "Light" {
+    NodeAttribute: 472660704, "NodeAttribute::", "Light" {
         Properties70:  {
             P: "LightType", "enum", "", "",2
             P: "DrawGroundProjection", "bool", "", "",0
@@ -2179,7 +2176,7 @@ a: 0
         TypeFlags: "Light"
         GeometryVersion: 124
     }
-    Geometry: 815437328, "Geometry::", "Mesh" {
+    Geometry: 502880928, "Geometry::", "Mesh" {
         Properties70:  {
             P: "Color", "ColorRGB", "Color", "",0.650980392156863,0.898039215686275,0.898039215686275
         }
@@ -2570,7 +2567,7 @@ a: 0
             }
         }
     }
-    Model: 815272544, "Model::Polygon", "Mesh" {
+    Model: 932629616, "Model::Polygon", "Mesh" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -2585,7 +2582,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 815279408, "Model::Omni001", "Light" {
+    Model: 932633904, "Model::Omni001", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -2603,7 +2600,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 815298592, "Model::Omni003", "Light" {
+    Model: 932631440, "Model::Omni003", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -2621,7 +2618,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 815280720, "Model::Omni004", "Light" {
+    Model: 932636560, "Model::Omni004", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -2639,7 +2636,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 815295760, "Model::Omni011", "Light" {
+    Model: 932641312, "Model::Omni011", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -2657,7 +2654,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 815290912, "Model::Omni012", "Light" {
+    Model: 505922896, "Model::Omni012", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -2675,7 +2672,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 815283504, "Model::Box002", "Mesh" {
+    Model: 505920080, "Model::Box002", "Mesh" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -2693,7 +2690,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 815274080, "Model::Omni032", "Light" {
+    Model: 932644992, "Model::Omni032", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -2712,7 +2709,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 815287600, "Model::Omni033", "Light" {
+    Model: 932649936, "Model::Omni033", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -2731,7 +2728,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 815284640, "Model::Omni034", "Light" {
+    Model: 932654384, "Model::Omni034", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -2750,7 +2747,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 815305424, "Model::Omni049", "Light" {
+    Model: 932651600, "Model::Omni049", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -2769,7 +2766,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 815311376, "Model::Omni050", "Light" {
+    Model: 932656704, "Model::Omni050", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -2788,7 +2785,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 815332048, "Model::Omni051", "Light" {
+    Model: 932661792, "Model::Omni051", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -2807,7 +2804,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 815300896, "Model::Omni052", "Light" {
+    Model: 932666672, "Model::Omni052", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -2826,7 +2823,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 815327776, "Model::Omni053", "Light" {
+    Model: 932663712, "Model::Omni053", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -2844,7 +2841,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 815322880, "Model::Teapot001", "Mesh" {
+    Model: 932668752, "Model::Teapot001", "Mesh" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -2852,8 +2849,8 @@ a: 0
             P: "InheritType", "enum", "", "",1
             P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
             P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A+",-0.0830111503601074,0.0696806907653809,7.3314962387085
-            P: "Lcl Rotation", "Lcl Rotation", "", "A+",-52.5259792542087,25.3190638243644,-38.7295711563922
+            P: "Lcl Translation", "Lcl Translation", "", "A",-0.0830111503601074,0.0696806907653809,7.3314962387085
+            P: "Lcl Rotation", "Lcl Rotation", "", "A",-52.5259792542087,25.3190638243644,-38.7295711563922
             P: "Lcl Scaling", "Lcl Scaling", "", "A",1.00000005880834,1.00000003510092,1.00000000888239
             P: "MaxHandle", "int", "Integer", "UH",106
         }
@@ -2862,7 +2859,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 815303984, "Model::Fspot001", "Light" {
+    Model: 932673696, "Model::Fspot001", "Light" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -2879,7 +2876,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 815325856, "Model::Teapot002", "Mesh" {
+    Model: 505919008, "Model::Teapot002", "Mesh" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -2887,8 +2884,8 @@ a: 0
             P: "InheritType", "enum", "", "",1
             P: "ScalingMax", "Vector3D", "Vector", "",0,0,0
             P: "DefaultAttributeIndex", "int", "Integer", "",0
-            P: "Lcl Translation", "Lcl Translation", "", "A+",-2.14821743965149,0.773614764213562,9.25737953186035
-            P: "Lcl Rotation", "Lcl Rotation", "", "A+",113.749934064259,48.9781840899951,39.0571432002458
+            P: "Lcl Translation", "Lcl Translation", "", "A",-2.14821743965149,0.773614764213562,9.25737953186035
+            P: "Lcl Rotation", "Lcl Rotation", "", "A",113.749934064259,48.9781840899951,39.0571432002458
             P: "Lcl Scaling", "Lcl Scaling", "", "A",1.00000001841254,0.999999984430859,1.00000001209189
             P: "UDP3DSMAX", "KString", "", "U", "LastPose = undefined&cr;&lf;"
             P: "MaxHandle", "int", "Integer", "UH",110
@@ -2898,7 +2895,7 @@ a: 0
         Shading: T
         Culling: "CullingOff"
     }
-    Material: 815788048, "Material::Material #275", "" {
+    Material: 932748160, "Material::Material #275", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -2920,7 +2917,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 815572288, "Material::Material #263", "" {
+    Material: 932764752, "Material::Material #263", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -2942,7 +2939,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 815591968, "Material::Material #325", "" {
+    Material: 932766112, "Material::Material #325", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -2964,7 +2961,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 815582320, "Material::Material #312", "" {
+    Material: 565255984, "Material::Material #312", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -2986,7 +2983,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 815578112, "Material::Material #337", "" {
+    Material: 932773984, "Material::Material #337", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -3008,7 +3005,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 815591216, "Material::Material #372", "" {
+    Material: 932783232, "Material::Material #372", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -3030,7 +3027,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 815622672, "Material::Material #407", "" {
+    Material: 932786800, "Material::Material #407", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -3052,7 +3049,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 815611152, "Material::Material #475", "" {
+    Material: 932790368, "Material::Material #475", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -3074,7 +3071,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 815604976, "Material::Material #1027", "" {
+    Material: 932802096, "Material::Material #1027", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -3096,7 +3093,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 815596784, "Material::Material #1201", "" {
+    Material: 932805520, "Material::Material #1201", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -3118,7 +3115,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 815638480, "Material::Material #1214", "" {
+    Material: 932809280, "Material::Material #1214", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -3140,7 +3137,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 815632176, "Material::Material #1227", "" {
+    Material: 932810800, "Material::Material #1227", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -3162,7 +3159,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 815628848, "Material::Material #1241", "" {
+    Material: 932822560, "Material::Material #1241", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -3184,7 +3181,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 815652096, "Material::Material #1257", "" {
+    Material: 932826112, "Material::Material #1257", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -3206,7 +3203,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Material: 815443760, "Material::Material #1417", "" {
+    Material: 932872800, "Material::Material #1417", "" {
         Version: 102
         ShadingModel: "phong"
         MultiLayer: 0
@@ -3228,7 +3225,7 @@ a: 0
             P: "Reflectivity", "double", "Number", "",0
         }
     }
-    Video: 815722304, "Video::Map #25", "Clip" {
+    Video: 932942080, "Video::Map #25", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\brick.tga"
@@ -3237,7 +3234,7 @@ a: 0
         Filename: "C:\MedievalGame\data\textures\brick.tga"
         RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\brick.tga"
     }
-    Video: 815705008, "Video::Map #24", "Clip" {
+    Video: 932947824, "Video::Map #24", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\metal2.tga"
@@ -3246,7 +3243,7 @@ a: 0
         Filename: "C:\MedievalGame\data\textures\metal2.tga"
         RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
     }
-    Video: 815712464, "Video::Map #29", "Clip" {
+    Video: 932946016, "Video::Map #29", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\metal3.tga"
@@ -3255,7 +3252,7 @@ a: 0
         Filename: "C:\MedievalGame\data\textures\metal3.tga"
         RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal3.tga"
     }
-    Video: 815719584, "Video::Map #28", "Clip" {
+    Video: 932995104, "Video::Map #28", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\metal2.tga"
@@ -3264,7 +3261,7 @@ a: 0
         Filename: "C:\MedievalGame\data\textures\metal2.tga"
         RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
     }
-    Video: 815711136, "Video::Map #30", "Clip" {
+    Video: 933001456, "Video::Map #30", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\metal2.tga"
@@ -3273,7 +3270,7 @@ a: 0
         Filename: "C:\MedievalGame\data\textures\metal2.tga"
         RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
     }
-    Video: 815725168, "Video::Map #31", "Clip" {
+    Video: 932999600, "Video::Map #31", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\concrete.tga"
@@ -3282,7 +3279,7 @@ a: 0
         Filename: "C:\MedievalGame\data\textures\concrete.tga"
         RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\concrete.tga"
     }
-    Video: 815723520, "Video::Map #32", "Clip" {
+    Video: 933005808, "Video::Map #32", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\metal4.tga"
@@ -3291,7 +3288,7 @@ a: 0
         Filename: "C:\MedievalGame\data\textures\metal4.tga"
         RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal4.tga"
     }
-    Video: 815722976, "Video::Map #33", "Clip" {
+    Video: 933004000, "Video::Map #33", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\brick2.tga"
@@ -3300,7 +3297,7 @@ a: 0
         Filename: "C:\MedievalGame\data\textures\brick2.tga"
         RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\brick2.tga"
     }
-    Video: 815708544, "Video::Map #34", "Clip" {
+    Video: 933010352, "Video::Map #34", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\metal.tga"
@@ -3309,7 +3306,7 @@ a: 0
         Filename: "C:\MedievalGame\data\textures\metal.tga"
         RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal.tga"
     }
-    Video: 815721168, "Video::Map #35", "Clip" {
+    Video: 933008464, "Video::Map #35", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\metal2.tga"
@@ -3318,7 +3315,7 @@ a: 0
         Filename: "C:\MedievalGame\data\textures\metal2.tga"
         RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\metal2.tga"
     }
-    Video: 815718112, "Video::Map #36", "Clip" {
+    Video: 933014816, "Video::Map #36", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\concrete.tga"
@@ -3327,7 +3324,7 @@ a: 0
         Filename: "C:\MedievalGame\data\textures\concrete.tga"
         RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\concrete.tga"
     }
-    Video: 815703408, "Video::Map #37", "Clip" {
+    Video: 933013008, "Video::Map #37", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\brick2.tga"
@@ -3336,7 +3333,7 @@ a: 0
         Filename: "C:\MedievalGame\data\textures\brick2.tga"
         RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\brick2.tga"
     }
-    Video: 815715648, "Video::Map #38", "Clip" {
+    Video: 933019360, "Video::Map #38", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\concrete.tga"
@@ -3345,7 +3342,7 @@ a: 0
         Filename: "C:\MedievalGame\data\textures\concrete.tga"
         RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\concrete.tga"
     }
-    Video: 815687168, "Video::Map #40", "Clip" {
+    Video: 933017552, "Video::Map #40", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\lamp.tga"
@@ -3354,7 +3351,7 @@ a: 0
         Filename: "C:\MedievalGame\data\textures\lamp.tga"
         RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\lamp.tga"
     }
-    Video: 815690560, "Video::Map #41", "Clip" {
+    Video: 933015744, "Video::Map #41", "Clip" {
         Type: "Clip"
         Properties70:  {
             P: "Path", "KString", "XRefUrl", "", "C:\MedievalGame\data\textures\wood1.tga"
@@ -3363,7 +3360,7 @@ a: 0
         Filename: "C:\MedievalGame\data\textures\wood1.tga"
         RelativeFilename: "..\..\..\..\..\..\MedievalGame\data\textures\wood1.tga"
     }
-    Texture: 815785904, "Texture::Map #25", "" {
+    Texture: 932756432, "Texture::Map #25", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #25"
@@ -3379,7 +3376,7 @@ a: 0
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 815593008, "Texture::Map #24", "" {
+    Texture: 932768320, "Texture::Map #24", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #24"
@@ -3395,7 +3392,7 @@ a: 0
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 815586336, "Texture::Map #29", "" {
+    Texture: 932771888, "Texture::Map #29", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #29"
@@ -3411,7 +3408,7 @@ a: 0
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 815576272, "Texture::Map #28", "" {
+    Texture: 932775776, "Texture::Map #28", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #28"
@@ -3427,7 +3424,7 @@ a: 0
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 815569536, "Texture::Map #30", "" {
+    Texture: 932785536, "Texture::Map #30", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #30"
@@ -3443,7 +3440,7 @@ a: 0
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 815534432, "Texture::Map #31", "" {
+    Texture: 932789008, "Texture::Map #31", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #31"
@@ -3459,7 +3456,7 @@ a: 0
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 815624576, "Texture::Map #32", "" {
+    Texture: 932792576, "Texture::Map #32", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #32"
@@ -3475,7 +3472,7 @@ a: 0
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 815595632, "Texture::Map #33", "" {
+    Texture: 932796144, "Texture::Map #33", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #33"
@@ -3491,7 +3488,7 @@ a: 0
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 815627536, "Texture::Map #34", "" {
+    Texture: 932799616, "Texture::Map #34", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #34"
@@ -3507,7 +3504,7 @@ a: 0
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 815597728, "Texture::Map #35", "" {
+    Texture: 932803136, "Texture::Map #35", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #35"
@@ -3523,7 +3520,7 @@ a: 0
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 815650848, "Texture::Map #36", "" {
+    Texture: 932813008, "Texture::Map #36", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #36"
@@ -3539,7 +3536,7 @@ a: 0
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 815656384, "Texture::Map #37", "" {
+    Texture: 932816592, "Texture::Map #37", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #37"
@@ -3555,7 +3552,7 @@ a: 0
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 815650016, "Texture::Map #38", "" {
+    Texture: 932820160, "Texture::Map #38", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #38"
@@ -3571,7 +3568,7 @@ a: 0
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 815639968, "Texture::Map #40", "" {
+    Texture: 932823728, "Texture::Map #40", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #40"
@@ -3587,7 +3584,7 @@ a: 0
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    Texture: 815463808, "Texture::Map #41", "" {
+    Texture: 932878560, "Texture::Map #41", "" {
         Type: "TextureVideoClip"
         Version: 202
         TextureName: "Texture::Map #41"
@@ -3603,281 +3600,9 @@ a: 0
         Texture_Alpha_Source: "Alpha_Black"
         Cropping: 0,0,0,0
     }
-    AnimationStack: 815244960, "AnimStack::Take 001", "" {
+    AnimationStack: 932615520, "AnimStack::Take 001", "" {
     }
-    AnimationLayer: 815246944, "AnimLayer::BaseLayer", "" {
-    }
-    AnimationCurveNode: 815494352, "AnimCurveNode::T", "" {
-        Properties70:  {
-            P: "d", "Compound", "", ""
-            P: "d|X", "Number", "", "A",-0.0830111503601074
-            P: "d|Y", "Number", "", "A",0.0696806907653809
-            P: "d|Z", "Number", "", "A",7.3314962387085
-        }
-    }
-    AnimationCurveNode: 815478032, "AnimCurveNode::R", "" {
-        Properties70:  {
-            P: "d", "Compound", "", ""
-            P: "d|X", "Number", "", "A",-52.5259792542087
-            P: "d|Y", "Number", "", "A",25.3190638243644
-            P: "d|Z", "Number", "", "A",-38.7295711563922
-        }
-    }
-    AnimationCurveNode: 815473072, "AnimCurveNode::T", "" {
-        Properties70:  {
-            P: "d", "Compound", "", ""
-            P: "d|X", "Number", "", "A",-2.14821743965149
-            P: "d|Y", "Number", "", "A",0.773614764213562
-            P: "d|Z", "Number", "", "A",9.25737953186035
-        }
-    }
-    AnimationCurveNode: 815538096, "AnimCurveNode::R", "" {
-        Properties70:  {
-            P: "d", "Compound", "", ""
-            P: "d|X", "Number", "", "A",113.749934064259
-            P: "d|Y", "Number", "", "A",48.9781840899951
-            P: "d|Z", "Number", "", "A",39.0571432002458
-        }
-    }
-    AnimationCurve: 815508880, "AnimCurve::", "" {
-        Default: 0
-        KeyVer: 4008
-        KeyTime: *3 {
-a: 0,7697693000,15395386000
-} 
-        KeyValueFloat: *3 {
-a: -0.08301115,1.005732,1.005732
-} 
-        KeyAttrFlags: *3 {
-a: 50356488,50356488,16802056
-} 
-        ; This array contains optimized data. Do not edit.
-        KeyAttrDataFloat: *12 {
-a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
-} 
-        KeyAttrRefCount: *3 {
-a: 1,1,1
-} 
-    }
-    AnimationCurve: 815507280, "AnimCurve::", "" {
-        Default: 0
-        KeyVer: 4008
-        KeyTime: *3 {
-a: 0,7697693000,15395386000
-} 
-        KeyValueFloat: *3 {
-a: 7.331496,7.331496,5.417199
-} 
-        KeyAttrFlags: *3 {
-a: 50356488,50356488,16802056
-} 
-        ; This array contains optimized data. Do not edit.
-        KeyAttrDataFloat: *12 {
-a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
-} 
-        KeyAttrRefCount: *3 {
-a: 1,1,1
-} 
-    }
-    AnimationCurve: 815505680, "AnimCurve::", "" {
-        Default: 0
-        KeyVer: 4008
-        KeyTime: *3 {
-a: 0,7697693000,15395386000
-} 
-        KeyValueFloat: *3 {
-a: 0.06968069,0.06968069,0.06968069
-} 
-        KeyAttrFlags: *3 {
-a: 50356488,50356488,16802056
-} 
-        ; This array contains optimized data. Do not edit.
-        KeyAttrDataFloat: *12 {
-a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
-} 
-        KeyAttrRefCount: *3 {
-a: 1,1,1
-} 
-    }
-    AnimationCurve: 815516096, "AnimCurve::", "" {
-        Default: 0
-        KeyVer: 4008
-        KeyTime: *3 {
-a: 0,7697693000,15395386000
-} 
-        KeyValueFloat: *3 {
-a: 127.474,127.474,127.474
-} 
-        KeyAttrFlags: *3 {
-a: 50356488,50356488,16802056
-} 
-        ; This array contains optimized data. Do not edit.
-        KeyAttrDataFloat: *12 {
-a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
-} 
-        KeyAttrRefCount: *3 {
-a: 1,1,1
-} 
-    }
-    AnimationCurve: 815515280, "AnimCurve::", "" {
-        Default: 0
-        KeyVer: 4008
-        KeyTime: *3 {
-a: 0,7697693000,15395386000
-} 
-        KeyValueFloat: *3 {
-a: -205.3191,-205.3191,-295.3191
-} 
-        KeyAttrFlags: *3 {
-a: 50356488,50356488,16802056
-} 
-        ; This array contains optimized data. Do not edit.
-        KeyAttrDataFloat: *12 {
-a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
-} 
-        KeyAttrRefCount: *3 {
-a: 1,1,1
-} 
-    }
-    AnimationCurve: 815525968, "AnimCurve::", "" {
-        Default: 0
-        KeyVer: 4008
-        KeyTime: *3 {
-a: 0,7697693000,15395386000
-} 
-        KeyValueFloat: *3 {
-a: 141.2704,231.2704,231.2704
-} 
-        KeyAttrFlags: *3 {
-a: 50356488,50356488,16802056
-} 
-        ; This array contains optimized data. Do not edit.
-        KeyAttrDataFloat: *12 {
-a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
-} 
-        KeyAttrRefCount: *3 {
-a: 1,1,1
-} 
-    }
-    AnimationCurve: 815540560, "AnimCurve::", "" {
-        Default: 0
-        KeyVer: 4008
-        KeyTime: *3 {
-a: 0,7697693000,15395386000
-} 
-        KeyValueFloat: *3 {
-a: -2.148217,-1.059474,-1.059474
-} 
-        KeyAttrFlags: *3 {
-a: 50356488,50356488,16802056
-} 
-        ; This array contains optimized data. Do not edit.
-        KeyAttrDataFloat: *12 {
-a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
-} 
-        KeyAttrRefCount: *3 {
-a: 1,1,1
-} 
-    }
-    AnimationCurve: 815555968, "AnimCurve::", "" {
-        Default: 0
-        KeyVer: 4008
-        KeyTime: *3 {
-a: 0,7697693000,15395386000
-} 
-        KeyValueFloat: *3 {
-a: 9.25738,9.25738,7.343082
-} 
-        KeyAttrFlags: *3 {
-a: 50356488,50356488,16802056
-} 
-        ; This array contains optimized data. Do not edit.
-        KeyAttrDataFloat: *12 {
-a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
-} 
-        KeyAttrRefCount: *3 {
-a: 1,1,1
-} 
-    }
-    AnimationCurve: 815542864, "AnimCurve::", "" {
-        Default: 0
-        KeyVer: 4008
-        KeyTime: *3 {
-a: 0,7697693000,15395386000
-} 
-        KeyValueFloat: *3 {
-a: 0.7736148,0.7736148,0.7736148
-} 
-        KeyAttrFlags: *3 {
-a: 50356488,50356488,16802056
-} 
-        ; This array contains optimized data. Do not edit.
-        KeyAttrDataFloat: *12 {
-a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
-} 
-        KeyAttrRefCount: *3 {
-a: 1,1,1
-} 
-    }
-    AnimationCurve: 815542400, "AnimCurve::", "" {
-        Default: 0
-        KeyVer: 4008
-        KeyTime: *3 {
-a: 0,7697693000,15395386000
-} 
-        KeyValueFloat: *3 {
-a: 293.7499,293.7499,293.7499
-} 
-        KeyAttrFlags: *3 {
-a: 50356488,50356488,16802056
-} 
-        ; This array contains optimized data. Do not edit.
-        KeyAttrDataFloat: *12 {
-a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
-} 
-        KeyAttrRefCount: *3 {
-a: 1,1,1
-} 
-    }
-    AnimationCurve: 815541360, "AnimCurve::", "" {
-        Default: 0
-        KeyVer: 4008
-        KeyTime: *3 {
-a: 0,7697693000,15395386000
-} 
-        KeyValueFloat: *3 {
-a: -228.9782,-228.9782,-318.9782
-} 
-        KeyAttrFlags: *3 {
-a: 50356488,50356488,16802056
-} 
-        ; This array contains optimized data. Do not edit.
-        KeyAttrDataFloat: *12 {
-a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
-} 
-        KeyAttrRefCount: *3 {
-a: 1,1,1
-} 
-    }
-    AnimationCurve: 815559312, "AnimCurve::", "" {
-        Default: 0
-        KeyVer: 4008
-        KeyTime: *3 {
-a: 0,7697693000,15395386000
-} 
-        KeyValueFloat: *3 {
-a: 219.0571,309.0571,309.0571
-} 
-        KeyAttrFlags: *3 {
-a: 50356488,50356488,16802056
-} 
-        ; This array contains optimized data. Do not edit.
-        KeyAttrDataFloat: *12 {
-a: 0,0,218369284,0,0,-2147483648,218369284,0,0,0,218441387,0
-} 
-        KeyAttrRefCount: *3 {
-a: 1,1,1
-} 
+    AnimationLayer: 932619984, "AnimLayer::BaseLayer", "" {
     }
 }
 
@@ -3887,316 +3612,256 @@ a: 1,1,1
 Connections:  {
     
     ;Model::Polygon, Model::RootNode
-    C: "OO",815272544,0
+    C: "OO",932629616,0
     
     ;Model::Omni001, Model::RootNode
-    C: "OO",815279408,0
+    C: "OO",932633904,0
     
     ;Model::Omni003, Model::RootNode
-    C: "OO",815298592,0
+    C: "OO",932631440,0
     
     ;Model::Omni004, Model::RootNode
-    C: "OO",815280720,0
+    C: "OO",932636560,0
     
     ;Model::Omni011, Model::RootNode
-    C: "OO",815295760,0
+    C: "OO",932641312,0
     
     ;Model::Omni012, Model::RootNode
-    C: "OO",815290912,0
+    C: "OO",505922896,0
     
     ;Model::Box002, Model::RootNode
-    C: "OO",815283504,0
+    C: "OO",505920080,0
     
     ;Model::Omni032, Model::RootNode
-    C: "OO",815274080,0
+    C: "OO",932644992,0
     
     ;Model::Omni033, Model::RootNode
-    C: "OO",815287600,0
+    C: "OO",932649936,0
     
     ;Model::Omni034, Model::RootNode
-    C: "OO",815284640,0
+    C: "OO",932654384,0
     
     ;Model::Omni049, Model::RootNode
-    C: "OO",815305424,0
+    C: "OO",932651600,0
     
     ;Model::Omni050, Model::RootNode
-    C: "OO",815311376,0
+    C: "OO",932656704,0
     
     ;Model::Omni051, Model::RootNode
-    C: "OO",815332048,0
+    C: "OO",932661792,0
     
     ;Model::Omni052, Model::RootNode
-    C: "OO",815300896,0
+    C: "OO",932666672,0
     
     ;Model::Omni053, Model::RootNode
-    C: "OO",815327776,0
+    C: "OO",932663712,0
     
     ;Model::Teapot001, Model::RootNode
-    C: "OO",815322880,0
+    C: "OO",932668752,0
     
     ;Model::Fspot001, Model::RootNode
-    C: "OO",815303984,0
+    C: "OO",932673696,0
     
     ;Model::Teapot002, Model::RootNode
-    C: "OO",815325856,0
+    C: "OO",505919008,0
     
     ;AnimLayer::BaseLayer, AnimStack::Take 001
-    C: "OO",815246944,815244960
-    
-    ;AnimCurveNode::T, AnimLayer::BaseLayer
-    C: "OO",815494352,815246944
-    
-    ;AnimCurveNode::R, AnimLayer::BaseLayer
-    C: "OO",815478032,815246944
-    
-    ;AnimCurveNode::T, AnimLayer::BaseLayer
-    C: "OO",815473072,815246944
-    
-    ;AnimCurveNode::R, AnimLayer::BaseLayer
-    C: "OO",815538096,815246944
+    C: "OO",932619984,932615520
     
     ;Material::Material #275, Model::Polygon
-    C: "OO",815788048,815272544
+    C: "OO",932748160,932629616
     
     ;Material::Material #263, Model::Polygon
-    C: "OO",815572288,815272544
+    C: "OO",932764752,932629616
     
     ;Material::Material #325, Model::Polygon
-    C: "OO",815591968,815272544
+    C: "OO",932766112,932629616
     
     ;Material::Material #312, Model::Polygon
-    C: "OO",815582320,815272544
+    C: "OO",565255984,932629616
     
     ;Material::Material #337, Model::Polygon
-    C: "OO",815578112,815272544
+    C: "OO",932773984,932629616
     
     ;Material::Material #372, Model::Polygon
-    C: "OO",815591216,815272544
+    C: "OO",932783232,932629616
     
     ;Material::Material #407, Model::Polygon
-    C: "OO",815622672,815272544
+    C: "OO",932786800,932629616
     
     ;Material::Material #475, Model::Polygon
-    C: "OO",815611152,815272544
+    C: "OO",932790368,932629616
     
     ;Material::Material #1027, Model::Polygon
-    C: "OO",815604976,815272544
+    C: "OO",932802096,932629616
     
     ;Material::Material #1201, Model::Polygon
-    C: "OO",815596784,815272544
+    C: "OO",932805520,932629616
     
     ;Material::Material #1214, Model::Polygon
-    C: "OO",815638480,815272544
+    C: "OO",932809280,932629616
     
     ;Material::Material #1227, Model::Polygon
-    C: "OO",815632176,815272544
+    C: "OO",932810800,932629616
     
     ;Material::Material #1241, Model::Polygon
-    C: "OO",815628848,815272544
+    C: "OO",932822560,932629616
     
     ;Material::Material #1257, Model::Polygon
-    C: "OO",815652096,815272544
+    C: "OO",932826112,932629616
     
     ;Geometry::, Model::Polygon
-    C: "OO",815635104,815272544
+    C: "OO",932835088,932629616
     
     ;NodeAttribute::, Model::Omni001
-    C: "OO",815893312,815279408
+    C: "OO",565133456,932633904
     
     ;NodeAttribute::, Model::Omni003
-    C: "OO",815905600,815298592
+    C: "OO",932691472,932631440
     
     ;NodeAttribute::, Model::Omni004
-    C: "OO",815917984,815280720
+    C: "OO",932693744,932636560
     
     ;NodeAttribute::, Model::Omni011
-    C: "OO",815919632,815295760
+    C: "OO",932696080,932641312
     
     ;NodeAttribute::, Model::Omni012
-    C: "OO",815363792,815290912
+    C: "OO",932706304,505922896
     
     ;Material::Material #1257, Model::Box002
-    C: "OO",815652096,815283504
+    C: "OO",932826112,505920080
     
     ;Geometry::, Model::Box002
-    C: "OO",815358240,815283504
+    C: "OO",932720032,505920080
     
     ;NodeAttribute::, Model::Omni032
-    C: "OO",815340048,815274080
+    C: "OO",932713664,932644992
     
     ;NodeAttribute::, Model::Omni033
-    C: "OO",815346480,815287600
+    C: "OO",932722256,932649936
     
     ;NodeAttribute::, Model::Omni034
-    C: "OO",815307472,815284640
+    C: "OO",932736816,932654384
     
     ;NodeAttribute::, Model::Omni049
-    C: "OO",815382832,815305424
+    C: "OO",932739392,932651600
     
     ;NodeAttribute::, Model::Omni050
-    C: "OO",815398704,815311376
+    C: "OO",932743760,932656704
     
     ;NodeAttribute::, Model::Omni051
-    C: "OO",815392640,815332048
+    C: "OO",472800752,932661792
     
     ;NodeAttribute::, Model::Omni052
-    C: "OO",815380512,815300896
+    C: "OO",932845920,932666672
     
     ;NodeAttribute::, Model::Omni053
-    C: "OO",815374912,815327776
+    C: "OO",932855600,932663712
     
     ;Material::Material #1417, Model::Teapot001
-    C: "OO",815443760,815322880
+    C: "OO",932872800,932668752
     
     ;Geometry::, Model::Teapot001
-    C: "OO",815432032,815322880
-    
-    ;AnimCurveNode::T, Model::Teapot001
-    C: "OP",815494352,815322880, "Lcl Translation"
-    
-    ;AnimCurveNode::R, Model::Teapot001
-    C: "OP",815478032,815322880, "Lcl Rotation"
+    C: "OO",932883424,932668752
     
     ;NodeAttribute::, Model::Fspot001
-    C: "OO",815487904,815303984
+    C: "OO",472660704,932673696
     
     ;Material::Material #1417, Model::Teapot002
-    C: "OO",815443760,815325856
+    C: "OO",932872800,505919008
     
     ;Geometry::, Model::Teapot002
-    C: "OO",815437328,815325856
-    
-    ;AnimCurveNode::T, Model::Teapot002
-    C: "OP",815473072,815325856, "Lcl Translation"
-    
-    ;AnimCurveNode::R, Model::Teapot002
-    C: "OP",815538096,815325856, "Lcl Rotation"
+    C: "OO",502880928,505919008
     
     ;Texture::Map #25, Material::Material #275
-    C: "OP",815785904,815788048, "DiffuseColor"
+    C: "OP",932756432,932748160, "DiffuseColor"
     
     ;Video::Map #25, Texture::Map #25
-    C: "OO",815722304,815785904
+    C: "OO",932942080,932756432
     
     ;Texture::Map #24, Material::Material #263
-    C: "OP",815593008,815572288, "DiffuseColor"
+    C: "OP",932768320,932764752, "DiffuseColor"
     
     ;Video::Map #24, Texture::Map #24
-    C: "OO",815705008,815593008
+    C: "OO",932947824,932768320
     
     ;Texture::Map #29, Material::Material #325
-    C: "OP",815586336,815591968, "DiffuseColor"
+    C: "OP",932771888,932766112, "DiffuseColor"
     
     ;Video::Map #29, Texture::Map #29
-    C: "OO",815712464,815586336
+    C: "OO",932946016,932771888
     
     ;Texture::Map #28, Material::Material #312
-    C: "OP",815576272,815582320, "DiffuseColor"
+    C: "OP",932775776,565255984, "DiffuseColor"
     
     ;Video::Map #28, Texture::Map #28
-    C: "OO",815719584,815576272
+    C: "OO",932995104,932775776
     
     ;Texture::Map #30, Material::Material #337
-    C: "OP",815569536,815578112, "DiffuseColor"
+    C: "OP",932785536,932773984, "DiffuseColor"
     
     ;Video::Map #30, Texture::Map #30
-    C: "OO",815711136,815569536
+    C: "OO",933001456,932785536
     
     ;Texture::Map #31, Material::Material #372
-    C: "OP",815534432,815591216, "DiffuseColor"
+    C: "OP",932789008,932783232, "DiffuseColor"
     
     ;Video::Map #31, Texture::Map #31
-    C: "OO",815725168,815534432
+    C: "OO",932999600,932789008
     
     ;Texture::Map #32, Material::Material #407
-    C: "OP",815624576,815622672, "DiffuseColor"
+    C: "OP",932792576,932786800, "DiffuseColor"
     
     ;Video::Map #32, Texture::Map #32
-    C: "OO",815723520,815624576
+    C: "OO",933005808,932792576
     
     ;Texture::Map #33, Material::Material #475
-    C: "OP",815595632,815611152, "DiffuseColor"
+    C: "OP",932796144,932790368, "DiffuseColor"
     
     ;Video::Map #33, Texture::Map #33
-    C: "OO",815722976,815595632
+    C: "OO",933004000,932796144
     
     ;Texture::Map #34, Material::Material #1027
-    C: "OP",815627536,815604976, "DiffuseColor"
+    C: "OP",932799616,932802096, "DiffuseColor"
     
     ;Video::Map #34, Texture::Map #34
-    C: "OO",815708544,815627536
+    C: "OO",933010352,932799616
     
     ;Texture::Map #35, Material::Material #1201
-    C: "OP",815597728,815596784, "DiffuseColor"
+    C: "OP",932803136,932805520, "DiffuseColor"
     
     ;Video::Map #35, Texture::Map #35
-    C: "OO",815721168,815597728
+    C: "OO",933008464,932803136
     
     ;Texture::Map #36, Material::Material #1214
-    C: "OP",815650848,815638480, "DiffuseColor"
+    C: "OP",932813008,932809280, "DiffuseColor"
     
     ;Video::Map #36, Texture::Map #36
-    C: "OO",815718112,815650848
+    C: "OO",933014816,932813008
     
     ;Texture::Map #37, Material::Material #1227
-    C: "OP",815656384,815632176, "DiffuseColor"
+    C: "OP",932816592,932810800, "DiffuseColor"
     
     ;Video::Map #37, Texture::Map #37
-    C: "OO",815703408,815656384
+    C: "OO",933013008,932816592
     
     ;Texture::Map #38, Material::Material #1241
-    C: "OP",815650016,815628848, "DiffuseColor"
+    C: "OP",932820160,932822560, "DiffuseColor"
     
     ;Video::Map #38, Texture::Map #38
-    C: "OO",815715648,815650016
+    C: "OO",933019360,932820160
     
     ;Texture::Map #40, Material::Material #1257
-    C: "OP",815639968,815652096, "DiffuseColor"
+    C: "OP",932823728,932826112, "DiffuseColor"
     
     ;Video::Map #40, Texture::Map #40
-    C: "OO",815687168,815639968
+    C: "OO",933017552,932823728
     
     ;Texture::Map #41, Material::Material #1417
-    C: "OP",815463808,815443760, "DiffuseColor"
+    C: "OP",932878560,932872800, "DiffuseColor"
     
     ;Video::Map #41, Texture::Map #41
-    C: "OO",815690560,815463808
-    
-    ;AnimCurve::, AnimCurveNode::T
-    C: "OP",815508880,815494352, "d|X"
-    
-    ;AnimCurve::, AnimCurveNode::T
-    C: "OP",815505680,815494352, "d|Y"
-    
-    ;AnimCurve::, AnimCurveNode::T
-    C: "OP",815507280,815494352, "d|Z"
-    
-    ;AnimCurve::, AnimCurveNode::R
-    C: "OP",815516096,815478032, "d|X"
-    
-    ;AnimCurve::, AnimCurveNode::R
-    C: "OP",815515280,815478032, "d|Y"
-    
-    ;AnimCurve::, AnimCurveNode::R
-    C: "OP",815525968,815478032, "d|Z"
-    
-    ;AnimCurve::, AnimCurveNode::T
-    C: "OP",815540560,815473072, "d|X"
-    
-    ;AnimCurve::, AnimCurveNode::T
-    C: "OP",815542864,815473072, "d|Y"
-    
-    ;AnimCurve::, AnimCurveNode::T
-    C: "OP",815555968,815473072, "d|Z"
-    
-    ;AnimCurve::, AnimCurveNode::R
-    C: "OP",815542400,815538096, "d|X"
-    
-    ;AnimCurve::, AnimCurveNode::R
-    C: "OP",815541360,815538096, "d|Y"
-    
-    ;AnimCurve::, AnimCurveNode::R
-    C: "OP",815559312,815538096, "d|Z"
+    C: "OO",933015744,932878560
 }
 ;Takes section
 ;----------------------------------------------------
@@ -4205,7 +3870,7 @@ Takes:  {
     Current: ""
     Take: "Take 001" {
         FileName: "Take_001.tak"
-        LocalTime: 0,15395386000
-        ReferenceTime: 0,15395386000
+        LocalTime: 0,46186158000
+        ReferenceTime: 0,46186158000
     }
 }

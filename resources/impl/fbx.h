@@ -19,6 +19,12 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+/**
+ * ASCII FBX Loader
+ *
+ * Supported versions: 7200, 7100, 7000 (higher versions are not tested yet)
+ **/
+
 #define DE_FBX_VERBOSE 0
 
 typedef int de_fbx_index_t;
@@ -166,6 +172,9 @@ struct de_fbx_model_t
 	de_vec3_t rotation;
 	de_vec3_t scale;
 	de_vec3_t translation;
+	de_vec3_t geometric_translation;
+	de_vec3_t geometric_rotation;
+	de_vec3_t geometric_scale;
 
 	DE_ARRAY_DECLARE(de_fbx_geom_t*, geoms);
 	DE_ARRAY_DECLARE(de_fbx_material_t*, materials);
@@ -223,6 +232,12 @@ static int de_fbx_fix_index(int index)
 static int de_fbx_get_int(de_fbx_node_t* node, int index)
 {
 	return atoi(node->attributes.data[index]);
+}
+
+/*=======================================================================================*/
+static int64_t de_fbx_get_int64(de_fbx_node_t* node, int index)
+{
+	return atoll(node->attributes.data[index]);
 }
 
 /*=======================================================================================*/
@@ -469,9 +484,9 @@ static de_fbx_node_t* de_fbx_parser_parse(const char* filename)
 		read_value = DE_FALSE;
 	}
 
-	#ifdef DE_FBX_VERBOSE
+#if DE_FBX_VERBOSE
 	de_log("FBX: %s is parsed!", filename);
-	#endif
+#endif
 
 	return root;
 }
@@ -758,6 +773,7 @@ static de_fbx_component_t* de_fbx_read_model(de_fbx_node_t* model_node)
 	model = &comp->s.model;
 
 	de_vec3_set(&model->scale, 1, 1, 1);
+	de_vec3_set(&model->geometric_scale, 1, 1, 1);
 
 	/* Extract node name */
 	name = model_node->attributes.data[1];
@@ -813,6 +829,18 @@ static de_fbx_component_t* de_fbx_read_model(de_fbx_node_t* model_node)
 		else if (strcmp(property_name, "ScalingPivot") == 0)
 		{
 			de_fbx_get_vec3(prop, 4, &model->scaling_pivot);
+		}
+		else if (strcmp(property_name, "GeometricTranslation") == 0)
+		{
+			de_fbx_get_vec3(prop, 4, &model->geometric_translation);
+		}
+		else if (strcmp(property_name, "GeometricScaling") == 0)
+		{
+			de_fbx_get_vec3(prop, 4, &model->geometric_scale);
+		}
+		else if (strcmp(property_name, "GeometricRotation") == 0)
+		{
+			de_fbx_get_vec3(prop, 4, &model->geometric_rotation);
 		}
 	}
 
@@ -972,7 +1000,9 @@ static de_fbx_component_t* de_fbx_read_animation_curve(de_fbx_node_t* anim_curve
 	size_t i;
 	de_fbx_animation_curve_t* curve;
 	de_fbx_node_t* key_time;
+	de_fbx_node_t* key_time_array;
 	de_fbx_node_t* key_value;
+	de_fbx_node_t* key_value_array;
 
 	de_fbx_component_t* comp = de_fbx_alloc_component(DE_FBX_COMPONENT_ANIMATION_CURVE, de_fbx_get_int(anim_curve_node, 0));
 
@@ -981,17 +1011,25 @@ static de_fbx_component_t* de_fbx_read_animation_curve(de_fbx_node_t* anim_curve
 	key_time = de_fbx_parser_find_child(anim_curve_node, "KeyTime");
 	key_value = de_fbx_parser_find_child(anim_curve_node, "KeyValueFloat");
 
-	if (key_time->attributes.size != key_value->attributes.size)
+	if (key_value == NULL || key_time == NULL)
+	{
+		de_error("FBX: KeyTime or KeyValueFloat is missing");
+	}
+
+	key_time_array = de_fbx_parser_find_child(key_time, "a");
+	key_value_array = de_fbx_parser_find_child(key_value, "a");
+
+	if (key_time_array->attributes.size != key_value_array->attributes.size)
 	{
 		de_error("FBX: Animation curve contains wrong key data!");
 	}
 
-	for (i = 0; i < key_time->attributes.size; ++i)
+	for (i = 0; i < key_time_array->attributes.size; ++i)
 	{
 		de_fbx_time_value_pair_t pair;
 
-		pair.time = (float)(de_fbx_get_int(key_time, i) * DE_FBX_TIME_UNIT);
-		pair.value = de_fbx_get_float(key_value, i);
+		pair.time = (float)(de_fbx_get_int64(key_time_array, i) * DE_FBX_TIME_UNIT);
+		pair.value = de_fbx_get_float(key_value_array, i);
 
 		DE_ARRAY_APPEND(curve->keys, pair);
 	}
@@ -1017,15 +1055,15 @@ static de_fbx_component_t* de_fbx_read_animation_curve_node_t(de_fbx_node_t* ani
 
 	type_str = anim_curve_fbx_node->attributes.data[1];
 
-	if (strcmp(type_str, "AnimCurveNode::T"))
+	if (strcmp(type_str, "AnimCurveNode::T") == 0)
 	{
 		anim_curve_node->type = DE_FBX_ANIMATION_CURVE_NODE_TRANSLATION;
 	}
-	else if (strcmp(type_str, "AnimCurveNode::R"))
+	else if (strcmp(type_str, "AnimCurveNode::R") == 0)
 	{
 		anim_curve_node->type = DE_FBX_ANIMATION_CURVE_NODE_ROTATION;
 	}
-	else if (strcmp(type_str, "AnimCurveNode::S"))
+	else if (strcmp(type_str, "AnimCurveNode::S") == 0)
 	{
 		anim_curve_node->type = DE_FBX_ANIMATION_CURVE_NODE_SCALE;
 	}
@@ -1194,7 +1232,7 @@ static de_fbx_t* de_fbx_read(de_fbx_node_t* root)
 
 	de_fbx_sort_components_by_index(fbx);
 
-	#if DE_FBX_VERBOSE
+#if DE_FBX_VERBOSE
 	de_log("FBX: Contains %d geometries (meshes)", fbx->geoms.size);
 	de_log("FBX: Contains %d models (nodes)", fbx->models.size);
 	de_log("FBX: Contains %d materials", fbx->materials.size);
@@ -1204,7 +1242,7 @@ static de_fbx_t* de_fbx_read(de_fbx_node_t* root)
 	de_log("FBX: Contains %d animation curve nodes", fbx->animation_curve_nodes.size);
 	de_log("FBX: Contains %d deformers", fbx->deformers.size);
 	de_log("FBX: Contains %d sub deformers", fbx->sub_deformers.size);
-	#endif
+#endif
 
 	/* Read connections and connect components */
 	connections = de_fbx_parser_find_child(root, "Connections");
@@ -1365,6 +1403,186 @@ static void de_fbx_quat_from_euler(de_quat_t* out, const de_vec3_t * euler_angle
 
 /*=======================================================================================*/
 /**
+ * @brief Searches for next closest time to given. When 'current_time' is end time - returns FLT_MAX 
+ */
+static float de_fbx_get_next_keyframe_time(float current_time,
+	de_fbx_animation_curve_node_t* t,
+	de_fbx_animation_curve_node_t* r,
+	de_fbx_animation_curve_node_t* s)
+{
+	int i, k, n;
+	float closest_time = FLT_MAX;
+	de_fbx_animation_curve_node_t* curve_set[3];
+	
+	curve_set[0] = t;
+	curve_set[1] = r;
+	curve_set[2] = s;
+
+	for (i = 0; i < 3; ++i)
+	{
+		de_fbx_animation_curve_node_t* node = curve_set[i];
+
+		if (!node)
+		{
+			continue;
+		}
+
+		for (k = 0; k < node->curves.size; ++k)
+		{
+			de_fbx_animation_curve_t* curve = node->curves.data[k];
+
+			for (n = 0; n < curve->keys.size; ++n)
+			{
+				float distance;
+				de_fbx_time_value_pair_t* key = curve->keys.data + n;
+
+				if (key->time > current_time)
+				{
+					distance = key->time - current_time;
+
+					if (distance < closest_time - key->time)
+					{
+						closest_time = key->time;
+					}
+				}
+			}
+		}
+	}
+
+	return closest_time;
+}
+
+/*=======================================================================================*/
+/**
+ * @brief Evaluates single float value at given time
+ */
+static float de_fbx_eval_curve(float time, de_fbx_animation_curve_t* curve)
+{
+	size_t i;
+	size_t key_count = curve->keys.size;
+	de_fbx_time_value_pair_t* keys;
+	
+	if (curve->keys.size == 0)
+	{
+		de_log("FBX: Trying to evaluate curve with no keys!");
+
+		return 0.0f;
+	}
+
+	key_count = curve->keys.size;
+	keys = curve->keys.data;
+
+	if (time <= keys[0].time)
+	{
+		return keys[0].value;
+	}
+
+	if (time >= keys[curve->keys.size - 1].time)
+	{
+		return keys[curve->keys.size - 1].value;
+	}
+
+	/* do linear search for span */
+	for (i = 0; i < key_count; ++i)
+	{
+		/* TODO: for now assume that we have only linear transitions */
+		if (keys[i].time >= time)
+		{
+			de_fbx_time_value_pair_t* cur = keys + i;
+			de_fbx_time_value_pair_t* next = cur + 1;
+
+			/* calculate interpolation coefficient */
+			float time_span = next->time - cur->time;
+			float k = (time - cur->time) / time_span;
+
+			/* do linear interpolation */
+			float val_span = next->value - cur->value;
+			return cur->value + k * val_span;
+		}
+	}
+	
+	/* must be unreached */
+	de_log("FBX: How the hell did you get here?!");
+
+	return 0.0f;
+}
+
+/*=======================================================================================*/
+/**
+ * @brief Evaluates curve node as float3 value at give time.
+ */
+static void de_fbx_eval_float3_curve_node(float time, de_fbx_animation_curve_node_t* node, de_vec3_t* out)
+{
+	de_fbx_animation_curve_t* x, *y, *z;
+
+	if (node->curves.size != 3)
+	{
+		de_log("FBX: Attempt to evaluate non-float3 curve node!");
+	}
+
+	/* TODO: Here we making assumption that curves for X Y Z will be in that order. This may be wrong!
+	 * From closer look, FBX files always have these curves written in X Y Z order. */
+	x = node->curves.data[0];
+	y = node->curves.data[1];
+	z = node->curves.data[2];
+
+	out->x = de_fbx_eval_curve(time, x);
+	out->y = de_fbx_eval_curve(time, y);
+	out->z = de_fbx_eval_curve(time, z);
+}
+
+/*=======================================================================================*/
+/**
+ * @brief Merges TRS curves into engine keyframe
+ */
+static void de_fbx_eval_keyframe(float time,
+	de_fbx_animation_curve_node_t* t_node,
+	de_fbx_animation_curve_node_t* r_node,
+	de_fbx_animation_curve_node_t* s_node, 
+	de_keyframe_t* out_key)
+{
+	de_vec3_t euler_angles;
+
+	if (t_node)
+	{
+		de_fbx_eval_float3_curve_node(time, t_node, &out_key->position);
+	}
+	else
+	{
+		de_vec3_set(&out_key->position, 0, 0, 0);
+	}
+
+	if (r_node)
+	{
+		de_fbx_eval_float3_curve_node(time, r_node, &euler_angles);
+	}
+	else
+	{
+		de_vec3_set(&euler_angles, 0, 0, 0);
+	}
+	de_fbx_quat_from_euler(&out_key->rotation, &euler_angles);
+	
+	if (s_node)
+	{
+		de_fbx_eval_float3_curve_node(time, s_node, &out_key->scale);
+	}
+	else
+	{
+		de_vec3_set(&out_key->scale, 1, 1, 1);
+	}
+
+#if DE_FBX_VERBOSE
+	de_log("FBX:Time:%f\n\tT: %f, %f, %f\n\tR: %f, %f, %f\n\tS: %f, %f, %f\n", time,
+		out_key->position.x, out_key->position.y, out_key->position.z,
+		euler_angles.x, euler_angles.y, euler_angles.z,
+		out_key->scale.x, out_key->scale.y, out_key->scale.z);
+#endif
+
+	out_key->time = time;
+}
+
+/*=======================================================================================*/
+/**
  * @brief Converts FBX to scene engine's scene nodes hierarchy
  * @param fbx
  * @return
@@ -1377,16 +1595,24 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 	int material_index;
 	int uv_index;
 	de_node_t* root;
+	de_animation_t* anim;
 
 	root = de_node_create(DE_NODE_BASE);
 	de_scene_add_node(scene, root);
 
+	/* Each scene has animation */
+	anim = de_animation_create(scene);
+
+	/**
+	 * Convert models first.
+	 **/
 	for (i = 0; i < fbx->components.size; ++i)
 	{
 		de_fbx_model_t* mdl;
 		de_node_t* node;
 		de_node_type_t type;
 		de_fbx_component_t* comp = fbx->components.data[i];
+		de_mat4_t geometric_transform;
 
 		if (comp->type != DE_FBX_COMPONENT_MODEL)
 		{
@@ -1424,6 +1650,26 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 		de_fbx_quat_from_euler(&node->post_rotation, &mdl->post_rotation);
 
 		de_node_calculate_transforms(node);
+
+		/* Build geometric transform matrix to bake it into vertex buffer 
+		 * TODO: not sure if this is right, but according to FBX manual
+		 * geometric transform is not inherited and applied directly to 
+		 * global transform after was calculated.
+		 **/
+		{
+			de_mat4_t t, r, s;
+			de_quat_t rq;
+
+			de_mat4_translation(&t, &mdl->geometric_translation);
+
+			de_fbx_quat_from_euler(&rq, &mdl->geometric_rotation);
+			de_mat4_rotation(&r, &rq);
+
+			de_mat4_scale(&s, &mdl->scale);
+
+			de_mat4_mul(&geometric_transform, &t, &r);
+			de_mat4_mul(&geometric_transform, &geometric_transform, &s);
+		}
 
 		if (mdl->light)
 		{
@@ -1472,7 +1718,11 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 
 				de_bool_t invalid_face = DE_FALSE;
 
-				/* check for invalid faces first and discard if so */
+				/**
+				 * Check for invalid faces first and discard such faces.
+				 * Invalid faces can be produced by FBX triangulator when it
+				 * cannot triangulate a polygon correctly.
+				 **/
 				for (m = 0; m < geom->vertex_per_face; ++m)
 				{
 					if ((size_t)face->v[m] >= (size_t)geom->vertex_count)
@@ -1495,6 +1745,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 					int surface_index = 0;
 
 					v.position = geom->vertices[index];
+					de_vec3_transform(&v.position, &v.position, &geometric_transform);
 
 					/* Extract normal */
 					switch (geom->normal_mapping)
@@ -1508,6 +1759,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 					default:
 						de_error("FBX: Normal mapping is not supported");
 					}
+					de_vec3_transform_normal(&v.normal, &v.normal, &geometric_transform);
 
 					switch (geom->uv_mapping)
 					{
@@ -1554,8 +1806,92 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 			}
 		}
 
+		/**
+		 * Convert animations
+		 **/
+		if (mdl->animation_curve_nodes.size > 0)
+		{
+			float time = 0;
+			de_animation_track_t* track;
+			de_fbx_animation_curve_node_t* lcl_translation = NULL;
+			de_fbx_animation_curve_node_t* lcl_rotation = NULL;
+			de_fbx_animation_curve_node_t* lcl_scale = NULL;
+			
+			/* find supported curve nodes (translation, rotation, scale) */
+			for (k = 0; k < mdl->animation_curve_nodes.size; ++k)
+			{
+				de_fbx_animation_curve_node_t* curve_node = mdl->animation_curve_nodes.data[k];
+								
+				if (curve_node->type == DE_FBX_ANIMATION_CURVE_NODE_ROTATION)
+				{
+					if (!lcl_rotation)
+					{
+						lcl_rotation = curve_node;
+					} 
+					else
+					{
+						de_log("FBX: another local rotation curve node?");
+					}
+				}
+				else if (curve_node->type == DE_FBX_ANIMATION_CURVE_NODE_TRANSLATION)
+				{
+					if (!lcl_translation)
+					{
+						lcl_translation = curve_node;
+					}
+					else
+					{
+						de_log("FBX: another local translation curve node?");
+					}
+				}
+				else if (curve_node->type == DE_FBX_ANIMATION_CURVE_NODE_SCALE)
+				{
+					if (!lcl_scale)
+					{
+						lcl_scale = curve_node;
+					}
+					else
+					{
+						de_log("FBX: another local scale curve node?");
+					}
+				}
+			}
+
+			/* convert to engine format */			
+			track = de_animation_track_create(anim);
+			de_animation_add_track(anim, track);
+
+			track->node = node;
+
+		#if DE_FBX_VERBOSE
+			de_log("FBX: === new anim track ===\n");
+		#endif
+
+			/* TODO: Very brittle method, relies on compare two floats! Should be rewritten! */
+			for(;;)
+			{
+				de_keyframe_t keyframe;
+
+				de_fbx_eval_keyframe(time, lcl_translation, lcl_rotation, lcl_scale, &keyframe);
+
+				de_animation_track_add_keyframe(track, &keyframe);
+
+				float next_time = de_fbx_get_next_keyframe_time(time, lcl_translation, lcl_rotation, lcl_scale);
+
+				if (next_time >= FLT_MAX)
+				{
+					break;
+				}
+
+				time = next_time;
+			}
+		}
+
 		de_node_attach(node, root);
 	}
+
+	de_animation_clamp_length(anim);
+	anim->speed = 0.1;
 
 	return root;
 }

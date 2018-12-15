@@ -26,37 +26,42 @@ struct de_scene_t
 	DE_LINKED_LIST_DECLARE(de_node_t, nodes);
 	DE_LINKED_LIST_DECLARE(de_body_t, bodies);
 	DE_LINKED_LIST_DECLARE(de_static_geometry_t, static_geometries);
+	DE_LINKED_LIST_DECLARE(de_animation_t, animations);
 
 	de_node_t* active_camera;
 };
 
-de_scene_t* de_scene_create();
-
-void de_scene_free(de_scene_t* s);
-
+/**
+ * @brief Creates new empty scene and attaches it to engine instance.
+ */
+de_scene_t* de_scene_create(void);
 
 /**
-* @brief Creates new body with radius 1.0
-* @return pointer to new body
-*/
+ * @brief Destroys all scene resources and deallocates memory.
+ */
+void de_scene_free(de_scene_t* s);
+
+/**
+ * @brief Creates new body with radius 1.0
+ * @return pointer to new body
+ */
 de_body_t* de_scene_create_body(de_scene_t* s);
 
 /**
-* @brief Frees all resources associated with body
-* @param body pointer to body
-*/
+ * @brief Frees all resources associated with body
+ * @param body pointer to body
+ */
 void de_scene_free_body(de_scene_t* s, de_body_t* body);
 
 /**
-* @brief Creates new empty static geometry
-* @return pointer to new static geometry
-*/
+ * @brief Creates new empty static geometry
+ * @return pointer to new static geometry
+ */
 de_static_geometry_t* de_scene_create_static_geometry(de_scene_t* s);
 
 /**
-* @brief
-* @param ref
-*/
+ * @brief Frees static geometry. Removes it from scene.
+ */
 void de_scene_free_static_geometry(de_scene_t* s, de_static_geometry_t* geom);
 
 /**
@@ -70,6 +75,17 @@ void de_scene_add_node(de_scene_t* s, de_node_t* node);
  */
 void de_scene_remove_node(de_scene_t* s, de_node_t* node);
 
+/**
+ * @brief Creates new empty animation and attaches it to scene
+ */
 de_animation_t* de_animation_create(de_scene_t* s);
 
+/**
+ * @brief Tries to find a node with specified name. Performs linear search O(n).
+ */
 de_node_t* de_scene_find_node(const de_scene_t* s, const char* name);
+
+/**
+ * @brief Update scene components (i.e. animations)
+ */
+void de_scene_update(de_scene_t* s, float dt);

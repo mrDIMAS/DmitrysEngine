@@ -1020,3 +1020,9 @@ float de_minf(float a, float b);
  * @brief Returns next large pow2 number after @v
  */
 unsigned int de_ceil_pow2(unsigned int v);
+
+/**
+ * @brief Wraps number in specified bounds.
+ * Note: Original source code from HPL Engine by Frictional Games, bug fixed by Dmitry Stepanov
+ */
+float de_fwrap(float n, float min_limit, float max_limit);

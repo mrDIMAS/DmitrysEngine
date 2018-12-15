@@ -54,7 +54,7 @@ void de_animation_track_add_keyframe(de_animation_track_t* track, const de_keyfr
 			}
 		}
 
-		/*		de_array_insert(track->keyframes, keyframe, i);*/
+		DE_ARRAY_INSERT(track->keyframes, i, *keyframe);		
 	}
 }
 
@@ -118,6 +118,114 @@ void de_animation_track_get_keyframe(de_animation_track_t* track, float time, de
 			de_vec3_lerp(&out_keyframe->position, &left->position, &right->position, interpolator);
 			de_vec3_lerp(&out_keyframe->scale, &left->scale, &right->scale, interpolator);
 			de_quat_slerp(&out_keyframe->rotation, &left->rotation, &right->rotation, interpolator);
+		}
+	}
+}
+
+/*=======================================================================================*/
+void de_animation_add_track(de_animation_t* anim, de_animation_track_t* track)
+{
+	DE_ARRAY_APPEND(anim->tracks, track);
+}
+
+/*=======================================================================================*/
+void de_animation_update(de_animation_t* anim, float dt)
+{
+	size_t i;
+	float nextTimePos = anim->time_position + dt * anim->speed;
+
+	for (i = 0; i < anim->tracks.size; ++i)
+	{
+		de_animation_track_t* track;
+		de_keyframe_t keyframe;
+		de_node_t* node;
+
+		track = anim->tracks.data[i];
+
+		if (!track->node)
+		{
+			continue;
+		}
+
+		node = track->node;
+
+		de_animation_track_get_keyframe(track, anim->time_position, &keyframe);		
+
+		/* Accumulate position */
+		de_vec3_add(&node->position, &node->position, &keyframe.position);
+
+		/* Accumulate rotation */
+		de_quat_mul(&node->rotation, &node->rotation, &keyframe.rotation);
+
+		/* Accumulate scale */
+		node->scale.x *= keyframe.scale.x;
+		node->scale.y *= keyframe.scale.y;
+		node->scale.z *= keyframe.scale.z;
+	}
+
+	de_animation_set_time_position(anim, nextTimePos);
+	
+	/* Handle fading - part of animation blending */
+	if (anim->fade_step != 0.0f)
+	{
+		anim->weight += anim->fade_step * dt;
+		if (anim->fade_step < 0 && anim->weight <= 0)
+		{
+			anim->weight = 0;
+			de_animation_reset_flags(anim, DE_ANIMATION_FLAG_ENABLED);			
+			anim->fade_step = 0;
+		}
+		else if (anim->fade_step > 0 && anim->weight >= 1)
+		{
+			anim->weight = 1;
+			anim->fade_step = 0;
+		}
+	}
+}
+
+/*=======================================================================================*/
+void de_animation_set_time_position(de_animation_t* anim, float time)
+{
+	if (anim->flags & DE_ANIMATION_FLAG_LOOPED)
+	{
+		anim->time_position = de_fwrap(time, 0.0f, anim->length);
+	}
+	else
+	{
+		anim->time_position = de_clamp(time, 0.0f, anim->length);
+	}
+}
+
+/*=======================================================================================*/
+de_bool_t de_animation_is_flags_set(de_animation_t* anim, int flags)
+{
+	return (anim->flags & flags) == flags;
+}
+
+/*=======================================================================================*/
+void de_animation_set_flags(de_animation_t* anim, int flags)
+{
+	anim->flags |= flags;
+}
+
+/*=======================================================================================*/
+void de_animation_reset_flags(de_animation_t* anim, int flags)
+{
+	anim->flags &= ~flags;
+}
+
+/*=======================================================================================*/
+void de_animation_clamp_length(de_animation_t* anim)
+{
+	size_t i;
+	
+	for (i = 0; i < anim->tracks.size; ++i)
+	{
+		de_animation_track_t* track = anim->tracks.data[i];
+
+		if (track->max_time > anim->length)
+		{
+			anim->length = track->max_time;
 		}
 	}
 }

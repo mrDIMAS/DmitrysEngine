@@ -34,17 +34,18 @@ typedef struct de_keyframe_t
 } de_keyframe_t;
 
 /**
-* @class de_animation_track_t
-* @brief Animation track
-*
-* Set of keyframes and pointer to animated node.
-*/
+ * @class de_animation_track_t
+ * @brief Animation track
+ *
+ * Set of keyframes and pointer to animated node. Defines animation of a node.
+ */
 struct de_animation_track_t
 {
 	de_animation_t* parent_animation;
 	DE_ARRAY_DECLARE(de_keyframe_t, keyframes); /**< Array of keyframes */
 	de_bool_t enabled;       /**< Is track enabled? */
 	float max_time;       /**< Private. Length of animation. */
+	de_node_t* node;
 };
 
 typedef enum de_animation_flags_t
@@ -79,5 +80,48 @@ struct de_animation_t
 * @param out_keyframe pointer to output intepolated keyframe
 */
 void de_animation_track_get_keyframe(de_animation_track_t* track, float time, de_keyframe_t* out_keyframe);
+
+/**
+ * @brief Adds animations track to an animation. Every animation can contain any number of tracks.
+ */
+void de_animation_add_track(de_animation_t* anim, de_animation_track_t* track);
+
+/**
+ * @brief Creates new animation track and attaches it to animation.
+ */
 de_animation_track_t* de_animation_track_create(de_animation_t* anim);
+
+/**
+ * @brief Adds a keyframe to animation track.
+ */
 void de_animation_track_add_keyframe(de_animation_track_t* track, const de_keyframe_t* keyframe);
+
+/**
+ * @brief
+ */
+void de_animation_update(de_animation_t* anim, float dt);
+
+/**
+ * @brief
+ */
+void de_animation_set_time_position(de_animation_t* anim, float time);
+
+/**
+ * @brief
+ */
+de_bool_t de_animation_is_flags_set(de_animation_t* anim, int flags);
+
+/**
+ * @brief
+ */
+void de_animation_set_flags(de_animation_t* anim, int flags);
+
+/**
+ * @brief
+ */
+void de_animation_reset_flags(de_animation_t* anim, int flags);
+
+/**
+ * @brief Clamps length of animation to longest track.
+ */
+void de_animation_clamp_length(de_animation_t* anim);

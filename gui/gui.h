@@ -204,7 +204,7 @@ typedef struct de_gui_dispatch_table_t
 } de_gui_dispatch_table_t;
 
 /**
- * @brief GUI node.
+ * @brief GUI node. Tagged union (https://en.wikipedia.org/wiki/Tagged_union)
  */
 struct de_gui_node_t
 {
@@ -285,7 +285,7 @@ void de_gui_init();
 /**
  * @brief Shutdowns GUI. For internal use only!
  */
-void de_gui_shutdown();
+void de_gui_shutdown(void);
 
 /**
  * @brief Calculates screen positions of node. Acts recursively to child nodes.
@@ -470,6 +470,6 @@ void de_gui_node_set_horizontal_alignment(de_gui_node_t* node, de_gui_horizontal
 /**
  * @brief
  */
-de_gui_draw_list_t* de_gui_render();
+de_gui_draw_list_t* de_gui_render(void);
 
 void de_gui_update();

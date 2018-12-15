@@ -177,20 +177,20 @@ void de_gui_init()
 
 	/* create default font */
 	{
-		#define CHAR_COUNT 255
+	#define CHAR_COUNT 255
 		int char_set[CHAR_COUNT];
 		int i;
 		for (i = 0; i < CHAR_COUNT; ++i)
 		{
 			char_set[i] = i;
 		}
-		
+
 		gui->default_font = de_font_load_ttf_from_memory(de_builtin_font_inconsolata, 18, char_set, CHAR_COUNT);
 	}
 }
 
 /*=======================================================================================*/
-void de_gui_shutdown()
+void de_gui_shutdown(void)
 {
 	de_gui_t* gui = &de_engine->gui;
 	DE_ARRAY_FREE(gui->draw_list.commands);
@@ -238,7 +238,7 @@ static de_gui_node_t* de_gui_node_pick(de_gui_node_t* n, const de_vec2_t* mouse_
 	for (i = 0; i < n->children.size; ++i)
 	{
 		de_gui_node_t* picked_child;
-		
+
 		++(*level);
 
 		picked_child = de_gui_node_pick(n->children.data[i], mouse_pos, level);
@@ -288,7 +288,7 @@ static de_bool_t de_gui_draw_command_contains_point(const de_gui_draw_list_t* dr
 			dot12 = de_vec2_dot(&v1, &v2);
 
 			denom = (dot00 * dot11 - dot01 * dot01);
-						
+
 			if (denom <= FLT_EPSILON)
 			{
 				/* we don't want floating-point exceptions */
@@ -298,7 +298,7 @@ static de_bool_t de_gui_draw_command_contains_point(const de_gui_draw_list_t* dr
 			invDenom = 1.0f / denom;
 			u = (dot11 * dot02 - dot01 * dot12) * invDenom;
 			v = (dot00 * dot12 - dot01 * dot02) * invDenom;
-			
+
 			if ((u >= 0) && (v >= 0) && (u + v < 1))
 			{
 				return DE_TRUE;
@@ -473,7 +473,7 @@ static void de_gui_node_handle_mouse_input(de_gui_node_t* n, const de_vec2_t* mo
 }
 
 /*=======================================================================================*/
-void de_gui_node_handle_keyboard_input()
+void de_gui_node_handle_keyboard_input(void)
 {
 
 }
@@ -483,7 +483,7 @@ void de_gui_update()
 {
 	de_gui_t* gui = &de_engine->gui;
 	static size_t count = 0;
-	
+
 	{
 		++count;
 
@@ -509,7 +509,7 @@ void de_gui_update()
 			}
 		}
 	}
-	
+
 	/* calculate screen position */
 	{
 		de_gui_node_t* n;
@@ -819,7 +819,7 @@ de_bool_t de_gui_node_set_property(de_gui_node_t* n, const char* name, const voi
 de_bool_t de_gui_node_parse_property(de_gui_node_t* n, const char* name, const char* value)
 {
 	static de_string_array_t tokens;
-	
+
 	if (n->dispatch_table->parse_property)
 	{
 		if (n->dispatch_table->parse_property(n, name, value))
@@ -827,7 +827,7 @@ de_bool_t de_gui_node_parse_property(de_gui_node_t* n, const char* name, const c
 			return DE_TRUE;
 		}
 	}
-	
+
 	de_tokenize_string(value, &tokens, ";, ");
 
 	if (strcmp(name, DE_GUI_NODE_DESIRED_POSITION_PROPERTY) == 0)
@@ -972,7 +972,7 @@ static void de_gui_node_draw(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t n
 }
 
 /*=======================================================================================*/
-de_gui_draw_list_t* de_gui_render()
+de_gui_draw_list_t* de_gui_render(void)
 {
 	de_gui_node_t* n;
 	de_gui_t* gui = &de_engine->gui;
@@ -998,7 +998,7 @@ de_gui_draw_list_t* de_gui_render()
 		}
 	}
 
-	#if DE_GUI_ENABLE_GUI_DEBUGGING
+#if DE_GUI_ENABLE_GUI_DEBUGGING
 	if (gui->picked_node)
 	{
 		de_color_t red = { 255, 0, 0, 255 };
@@ -1007,7 +1007,7 @@ de_gui_draw_list_t* de_gui_render()
 		de_gui_draw_list_commit(dl, DE_GUI_DRAW_COMMAND_TYPE_GEOMETRY, 0, 0);
 
 		printf("p: %f %f\n", gui->picked_node->screen_position.x, gui->picked_node->screen_position.y);
-		printf("s: %f %f\n", gui->picked_node->actual_size.x, gui->picked_node->actual_size.y);		
+		printf("s: %f %f\n", gui->picked_node->actual_size.x, gui->picked_node->actual_size.y);
 	}
 	if (gui->keyboard_focus)
 	{
@@ -1016,7 +1016,7 @@ de_gui_draw_list_t* de_gui_render()
 		de_gui_draw_list_push_rect(dl, &gui->keyboard_focus->screen_position, &gui->keyboard_focus->actual_size, 1, &green);
 		de_gui_draw_list_commit(dl, DE_GUI_DRAW_COMMAND_TYPE_GEOMETRY, 0, 0);
 	}
-	#endif
+#endif
 
 
 	return dl;

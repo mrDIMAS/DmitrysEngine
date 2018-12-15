@@ -34,4 +34,4 @@ void* de_base64_decode(const char* data, size_t size, size_t* out_size);
 /**
  * @brief Runs basic sanity checks
  */
-void de_base64_test();
+void de_base64_test(void);

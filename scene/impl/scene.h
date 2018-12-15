@@ -20,7 +20,7 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 /*=======================================================================================*/
-de_scene_t* de_scene_create()
+de_scene_t* de_scene_create(void)
 {
 	de_scene_t* s = DE_NEW(de_scene_t);
 	DE_LINKED_LIST_INIT(s->nodes);
@@ -118,9 +118,27 @@ void de_scene_add_node(de_scene_t* s, de_node_t* node)
 /*=======================================================================================*/
 void de_scene_remove_node(de_scene_t* s, de_node_t* node)
 {
+	de_animation_t* anim;
+		
 	if (node == s->active_camera)
 	{
 		s->active_camera = NULL;
+	}
+
+	/* make sure that we do not store pointer to node in animations */
+	DE_LINKED_LIST_FOR_EACH(s->animations, anim)
+	{
+		size_t i;
+
+		for (i = 0; i < anim->tracks.size; ++i)
+		{
+			de_animation_track_t* track = anim->tracks.data[i];
+
+			if (track->node == node)
+			{
+				track->node = NULL;
+			}
+		}
 	}
 
 	node->parent_scene = NULL;
@@ -134,10 +152,13 @@ de_animation_t* de_animation_create(de_scene_t* s)
 	de_animation_t* animation;
 
 	animation = DE_NEW(de_animation_t);
-
+	
 	animation->parent_scene = s;
 	animation->weight = 1.0f;
 	animation->speed = 1.0f;
+	animation->flags = DE_ANIMATION_FLAG_ENABLED | DE_ANIMATION_FLAG_LOOPED;
+
+	DE_LINKED_LIST_APPEND(s->animations, animation);
 
 	return animation;
 }
@@ -156,4 +177,51 @@ de_node_t* de_scene_find_node(const de_scene_t* s, const char* name)
 	}
 
 	return node;
+}
+
+/*=======================================================================================*/
+void de_scene_update(de_scene_t* s, float dt)
+{
+	de_animation_t* anim;
+	de_node_t* node;
+	
+#if 1
+	/**
+	 * Animations prepass - reset local transform of associated track nodes 
+	 * for blending 
+	 **/
+	DE_LINKED_LIST_FOR_EACH(s->animations, anim)
+	{
+		size_t i;
+
+		for (i = 0; i < anim->tracks.size; ++i)
+		{
+			de_animation_track_t* track = anim->tracks.data[i];
+
+			if (track->node)
+			{
+				de_vec3_zero(&track->node->position);
+				de_quat_set(&track->node->rotation, 0, 0, 0, 1);
+				de_vec3_set(&track->node->scale, 1, 1, 1);
+			}
+		}
+	}
+
+	/**
+	 * Animation pass
+	 */
+	DE_LINKED_LIST_FOR_EACH(s->animations, anim)
+	{
+		de_animation_update(anim, dt);
+	}
+
+#endif
+
+	/** 
+	 * Calculate transforms of nodes
+	 */
+	DE_LINKED_LIST_FOR_EACH(s->nodes, node)
+	{
+		de_node_calculate_transforms(node);
+	}
 }

@@ -93,7 +93,7 @@ de_bool_t de_is_running();
 void de_stop();
 
 /**
-* @brief Updates message queue from OS
+* @brief Updates message queue from OS. No need to call directly!
 */
 void de_poll_messages();
 
@@ -101,6 +101,11 @@ void de_poll_messages();
 * @brief Performs rendering of every scene
 */
 void de_render();
+
+/**
+ * @brief Performs one tick of update
+ */
+void de_update(float dt);
 
 /**
 * @brief Sets frame rate limit
@@ -116,10 +121,10 @@ void de_set_framerate_limit(int limit);
 
 typedef void(*de_proc)(void);
 
-void de_engine_platform_init();
-void de_engine_platform_shutdown();
-void de_engine_platform_message_queue();
+void de_engine_platform_init(void);
+void de_engine_platform_shutdown(void);
+void de_engine_platform_message_queue(void);
 de_proc de_engine_platform_get_proc_address(const char *name);
-void de_engine_platform_swap_buffers();
+void de_engine_platform_swap_buffers(void);
 void de_engine_platform_message_box(const char * msg);
 

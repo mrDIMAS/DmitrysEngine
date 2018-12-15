@@ -29,7 +29,7 @@ typedef enum de_node_type_t
 
 /**
  * @class de_node_t
- * @brief Common scene node.
+ * @brief Common scene node. Typed union.
  *
  * Actual behaviour of scene node defined by set of its components
  */
@@ -40,7 +40,7 @@ struct de_node_t
 	de_scene_t* parent_scene;
 	de_node_type_t type;
 
-	/*
+	/**
 	 * Standard properties
 	 */
 	char* name;
@@ -50,7 +50,11 @@ struct de_node_t
 	de_vec3_t position; /**< Position of the node relative to parent node (if exists) */
 	de_vec3_t scale; /**< Scale of the node relative to parent node (if exists) */
 	de_quat_t rotation; /**< Rotation of the node relative to parent node (if exists) */
-	de_quat_t pre_rotation;
+
+	/**
+	 * FBX stuff, but can be used if you want special transformations
+	 */
+	de_quat_t pre_rotation; 
 	de_quat_t post_rotation;
 	de_vec3_t rotation_offset;
 	de_vec3_t rotation_pivot;
@@ -61,8 +65,7 @@ struct de_node_t
 	de_node_t* parent; /**< Pool reference to parent node */
 	DE_ARRAY_DECLARE(de_node_t*, children); /**< Array of pool references to child nodes */
 	de_bool_t visible; /**< Local visibility. Actual visibility defined by hierarchy. So if parent node is invisible, then child node will be too */
-	de_animation_track_t* track; /**< Pointer to animation track. When not NULL, completely overwrites local_xxx transforms parts */
-
+	
 	/* Physics */
 	de_body_t* body;
 
@@ -161,11 +164,8 @@ void de_node_move(de_node_t* node, de_vec3_t* offset);
 /**
 * @brief
 * @param node
-* @param body_ref
 */
 void de_node_set_body(de_node_t* node, de_body_t* body);
-
-
 
 /**
 * @brief

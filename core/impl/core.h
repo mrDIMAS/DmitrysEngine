@@ -98,13 +98,32 @@ void de_set_framerate_limit(int limit)
 	de_engine->renderer.frame_rate_limit = limit;
 }
 
+/*=======================================================================================*/
 int de_is_mouse_pressed(enum de_mouse_button btn)
 {
 	return de_engine->mouse_buttons[btn];
 }
 
+/*=======================================================================================*/
 void de_get_mouse_pos(de_vec2_t* pos)
 {
 	pos->x = de_engine->mouse_pos.x;
 	pos->y = de_engine->mouse_pos.y;
+}
+
+/*=======================================================================================*/
+void de_update(float dt)
+{
+	de_scene_t* scene;
+
+	de_poll_messages();
+
+	de_gui_update();
+	
+	de_physics_step(dt);
+
+	DE_LINKED_LIST_FOR_EACH(de_engine->scenes, scene)
+	{
+		de_scene_update(scene, dt);
+	}
 }

@@ -160,7 +160,7 @@ void* de_base64_decode(const char* data, size_t size, size_t* out_size)
 	return bytes;
 }
 
-void de_base64_test()
+void de_base64_test(void)
 {
 	int i;
 	const char* str[] = {

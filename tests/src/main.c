@@ -4,6 +4,7 @@
 typedef struct level_t
 {
 	de_scene_t* scene;
+	de_node_t* test_fbx;
 } level_t;
 
 typedef struct player_t
@@ -28,12 +29,12 @@ player_t* player_create(level_t* level)
 
 	body = de_scene_create_body(level->scene);
 	de_body_set_radius(body, 0.25);
-	#if 0
+#if 0
 	{
 		de_vec3_t gravity = { 0, 0, 0 };
 		de_body_set_gravity(body, &gravity);
 	}
-	#endif
+#endif
 
 	p->pivot = de_node_create(DE_NODE_BASE);
 	de_scene_add_node(level->scene, p->pivot);
@@ -140,14 +141,18 @@ void player_update(player_t* p)
 	de_node_set_local_rotation(camera, de_quat_from_axis_angle(&pitch_rot, &right_axis, de_deg_to_rad(p->pitch)));
 }
 
-level_t* level_create_test()
+level_t* level_create_test(void)
 {
 	level_t* level;
 	de_node_t* polygon;
+	de_vec3_t rp = { -1, 1, 1 };
 
 	level = DE_NEW(level_t);
 
 	level->scene = de_scene_create();
+
+	level->test_fbx = de_fbx_load_to_scene(level->scene, "data/models/rotating_cube.fbx");
+	de_node_set_local_position(level->test_fbx, &rp);
 
 	de_fbx_load_to_scene(level->scene, "data/models/map2.fbx");
 	polygon = de_scene_find_node(level->scene, "Polygon");
@@ -166,6 +171,17 @@ level_t* level_create_test()
 void level_update(level_t* level)
 {
 	(void)level;
+
+#if 0
+	de_quat_t q;
+	de_vec3_t axis = { 1, 0, 0 };
+
+
+	static float angle = 0;
+	de_quat_from_axis_angle(&q, &axis, angle);
+	de_node_set_local_rotation(level->test_fbx, &q);
+	angle += 0.01;
+#endif
 }
 
 void level_free(level_t* level)
@@ -197,7 +213,7 @@ void main_menu_create(void)
 		de_gui_grid_add_row(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
 		de_gui_grid_add_row(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
 		de_gui_grid_add_row(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
-		de_gui_grid_add_row(grid, 0, DE_GUI_SIZE_MODE_STRETCH);		
+		de_gui_grid_add_row(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
 
 		/* title */
 		{
@@ -270,8 +286,6 @@ int main(int argc, char** argv)
 	de_engine_params_t params;
 	player_t* player;
 	level_t* level;
-	de_node_t* fbx2;
-	de_vec3_t rp = { -1, 1, 1 };
 
 	DE_UNUSED(argc);
 	DE_UNUSED(argv);
@@ -284,9 +298,6 @@ int main(int argc, char** argv)
 
 	level = level_create_test();
 	player = player_create(level);
-
-	fbx2 = de_fbx_load_to_scene(level->scene, "data/models/ripper.fbx");
-	de_node_set_local_position(fbx2, &rp);
 
 	{
 		de_node_t* pp = de_scene_find_node(level->scene, "PlayerPosition");
@@ -316,10 +327,7 @@ int main(int argc, char** argv)
 		{
 			dt -= fixedTimeStep;
 			gameClock += fixedTimeStep;
-
-			de_gui_update();
-			de_poll_messages();
-			de_physics_step(fixedTimeStep);
+			de_update(fixedTimeStep);
 
 			level_update(level);
 			player_update(player);

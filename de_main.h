@@ -25,7 +25,7 @@
  /* Suppress compiler-specific warnings */
 #ifdef _MSC_VER
 #  define _CRT_SECURE_NO_WARNINGS
-#  pragma warning(disable : 4204)
+#  pragma warning(disable : 4204 4820)
 #elif defined GNUC
 #  pragma GCC diagnostic ignored "-Woverlength-strings" /* built-in shaders does not fit in C89 limits of 512 chars */
 #else

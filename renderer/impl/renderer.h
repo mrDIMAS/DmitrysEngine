@@ -210,8 +210,9 @@ static void de_renderer_load_extensions()
 	GET_GL_EXT(PFNGLGENVERTEXARRAYSPROC, glGenVertexArrays);
 	GET_GL_EXT(PFNGLBINDVERTEXARRAYPROC, glBindVertexArray);
 	GET_GL_EXT(PFNGLDELETEVERTEXARRAYSPROC, glDeleteVertexArrays);
-
+		
 #ifdef _WIN32	
+	/* Windows does support ony OpenGL 1.1 and we must obtain these pointers */
 	GET_GL_EXT(PFNGLACTIVETEXTUREPROC, glActiveTexture);
 	GET_GL_EXT(PFNGLCLIENTACTIVETEXTUREPROC, glClientActiveTexture);
 #endif
@@ -824,8 +825,6 @@ void de_render()
 		{
 			de_mat4_t wvp_matrix;
 
-			de_node_calculate_transforms(node);
-
 			de_mat4_mul(&wvp_matrix, &camera->view_projection_matrix, &node->global_matrix);
 
 			DE_GL_CALL(glUniformMatrix4fv(r->gbuffer_shader.wvp_matrix, 1, GL_FALSE, wvp_matrix.f));
@@ -906,7 +905,6 @@ void de_render()
 			{
 				de_mat4_t wvp_matrix;
 
-				de_node_calculate_transforms(node);
 				de_mat4_mul(&wvp_matrix, &camera->view_projection_matrix, &node->global_matrix);
 				DE_GL_CALL(glUniformMatrix4fv(r->flat_shader.wvp_matrix, 1, GL_FALSE, wvp_matrix.f));
 
@@ -925,7 +923,7 @@ void de_render()
 	/* Render GUI */
 	{
 		int index_bytes, vertex_bytes;
-		de_gui_draw_list_t* draw_list = de_gui_render(&de_engine->gui);
+		de_gui_draw_list_t* draw_list = de_gui_render();
 
 		DE_GL_CALL(glUseProgram(r->gui_shader.program));
 		DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
@@ -1006,7 +1004,7 @@ void de_render()
 	DE_GL_CALL(glActiveTexture(GL_TEXTURE2));
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 
-	de_engine_platform_swap_buffers(de_engine);
+	de_engine_platform_swap_buffers();
 
 	if (r->frame_rate_limit > 0)
 	{

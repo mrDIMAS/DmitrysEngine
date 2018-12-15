@@ -1457,3 +1457,35 @@ unsigned int de_ceil_pow2(unsigned int v)
 	power <<= 1;
 	return power;
 }
+
+float de_fwrap(float n, float min_limit, float max_limit)
+{
+	if (n >= min_limit && n <= max_limit)
+	{
+		return n;
+	}
+
+	if (max_limit == 0.0f && min_limit == 0.0f)
+	{
+		return 0.0f;
+	}
+
+	max_limit = max_limit - min_limit;
+
+	float offset = min_limit;
+	min_limit = 0;
+	n = n - offset;
+
+	float num_of_max = (float)floor(abs(n / max_limit));
+
+	if (n >= max_limit)
+	{
+		n = n - num_of_max * max_limit;
+	}
+	else if (n < min_limit)
+	{
+		n = ((num_of_max + 1.0f) * max_limit) + n;
+	}
+
+	return n + offset;
+}

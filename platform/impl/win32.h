@@ -202,7 +202,7 @@ static LRESULT CALLBACK de_window_proc(HWND wnd, UINT msg, WPARAM wParam, LPARAM
 	return DefWindowProc(wnd, msg, wParam, lParam);
 }
 
-static void de_win32_load_wgl_extensions()
+static void de_win32_load_wgl_extensions(void)
 {
 	int pixel_format;
 	WNDCLASSEX wcx = { 0 };
@@ -269,7 +269,7 @@ static void de_win32_load_wgl_extensions()
 	DestroyWindow(de_engine->platform.dummy_window);
 }
 
-void de_engine_platform_init()
+void de_engine_platform_init(void)
 {
 	DWORD style;
 	int pixel_format;
@@ -363,13 +363,13 @@ void de_engine_platform_init()
 	}
 }
 
-void de_engine_platform_shutdown()
+void de_engine_platform_shutdown(void)
 {
 	wglMakeCurrent(NULL, NULL);
 	wglDeleteContext(de_engine->platform.gl_context);
 }
 
-void de_engine_platform_message_queue()
+void de_engine_platform_message_queue(void)
 {
 	MSG message;
 
@@ -388,7 +388,7 @@ de_proc de_engine_platform_get_proc_address(const char* name)
 	return (de_proc)wglGetProcAddress(name);
 }
 
-void de_engine_platform_swap_buffers()
+void de_engine_platform_swap_buffers(void)
 {
 	SwapBuffers(de_engine->platform.device_context);
 }

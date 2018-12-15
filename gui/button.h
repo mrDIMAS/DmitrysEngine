@@ -33,7 +33,7 @@ typedef struct de_gui_button_t
 	de_bool_t was_pressed;
 } de_gui_button_t;
 
-de_gui_node_t* de_gui_button_create();
+de_gui_node_t* de_gui_button_create(de_gui_t* gui);
 
 /**
 * @brief

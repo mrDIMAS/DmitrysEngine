@@ -34,7 +34,7 @@ typedef struct de_gui_scroll_viewer_t
 	de_bool_t auto_hide_hor_scroll_bar;
 } de_gui_scroll_viewer_t;
 
-de_gui_node_t* de_gui_scroll_viewer_create(void);
+de_gui_node_t* de_gui_scroll_viewer_create(de_gui_t* gui);
 
 void de_gui_scroll_viewer_measure(de_gui_node_t* n);
 

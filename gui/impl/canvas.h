@@ -15,7 +15,7 @@ static void de_gui_canvas_deinit(de_gui_node_t* n)
 }
 
 /*=======================================================================================*/
-de_gui_node_t* de_gui_canvas_create(void)
+de_gui_node_t* de_gui_canvas_create(de_gui_t* gui)
 {
 	de_gui_node_t* n;
 		
@@ -32,7 +32,7 @@ de_gui_node_t* de_gui_canvas_create(void)
 		}
 	}
 
-	n = de_gui_node_alloc(DE_GUI_NODE_CANVAS, &dispatch_table);
+	n = de_gui_node_alloc(gui, DE_GUI_NODE_CANVAS, &dispatch_table);
 
 	return n;
 }

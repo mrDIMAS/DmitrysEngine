@@ -637,7 +637,7 @@ static int de_font_compute_atlas_size(de_font_t * font)
 }
 
 /*=======================================================================================*/
-static int de_font_pack(de_font_t * font)
+static int de_font_pack(de_renderer_t* r, de_font_t * font)
 {
 	int i = 0;
 	int row = 0;
@@ -655,7 +655,7 @@ static int de_font_pack(de_font_t * font)
 	root = de_rectpack_create_node(0, 0, atlas_size, atlas_size);
 
 	/* prepare atlas */
-	font->texture = de_renderer_create_texture(atlas_size, atlas_size, 4);
+	font->texture = de_renderer_create_texture(r, atlas_size, atlas_size, 4);
 	for (i = 0; i < font->texture->width * font->texture->height; ++i)
 	{
 		de_rgba8_t* pix = (de_rgba8_t*)(font->texture->pixels) + i;
@@ -733,7 +733,7 @@ static int de_compare_charmap_entry(const void* a, const void* b)
 }
 
 /*=======================================================================================*/
-de_font_t* de_font_load_ttf_from_memory(void* data, float height, const int* char_set, int char_count)
+de_font_t* de_font_load_ttf_from_memory(de_core_t* core, void* data, float height, const int* char_set, int char_count)
 {
 	int i;
 	de_true_type_t ttf;
@@ -757,6 +757,7 @@ de_font_t* de_font_load_ttf_from_memory(void* data, float height, const int* cha
 	back_scaler = scaler / DE_TTF_DOWNSCALE_FACTOR;
 
 	font = DE_NEW(de_font_t);
+	font->core = core;
 
 	font->ascender = back_scaler * de_ptr_to_i16(ttf.hhea_table + 4);
 	font->descender = back_scaler * de_ptr_to_i16(ttf.hhea_table + 6);
@@ -781,16 +782,16 @@ de_font_t* de_font_load_ttf_from_memory(void* data, float height, const int* cha
 	/* sort charmap for fast binary search */
 	DE_ARRAY_QSORT(font->charmap, de_compare_charmap_entry);
 
-	de_font_pack(font);
+	de_font_pack(core->renderer, font);
 	de_ttf_clear(&ttf);
 
-	DE_LINKED_LIST_APPEND(de_core->fonts, font);
+	DE_LINKED_LIST_APPEND(core->fonts, font);
 
 	return font;
 }
 
 /*=======================================================================================*/
-de_font_t* de_font_load_ttf(const char * filename, float height, const int* char_set, int char_count)
+de_font_t* de_font_load_ttf(de_core_t* core, const char * filename, float height, const int* char_set, int char_count)
 {
 	int size;
 	FILE* fontFile;
@@ -815,7 +816,7 @@ de_font_t* de_font_load_ttf(const char * filename, float height, const int* char
 	fread(data, 1, size, fontFile);
 	fclose(fontFile);
 
-	font = de_font_load_ttf_from_memory(data, height, char_set, char_count);
+	font = de_font_load_ttf_from_memory(core, data, height, char_set, char_count);
 
 	de_free(data);
 	
@@ -825,7 +826,7 @@ de_font_t* de_font_load_ttf(const char * filename, float height, const int* char
 /*=======================================================================================*/
 void de_font_free(de_font_t* font)
 {
-	DE_LINKED_LIST_REMOVE(de_core->fonts, font);
+	DE_LINKED_LIST_REMOVE(font->core->fonts, font);
 
 	DE_ARRAY_FREE(font->charmap);
 	de_texture_release(font->texture);

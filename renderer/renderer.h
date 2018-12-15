@@ -140,6 +140,8 @@ typedef struct de_gui_shader_t
 
 struct de_renderer_t
 {
+	de_core_t* core;
+
 	size_t frame_rate_limit;     /**< Maximum frames per seconds for renderer. 0 - unlimited */
 
 	de_flag_shader_t flat_shader;
@@ -168,12 +170,12 @@ struct de_renderer_t
 /**
  * @brief Initializes rendering pipeline.
  */
-void de_renderer_init(void);
+de_renderer_t* de_renderer_init(de_core_t* core);
 
 /**
  * @brief Frees all allocated resources.
  */
-void de_renderer_free(void);
+void de_renderer_free(de_renderer_t* r);
 
 /**
 * @brief Creates new surface.
@@ -198,9 +200,20 @@ void de_renderer_free_surface(de_surface_t* surf);
 * If texture is already loaded - returns pointer to it, otherwise - loads
 * from file
 */
-de_texture_t* de_renderer_request_texture(const char* file);
+de_texture_t* de_renderer_request_texture(de_renderer_t* r, const char* file);
 
 /**
  * @brief Create black texture
  */
-de_texture_t* de_renderer_create_texture(size_t w, size_t h, size_t byte_per_pixel);
+de_texture_t* de_renderer_create_texture(de_renderer_t* r, size_t w, size_t h, size_t byte_per_pixel);
+
+/**
+* @brief Sets frame rate limit
+* @param limit any positive value (i.e. 60)
+*/
+void de_renderer_set_framerate_limit(de_renderer_t* r, int limit);
+
+/**
+* @brief Performs rendering of every scene
+*/
+void de_renderer_render(de_renderer_t* r);

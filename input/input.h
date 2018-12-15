@@ -143,19 +143,19 @@ enum de_mouse_button
 /**
 * @brief Returns DE_TRUE if specified key is pressed
 */
-int de_is_key_pressed(enum de_key key);
+int de_is_key_pressed(de_core_t* core, enum de_key key);
 
 /**
 * @brief Writes out mouse velocity
 * @param vel pointer to vector
 */
-void de_get_mouse_velocity(de_vec2_t* vel);
+void de_get_mouse_velocity(de_core_t* core, de_vec2_t* vel);
 
 /**
 * @brief Returns DE_TRUE if specified key is released
 */
-int de_is_key_released(enum de_key key);
+int de_is_key_released(de_core_t* core, enum de_key key);
 
-int de_is_mouse_pressed(enum de_mouse_button btn);
+int de_is_mouse_pressed(de_core_t* core, enum de_mouse_button btn);
 
-void de_get_mouse_pos(de_vec2_t* pos);
+void de_get_mouse_pos(de_core_t* core, de_vec2_t* pos);

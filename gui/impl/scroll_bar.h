@@ -160,7 +160,7 @@ static void de_gui_scroll_bar_deinit(de_gui_node_t* n)
 }
 
 /*=======================================================================================*/
-de_gui_node_t* de_gui_scroll_bar_create(void)
+de_gui_node_t* de_gui_scroll_bar_create(de_gui_t* gui)
 {
 	de_gui_node_t* n;
 	de_gui_scroll_bar_t* sb;
@@ -177,7 +177,7 @@ de_gui_node_t* de_gui_scroll_bar_create(void)
 		}
 	}
 	
-	n = de_gui_node_alloc(DE_GUI_NODE_SCROLL_BAR, &dispatch_table);
+	n = de_gui_node_alloc(gui, DE_GUI_NODE_SCROLL_BAR, &dispatch_table);
 
 	sb = &n->s.scroll_bar;
 
@@ -186,19 +186,19 @@ de_gui_node_t* de_gui_scroll_bar_create(void)
 	sb->value = 0;
 	sb->step = 1;
 
-	sb->border = de_gui_border_create();
+	sb->border = de_gui_border_create(gui);
 	de_gui_node_set_color_rgba(sb->border, 120, 120, 120, 255);
 	de_gui_border_set_stroke_color_rgba(sb->border, 80, 80, 80, 255);
 	de_gui_node_attach(sb->border, n);
 
-	sb->grid = de_gui_grid_create();
+	sb->grid = de_gui_grid_create(gui);
 	de_gui_node_attach(sb->grid, sb->border);
 	de_gui_grid_enable_draw_borders(sb->grid, DE_FALSE);
 
-	sb->canvas = de_gui_canvas_create();
+	sb->canvas = de_gui_canvas_create(gui);
 	de_gui_node_attach(sb->canvas, sb->grid);
 
-	sb->indicator = de_gui_border_create();
+	sb->indicator = de_gui_border_create(gui);
 	de_gui_node_attach(sb->indicator, sb->canvas);
 	de_gui_node_set_desired_size(sb->indicator, 30, 30);
 	de_gui_node_set_color_rgba(sb->indicator, 100, 100, 100, 255);
@@ -207,13 +207,13 @@ de_gui_node_t* de_gui_scroll_bar_create(void)
 	de_gui_node_set_mouse_up(sb->indicator, de_gui_scroll_bar_indicator_mouse_up);
 	de_gui_node_set_mouse_move(sb->indicator, de_gui_scroll_bar_indicator_mouse_move);
 
-	sb->up_button = de_gui_button_create();
+	sb->up_button = de_gui_button_create(gui);
 	de_gui_text_set_text(de_gui_button_get_text(sb->up_button), "<");
 	de_gui_text_set_alignment(de_gui_button_get_text(sb->up_button), DE_GUI_TA_CENTER);
 	de_gui_node_attach(sb->up_button, sb->grid);
 	de_gui_button_set_click(sb->up_button, de_gui_scroll_bar_on_up_click);
 
-	sb->down_button = de_gui_button_create();
+	sb->down_button = de_gui_button_create(gui);
 	de_gui_text_set_text(de_gui_button_get_text(sb->down_button), ">");
 	de_gui_text_set_alignment(de_gui_button_get_text(sb->down_button), DE_GUI_TA_CENTER);
 	de_gui_node_attach(sb->down_button, sb->grid);

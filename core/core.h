@@ -28,7 +28,7 @@ typedef struct de_engine_params_s
 	unsigned int height; /**< Height of the client area of the window */
 } de_engine_params_t;
 
-struct de_engine_t
+struct de_core_t
 {
 	struct
 	{
@@ -58,60 +58,43 @@ struct de_engine_t
 
 	DE_LINKED_LIST_DECLARE(de_scene_t, scenes);
 
-	de_renderer_t renderer;
-
-	de_gui_t gui;
+	de_renderer_t* renderer;
+	de_gui_t* gui;
 
 	size_t alloc_count;
 
 	DE_LINKED_LIST_DECLARE(de_font_t, fonts);
 };
 
-/*
- * Global pointer to single engine instance. Main entry point for whole engine.
- */
-extern de_engine_t* de_core;
-
 /**
 * @brief Creates window and initializes OpenGL
 */
-int de_init(const de_engine_params_t* params);
+de_core_t* de_init(const de_engine_params_t* params);
 
 /**
 * @brief Destroys window and OpenGL context
 */
-void de_shutdown();
+void de_shutdown(de_core_t* core);
 
 /**
 * @brief Returns DE_TRUE if engine is running
 */
-de_bool_t de_is_running();
+de_bool_t de_is_running(de_core_t* core);
 
 /**
  * @brief Stops engine.
  */
-void de_stop();
+void de_stop(de_core_t* core);
 
 /**
 * @brief Updates message queue from OS. No need to call directly!
 */
-void de_poll_messages();
-
-/**
-* @brief Performs rendering of every scene
-*/
-void de_render();
+void de_poll_messages(de_core_t* core);
 
 /**
  * @brief Performs one tick of update
  */
-void de_update(float dt);
-
-/**
-* @brief Sets frame rate limit
-* @param limit any positive value (i.e. 60)
-*/
-void de_set_framerate_limit(int limit);
+void de_update(de_core_t* core, float dt);
 
 /**
 * Platform-specific function prototypes.
@@ -121,10 +104,10 @@ void de_set_framerate_limit(int limit);
 
 typedef void(*de_proc)(void);
 
-void de_engine_platform_init(void);
-void de_engine_platform_shutdown(void);
-void de_engine_platform_message_queue(void);
+void de_engine_platform_init(de_core_t* core);
+void de_engine_platform_shutdown(de_core_t* core);
+void de_engine_platform_message_queue(de_core_t* core);
 de_proc de_engine_platform_get_proc_address(const char *name);
-void de_engine_platform_swap_buffers(void);
+void de_engine_platform_swap_buffers(de_core_t* core);
 void de_engine_platform_message_box(const char * msg);
 

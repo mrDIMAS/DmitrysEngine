@@ -21,6 +21,8 @@
 
 struct de_scene_t
 {
+	de_core_t* core;
+
 	DE_LINKED_LIST_ITEM(struct de_scene_t);
 
 	DE_LINKED_LIST_DECLARE(de_node_t, nodes);
@@ -34,7 +36,7 @@ struct de_scene_t
 /**
  * @brief Creates new empty scene and attaches it to engine instance.
  */
-de_scene_t* de_scene_create(void);
+de_scene_t* de_scene_create(de_core_t* core);
 
 /**
  * @brief Destroys all scene resources and deallocates memory.

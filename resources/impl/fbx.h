@@ -1411,7 +1411,8 @@ static float de_fbx_get_next_keyframe_time(float current_time,
 	de_fbx_animation_curve_node_t* r,
 	de_fbx_animation_curve_node_t* s)
 {
-	int i, k, n;
+	int i;
+	size_t k, n;
 	float closest_time = FLT_MAX;
 	de_fbx_animation_curve_node_t* curve_set[3];
 	
@@ -1598,7 +1599,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 	de_node_t* root;
 	de_animation_t* anim;
 
-	root = de_node_create(DE_NODE_BASE);
+	root = de_node_create(scene, DE_NODE_BASE);
 	de_scene_add_node(scene, root);
 
 	/* Each scene has animation */
@@ -1635,7 +1636,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 			type = DE_NODE_BASE;
 		}
 
-		node = de_node_create(type);
+		node = de_node_create(scene, type);
 		de_scene_add_node(scene, node);
 
 		node->name = de_str_copy(mdl->name);
@@ -1703,7 +1704,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 					if (mat->diffuse_tex)
 					{
 						char* filename = de_str_format("data/textures/%s", mat->diffuse_tex->filename);
-						de_texture_t* texture = de_renderer_request_texture(filename);
+						de_texture_t* texture = de_renderer_request_texture(scene->core->renderer, filename);
 						de_surface_set_texture(surf, texture);
 					}
 					de_mesh_add_surface(mesh, surf);
@@ -1892,7 +1893,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 	}
 
 	de_animation_clamp_length(anim);
-	anim->speed = 0.1;
+	anim->speed = 0.1f;
 
 	return root;
 }

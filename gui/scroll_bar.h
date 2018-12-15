@@ -51,7 +51,7 @@ typedef struct de_gui_scroll_bar_t
 	de_scroll_bar_value_changed_event_t value_changed;
 } de_gui_scroll_bar_t;
 
-de_gui_node_t* de_gui_scroll_bar_create(void);
+de_gui_node_t* de_gui_scroll_bar_create(de_gui_t* gui);
 
 /**
 * @brief

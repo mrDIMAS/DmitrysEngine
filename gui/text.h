@@ -30,7 +30,7 @@ typedef struct de_gui_text_t
 	float total_lines_height;
 } de_gui_text_t;
 
-de_gui_node_t* de_gui_text_create(void);
+de_gui_node_t* de_gui_text_create(de_gui_t* gui);
 
 /**
 * @brief

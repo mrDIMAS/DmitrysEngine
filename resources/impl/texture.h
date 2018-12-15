@@ -39,7 +39,7 @@ void de_texture_release(de_texture_t* tex)
 	--tex->ref_count;
 	if (tex->ref_count <= 0)
 	{
-		de_renderer_remove_texture(tex);
+		de_renderer_remove_texture(tex->renderer, tex);
 		/* Free resources */
 		de_free(tex->pixels);
 		de_free(tex->name);

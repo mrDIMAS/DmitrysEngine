@@ -108,7 +108,7 @@ void de_gui_scroll_viewer_update(de_gui_node_t* n)
 
 
 /*=======================================================================================*/
-de_gui_node_t* de_gui_scroll_viewer_create(void)
+de_gui_node_t* de_gui_scroll_viewer_create(de_gui_t* gui)
 {
 	de_gui_node_t* n;
 	de_gui_scroll_viewer_t* sv;
@@ -126,15 +126,15 @@ de_gui_node_t* de_gui_scroll_viewer_create(void)
 		}
 	}
 	
-	n = de_gui_node_alloc(DE_GUI_NODE_SCROLL_VIEWER, &dispatch_table);
+	n = de_gui_node_alloc(gui, DE_GUI_NODE_SCROLL_VIEWER, &dispatch_table);
 
 	sv = &n->s.scroll_viewer;
 
-	sv->border = de_gui_border_create();
+	sv->border = de_gui_border_create(gui);
 	de_gui_node_set_color_rgba(sv->border, 100, 100, 100, 255);
 	de_gui_node_attach(sv->border, n);
 
-	sv->grid = de_gui_grid_create();
+	sv->grid = de_gui_grid_create(gui);
 	de_gui_node_attach(sv->grid, sv->border);
 	de_gui_grid_add_row(sv->grid, 0, DE_GUI_SIZE_MODE_STRETCH);
 	de_gui_grid_add_row(sv->grid, 0, DE_GUI_SIZE_MODE_AUTO);
@@ -142,10 +142,10 @@ de_gui_node_t* de_gui_scroll_viewer_create(void)
 	de_gui_grid_add_column(sv->grid, 0, DE_GUI_SIZE_MODE_AUTO);
 	de_gui_grid_enable_draw_borders(sv->grid, DE_FALSE);
 
-	sv->scroll_content_presenter = de_gui_scroll_content_presenter_create();
+	sv->scroll_content_presenter = de_gui_scroll_content_presenter_create(gui);
 	de_gui_node_attach(sv->scroll_content_presenter, sv->grid);
 
-	sv->hor_scroll_bar = de_gui_scroll_bar_create();
+	sv->hor_scroll_bar = de_gui_scroll_bar_create(gui);
 	de_gui_scroll_bar_set_direction(sv->hor_scroll_bar, DE_GUI_SCROLL_BAR_ORIENTATION_HORIZONTAL);
 	de_gui_node_attach(sv->hor_scroll_bar, sv->grid);
 	de_gui_node_set_column(sv->hor_scroll_bar, 0);
@@ -153,7 +153,7 @@ de_gui_node_t* de_gui_scroll_viewer_create(void)
 	de_gui_node_set_desired_size(sv->hor_scroll_bar, 0, 20);
 	de_gui_scroll_bar_set_value_changed(sv->hor_scroll_bar, de_gui_scroll_viewer_hor_scroll_changed);
 
-	sv->ver_scroll_bar = de_gui_scroll_bar_create();
+	sv->ver_scroll_bar = de_gui_scroll_bar_create(gui);
 	de_gui_scroll_bar_set_direction(sv->ver_scroll_bar, DE_GUI_SCROLL_BAR_ORIENTATION_VERTICAL);
 	de_gui_node_attach(sv->ver_scroll_bar, sv->grid);
 	de_gui_node_set_column(sv->ver_scroll_bar, 1);

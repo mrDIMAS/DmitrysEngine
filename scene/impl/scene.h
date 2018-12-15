@@ -20,11 +20,12 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 /*=======================================================================================*/
-de_scene_t* de_scene_create(void)
+de_scene_t* de_scene_create(de_core_t* core)
 {
 	de_scene_t* s = DE_NEW(de_scene_t);
+	s->core = core;
 	DE_LINKED_LIST_INIT(s->nodes);
-	DE_LINKED_LIST_APPEND(de_core->scenes, s);
+	DE_LINKED_LIST_APPEND(core->scenes, s);
 	return s;
 }
 
@@ -55,7 +56,7 @@ void de_scene_free(de_scene_t* s)
 		de_animation_free(s->animations.head);
 	}
 
-	DE_LINKED_LIST_REMOVE(de_core->scenes, s);
+	DE_LINKED_LIST_REMOVE(s->core->scenes, s);
 
 	de_free(s);
 }

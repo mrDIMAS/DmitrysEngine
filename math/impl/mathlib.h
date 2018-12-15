@@ -1476,7 +1476,7 @@ float de_fwrap(float n, float min_limit, float max_limit)
 	min_limit = 0;
 	n = n - offset;
 
-	float num_of_max = (float)floor(abs(n / max_limit));
+	float num_of_max = (float)floor(fabs(n / max_limit));
 
 	if (n >= max_limit)
 	{

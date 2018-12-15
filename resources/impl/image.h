@@ -73,7 +73,7 @@ de_bool_t de_image_load_tga(const char* filename, de_image_t* img)
 
 	/* Read pixels */
 	byte_count = header.width * header.height * img->byte_per_pixel;
-	img->data = de_malloc(byte_count);
+	img->data = (char*)de_malloc(byte_count);
 	if (fread(img->data, 1, byte_count, file) != byte_count)
 	{
 		de_log("TGA Loader: File %s is corrupted", filename);

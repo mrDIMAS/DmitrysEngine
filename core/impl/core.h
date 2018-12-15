@@ -19,109 +19,104 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-de_engine_t* de_core;
 
 /*=======================================================================================*/
-int de_init(const de_engine_params_t* params)
+de_core_t* de_init(const de_engine_params_t* params)
 {
-	de_core = DE_NEW(de_engine_t);
+	de_core_t* core;
+
+	core = DE_NEW(de_core_t);
 
 	de_log_open("dengine.log");
 	de_log("Dmitry's Engine - Logging Started");
 
-	de_core->params = *params;
-	de_core->running = DE_TRUE;
+	core->params = *params;
+	core->running = DE_TRUE;
 
 	/* Call platform-specific initialization routine */
-	de_engine_platform_init();
+	de_engine_platform_init(core);
 
-	DE_ARRAY_INIT(de_core->scenes);
+	DE_ARRAY_INIT(core->scenes);
 
-	de_renderer_init();
+	core->renderer = de_renderer_init(core);
 
-	de_gui_init();
+	core->gui = de_gui_init(core);
 
-	return DE_TRUE;
+	return core;
 }
 
 /*=======================================================================================*/
-void de_shutdown()
+void de_shutdown(de_core_t* core)
 {
-	de_gui_shutdown();
-	de_renderer_free();
-	de_engine_platform_shutdown();
-	de_free(de_core);
+	de_gui_shutdown(core->gui);
+	de_renderer_free(core->renderer);
+	de_engine_platform_shutdown(core);
+	de_free(core);
 	de_log("Engine shutdown successful!");
 	de_log_close();
 }
 
 /*=======================================================================================*/
-void de_poll_messages()
+void de_poll_messages(de_core_t* core)
 {
-	de_engine_platform_message_queue();
+	de_engine_platform_message_queue(core);
 }
 
 /*=======================================================================================*/
-de_bool_t de_is_running()
+de_bool_t de_is_running(de_core_t* core)
 {
-	return de_core->running;
+	return core->running;
 }
 
 /*=======================================================================================*/
-void de_stop()
+void de_stop(de_core_t* core)
 {
-	de_core->running = DE_FALSE;
+	core->running = DE_FALSE;
 }
 
 /*=======================================================================================*/
-int de_is_key_pressed(enum de_key key)
+int de_is_key_pressed(de_core_t* core, enum de_key key)
 {
-	return de_core->keys[key];
+	return core->keys[key];
 }
 
 /*=======================================================================================*/
-int de_is_key_released(enum de_key key)
+int de_is_key_released(de_core_t* core, enum de_key key)
 {
-	return !de_core->keys[key];
+	return !core->keys[key];
 }
 
 /*=======================================================================================*/
-void de_get_mouse_velocity(de_vec2_t* vel)
+void de_get_mouse_velocity(de_core_t* core, de_vec2_t* vel)
 {
-	*vel = de_core->mouse_vel;
+	*vel = core->mouse_vel;
 }
 
 /*=======================================================================================*/
-void de_set_framerate_limit(int limit)
+int de_is_mouse_pressed(de_core_t* core, enum de_mouse_button btn)
 {
-	de_core->renderer.frame_rate_limit = limit;
+	return core->mouse_buttons[btn];
 }
 
 /*=======================================================================================*/
-int de_is_mouse_pressed(enum de_mouse_button btn)
+void de_get_mouse_pos(de_core_t* core, de_vec2_t* pos)
 {
-	return de_core->mouse_buttons[btn];
+	pos->x = core->mouse_pos.x;
+	pos->y = core->mouse_pos.y;
 }
 
 /*=======================================================================================*/
-void de_get_mouse_pos(de_vec2_t* pos)
-{
-	pos->x = de_core->mouse_pos.x;
-	pos->y = de_core->mouse_pos.y;
-}
-
-/*=======================================================================================*/
-void de_update(float dt)
+void de_update(de_core_t* core, float dt)
 {
 	de_scene_t* scene;
 
-	de_poll_messages();
+	de_poll_messages(core);
 
-	de_gui_update();
+	de_gui_update(core->gui);
 	
-	de_physics_step(dt);
+	de_physics_step(core, dt);
 
-	DE_LINKED_LIST_FOR_EACH(de_core->scenes, scene)
+	DE_LINKED_LIST_FOR_EACH(core->scenes, scene)
 	{
 		de_scene_update(scene, dt);
 	}

@@ -41,9 +41,9 @@ char* de_base64_encode(const void* data, size_t size, size_t* out_size)
 
 	encoded_size = 4 * ((size + 2) / 3);
 
-	buffer = malloc(encoded_size + 1);
+	buffer = (char*)de_malloc(encoded_size + 1);
 
-	bytes = data;
+	bytes = (char*)data;
 
 	for (i = 0, k = 0; i < size; )
 	{
@@ -125,7 +125,7 @@ void* de_base64_decode(const char* data, size_t size, size_t* out_size)
 		--data_size;
 	}
 
-	bytes = de_malloc(data_size);
+	bytes = (char*)de_malloc(data_size);
 
 	for (i = 0, k = 0; i < size; )
 	{

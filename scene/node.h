@@ -82,7 +82,7 @@ struct de_node_t
 * @brief Creates new scene node. You should call de_scene_add_node to interact with node.
 * @return Pointer to new scene node
 */
-de_node_t* de_node_create(de_node_type_t type);
+de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type);
 
 /**
 * @brief Frees scene node.

@@ -98,7 +98,7 @@ static de_bool_t de_gui_button_get_property(de_gui_node_t* n, const char* name, 
 }
 
 /*=======================================================================================*/
-de_gui_node_t* de_gui_button_create()
+de_gui_node_t* de_gui_button_create(de_gui_t* gui)
 {
 	de_gui_node_t* n;
 	de_gui_button_t* b;
@@ -115,18 +115,18 @@ de_gui_node_t* de_gui_button_create()
 		}
 	}
 
-	n = de_gui_node_alloc(DE_GUI_NODE_BUTTON, &dispatch_table);
+	n = de_gui_node_alloc(gui, DE_GUI_NODE_BUTTON, &dispatch_table);
 	b = &n->s.button;
 	de_color_set(&b->normal_color, 120, 120, 120, 255);
 	de_color_set(&b->pressed_color, 100, 100, 100, 255);
 	de_color_set(&b->hover_color, 140, 140, 140, 255);
-	b->border = de_gui_border_create();
+	b->border = de_gui_border_create(gui);
 	de_gui_node_set_color(b->border, &b->normal_color);
 	b->border->mouse_down = de_button_border_mouse_down;
 	b->border->mouse_up = de_button_border_mouse_up;
 	b->border->mouse_enter = de_button_border_mouse_enter;
 	b->border->mouse_leave = de_button_border_mouse_leave;
-	b->text = de_gui_text_create();
+	b->text = de_gui_text_create(gui);
 	de_gui_node_set_color_rgba(b->text, 220, 220, 220, 255);
 	de_gui_border_set_stroke_color_rgba(b->border, 80, 80, 80, 255);
 	de_gui_node_attach(b->border, n);

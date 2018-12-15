@@ -162,9 +162,10 @@ static void de_gui_node_default_layout(de_gui_node_t* n)
 }
 
 /*=======================================================================================*/
-void de_gui_init(void)
+de_gui_t* de_gui_init(de_core_t* core)
 {
-	de_gui_t* gui = &de_core->gui;
+	de_gui_t* gui = DE_NEW(de_gui_t);
+	gui->core = core;
 
 	DE_LINKED_LIST_INIT(gui->nodes);
 
@@ -185,17 +186,15 @@ void de_gui_init(void)
 			char_set[i] = i;
 		}
 
-		gui->default_font = de_font_load_ttf_from_memory(de_builtin_font_inconsolata, 18, char_set, CHAR_COUNT);
+		gui->default_font = de_font_load_ttf_from_memory(core, de_builtin_font_inconsolata, 18, char_set, CHAR_COUNT);
 	}
+
+	return gui;
 }
 
 /*=======================================================================================*/
-void de_gui_shutdown(void)
+void de_gui_shutdown(de_gui_t* gui)
 {
-	size_t i;
-	de_gui_node_t* node;
-	de_gui_t* gui = &de_core->gui;
-
 	/* free nodes */
 	while (gui->nodes.head)
 	{
@@ -211,6 +210,8 @@ void de_gui_shutdown(void)
 	DE_ARRAY_FREE(gui->draw_list.index_buffer);
 	DE_ARRAY_FREE(gui->draw_list.clip_cmd_stack);
 	DE_ARRAY_FREE(gui->draw_list.opacity_stack);
+
+	de_free(gui);
 }
 
 /*=======================================================================================*/
@@ -328,7 +329,7 @@ static de_bool_t de_gui_draw_command_contains_point(const de_gui_draw_list_t* dr
 static de_bool_t de_gui_node_is_clipped(de_gui_node_t* node, const de_vec2_t* point)
 {
 	size_t i;
-	de_gui_draw_list_t* draw_list = &de_core->gui.draw_list;
+	de_gui_draw_list_t* draw_list = &node->gui->draw_list;
 	de_bool_t clipped = DE_TRUE;
 
 	for (i = 0; i < node->geometry.size; ++i)
@@ -362,7 +363,7 @@ static de_bool_t de_gui_node_is_clipped(de_gui_node_t* node, const de_vec2_t* po
 static de_bool_t de_gui_node_contains_point(de_gui_node_t* node, const de_vec2_t* point)
 {
 	size_t i;
-	de_gui_draw_list_t* draw_list = &de_core->gui.draw_list;
+	de_gui_draw_list_t* draw_list = &node->gui->draw_list;
 
 	if (!de_gui_node_is_clipped(node, point))
 	{
@@ -445,7 +446,7 @@ static void de_gui_node_fire_got_focus_event(de_gui_node_t* n)
 /*=======================================================================================*/
 static void de_gui_node_handle_mouse_input(de_gui_node_t* n, const de_vec2_t* mouse_pos)
 {
-	de_gui_t* gui = &de_core->gui;
+	de_gui_t* gui = n->gui;
 
 	/* Handle MouseEnter */
 	if (!n->is_mouse_over)
@@ -458,13 +459,13 @@ static void de_gui_node_handle_mouse_input(de_gui_node_t* n, const de_vec2_t* mo
 	de_gui_node_fire_mouse_move_event(n, mouse_pos);
 
 	/* Handle MouseUp */
-	if (n->is_mouse_down && !de_is_mouse_pressed(DE_BUTTON_LEFT))
+	if (n->is_mouse_down && !de_is_mouse_pressed(gui->core, DE_BUTTON_LEFT))
 	{
 		n->is_mouse_down = DE_FALSE;
 		de_gui_node_fire_mouse_up_event(n, mouse_pos);
 	}
 	/* Handle MouseDown */
-	else if (!n->is_mouse_down && de_is_mouse_pressed(DE_BUTTON_LEFT))
+	else if (!n->is_mouse_down && de_is_mouse_pressed(gui->core, DE_BUTTON_LEFT))
 	{
 		n->is_mouse_down = DE_TRUE;
 
@@ -494,9 +495,8 @@ void de_gui_node_handle_keyboard_input(void)
 }
 
 /*=======================================================================================*/
-void de_gui_update()
-{
-	de_gui_t* gui = &de_core->gui;
+void de_gui_update(de_gui_t* gui)
+{		
 	static size_t count = 0;
 
 	{
@@ -544,7 +544,7 @@ void de_gui_update()
 
 		gui->picked_node = gui->captured_node;
 
-		de_get_mouse_pos(&mouse_pos);
+		de_get_mouse_pos(gui->core, &mouse_pos);
 
 		if (!gui->picked_node)
 		{
@@ -593,12 +593,12 @@ void de_gui_update()
 }
 
 /*=======================================================================================*/
-de_gui_node_t* de_gui_node_alloc(de_gui_node_type_t type, de_gui_dispatch_table_t* dispatch_table)
+de_gui_node_t* de_gui_node_alloc(de_gui_t* gui, de_gui_node_type_t type, de_gui_dispatch_table_t* dispatch_table)
 {
 	de_gui_node_t* n;
-	de_gui_t* gui = &de_core->gui;
 
 	n = DE_NEW(de_gui_node_t);
+	n->gui = gui;
 	n->dispatch_table = dispatch_table;
 	DE_LINKED_LIST_APPEND(gui->nodes, n);
 
@@ -728,7 +728,7 @@ de_gui_node_t* de_gui_node_find_child_of_type(de_gui_node_t* node, de_gui_node_t
 /*=======================================================================================*/
 void de_gui_node_capture_mouse(de_gui_node_t* node)
 {
-	de_gui_t* gui = &de_core->gui;
+	de_gui_t* gui = node->gui;
 
 	/* release previous captured node */
 	if (gui->captured_node != NULL)
@@ -745,7 +745,7 @@ void de_gui_node_capture_mouse(de_gui_node_t* node)
 /*=======================================================================================*/
 void de_gui_node_release_mouse_capture(de_gui_node_t* node)
 {
-	de_gui_t* gui = &de_core->gui;
+	de_gui_t* gui = node->gui;
 	if (!gui->captured_node)
 	{
 		return;
@@ -918,7 +918,7 @@ void de_gui_node_free(de_gui_node_t* n)
 
 	n->dispatch_table->deinit(n);
 
-	DE_LINKED_LIST_REMOVE(de_core->gui.nodes, n);
+	DE_LINKED_LIST_REMOVE(n->gui->nodes, n);
 
 	/* free children first */
 	for (i = 0; i < n->children.size; ++i)
@@ -993,10 +993,9 @@ static void de_gui_node_draw(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t n
 }
 
 /*=======================================================================================*/
-de_gui_draw_list_t* de_gui_render(void)
+de_gui_draw_list_t* de_gui_render(de_gui_t* gui)
 {
-	de_gui_node_t* n;
-	de_gui_t* gui = &de_core->gui;
+	de_gui_node_t* n;	
 	de_gui_draw_list_t* dl = &gui->draw_list;
 	uint8_t nesting = 1;
 
@@ -1008,7 +1007,7 @@ de_gui_draw_list_t* de_gui_render(void)
 
 	/* push global clipping rect */
 	de_gui_draw_list_set_nesting(dl, nesting);
-	de_gui_draw_list_commit_clip_rect(dl, 0, 0, (float)de_core->params.width, (float)de_core->params.height, NULL);
+	de_gui_draw_list_commit_clip_rect(dl, 0, 0, (float)gui->core->params.width, (float)gui->core->params.height, NULL);
 
 	/* render nodes down by visual tree starting from root nodes */
 	DE_LINKED_LIST_FOR_EACH(gui->nodes, n)

@@ -22,7 +22,11 @@
 #ifndef DE_DENGINE_H
 #define DE_DENGINE_H
 
- /* Suppress compiler-specific warnings */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+	/* Suppress compiler-specific warnings */
 #ifdef _MSC_VER
 #  define _CRT_SECURE_NO_WARNINGS
 #  pragma warning(disable : 4204 4820)
@@ -79,11 +83,12 @@ typedef struct de_static_triangle_t de_static_triangle_t;
 typedef struct de_static_geometry_t de_static_geometry_t;
 typedef struct de_mesh_t de_mesh_t;
 typedef struct de_light_t de_light_t;
-typedef struct de_engine_t de_engine_t;
+typedef struct de_gui_t de_gui_t;
+typedef struct de_core_t de_core_t;
 typedef struct de_scene_t de_scene_t;
 
-/** 
- * Order is important here, because some parts depends on other 
+/**
+ * Order is important here, because some parts depends on other
  * Modules with minimum dependencies should be placed before others.
  **/
 #include "core/bool.h"
@@ -122,10 +127,10 @@ typedef struct de_scene_t de_scene_t;
 #include "core/core.h" 
 #include "sound/sound.h"
 
-/** 
- * Implementation.
- * Not sensitive to order of includes. 
- **/
+	 /**
+	  * Implementation.
+	  * Not sensitive to order of includes.
+	  **/
 #ifdef DE_IMPLEMENTATION
 #  ifdef _WIN32
 #    include "platform/impl/win32.h"
@@ -159,6 +164,10 @@ typedef struct de_scene_t de_scene_t;
 #  include "gui/impl/gui.h" 
 #  include "vg/impl/vgraster.h"
 #  include "sound/impl/sound.h"
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif

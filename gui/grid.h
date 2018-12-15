@@ -65,7 +65,7 @@ typedef struct de_gui_grid_t
 	de_bool_t draw_borders;
 } de_gui_grid_t;
 
-de_gui_node_t* de_gui_grid_create();
+de_gui_node_t* de_gui_grid_create(de_gui_t* gui);
 
 /**
 * @brief

@@ -104,7 +104,7 @@ static void de_gui_border_layout_children(de_gui_node_t* n)
 }
 
 /*=======================================================================================*/
-de_gui_node_t* de_gui_border_create()
+de_gui_node_t* de_gui_border_create(de_gui_t* gui)
 {
 	de_gui_node_t* n;
 	de_gui_border_t* b;	
@@ -122,7 +122,7 @@ de_gui_node_t* de_gui_border_create()
 		}
 	}
 
-	n = de_gui_node_alloc(DE_GUI_NODE_BORDER, &dispatch_table);
+	n = de_gui_node_alloc(gui, DE_GUI_NODE_BORDER, &dispatch_table);
 
 	b = &n->s.border;
 	de_gui_border_set_thickness_uniform(n, 1);

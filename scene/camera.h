@@ -40,7 +40,7 @@ typedef struct de_camera_t
 * @brief
 * @param
 */
-void de_camera_init(de_camera_t* c);
+void de_camera_init(de_node_t* node, de_camera_t* c);
 
 /**
  * @brief

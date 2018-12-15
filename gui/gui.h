@@ -208,6 +208,7 @@ typedef struct de_gui_dispatch_table_t
  */
 struct de_gui_node_t
 {
+	de_gui_t* gui;
 	de_gui_node_type_t type;                            /**< Actual type of the node */
 	de_gui_dispatch_table_t* dispatch_table;            /**< Table of pointers to type-related functions (vtable) */
 	de_vec2_t desired_local_position;                   /**< Desired position relative to parent node */
@@ -263,9 +264,10 @@ struct de_gui_node_t
 /**
  * @brief
  */
-typedef struct de_gui_t
+struct de_gui_t
 {
 	DE_LINKED_LIST_DECLARE(de_gui_node_t, nodes);
+	de_core_t* core;
 	de_gui_draw_list_t draw_list;
 	size_t text_buffer_size;
 	uint32_t* text_buffer; /**< Temporary buffer to convert utf8 -> utf32. do NOT store pointer to this memory */
@@ -275,17 +277,17 @@ typedef struct de_gui_t
 	de_gui_node_t* picked_node;
 	de_gui_node_t* prev_picked_node;
 	de_vec2_t prev_mouse_pos;
-} de_gui_t;
+};
 
 /**
  * @brief Initializes GUI. For internal use only!
  */
-void de_gui_init(void);
+de_gui_t* de_gui_init(de_core_t* core);
 
 /**
  * @brief Shutdowns GUI. For internal use only!
  */
-void de_gui_shutdown(void);
+void de_gui_shutdown(de_gui_t* gui);
 
 /**
  * @brief Calculates screen positions of node. Acts recursively to child nodes.
@@ -303,7 +305,7 @@ void de_gui_node_update_transform(de_gui_node_t* node);
  *
  * dispatch_table - MUST be a pointer to static de_gui_dispatcher_entry_t!
  */
-de_gui_node_t* de_gui_node_alloc(de_gui_node_type_t type, de_gui_dispatch_table_t* dispatch_table);
+de_gui_node_t* de_gui_node_alloc(de_gui_t* gui, de_gui_node_type_t type, de_gui_dispatch_table_t* dispatch_table);
 
 /**
  * @brief Sets desired local position of a node. Actual position can be different and depends on layout.
@@ -470,6 +472,6 @@ void de_gui_node_set_horizontal_alignment(de_gui_node_t* node, de_gui_horizontal
 /**
  * @brief
  */
-de_gui_draw_list_t* de_gui_render(void);
+de_gui_draw_list_t* de_gui_render(de_gui_t* gui);
 
-void de_gui_update();
+void de_gui_update(de_gui_t* gui);

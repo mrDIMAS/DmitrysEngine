@@ -27,7 +27,7 @@ typedef struct de_gui_scroll_content_presenter_t
 	de_vec2_t scroll;
 } de_gui_scroll_content_presenter_t;
 
-de_gui_node_t* de_gui_scroll_content_presenter_create(void);
+de_gui_node_t* de_gui_scroll_content_presenter_create(de_gui_t* gui);
 
 /**
 * @brief

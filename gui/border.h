@@ -7,7 +7,7 @@ typedef struct de_gui_border_t
 	de_gui_thickness_t thickness;
 } de_gui_border_t;
 
-de_gui_node_t* de_gui_border_create();
+de_gui_node_t* de_gui_border_create(de_gui_t* gui);
 
 /**
 * @brief

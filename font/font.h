@@ -39,6 +39,7 @@ typedef struct de_font_charmap_entry_t
 
 typedef struct de_font_t
 {
+	de_core_t* core;
 	DE_LINKED_LIST_ITEM(struct de_font_t);
 	float size;
 	int glyph_count;
@@ -54,12 +55,12 @@ typedef struct de_font_t
 /**
  * @brief Loads font from TTF file
  */
-de_font_t* de_font_load_ttf(const char * ttf, float height, const int* char_set, int char_count);
+de_font_t* de_font_load_ttf(de_core_t* core, const char * ttf, float height, const int* char_set, int char_count);
 
 /**
  * @brief Loads font from memory
  */
-de_font_t* de_font_load_ttf_from_memory(void* data, float height, const int* char_set, int char_count);
+de_font_t* de_font_load_ttf_from_memory(de_core_t* core, void* data, float height, const int* char_set, int char_count);
 
 /**
  * @brief Frees resources associated with font

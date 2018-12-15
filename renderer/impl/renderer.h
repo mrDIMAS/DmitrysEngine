@@ -237,9 +237,8 @@ static void de_renderer_load_extensions()
 }
 
 /*=======================================================================================*/
-static void de_create_gbuffer(int width, int height)
-{
-	de_renderer_t* r = &de_core->renderer;
+static void de_create_gbuffer(de_renderer_t* r, int width, int height)
+{	
 	de_gbuffer_t * gbuf = &r->gbuffer;	
 
 	DE_GL_CALL(glGenFramebuffers(1, &gbuf->fbo));
@@ -319,10 +318,8 @@ static void de_create_gbuffer(int width, int height)
 }
 
 /*=======================================================================================*/
-static void de_create_builtin_shaders()
+static void de_create_builtin_shaders(de_renderer_t* r)
 {
-	de_renderer_t* r = &de_core->renderer;
-	
 	/* Flat shader */
 	{
 		de_flag_shader_t* s = &r->flat_shader;
@@ -376,12 +373,13 @@ static void de_create_builtin_shaders()
 }
 
 /*=======================================================================================*/
-void de_renderer_init(void)
+de_renderer_t* de_renderer_init(de_core_t* core)
 {
 	#if VERBOSE_INIT
 	int i, num_extensions;
 	#endif
-	de_renderer_t* r = &de_core->renderer;
+	de_renderer_t* r = DE_NEW(de_renderer_t);
+	r->core = core;
 
 	de_log("GPU Vendor: %s", glGetString(GL_VENDOR));
 	de_log("GPU: %s", glGetString(GL_RENDERER));
@@ -389,7 +387,7 @@ void de_renderer_init(void)
 	de_log("GLSL Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
 	de_renderer_load_extensions();
-	de_create_builtin_shaders();
+	de_create_builtin_shaders(r);
 
 	#if VERBOSE_INIT
 	glGetIntegerv(GL_NUM_EXTENSIONS, &num_extensions);
@@ -403,12 +401,12 @@ void de_renderer_init(void)
 	DE_GL_CALL(glEnable(GL_CULL_FACE));
 	glCullFace(GL_FRONT);
 
-	de_create_gbuffer(de_core->params.width, de_core->params.height);
+	de_create_gbuffer(r, core->params.width, core->params.height);
 
 	/* Create fullscreen quad */
 	{
-		float w = (float)de_core->params.width;
-		float h = (float)de_core->params.height;
+		float w = (float)core->params.width;
+		float h = (float)core->params.height;
 
 		int faces[] = {
 			0, 1, 2,
@@ -441,27 +439,28 @@ void de_renderer_init(void)
 	r->test_surface = de_renderer_create_surface(r);
 	{
 		de_rgba8_t* pixel;
-		r->white_dummy = de_renderer_create_texture(1, 1, 4);
+		r->white_dummy = de_renderer_create_texture(r, 1, 1, 4);
 		pixel = (de_rgba8_t*)r->white_dummy->pixels;
 		pixel->r = pixel->g = pixel->b = pixel->a = 255;
 	}
+
+	return r;
 }
 
 /*=======================================================================================*/
-void de_renderer_free(void)
+void de_renderer_free(de_renderer_t* r)
 {
-	de_renderer_t* r = &de_core->renderer;
-
 	de_renderer_free_surface(r->quad);
 	de_renderer_free_surface(r->test_surface);
+
+	de_free(r);
 }
 
 /*=======================================================================================*/
-static void de_render_surface_normals(de_surface_t* surface)
+static void de_render_surface_normals(de_renderer_t* r, de_surface_t* surface)
 {
 	size_t i;
-	de_renderer_t* r = &de_core->renderer;
-
+	
 	DE_ARRAY_CLEAR(r->test_surface->vertices);
 	DE_ARRAY_CLEAR(r->test_surface->indices);
 	r->test_surface->need_upload = DE_TRUE;
@@ -601,11 +600,10 @@ void de_renderer_free_surface(de_surface_t* surf)
 }
 
 /*=======================================================================================*/
-de_texture_t* de_renderer_request_texture(const char* file)
+de_texture_t* de_renderer_request_texture(de_renderer_t* r, const char* file)
 {
 	de_texture_t* tex;
 	de_image_t img = { 0 };
-	de_renderer_t* r = &de_core->renderer;
 
 	/* Look for already loaded textures */
 	{
@@ -638,6 +636,7 @@ de_texture_t* de_renderer_request_texture(const char* file)
 	}
 
 	tex = DE_NEW(de_texture_t);
+	tex->renderer = r;
 	tex->width = img.width;
 	tex->height = img.height;
 	tex->byte_per_pixel = img.byte_per_pixel;
@@ -657,12 +656,12 @@ de_texture_t* de_renderer_request_texture(const char* file)
 }
 
 /*=======================================================================================*/
-de_texture_t* de_renderer_create_texture(size_t w, size_t h, size_t byte_per_pixel)
+de_texture_t* de_renderer_create_texture(de_renderer_t* r, size_t w, size_t h, size_t byte_per_pixel)
 {
 	de_texture_t* tex;
-	de_renderer_t* r = &de_core->renderer;
-
+	
 	tex = DE_NEW(de_texture_t);
+	tex->renderer = r;
 	tex->width = w;
 	tex->height = h;
 	tex->byte_per_pixel = byte_per_pixel;
@@ -679,10 +678,10 @@ de_texture_t* de_renderer_create_texture(size_t w, size_t h, size_t byte_per_pix
 }
 
 /*=======================================================================================*/
-static void de_renderer_remove_texture(de_texture_t* tex)
+static void de_renderer_remove_texture(de_renderer_t* r, de_texture_t* tex)
 {
 	glDeleteTextures(1, &tex->id);
-	DE_LINKED_LIST_REMOVE(de_core->renderer.textures, tex);
+	DE_LINKED_LIST_REMOVE(r->textures, tex);
 }
 
 /*=======================================================================================*/
@@ -724,14 +723,13 @@ static void de_upload_texture(de_texture_t* texture)
 	texture->need_upload = DE_FALSE;
 }
 
-static void de_render_fullscreen_quad()
+static void de_render_fullscreen_quad(de_renderer_t* r)
 {
-	de_renderer_t* r = &de_core->renderer;
 	DE_GL_CALL(glBindVertexArray(r->quad->vao));
 	DE_GL_CALL(glDrawElements(GL_TRIANGLES, r->quad->indices.size, GL_UNSIGNED_INT, NULL));
 }
 
-static void de_render_mesh(de_mesh_t* mesh)
+static void de_render_mesh(de_renderer_t* r, de_mesh_t* mesh)
 {
 	size_t i;
 	
@@ -751,7 +749,7 @@ static void de_render_mesh(de_mesh_t* mesh)
 		}
 		else
 		{
-			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, de_core->renderer.white_dummy->id));
+			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->white_dummy->id));
 		}
 
 		DE_GL_CALL(glBindVertexArray(surf->vao));
@@ -759,12 +757,12 @@ static void de_render_mesh(de_mesh_t* mesh)
 	}
 }
 
-static void de_render_mesh_normals(de_mesh_t* mesh)
+static void de_render_mesh_normals(de_renderer_t* r, de_mesh_t* mesh)
 {
 	size_t i;
 	for (i = 0; i < mesh->surfaces.size; ++i)
 	{
-		de_render_surface_normals(mesh->surfaces.data[i]);
+		de_render_surface_normals(r, mesh->surfaces.data[i]);
 	}
 }
 
@@ -778,11 +776,11 @@ static void de_set_viewport(const de_rectf_t* viewport, unsigned int window_widt
 	DE_GL_CALL(glViewport(viewport_x, viewport_y, viewport_w, viewport_h));
 }
 
-static void de_upload_textures()
+static void de_upload_textures(de_renderer_t* r)
 {
 	de_texture_t* texture;
 
-	DE_LINKED_LIST_FOR_EACH(de_core->renderer.textures, texture)
+	DE_LINKED_LIST_FOR_EACH(r->textures, texture)
 	{
 		if (texture->need_upload)
 		{
@@ -791,9 +789,9 @@ static void de_upload_textures()
 	}
 }
 
-void de_render()
+void de_renderer_render(de_renderer_t* r)
 {
-	de_renderer_t* r = &de_core->renderer;	
+	de_core_t* core = r->core;	
 	static int last_time_ms;
 	int current_time_ms;
 	int time_limit_ms;
@@ -801,8 +799,8 @@ void de_render()
 	de_scene_t* scene;
 	de_mat4_t y_flip_ortho, ortho;
 	GLenum buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT };
-	float w = (float)de_core->params.width;
-	float h = (float)de_core->params.height;
+	float w = (float)core->params.width;
+	float h = (float)core->params.height;
 
 	/* Upload textures first */
 	de_upload_textures(r);
@@ -818,7 +816,7 @@ void de_render()
 	DE_GL_CALL(glUniform1i(r->gbuffer_shader.diffuse_texture, 0));
 
 	/* render each scene */
-	DE_LINKED_LIST_FOR_EACH(de_core->scenes, scene)
+	DE_LINKED_LIST_FOR_EACH(core->scenes, scene)
 	{
 		de_node_t* node;
 		de_camera_t* camera;
@@ -827,7 +825,7 @@ void de_render()
 
 		de_camera_update(camera);
 
-		de_set_viewport(&camera->viewport, de_core->params.width, de_core->params.height);
+		de_set_viewport(&camera->viewport, core->params.width, core->params.height);
 
 		/* Render each node */
 		DE_LINKED_LIST_FOR_EACH(scene->nodes, node)
@@ -841,7 +839,7 @@ void de_render()
 
 			if (node->type == DE_NODE_MESH)
 			{
-				de_render_mesh(&node->s.mesh);
+				de_render_mesh(r, &node->s.mesh);
 			}
 		}
 
@@ -907,7 +905,7 @@ void de_render()
 		{
 			DE_GL_CALL(glUseProgram(r->flat_shader.program));
 
-			de_set_viewport(&camera->viewport, de_core->params.width, de_core->params.height);
+			de_set_viewport(&camera->viewport, core->params.width, core->params.height);
 
 			/* Render each node */
 			DE_LINKED_LIST_FOR_EACH(scene->nodes, node)
@@ -919,7 +917,7 @@ void de_render()
 
 				if (node->type == DE_NODE_MESH)
 				{
-					de_render_mesh_normals(&node->s.mesh);
+					de_render_mesh_normals(r, &node->s.mesh);
 				}
 			}
 		}
@@ -932,7 +930,7 @@ void de_render()
 	/* Render GUI */
 	{
 		int index_bytes, vertex_bytes;
-		de_gui_draw_list_t* draw_list = de_gui_render();
+		de_gui_draw_list_t* draw_list = de_gui_render(core->gui);
 
 		DE_GL_CALL(glUseProgram(r->gui_shader.program));
 		DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
@@ -1013,7 +1011,7 @@ void de_render()
 	DE_GL_CALL(glActiveTexture(GL_TEXTURE2));
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 
-	de_engine_platform_swap_buffers();
+	de_engine_platform_swap_buffers(r->core);
 
 	if (r->frame_rate_limit > 0)
 	{
@@ -1024,3 +1022,8 @@ void de_render()
 	}
 }
 
+/*=======================================================================================*/
+void de_renderer_set_framerate_limit(de_renderer_t* r, int limit)
+{
+	r->frame_rate_limit = limit;
+}

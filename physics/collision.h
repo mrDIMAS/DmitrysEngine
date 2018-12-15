@@ -154,7 +154,7 @@ void de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t
 /**
 * @brief Calculates physics for one frame
 */
-void de_physics_step(float dt);
+void de_physics_step(de_core_t* core, float dt);
 
 
 void de_body_set_gravity(de_body_t* body, const de_vec3_t* gravity);

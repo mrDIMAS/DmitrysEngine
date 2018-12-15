@@ -315,7 +315,7 @@ void de_body_triangle_collision(de_static_triangle_t* triangle, de_body_t* spher
 }
 
 /*=======================================================================================*/
-void de_physics_step(float dt)
+void de_physics_step(de_core_t* core, float dt)
 {
 	float dt2;
 	de_scene_t* scene;
@@ -324,7 +324,7 @@ void de_physics_step(float dt)
 
 	dt2 = dt * dt;
 
-	DE_LINKED_LIST_FOR_EACH(de_core->scenes, scene)
+	DE_LINKED_LIST_FOR_EACH(core->scenes, scene)
 	{
 		DE_LINKED_LIST_FOR_EACH(scene->bodies, body)
 		{

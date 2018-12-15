@@ -37,7 +37,7 @@ typedef struct de_gui_window_t
 	de_vec2_t init_pos;
 } de_gui_window_t;
 
-de_gui_node_t* de_gui_window_create(void);
+de_gui_node_t* de_gui_window_create(de_gui_t* gui);
 
 de_gui_node_t* de_gui_window_get_title(de_gui_node_t* window);
 

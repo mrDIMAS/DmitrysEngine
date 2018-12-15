@@ -1,13 +1,31 @@
 #define DE_IMPLEMENTATION
 #include "de_main.h"
 
-typedef struct level_t
+typedef struct game_t game_t;
+typedef struct main_menu_t main_menu_t;
+typedef struct level_t level_t;
+typedef struct player_t player_t;
+
+struct game_t
+{
+	de_core_t* core;
+	level_t* level;
+	main_menu_t* main_menu;
+};
+
+struct main_menu_t
+{
+	de_gui_node_t* window;
+};
+
+struct level_t
 {
 	de_scene_t* scene;
 	de_node_t* test_fbx;
-} level_t;
+	player_t* player;
+};
 
-typedef struct player_t
+struct player_t
 {
 	level_t* parent_level;
 	de_node_t* pivot;
@@ -15,7 +33,7 @@ typedef struct player_t
 	de_node_t* flash_light;
 	float pitch;
 	float yaw;
-} player_t;
+};
 
 player_t* player_create(level_t* level)
 {
@@ -36,17 +54,17 @@ player_t* player_create(level_t* level)
 	}
 #endif
 
-	p->pivot = de_node_create(DE_NODE_BASE);
+	p->pivot = de_node_create(level->scene, DE_NODE_BASE);
 	de_scene_add_node(level->scene, p->pivot);
 	de_node_set_body(p->pivot, body);
 	de_node_set_local_position(p->pivot, de_vec3_set(&pos, 0, 1, 0));
 
-	p->camera = de_node_create(DE_NODE_CAMERA);
+	p->camera = de_node_create(level->scene, DE_NODE_CAMERA);
 	de_scene_add_node(level->scene, p->camera);
 	de_node_set_local_position(p->camera, de_vec3_set(&pos, 0, 0.88f, 0));
 	de_node_attach(p->camera, p->pivot);
 
-	p->flash_light = de_node_create(DE_NODE_LIGHT);
+	p->flash_light = de_node_create(level->scene, DE_NODE_LIGHT);
 	de_light_set_radius(p->flash_light, 4);
 	de_scene_add_node(level->scene, p->flash_light);
 	de_node_attach(p->flash_light, p->camera);
@@ -63,6 +81,7 @@ void player_free(player_t* p)
 void player_update(player_t* p)
 {
 	int k;
+	de_core_t* core = p->parent_level->scene->core;
 	de_node_t *pivot, *camera;
 	de_vec3_t right_axis = { 1, 0, 0 };
 	de_vec3_t up_axis = { 0, 1, 0 };
@@ -77,31 +96,31 @@ void player_update(player_t* p)
 
 	body = pivot->body;
 
-	de_get_mouse_velocity(&mouse_vel);
+	de_get_mouse_velocity(core, &mouse_vel);
 
 	de_vec3_zero(&offset);
 	de_node_get_look_vector(pivot, &look);
 	de_node_get_side_vector(pivot, &side);
 
-	if (de_is_key_pressed(DE_KEY_W))
+	if (de_is_key_pressed(core, DE_KEY_W))
 	{
 		/*de_vec3_add(&offset, &offset, &look);*/
 		de_vec3_sub(&offset, &offset, &look);
 	}
-	if (de_is_key_pressed(DE_KEY_S))
+	if (de_is_key_pressed(core, DE_KEY_S))
 	{
 		/*de_vec3_sub(&offset, &offset, &look);*/
 		de_vec3_add(&offset, &offset, &look);
 	}
-	if (de_is_key_pressed(DE_KEY_A))
+	if (de_is_key_pressed(core, DE_KEY_A))
 	{
 		de_vec3_sub(&offset, &offset, &side);
 	}
-	if (de_is_key_pressed(DE_KEY_D))
+	if (de_is_key_pressed(core, DE_KEY_D))
 	{
 		de_vec3_add(&offset, &offset, &side);
 	}
-	if (de_is_key_pressed(DE_KEY_Space))
+	if (de_is_key_pressed(core, DE_KEY_Space))
 	{
 		for (k = 0; k < body->contact_count; ++k)
 		{
@@ -112,7 +131,7 @@ void player_update(player_t* p)
 			}
 		}
 	}
-	if (de_is_key_pressed(DE_KEY_C))
+	if (de_is_key_pressed(core, DE_KEY_C))
 	{
 		de_vec3_sub(&offset, &offset, &up_axis);
 	}
@@ -141,7 +160,7 @@ void player_update(player_t* p)
 	de_node_set_local_rotation(camera, de_quat_from_axis_angle(&pitch_rot, &right_axis, de_deg_to_rad(p->pitch)));
 }
 
-level_t* level_create_test(void)
+level_t* level_create_test(game_t* game)
 {
 	level_t* level;
 	de_node_t* polygon;
@@ -149,7 +168,7 @@ level_t* level_create_test(void)
 
 	level = DE_NEW(level_t);
 
-	level->scene = de_scene_create();
+	level->scene = de_scene_create(game->core);
 
 	level->test_fbx = de_fbx_load_to_scene(level->scene, "data/models/skin_test.fbx");
 	de_node_set_local_position(level->test_fbx, &rp);
@@ -165,27 +184,30 @@ level_t* level_create_test(void)
 		de_node_calculate_transforms(polygon);
 		de_static_geometry_fill(map_collider, &polygon->s.mesh, polygon->global_matrix);
 	}
+
+	level->player = player_create(level);
+	{
+		de_node_t* pp = de_scene_find_node(level->scene, "PlayerPosition");
+		if (pp)
+		{
+			de_vec3_t pos;
+			de_node_get_global_position(pp, &pos);
+
+			de_node_set_local_position(level->player->pivot, &pos);
+		}
+	}
+
 	return level;
 }
 
 void level_update(level_t* level)
 {
-	(void)level;
-
-#if 0
-	de_quat_t q;
-	de_vec3_t axis = { 1, 0, 0 };
-
-
-	static float angle = 0;
-	de_quat_from_axis_angle(&q, &axis, angle);
-	de_node_set_local_rotation(level->test_fbx, &q);
-	angle += 0.01;
-#endif
+	player_update(level->player);
 }
 
 void level_free(level_t* level)
 {
+	player_free(level->player);
 	de_scene_free(level->scene);
 	de_free(level);
 }
@@ -193,17 +215,20 @@ void level_free(level_t* level)
 void quit_on_click(de_gui_node_t* node)
 {
 	DE_UNUSED(node);
-	de_stop();
+	de_stop(node->gui->core);
 }
 
-void main_menu_create(void)
+main_menu_t* main_menu_create(game_t* game)
 {
+	de_gui_t* gui = game->core->gui;
+	main_menu_t* menu = DE_NEW(main_menu_t);
+
 	/* main window */
 	{
-		de_gui_node_t* window = de_gui_window_create();
-		de_gui_node_set_desired_size(window, 400, 500);
+		menu->window = de_gui_window_create(gui);
+		de_gui_node_set_desired_size(menu->window, 400, 500);
 
-		de_gui_node_t* grid = de_gui_grid_create();
+		de_gui_node_t* grid = de_gui_grid_create(gui);
 		de_gui_node_set_desired_size(grid, 100, 100);
 		de_gui_node_set_desired_local_position(grid, 10, 10);
 		de_gui_grid_add_column(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
@@ -217,7 +242,7 @@ void main_menu_create(void)
 
 		/* title */
 		{
-			de_gui_node_t* title = de_gui_text_create();
+			de_gui_node_t* title = de_gui_text_create(gui);
 			de_gui_text_set_text(title, "CGame");
 			de_gui_node_set_row(title, 0);
 			de_gui_node_set_column(title, 0);
@@ -227,7 +252,7 @@ void main_menu_create(void)
 
 		/* new game */
 		{
-			de_gui_node_t* new_game = de_gui_button_create();
+			de_gui_node_t* new_game = de_gui_button_create(gui);
 			de_gui_text_set_text(de_gui_button_get_text(new_game), "New Game");
 			de_gui_text_set_alignment(de_gui_button_get_text(new_game), DE_GUI_TA_CENTER);
 			de_gui_node_set_row(new_game, 1);
@@ -237,7 +262,7 @@ void main_menu_create(void)
 
 		/* save game */
 		{
-			de_gui_node_t* save = de_gui_button_create();
+			de_gui_node_t* save = de_gui_button_create(gui);
 			de_gui_text_set_text(de_gui_button_get_text(save), "Save Game");
 			de_gui_text_set_alignment(de_gui_button_get_text(save), DE_GUI_TA_CENTER);
 			de_gui_node_set_row(save, 2);
@@ -247,7 +272,7 @@ void main_menu_create(void)
 
 		/* load game */
 		{
-			de_gui_node_t* load = de_gui_button_create();
+			de_gui_node_t* load = de_gui_button_create(gui);
 			de_gui_text_set_text(de_gui_button_get_text(load), "Load Game");
 			de_gui_text_set_alignment(de_gui_button_get_text(load), DE_GUI_TA_CENTER);
 			de_gui_node_set_row(load, 3);
@@ -257,7 +282,7 @@ void main_menu_create(void)
 
 		/* settings */
 		{
-			de_gui_node_t* settings = de_gui_button_create();
+			de_gui_node_t* settings = de_gui_button_create(gui);
 			de_gui_text_set_text(de_gui_button_get_text(settings), "Settings");
 			de_gui_text_set_alignment(de_gui_button_get_text(settings), DE_GUI_TA_CENTER);
 			de_gui_node_set_row(settings, 4);
@@ -267,7 +292,7 @@ void main_menu_create(void)
 
 		/* quit */
 		{
-			de_gui_node_t* quit = de_gui_button_create();
+			de_gui_node_t* quit = de_gui_button_create(gui);
 			de_gui_text_set_text(de_gui_button_get_text(quit), "Quit");
 			de_gui_text_set_alignment(de_gui_button_get_text(quit), DE_GUI_TA_CENTER);
 			de_gui_node_set_row(quit, 5);
@@ -276,50 +301,61 @@ void main_menu_create(void)
 			de_gui_button_set_click(quit, quit_on_click);
 		}
 
-		de_gui_window_set_content(window, grid);
+		de_gui_window_set_content(menu->window, grid);
 	}
+
+	return menu;
 }
 
-int main(int argc, char** argv)
+void main_menu_free(main_menu_t* menu)
 {
-	float gameClock, fixedFPS, fixedTimeStep, dt;
-	de_engine_params_t params;
-	player_t* player;
-	level_t* level;
+	de_free(menu);
+}
 
-	DE_UNUSED(argc);
-	DE_UNUSED(argv);
+game_t* game_create(void)
+{	
+	game_t* game;
 
-	params.width = 1200;
-	params.height = 1000;
+	game = DE_NEW(game_t);
 
-	de_init(&params);
-	de_set_framerate_limit(0);
-
-	level = level_create_test();
-	player = player_create(level);
-
+	/* Init core */
 	{
-		de_node_t* pp = de_scene_find_node(level->scene, "PlayerPosition");
-		if (pp)
-		{
-			de_vec3_t pos;
-			de_node_get_global_position(pp, &pos);
+		de_engine_params_t params;
+		params.width = 1200;
+		params.height = 1000;
 
-			de_node_set_local_position(player->pivot, &pos);
-		}
+		game->core = de_init(&params);
+		de_renderer_set_framerate_limit(game->core->renderer, 0);		
 	}
 
-	main_menu_create();
+	/* Create menu */
+	{
+		game->main_menu = main_menu_create(game);
+	}
+
+	/* Create test level */
+	{
+		game->level = level_create_test(game);
+	}
+
+	return game;
+}
+
+void game_main_loop(game_t* game)
+{
+	float gameClock;
+	float fixedFPS;
+	float fixedTimeStep;
+	float dt;
 
 	fixedFPS = 60.0;
 	fixedTimeStep = 1.0f / fixedFPS;
 	gameClock = de_time_get_seconds();
-	while (de_is_running())
+	while (de_is_running(game->core))
 	{
-		if (de_is_key_pressed(DE_KEY_ESC))
+		if (de_is_key_pressed(game->core, DE_KEY_ESC))
 		{
-			de_stop();
+			de_stop(game->core);
 		}
 
 		dt = de_time_get_seconds() - gameClock;
@@ -327,17 +363,38 @@ int main(int argc, char** argv)
 		{
 			dt -= fixedTimeStep;
 			gameClock += fixedTimeStep;
-			de_update(fixedTimeStep);
 
-			level_update(level);
-			player_update(player);
+			de_update(game->core, fixedTimeStep);
+
+			level_update(game->level);
 		}
 
-		de_render();
+		de_renderer_render(game->core->renderer);
 	}
+}
 
-	player_free(player);
-	level_free(level);
-	de_shutdown();
+void game_close(game_t* game)
+{
+	level_free(game->level);
+	main_menu_free(game->main_menu);
+
+	de_shutdown(game->core);
+
+	de_free(game);
+}
+
+int main(int argc, char** argv)
+{	
+	game_t* game;
+
+	DE_UNUSED(argc);
+	DE_UNUSED(argv);
+
+	game = game_create();
+
+	game_main_loop(game);
+
+	game_close(game);
+
 	return 0;
 }

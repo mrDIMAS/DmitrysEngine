@@ -6,7 +6,7 @@ static void de_gui_text_box_deinit(de_gui_node_t* n)
 }
 
 /*=======================================================================================*/
-de_gui_node_t* de_gui_text_box_create(void)
+de_gui_node_t* de_gui_text_box_create(de_gui_t* gui)
 {
 	de_gui_node_t* n;
 	de_gui_text_box_t* tb;
@@ -21,14 +21,14 @@ de_gui_node_t* de_gui_text_box_create(void)
 		}
 	}
 
-	n = de_gui_node_alloc(DE_GUI_NODE_TEXT_BOX, &dispatch_table);
+	n = de_gui_node_alloc(gui, DE_GUI_NODE_TEXT_BOX, &dispatch_table);
 
 	tb = &n->s.text_box;
 
-	tb->border = de_gui_border_create();
+	tb->border = de_gui_border_create(gui);
 	de_gui_node_attach(tb->border, n);
 
-	tb->text_block = de_gui_text_create();
+	tb->text_block = de_gui_text_create(gui);
 	de_gui_node_attach(tb->text_block, tb->border);
 
 	DE_ARRAY_INIT(tb->text);

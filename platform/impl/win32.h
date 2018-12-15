@@ -141,68 +141,70 @@ static LRESULT CALLBACK de_win32_dummy_winproc(HWND wnd, UINT msg, WPARAM wParam
 
 static LRESULT CALLBACK de_window_proc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	de_core_t* core = (de_core_t*)GetWindowLongPtr(wnd, GWLP_USERDATA);
+
 	switch (msg)
 	{
 	case WM_CLOSE:
 	case WM_DESTROY:
-		de_core->running = DE_FALSE;
+		core->running = DE_FALSE;
 		break;
 	case WM_KEYDOWN:
-		de_core->keys[de_remap_key(wParam, lParam)] = DE_TRUE;
+		core->keys[de_remap_key(wParam, lParam)] = DE_TRUE;
 		break;
 	case WM_KEYUP:
-		de_core->keys[de_remap_key(wParam, lParam)] = DE_FALSE;
+		core->keys[de_remap_key(wParam, lParam)] = DE_FALSE;
 		break;
 	case WM_MOUSEMOVE:
 	{
 		int x = LOWORD(lParam);
 		int y = HIWORD(lParam);
 
-		de_core->mouse_vel.x = x - de_core->mouse_pos.x;
-		de_core->mouse_vel.y = y - de_core->mouse_pos.y;
+		core->mouse_vel.x = x - core->mouse_pos.x;
+		core->mouse_vel.y = y - core->mouse_pos.y;
 
-		de_core->mouse_pos.x = (float)x;
-		de_core->mouse_pos.y = (float)y;
+		core->mouse_pos.x = (float)x;
+		core->mouse_pos.y = (float)y;
 		break;
 	}
 	case WM_LBUTTONDOWN:
-		de_core->mouse_buttons[DE_BUTTON_LEFT] = DE_TRUE;
+		core->mouse_buttons[DE_BUTTON_LEFT] = DE_TRUE;
 		break;
 	case WM_LBUTTONUP:
-		de_core->mouse_buttons[DE_BUTTON_LEFT] = DE_FALSE;
+		core->mouse_buttons[DE_BUTTON_LEFT] = DE_FALSE;
 		break;
 	case WM_RBUTTONDOWN:
-		de_core->mouse_buttons[DE_BUTTON_RIGHT] = DE_TRUE;
+		core->mouse_buttons[DE_BUTTON_RIGHT] = DE_TRUE;
 		break;
 	case WM_RBUTTONUP:
-		de_core->mouse_buttons[DE_BUTTON_RIGHT] = DE_FALSE;
+		core->mouse_buttons[DE_BUTTON_RIGHT] = DE_FALSE;
 		break;
 	case WM_MBUTTONDOWN:
-		de_core->mouse_buttons[DE_BUTTON_MIDDLE] = DE_TRUE;
+		core->mouse_buttons[DE_BUTTON_MIDDLE] = DE_TRUE;
 		break;
 	case WM_MBUTTONUP:
-		de_core->mouse_buttons[DE_BUTTON_MIDDLE] = DE_FALSE;
+		core->mouse_buttons[DE_BUTTON_MIDDLE] = DE_FALSE;
 		break;
 	case WM_MOUSEWHEEL:
-		de_core->mouse_wheel = ((short)HIWORD(wParam)) / WHEEL_DELTA;
+		core->mouse_wheel = ((short)HIWORD(wParam)) / WHEEL_DELTA;
 		break;
 	case WM_NCMOUSEMOVE:
 	case WM_MOUSELEAVE:
-		memset(&de_core->mouse_buttons, 0, sizeof(de_core->mouse_buttons));
-		de_core->mouse_vel.x = 0;
-		de_core->mouse_vel.y = 0;
+		memset(&core->mouse_buttons, 0, sizeof(core->mouse_buttons));
+		core->mouse_vel.x = 0;
+		core->mouse_vel.y = 0;
 		break;
 	case WM_KILLFOCUS:
-		de_core->keyboard_focus = DE_FALSE;
+		core->keyboard_focus = DE_FALSE;
 		break;
 	case WM_SETFOCUS:
-		de_core->keyboard_focus = DE_TRUE;
+		core->keyboard_focus = DE_TRUE;
 		break;
 	}
 	return DefWindowProc(wnd, msg, wParam, lParam);
 }
 
-static void de_win32_load_wgl_extensions(void)
+static void de_win32_load_wgl_extensions(de_core_t* core)
 {
 	int pixel_format;
 	WNDCLASSEX wcx = { 0 };
@@ -216,14 +218,14 @@ static void de_win32_load_wgl_extensions(void)
 	wcx.style = CS_HREDRAW | CS_VREDRAW;
 	RegisterClassEx(&wcx);
 
-	de_core->platform.dummy_window = CreateWindow(TEXT("Dummy"), TEXT("Dummy"), WS_OVERLAPPEDWINDOW, 0, 0, 1, 1, 0, 0, wcx.hInstance, 0);
+	core->platform.dummy_window = CreateWindow(TEXT("Dummy"), TEXT("Dummy"), WS_OVERLAPPEDWINDOW, 0, 0, 1, 1, 0, 0, wcx.hInstance, 0);
 
-	if (!de_core->platform.dummy_window)
+	if (!core->platform.dummy_window)
 	{
 		de_error("Win32: Failed to create dummy window!");
 	}
 
-	de_core->platform.dummy_dc = GetDC(de_core->platform.dummy_window);
+	core->platform.dummy_dc = GetDC(core->platform.dummy_window);
 
 	/* Prepare pixel format */
 	pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
@@ -235,16 +237,16 @@ static void de_win32_load_wgl_extensions(void)
 	pfd.cStencilBits = 8;
 	pfd.iLayerType = PFD_MAIN_PLANE;
 
-	pixel_format = ChoosePixelFormat(de_core->platform.dummy_dc, &pfd);
-	SetPixelFormat(de_core->platform.dummy_dc, pixel_format, &pfd);
+	pixel_format = ChoosePixelFormat(core->platform.dummy_dc, &pfd);
+	SetPixelFormat(core->platform.dummy_dc, pixel_format, &pfd);
 
-	de_core->platform.dummy_context = wglCreateContext(de_core->platform.dummy_dc);
-	if (!de_core->platform.dummy_context)
+	core->platform.dummy_context = wglCreateContext(core->platform.dummy_dc);
+	if (!core->platform.dummy_context)
 	{
 		de_error("Win32: Failed to create dummy OpenGL context!");
 	}
 
-	if (!wglMakeCurrent(de_core->platform.dummy_dc, de_core->platform.dummy_context))
+	if (!wglMakeCurrent(core->platform.dummy_dc, core->platform.dummy_context))
 	{
 		de_error("Win32: Failed to make dummy OpenGL context current!");
 	}
@@ -264,12 +266,12 @@ static void de_win32_load_wgl_extensions(void)
 	#undef DE_GET_WGL_PROC_ADDRESS
 
 	wglMakeCurrent(NULL, NULL);
-	wglDeleteContext(de_core->platform.dummy_context);
-	ReleaseDC(de_core->platform.dummy_window, de_core->platform.dummy_dc);
-	DestroyWindow(de_core->platform.dummy_window);
+	wglDeleteContext(core->platform.dummy_context);
+	ReleaseDC(core->platform.dummy_window, core->platform.dummy_dc);
+	DestroyWindow(core->platform.dummy_window);
 }
 
-void de_engine_platform_init(void)
+void de_engine_platform_init(de_core_t* core)
 {
 	DWORD style;
 	int pixel_format;
@@ -294,16 +296,16 @@ void de_engine_platform_init(void)
 		0
 	};
 
-	de_win32_load_wgl_extensions();
+	de_win32_load_wgl_extensions(core);
 
 	/* Zero means auto detection of current screen mode */
-	if (de_core->params.width == 0)
+	if (core->params.width == 0)
 	{
-		de_core->params.width = GetSystemMetrics(SM_CXSCREEN);
+		core->params.width = GetSystemMetrics(SM_CXSCREEN);
 	}
-	if (de_core->params.height == 0)
+	if (core->params.height == 0)
 	{
-		de_core->params.height = GetSystemMetrics(SM_CYSCREEN);
+		core->params.height = GetSystemMetrics(SM_CYSCREEN);
 	}
 
 	wcx.cbSize = sizeof(wcx);
@@ -316,24 +318,25 @@ void de_engine_platform_init(void)
 
 	style = WS_SYSMENU | WS_BORDER | WS_CAPTION | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 
-	wRect.right = de_core->params.width;
-	wRect.bottom = de_core->params.height;
+	wRect.right = core->params.width;
+	wRect.bottom = core->params.height;
 	AdjustWindowRect(&wRect, style, 0);
 
 	/* Create window */
 	de_log("Win32: Creating window");
-	de_core->platform.window = CreateWindow(TEXT("DEngine"), TEXT("DEngine"), style, 0, 0, wRect.right - wRect.left, wRect.bottom - wRect.top, 0, 0, wcx.hInstance, 0);
-	de_core->platform.device_context = GetDC(de_core->platform.window);
+	core->platform.window = CreateWindow(TEXT("DEngine"), TEXT("DEngine"), style, 0, 0, wRect.right - wRect.left, wRect.bottom - wRect.top, 0, 0, wcx.hInstance, 0);
+	SetWindowLongPtr(core->platform.window, GWLP_USERDATA, (LONG)core);
+	core->platform.device_context = GetDC(core->platform.window);
 
-	if (!de_core->platform.window)
+	if (!core->platform.window)
 	{
 		de_error("Failed to create window");
 	}
-	de_core->platform.device_context = GetDC(de_core->platform.window);
-	ShowWindow(de_core->platform.window, SW_SHOW);
-	UpdateWindow(de_core->platform.window);
-	SetActiveWindow(de_core->platform.window);
-	SetForegroundWindow(de_core->platform.window);
+	core->platform.device_context = GetDC(core->platform.window);
+	ShowWindow(core->platform.window, SW_SHOW);
+	UpdateWindow(core->platform.window);
+	SetActiveWindow(core->platform.window);
+	SetForegroundWindow(core->platform.window);
 
 	/* Initialize OpenGL */
 	de_log("Win32: Initializing OpenGL");
@@ -348,33 +351,33 @@ void de_engine_platform_init(void)
 	pfd.cStencilBits = 8;
 	pfd.iLayerType = PFD_MAIN_PLANE;
 
-	wglChoosePixelFormatARB(de_core->platform.device_context, pixel_fmt_attribs, NULL, 1, &pixel_format, &format_count);
+	wglChoosePixelFormatARB(core->platform.device_context, pixel_fmt_attribs, NULL, 1, &pixel_format, &format_count);
 
-	SetPixelFormat(de_core->platform.device_context, pixel_format, &pfd);
+	SetPixelFormat(core->platform.device_context, pixel_format, &pfd);
 
-	de_core->platform.gl_context = wglCreateContextAttribsARB(de_core->platform.device_context, NULL, attributes);
-	if (!de_core->platform.gl_context)
+	core->platform.gl_context = wglCreateContextAttribsARB(core->platform.device_context, NULL, attributes);
+	if (!core->platform.gl_context)
 	{
 		de_error("Win32: Failed to create OpenGL context!");
 	}
-	if (!wglMakeCurrent(de_core->platform.device_context, de_core->platform.gl_context))
+	if (!wglMakeCurrent(core->platform.device_context, core->platform.gl_context))
 	{
 		de_error("Win32: Failed to make OpenGL context current!");
 	}
 }
 
-void de_engine_platform_shutdown(void)
+void de_engine_platform_shutdown(de_core_t* core)
 {
 	wglMakeCurrent(NULL, NULL);
-	wglDeleteContext(de_core->platform.gl_context);
+	wglDeleteContext(core->platform.gl_context);
 }
 
-void de_engine_platform_message_queue(void)
+void de_engine_platform_message_queue(de_core_t* core)
 {
 	MSG message;
 
-	de_core->mouse_vel.x = 0;
-	de_core->mouse_vel.y = 0;
+	core->mouse_vel.x = 0;
+	core->mouse_vel.y = 0;
 
 	while (PeekMessage(&message, NULL, 0, 0, PM_REMOVE))
 	{
@@ -388,9 +391,9 @@ de_proc de_engine_platform_get_proc_address(const char* name)
 	return (de_proc)wglGetProcAddress(name);
 }
 
-void de_engine_platform_swap_buffers(void)
+void de_engine_platform_swap_buffers(de_core_t* core)
 {
-	SwapBuffers(de_core->platform.device_context);
+	SwapBuffers(core->platform.device_context);
 }
 
 float de_time_get_seconds()

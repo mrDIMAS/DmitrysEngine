@@ -20,14 +20,15 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 /*=======================================================================================*/
-void de_camera_init(de_camera_t* c)
+void de_camera_init(de_node_t* node, de_camera_t* c)
 {
 	de_rectf_t viewport = { 0, 0, 1, 1 };
 	de_camera_set_viewport(c, &viewport);
+	c->parent_node = node;
 	c->fov = 75.0f;
 	c->z_far = 1024.0f;
 	c->z_near = 0.05f;
-	c->aspect = de_core->params.width / (float)de_core->params.height;
+	c->aspect = node->parent_scene->core->params.width / (float)node->parent_scene->core->params.height;
 }
 
 /*=======================================================================================*/

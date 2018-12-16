@@ -27,6 +27,7 @@
 */
 struct de_surface_t
 {
+	de_renderer_t* renderer;
 	de_texture_t* texture; /**< Pointer to texture */
 	DE_ARRAY_DECLARE(de_vertex_t, vertices);   /**< Array of vertices */
 	DE_ARRAY_DECLARE(int, indices);    /**< Array of faces */

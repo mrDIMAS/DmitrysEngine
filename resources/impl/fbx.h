@@ -590,7 +590,7 @@ static void de_fbx_read_normals(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 	geom->normal_mapping = de_fbx_get_mapping(map_type->attributes.data[0]);
 	geom->normal_reference = de_fbx_get_reference(ref_type->attributes.data[0]);
 	geom->normal_count = normals->attributes.size / 3;
-	geom->normals = de_calloc(geom->normal_count, sizeof(*geom->normals));
+	geom->normals = (de_vec3_t*)de_calloc(geom->normal_count, sizeof(*geom->normals));
 
 	for (i = 0, k = 0; i < geom->normal_count; ++i, k += 3)
 	{
@@ -624,7 +624,7 @@ static void de_fbx_read_faces(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 	}
 
 	geom->face_count = face_array->attributes.size / geom->vertex_per_face;
-	geom->faces = de_calloc(geom->face_count, sizeof(*geom->faces));
+	geom->faces = (de_fbx_face_t*)de_calloc(geom->face_count, sizeof(*geom->faces));
 
 	for (i = 0, k = 0; i < geom->face_count; ++i, k += geom->vertex_per_face)
 	{
@@ -654,7 +654,7 @@ static void de_fbx_read_vertices(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 	vertex_array = de_fbx_parser_find_child(de_fbx_parser_find_child(geom_node, "Vertices"), "a");
 
 	geom->vertex_count = vertex_array->attributes.size / 3;
-	geom->vertices = de_calloc(geom->vertex_count, sizeof(*geom->vertices));
+	geom->vertices = (de_vec3_t*)de_calloc(geom->vertex_count, sizeof(*geom->vertices));
 
 	for (i = 0, k = 0; i < geom->vertex_count; ++i, k += 3)
 	{
@@ -675,7 +675,7 @@ static void de_fbx_read_uvs(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 	geom->uv_mapping = de_fbx_get_mapping(map_type->attributes.data[0]);
 	geom->uv_reference = de_fbx_get_reference(ref_type->attributes.data[0]);
 	geom->uv_count = uvs->attributes.size / 2;
-	geom->uvs = de_calloc(geom->uv_count, sizeof(*geom->uvs));
+	geom->uvs = (de_vec2_t*)de_calloc(geom->uv_count, sizeof(*geom->uvs));
 
 	/* Read uvs */
 	for (i = 0, k = 0; i < geom->uv_count; ++i, k += 2)
@@ -689,7 +689,7 @@ static void de_fbx_read_uvs(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 		de_fbx_node_t* uv_index = de_fbx_parser_find_child(de_fbx_parser_find_child(uvs_node, "UVIndex"), "a");
 
 		geom->uv_index_count = uv_index->attributes.size;
-		geom->uv_index = de_malloc(geom->uv_index_count * sizeof(*geom->uv_index));
+		geom->uv_index = (int*)de_malloc(geom->uv_index_count * sizeof(*geom->uv_index));
 
 		for (j = 0; j < uv_index->attributes.size; ++j)
 		{
@@ -713,7 +713,7 @@ static void de_fbx_read_geom_materials(de_fbx_node_t* geom_node, de_fbx_geom_t* 
 		geom->material_reference = de_fbx_get_reference(ref_type->attributes.data[0]);
 
 		geom->material_count = materials->attributes.size;
-		geom->materials = de_malloc(geom->material_count * sizeof(*geom->materials));
+		geom->materials = (int*)de_malloc(geom->material_count * sizeof(*geom->materials));
 		for (i = 0; i < materials->attributes.size; ++i)
 		{
 			geom->materials[i] = de_fbx_get_int(materials, i);
@@ -895,8 +895,8 @@ static int de_fbx_component_bsearch_comparer(const void* key_ptr, const void* co
 
 static de_fbx_component_t* de_fbx_find_component(de_fbx_t* fbx, int index)
 {
-	void** comp = DE_ARRAY_BSEARCH(fbx->components, &index, de_fbx_component_bsearch_comparer);
-	return comp ? *comp : NULL;
+	void** comp = (void**)DE_ARRAY_BSEARCH(fbx->components, &index, de_fbx_component_bsearch_comparer);
+	return comp ? (de_fbx_component_t*)(*comp) : NULL;
 }
 
 /*=======================================================================================*/
@@ -1693,13 +1693,13 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 
 			if (mdl->materials.size == 0)
 			{
-				de_mesh_add_surface(mesh, de_renderer_create_surface());
+				de_mesh_add_surface(mesh, de_renderer_create_surface(scene->core->renderer));
 			}
 			else
 			{
 				for (k = 0; k < mdl->materials.size; ++k)
 				{
-					de_surface_t* surf = de_renderer_create_surface();
+					de_surface_t* surf = de_renderer_create_surface(scene->core->renderer);
 					de_fbx_material_t* mat = mdl->materials.data[k];
 					if (mat->diffuse_tex)
 					{

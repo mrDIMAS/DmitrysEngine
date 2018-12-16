@@ -43,7 +43,7 @@ typedef struct de_contact_s
 struct de_body_t
 {
 	DE_LINKED_LIST_ITEM(struct de_body_t);
-	de_scene_t* parent_scene;
+	de_scene_t* scene;
 	de_vec3_t gravity;
 	de_vec3_t position;                     /**< Global position of body */
 	de_vec3_t last_position;                /**< Global position of previous frame */
@@ -89,7 +89,7 @@ struct de_static_triangle_t
 struct de_static_geometry_t
 {
 	DE_LINKED_LIST_ITEM(struct de_static_geometry_t);
-	de_scene_t* parent_scene;
+	de_scene_t* scene;
 	DE_ARRAY_DECLARE(de_static_triangle_t, triangles); /**< Array of de_static_triangle_t. All geometry stored here */
 };
 

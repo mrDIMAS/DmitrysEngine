@@ -34,11 +34,7 @@
 /*=======================================================================================*/
 #define DE_ARRAY_GROW(a, n) \
 	do { \
-		(a).size += n; \
-		if((a).size >= (a)._capacity) { \
-			(a)._capacity = (a)._capacity * 2u + (size_t)n; \
-			(a).data = de_realloc((a).data, (a)._capacity * sizeof(*(a).data)); \
-		} \
+        de_array_grow_((void**)&(a).data, &(a).size, &(a)._capacity, sizeof(*(a).data), n); \
 	} while(0)
 
 #define de_array_reserve_n(a, n) (DE_ARRAY_GROW(a, n), (a).data - n)
@@ -62,11 +58,7 @@
 /*=======================================================================================*/
 #define DE_ARRAY_RESERVE(a, new_capacity) \
 	do { \
-		(a)._capacity = new_capacity; \
-		if((a).size > (a)._capacity) { \
-			(a).size = (a)._capacity; \
-		}\
-		(a).data = de_realloc((a).data, (a)._capacity * sizeof(*(a).data)); \
+        de_array_reserve_((void**)&(a).data, &(a).size, &(a)._capacity, sizeof(*(a).data), new_capacity); \
 	} while(0)
 
 /*=======================================================================================*/
@@ -173,6 +165,27 @@
 		if (pos >= 0 && pos < a.size) { \
 			DE_ARRAY_GROW(a, 1); \
 			memmove(a.data + pos + 1, a.data + pos, sizeof(*a.data) * (a.size - pos)); \
-			memcpy(&item, a.data + pos, sizeof(item)); \
+			memcpy((void*)&item, a.data + pos, sizeof(item)); \
 		} \
 	} while(0)
+
+/* Internals functions. Do not use directly! Use macro instead. */
+void de_array_grow_(void** data, size_t* size, size_t* capacity, size_t item_size, size_t n)
+{
+	*size += n;
+	if (*size >= *capacity)
+	{
+		*capacity = *capacity * 2u + n;
+		*data = de_realloc(*data, *capacity * item_size);
+	}
+}
+
+void de_array_reserve_(void** data, size_t* size, size_t* capacity, size_t item_size, size_t new_capacity)
+{
+	*capacity = new_capacity;
+	if (*size > *capacity)
+	{
+		*size = *capacity;
+	}
+	*data = de_realloc(*data, *capacity * item_size);
+}

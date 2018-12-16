@@ -36,7 +36,7 @@ char* de_str_copy(const char* src)
 	{
 		len++;
 	}
-	str = de_malloc(len + 1);
+	str = (char*)de_malloc(len + 1);
 	p = str;
 	while (*src)
 	{

@@ -40,7 +40,7 @@ char * de_load_file_into_memory(const char * path, size_t* out_size)
 	fseek(file, 0, SEEK_SET);
 
 	/* read file */
-	content = de_malloc(content_size);
+	content = (char*)de_malloc(content_size);
 	if (fread(content, sizeof(char), file_size, file) != file_size)
 	{
 		de_error("file %s is corrupted", path);

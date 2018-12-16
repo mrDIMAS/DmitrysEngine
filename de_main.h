@@ -93,9 +93,9 @@ typedef struct de_scene_t de_scene_t;
  **/
 #include "core/bool.h"
 #include "core/log.h"
-#include "core/array.h"
 #include "core/byteorder.h"
 #include "core/memmgr.h"
+#include "core/array.h"
 #include "core/base64.h"
 #include "core/thread.h"
 #include "core/string.h"

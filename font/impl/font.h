@@ -236,7 +236,7 @@ static void de_ttf_prepare_contours(de_ttf_glyph_t * glyph, de_point_t* points)
 	int16_t glyph_height = glyph->yMax - glyph->yMin;
 
 	/* Extract contours */
-	glyph->raw_contours = de_calloc(glyph->num_contours, sizeof(*glyph->raw_contours));
+	glyph->raw_contours = (de_polygon_t*)de_calloc(glyph->num_contours, sizeof(*glyph->raw_contours));
 
 	for (j = 0; j < glyph->num_contours; ++j)
 	{
@@ -281,7 +281,7 @@ static void de_ttf_prepare_contours(de_ttf_glyph_t * glyph, de_point_t* points)
 			middle.flags = ON_CURVE_POINT;
 			middle.x = (first->x + last->x) / 2;
 			middle.y = glyph_height - (first->y + last->y) / 2;
-			
+
 			de_polygon_add_vertex(&unpacked_contour, &middle);
 
 			/* also make sure to iterate not to the end - we already added point */
@@ -364,7 +364,7 @@ void de_ttf_read_glyphs(de_true_type_t * ttf)
 	int i, j, k;
 
 	/* Allocate glyphs */
-	ttf->glyphs = de_calloc(ttf->num_glyphs, sizeof(*ttf->glyphs));
+	ttf->glyphs = (de_ttf_glyph_t*)de_calloc(ttf->num_glyphs, sizeof(*ttf->glyphs));
 	for (i = 0; i < ttf->num_glyphs; ++i)
 	{
 		de_ttf_glyph_t * glyph = ttf->glyphs + i;
@@ -398,7 +398,7 @@ void de_ttf_read_glyphs(de_true_type_t * ttf)
 
 			/* Read end contour points */
 			pointCount = 0;
-			glyph->end_points = de_malloc(glyph->num_contours * sizeof(*glyph->end_points));
+			glyph->end_points = (uint16_t*)de_malloc(glyph->num_contours * sizeof(*glyph->end_points));
 			for (j = 0; j < glyph->num_contours; ++j)
 			{
 				glyph->end_points[j] = de_ptr_to_u16(glyph_data + 10 + j * 2);
@@ -410,7 +410,7 @@ void de_ttf_read_glyphs(de_true_type_t * ttf)
 			++pointCount;
 
 			/* Alloc points */
-			points = de_calloc(pointCount, sizeof(*points));
+			points = (de_point_t*)de_calloc(pointCount, sizeof(*points));
 
 			instructions = de_ptr_to_u16(glyph_data + 10 + 2 * glyph->num_contours);
 
@@ -499,7 +499,7 @@ static void de_convert_curves_to_line_set(de_ttf_glyph_t * glyph)
 	int i;
 	size_t j;
 	size_t k;
-	glyph->contours = de_calloc(glyph->num_contours, sizeof(*glyph->contours));
+	glyph->contours = (de_polygon_t *) de_calloc(glyph->num_contours, sizeof(*glyph->contours));
 
 	for (i = 0; i < glyph->num_contours; ++i)
 	{
@@ -584,7 +584,7 @@ static void de_ttf_render_glyph(de_true_type_t* ttf, int glyph_index, de_glyph_t
 
 	back_scaler = scaler / DE_TTF_DOWNSCALE_FACTOR;
 	pixel_count = final_bitmap.width * final_bitmap.height;
-	out_glyph->pixels = de_malloc(pixel_count * sizeof(*out_glyph->pixels));
+	out_glyph->pixels = (de_color_t*)de_malloc(pixel_count * sizeof(*out_glyph->pixels));
 	for (i = 0; i < pixel_count; ++i)
 	{
 		de_color_t * pixel = out_glyph->pixels + i;
@@ -719,8 +719,8 @@ static int de_font_pack(de_renderer_t* r, de_font_t * font)
 /*=======================================================================================*/
 static int de_compare_charmap_entry(const void* a, const void* b)
 {
-	const de_font_charmap_entry_t* entry_a = a;
-	const de_font_charmap_entry_t* entry_b = b;
+	const de_font_charmap_entry_t* entry_a = (const de_font_charmap_entry_t*)a;
+	const de_font_charmap_entry_t* entry_b = (const de_font_charmap_entry_t*)b;
 	if (entry_a->unicode < entry_b->unicode)
 	{
 		return -1;
@@ -747,7 +747,7 @@ de_font_t* de_font_load_ttf_from_memory(de_core_t* core, void* data, float heigh
 	assert(char_count > 0);
 	assert(char_set);
 
-	ttf.data = data;
+	ttf.data = (uint8_t*)data;
 
 	de_ttf_find_tables(&ttf);
 	de_ttf_read_glyphs(&ttf);
@@ -764,7 +764,7 @@ de_font_t* de_font_load_ttf_from_memory(de_core_t* core, void* data, float heigh
 	font->line_gap = back_scaler * de_ptr_to_i16(ttf.hhea_table + 8);
 
 	font->glyph_count = ttf.num_glyphs;
-	font->glyphs = de_calloc(ttf.num_glyphs, sizeof(de_glyph_t));
+	font->glyphs = (de_glyph_t*) de_calloc(ttf.num_glyphs, sizeof(de_glyph_t));
 
 	for (i = 0; i < font->glyph_count; ++i)
 	{
@@ -819,7 +819,7 @@ de_font_t* de_font_load_ttf(de_core_t* core, const char * filename, float height
 	font = de_font_load_ttf_from_memory(core, data, height, char_set, char_count);
 
 	de_free(data);
-	
+
 	return font;
 }
 
@@ -837,7 +837,7 @@ void de_font_free(de_font_t* font)
 /*=======================================================================================*/
 static int de_charmap_search_compare(const void* unicode_ptr, const void* elem)
 {
-	const de_font_charmap_entry_t* entry = elem;
+	const de_font_charmap_entry_t* entry = (const de_font_charmap_entry_t*)elem;
 	uint32_t unicode = *((uint32_t*)unicode_ptr);
 	if (unicode < entry->unicode)
 	{
@@ -853,7 +853,7 @@ static int de_charmap_search_compare(const void* unicode_ptr, const void* elem)
 /*=======================================================================================*/
 de_glyph_t* de_font_get_glyph(const de_font_t* font, uint32_t code)
 {
-	de_font_charmap_entry_t* entry = DE_ARRAY_BSEARCH(font->charmap, &code, de_charmap_search_compare);
+	de_font_charmap_entry_t* entry = (de_font_charmap_entry_t*)DE_ARRAY_BSEARCH(font->charmap, &code, de_charmap_search_compare);
 	if (entry)
 	{
 		return font->glyphs + entry->glyph_index;

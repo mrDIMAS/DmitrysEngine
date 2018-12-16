@@ -24,9 +24,9 @@ void de_node_free(de_node_t* node)
 {
 	size_t i;
 
-	if (node->parent_scene)
+	if (node->scene)
 	{
-		de_scene_remove_node(node->parent_scene, node);
+		de_scene_remove_node(node->scene, node);
 	}
 
 	de_free(node->name);
@@ -63,7 +63,7 @@ de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type)
 	de_node_t* node = DE_NEW(de_node_t);
 
 	node->type = type;
-	node->parent_scene = scene;
+	node->scene = scene;
 	de_mat4_identity(&node->global_matrix);
 	de_mat4_identity(&node->local_matrix);
 	de_vec3_set(&node->scale, 1, 1, 1);
@@ -77,9 +77,7 @@ de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type)
 		break;
 	case DE_NODE_MESH:
 	{
-		de_mesh_t* mesh = &node->s.mesh;
-		de_mesh_init(mesh);
-		mesh->parent_node = node;
+		de_mesh_init(node, &node->s.mesh);
 		break;
 	}
 	case DE_NODE_CAMERA:

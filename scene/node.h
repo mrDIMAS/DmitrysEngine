@@ -37,7 +37,7 @@ struct de_node_t
 {
 	DE_LINKED_LIST_ITEM(struct de_node_t);
 
-	de_scene_t* parent_scene;
+	de_scene_t* scene;
 	de_node_type_t type;
 
 	/**

@@ -69,7 +69,7 @@ void de_animation_free(de_animation_t* anim)
 {
 	size_t i;
 
-	DE_LINKED_LIST_REMOVE(anim->parent_scene->animations, anim);
+	DE_LINKED_LIST_REMOVE(anim->scene->animations, anim);
 
 	for (i = 0; i < anim->tracks.size; ++i)
 	{

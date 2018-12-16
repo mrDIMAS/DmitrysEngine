@@ -92,3 +92,8 @@ size_t de_get_alloc_count()
 {
 	return de_alloc_count;
 }
+
+void de_zero(void* data, size_t size)
+{
+	memset(data, 0, size);
+}

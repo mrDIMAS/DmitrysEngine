@@ -50,6 +50,11 @@ void de_free(void* ptr);
 size_t de_get_alloc_count(void);
 
 /**
+ * @brief Set all bytes of memory block to zeros
+ */
+void de_zero(void* data, size_t size);
+
+/**
  * Allocates memory for structure. Memory is filled with zeroes
  */
 #define DE_NEW(type) (type*)de_calloc(1, sizeof(type))
@@ -58,3 +63,4 @@ size_t de_get_alloc_count(void);
 	* Calculates static array size
 	*/
 #define DE_ARRAY_SIZE(array) (sizeof(array) / (sizeof(*array)))
+

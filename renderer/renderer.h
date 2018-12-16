@@ -182,7 +182,7 @@ void de_renderer_free(de_renderer_t* r);
 *
 * Also creates buffers on GPU side.
 */
-de_surface_t* de_renderer_create_surface();
+de_surface_t* de_renderer_create_surface(de_renderer_t* r);
 
 /**
 * @brief Frees resources, deletes GPU-side buffers

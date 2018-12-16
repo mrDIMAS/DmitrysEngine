@@ -72,7 +72,7 @@ de_body_t* de_scene_create_body(de_scene_t* s)
 
 	DE_LINKED_LIST_APPEND(s->bodies, body);
 
-	body->parent_scene = s;
+	body->scene = s;
 	body->radius = 1.0f;
 	body->friction = 0.985f;
 	de_vec3_set(&body->scale, 1, 1, 1);
@@ -96,7 +96,7 @@ de_static_geometry_t* de_scene_create_static_geometry(de_scene_t* s)
 	assert(s);
 	geom = DE_NEW(de_static_geometry_t);
 	DE_LINKED_LIST_APPEND(s->static_geometries, geom);
-	geom->parent_scene = s;
+	geom->scene = s;
 	return geom;
 }
 
@@ -114,7 +114,7 @@ void de_scene_add_node(de_scene_t* s, de_node_t* node)
 {
 	DE_LINKED_LIST_APPEND(s->nodes, node);
 
-	node->parent_scene = s;
+	node->scene = s;
 
 	if (node->type == DE_NODE_CAMERA)
 	{
@@ -148,7 +148,7 @@ void de_scene_remove_node(de_scene_t* s, de_node_t* node)
 		}
 	}
 
-	node->parent_scene = NULL;
+	node->scene = NULL;
 
 	DE_LINKED_LIST_REMOVE(s->nodes, node);
 }
@@ -160,10 +160,10 @@ de_animation_t* de_animation_create(de_scene_t* s)
 
 	animation = DE_NEW(de_animation_t);
 	
-	animation->parent_scene = s;
+	animation->scene = s;
 	animation->weight = 1.0f;
 	animation->speed = 1.0f;
-	animation->flags = DE_ANIMATION_FLAG_ENABLED | DE_ANIMATION_FLAG_LOOPED;
+	animation->flags = (de_animation_flags_t)(DE_ANIMATION_FLAG_ENABLED | DE_ANIMATION_FLAG_LOOPED);
 
 	DE_LINKED_LIST_APPEND(s->animations, animation);
 

@@ -28,7 +28,7 @@ void de_camera_init(de_node_t* node, de_camera_t* c)
 	c->fov = 75.0f;
 	c->z_far = 1024.0f;
 	c->z_near = 0.05f;
-	c->aspect = node->parent_scene->core->params.width / (float)node->parent_scene->core->params.height;
+	c->aspect = node->scene->core->params.width / (float)node->scene->core->params.height;
 }
 
 /*=======================================================================================*/

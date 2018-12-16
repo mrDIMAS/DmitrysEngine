@@ -24,7 +24,7 @@ void de_bitmap_create(de_bitmap_t * bitmap, int width, int height)
 {
 	bitmap->width = width;
 	bitmap->height = height;
-	bitmap->pixels = de_calloc(width, height);
+	bitmap->pixels = (unsigned char*)de_calloc(width, height);
 }
 
 /*=======================================================================================*/
@@ -90,8 +90,8 @@ bool de_line_line_intersection(de_line_t* a, de_line_t* b, de_point_t *out)
 /*=======================================================================================*/
 static int de_compare_floats(const void* a_ptr, const void* b_ptr)
 {
-	const float* a = a_ptr;
-	const float* b = b_ptr;
+	const float* a = (const float*)a_ptr;
+	const float* b = (const float*)b_ptr;
 	if (*a < *b) return -1;
 	if (*a == *b) return 0;
 	return 1;

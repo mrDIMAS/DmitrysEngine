@@ -63,9 +63,9 @@ typedef enum de_animation_flags_t
 struct de_animation_t
 {
 	DE_LINKED_LIST_ITEM(struct de_animation_t);
-	de_scene_t* parent_scene;
+	de_scene_t* scene;
 	DE_ARRAY_DECLARE(de_animation_track_t*, tracks);  /**< Array of pointers to animation tracks */
-	de_animation_flags_t flags; /**< Bitset of flags */
+	int flags; /**< Bitset of flags (de_animation_flags_t) */
 	float speed;                /**< Animation playback speed */
 	float length;               /**< Total animation length */
 	float time_position;        /**< Current time of animation (playback position) */

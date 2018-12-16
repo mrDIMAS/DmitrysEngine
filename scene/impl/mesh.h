@@ -20,9 +20,11 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 /*=======================================================================================*/
-void de_mesh_init(de_mesh_t* mesh)
+void de_mesh_init(de_node_t* node, de_mesh_t* mesh)
 {
 	DE_ARRAY_INIT(mesh->surfaces);
+
+	mesh->parent_node = node;
 }
 
 /*=======================================================================================*/
@@ -101,7 +103,7 @@ void de_mesh_make_cube(de_mesh_t* mesh)
 
 	de_surface_t* surf;
 
-	surf = de_renderer_create_surface();
+	surf = de_renderer_create_surface(mesh->parent_node->scene->core->renderer);
 
 	de_surface_load_data(surf, vertices, DE_ARRAY_SIZE(vertices), faces, DE_ARRAY_SIZE(faces));
 

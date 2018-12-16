@@ -174,7 +174,7 @@ de_gui_t* de_gui_init(de_core_t* core)
 	DE_ARRAY_INIT(gui->draw_list.index_buffer);
 
 	gui->text_buffer_size = 0x7FFF;
-	gui->text_buffer = de_calloc(gui->text_buffer_size, sizeof(*gui->text_buffer));
+	gui->text_buffer = (uint32_t*)de_calloc(gui->text_buffer_size, sizeof(*gui->text_buffer));
 
 	/* create default font */
 	{
@@ -186,7 +186,7 @@ de_gui_t* de_gui_init(de_core_t* core)
 			char_set[i] = i;
 		}
 
-		gui->default_font = de_font_load_ttf_from_memory(core, de_builtin_font_inconsolata, 18, char_set, CHAR_COUNT);
+		gui->default_font = de_font_load_ttf_from_memory(core, (void*)de_builtin_font_inconsolata, 18, char_set, CHAR_COUNT);
 	}
 
 	return gui;
@@ -387,7 +387,8 @@ static de_bool_t de_gui_node_contains_point(de_gui_node_t* node, const de_vec2_t
 /*=======================================================================================*/
 static void de_gui_node_fire_mouse_move_event(de_gui_node_t* n, const de_vec2_t* mouse_pos)
 {
-	de_gui_routed_event_args_t args = { 0 };
+	de_gui_routed_event_args_t args;
+	de_zero(&args, sizeof(args));
 	args.source = n;
 	args.type = DE_GUI_ROUTED_EVENT_MOUSE_MOVE;
 	args.s.mouse_move.pos = *mouse_pos;
@@ -397,7 +398,8 @@ static void de_gui_node_fire_mouse_move_event(de_gui_node_t* n, const de_vec2_t*
 /*=======================================================================================*/
 static void de_gui_node_fire_mouse_enter_event(de_gui_node_t* n)
 {
-	de_gui_routed_event_args_t args = { 0 };
+	de_gui_routed_event_args_t args;
+	de_zero(&args, sizeof(args));
 	args.source = n;
 	args.type = DE_GUI_ROUTED_EVENT_MOUSE_ENTER;
 	de_gui_node_route_mouse_enter(n, &args);
@@ -406,7 +408,8 @@ static void de_gui_node_fire_mouse_enter_event(de_gui_node_t* n)
 /*=======================================================================================*/
 static void de_gui_node_fire_mouse_up_event(de_gui_node_t* n, const de_vec2_t* mouse_pos)
 {
-	de_gui_routed_event_args_t evt = { 0 };
+	de_gui_routed_event_args_t evt;
+	de_zero(&evt, sizeof(evt));
 	evt.source = n;
 	evt.type = DE_GUI_ROUTED_EVENT_MOUSE_UP;
 	evt.s.mouse_up.pos = *mouse_pos;
@@ -417,7 +420,8 @@ static void de_gui_node_fire_mouse_up_event(de_gui_node_t* n, const de_vec2_t* m
 /*=======================================================================================*/
 static void de_gui_node_fire_mouse_down_event(de_gui_node_t* n, const de_vec2_t* mouse_pos)
 {
-	de_gui_routed_event_args_t evt = { 0 };
+	de_gui_routed_event_args_t evt;
+	de_zero(&evt, sizeof(evt));
 	evt.source = n;
 	evt.type = DE_GUI_ROUTED_EVENT_MOUSE_DOWN;
 	evt.s.mouse_down.pos = *mouse_pos;
@@ -428,7 +432,8 @@ static void de_gui_node_fire_mouse_down_event(de_gui_node_t* n, const de_vec2_t*
 /*=======================================================================================*/
 static void de_gui_node_fire_lost_focus_event(de_gui_node_t* n)
 {
-	de_gui_routed_event_args_t evt = { 0 };
+	de_gui_routed_event_args_t evt;
+	de_zero(&evt, sizeof(evt));
 	evt.type = DE_GUI_ROUTED_EVENT_LOST_FOCUS;
 	evt.source = n;
 	de_gui_node_route_lost_focus(n, &evt);
@@ -437,7 +442,8 @@ static void de_gui_node_fire_lost_focus_event(de_gui_node_t* n)
 /*=======================================================================================*/
 static void de_gui_node_fire_got_focus_event(de_gui_node_t* n)
 {
-	de_gui_routed_event_args_t evt = { 0 };
+	de_gui_routed_event_args_t evt;
+	de_zero(&evt, sizeof(evt));
 	evt.source = n;
 	evt.type = DE_GUI_ROUTED_EVENT_GOT_FOCUS;
 	de_gui_node_route_got_focus(n, &evt);
@@ -573,7 +579,8 @@ void de_gui_update(de_gui_t* gui)
 		{
 			if (gui->prev_picked_node->is_mouse_over)
 			{
-				de_gui_routed_event_args_t evt = { 0 };
+				de_gui_routed_event_args_t evt;
+				de_zero(&evt, sizeof(evt));
 
 				gui->prev_picked_node->is_mouse_over = DE_FALSE;
 				gui->prev_picked_node->is_mouse_down = DE_FALSE;

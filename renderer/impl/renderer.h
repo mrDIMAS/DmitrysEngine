@@ -568,10 +568,11 @@ static void de_renderer_upload_surface(de_surface_t* s)
 }
 
 /*=======================================================================================*/
-de_surface_t* de_renderer_create_surface()
+de_surface_t* de_renderer_create_surface(de_renderer_t* r)
 {
 	de_surface_t* surf = DE_NEW(de_surface_t);
 
+	surf->renderer = r;
 	surf->need_upload = DE_TRUE;
 
 	/* Create gpu-side buffers */
@@ -669,7 +670,7 @@ de_texture_t* de_renderer_create_texture(de_renderer_t* r, size_t w, size_t h, s
 	tex->depth = 0;
 	tex->id = 0;
 	tex->type = DE_TEXTURE_TYPE_2D;
-	tex->pixels = de_calloc(w * h * byte_per_pixel, 1);
+	tex->pixels = (char*)de_calloc(w * h * byte_per_pixel, 1);
 	tex->ref_count = 1;
 	tex->need_upload = 1;
 

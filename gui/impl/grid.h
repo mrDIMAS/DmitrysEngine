@@ -413,7 +413,8 @@ void de_gui_grid_clear_columns(de_gui_node_t* grid)
 /*=======================================================================================*/
 void de_gui_grid_add_row(de_gui_node_t* node, float desired_height, de_gui_size_mode_t size_mode)
 {
-	de_gui_grid_row_t row = { 0 };
+	de_gui_grid_row_t row;
+	de_zero(&row, sizeof(row));
 	DE_ASSERT_NODE_TYPE(node, DE_GUI_NODE_GRID);
 	row.desired_height = desired_height;
 	row.size_mode = size_mode;
@@ -423,7 +424,8 @@ void de_gui_grid_add_row(de_gui_node_t* node, float desired_height, de_gui_size_
 /*=======================================================================================*/
 void de_gui_grid_add_column(de_gui_node_t* node, float desired_width, de_gui_size_mode_t size_mode)
 {
-	de_gui_grid_column_t col = { 0 };
+	de_gui_grid_column_t col;
+	de_zero(&col, sizeof(col));
 	DE_ASSERT_NODE_TYPE(node, DE_GUI_NODE_GRID);
 	col.desired_width = desired_width;
 	col.size_mode = size_mode;

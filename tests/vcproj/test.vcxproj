@@ -120,7 +120,7 @@
       <WarningLevel>Level4</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>MinSpace</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -180,6 +180,15 @@
     <ClInclude Include="..\..\de_main.h" />
     <ClInclude Include="..\..\external\GL\glext.h" />
     <ClInclude Include="..\..\external\GL\wglext.h" />
+    <ClInclude Include="..\..\external\miniz\miniz_tinfl.h" />
+    <ClInclude Include="..\..\fbx\fbx.h" />
+    <ClInclude Include="..\..\fbx\fbx_ascii.h" />
+    <ClInclude Include="..\..\fbx\fbx_binary.h" />
+    <ClInclude Include="..\..\fbx\fbx_node.h" />
+    <ClInclude Include="..\..\fbx\impl\fbx.h" />
+    <ClInclude Include="..\..\fbx\impl\fbx_ascii.h" />
+    <ClInclude Include="..\..\fbx\impl\fbx_binary.h" />
+    <ClInclude Include="..\..\fbx\impl\fbx_node.h" />
     <ClInclude Include="..\..\font\font.h" />
     <ClInclude Include="..\..\font\impl\font.h" />
     <ClInclude Include="..\..\gui\border.h" />
@@ -219,9 +228,7 @@
     <ClInclude Include="..\..\renderer\surface.h" />
     <ClInclude Include="..\..\renderer\vertex.h" />
     <ClInclude Include="..\..\resources\builtin_fonts.h" />
-    <ClInclude Include="..\..\resources\fbx.h" />
     <ClInclude Include="..\..\resources\image.h" />
-    <ClInclude Include="..\..\resources\impl\fbx.h" />
     <ClInclude Include="..\..\resources\impl\image.h" />
     <ClInclude Include="..\..\resources\impl\texture.h" />
     <ClInclude Include="..\..\resources\texture.h" />
@@ -243,7 +250,8 @@
     <ClInclude Include="..\..\vg\vgraster.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\..\external\miniz\miniz_tinfl.c" />
+    <ClCompile Include="..\src\main.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

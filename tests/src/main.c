@@ -35,6 +35,7 @@ struct player_t
 	float yaw;
 };
 
+/*=======================================================================================*/
 player_t* player_create(level_t* level)
 {
 	de_vec3_t pos;
@@ -72,12 +73,14 @@ player_t* player_create(level_t* level)
 	return p;
 }
 
+/*=======================================================================================*/
 void player_free(player_t* p)
 {
 	de_node_free(p->pivot);
 	de_free(p);
 }
 
+/*=======================================================================================*/
 void player_update(player_t* p)
 {
 	int k;
@@ -160,6 +163,7 @@ void player_update(player_t* p)
 	de_node_set_local_rotation(camera, de_quat_from_axis_angle(&pitch_rot, &right_axis, de_deg_to_rad(p->pitch)));
 }
 
+/*=======================================================================================*/
 level_t* level_create_test(game_t* game)
 {
 	level_t* level;
@@ -170,10 +174,10 @@ level_t* level_create_test(game_t* game)
 
 	level->scene = de_scene_create(game->core);
 
-	level->test_fbx = de_fbx_load_to_scene(level->scene, "data/models/skin_test.fbx");
+	level->test_fbx = de_fbx_load_to_scene(level->scene, "data/models/cube.fbx");
 	de_node_set_local_position(level->test_fbx, &rp);
 
-	de_fbx_load_to_scene(level->scene, "data/models/map2.fbx");
+	de_fbx_load_to_scene(level->scene, "data/models/map2_bin.fbx");
 	polygon = de_scene_find_node(level->scene, "Polygon");
 
 	if (polygon)
@@ -200,11 +204,13 @@ level_t* level_create_test(game_t* game)
 	return level;
 }
 
+/*=======================================================================================*/
 void level_update(level_t* level)
 {
 	player_update(level->player);
 }
 
+/*=======================================================================================*/
 void level_free(level_t* level)
 {
 	player_free(level->player);
@@ -212,12 +218,14 @@ void level_free(level_t* level)
 	de_free(level);
 }
 
+/*=======================================================================================*/
 void quit_on_click(de_gui_node_t* node)
 {
 	DE_UNUSED(node);
 	de_stop(node->gui->core);
 }
 
+/*=======================================================================================*/
 main_menu_t* main_menu_create(game_t* game)
 {
 	de_gui_t* gui = game->core->gui;
@@ -307,11 +315,13 @@ main_menu_t* main_menu_create(game_t* game)
 	return menu;
 }
 
+/*=======================================================================================*/
 void main_menu_free(main_menu_t* menu)
 {
 	de_free(menu);
 }
 
+/*=======================================================================================*/
 game_t* game_create(void)
 {	
 	game_t* game;
@@ -341,6 +351,7 @@ game_t* game_create(void)
 	return game;
 }
 
+/*=======================================================================================*/
 void game_main_loop(game_t* game)
 {
 	float gameClock;
@@ -373,6 +384,7 @@ void game_main_loop(game_t* game)
 	}
 }
 
+/*=======================================================================================*/
 void game_close(game_t* game)
 {
 	level_free(game->level);
@@ -383,6 +395,7 @@ void game_close(game_t* game)
 	de_free(game);
 }
 
+/*=======================================================================================*/
 int main(int argc, char** argv)
 {	
 	game_t* game;

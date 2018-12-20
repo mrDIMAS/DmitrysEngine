@@ -72,6 +72,8 @@ extern "C" {
 #  include "GL/glx.h"
 #endif
 
+#include "miniz/miniz_tinfl.h"
+
 /* Forward declarations */
 typedef struct de_renderer_t de_renderer_t;
 typedef struct de_node_t de_node_t;
@@ -118,7 +120,7 @@ typedef struct de_scene_t de_scene_t;
 #include "scene/scene.h"
 #include "physics/collision.h"
 #include "renderer/surface.h"
-#include "resources/fbx.h"
+#include "fbx/fbx.h"
 #include "renderer/renderer.h"
 #include "resources/texture.h"
 #include "font/font.h"
@@ -127,10 +129,10 @@ typedef struct de_scene_t de_scene_t;
 #include "core/core.h" 
 #include "sound/sound.h"
 
-	 /**
-	  * Implementation.
-	  * Not sensitive to order of includes.
-	  **/
+/**
+ * Implementation.
+ * Not sensitive to order of includes.
+ **/
 #ifdef DE_IMPLEMENTATION
 #  ifdef _WIN32
 #    include "platform/impl/win32.h"
@@ -149,7 +151,7 @@ typedef struct de_scene_t de_scene_t;
 #  include "core/impl/utility.h"
 #  include "core/impl/core.h"
 #  include "physics/impl/collision.h"
-#  include "resources/impl/fbx.h"
+#  include "fbx/impl/fbx.h"
 #  include "font/impl/font.h"
 #  include "math/impl/mathlib.h"
 #  include "scene/impl/animation.h"

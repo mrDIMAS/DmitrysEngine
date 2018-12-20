@@ -19,20 +19,30 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef struct de_fbx_node_s
+/* Supported versions */
+#define DE_FBX_VERSION_MIN 7000
+#define DE_FBX_VERSION_MAX 7400
+
+typedef enum de_fbx_mapping_t
 {
-	/* Name of a node */
-	char* name;
+	DE_FBX_MAPPING_UNKNOWN,
+	DE_FBX_MAPPING_BY_POLYGON,
+	DE_FBX_MAPPING_BY_POLYGON_VERTEX,
+	DE_FBX_MAPPING_BY_VERTEX,
+	DE_FBX_MAPPING_BY_EDGE,
+	DE_FBX_MAPPING_ALL_SAME
+} de_fbx_mapping_t;
 
-	/* Array of strings (values). Each value contains char*  */
-	DE_ARRAY_DECLARE(char*, attributes);
+typedef enum de_fbx_reference_t
+{
+	DE_FBX_REFERENCE_UNKNOWN,
+	DE_FBX_REFERENCE_DIRECT,
+	DE_FBX_REFERENCE_INDEX_TO_DIRECT
+} de_fbx_reference_t;
 
-	/* Pointer to parent node */
-	struct de_fbx_node_s* parent;
-
-	/* Array of pointers to children nodes */
-	DE_ARRAY_DECLARE(struct de_fbx_node_s*, children);
-} de_fbx_node_t;
+#include "fbx/fbx_node.h"
+#include "fbx/fbx_ascii.h"
+#include "fbx/fbx_binary.h"
 
 /**
 * @brief
@@ -40,3 +50,5 @@ typedef struct de_fbx_node_s
 * @return
 */
 de_node_t* de_fbx_load_to_scene(de_scene_t* scene, const char* file);
+
+de_bool_t de_fbx_is_binary(const char* filename);

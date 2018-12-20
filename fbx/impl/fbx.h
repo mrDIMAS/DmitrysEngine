@@ -20,7 +20,7 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 /**
- * ASCII FBX Loader
+ * ASCII + Binary FBX Loader
  *
  * Supported versions: 7200, 7100, 7000 (higher versions are not tested yet)
  **/
@@ -32,23 +32,6 @@ typedef int de_fbx_index_t;
 #define DE_FBX_TIME_UNIT (1.0 / 46186158000.0)
 
 typedef struct de_fbx_model_t de_fbx_model_t;
-
-typedef enum de_fbx_mapping_t
-{
-	DE_FBX_MAPPING_UNKNOWN,
-	DE_FBX_MAPPING_BY_POLYGON,
-	DE_FBX_MAPPING_BY_POLYGON_VERTEX,
-	DE_FBX_MAPPING_BY_VERTEX,
-	DE_FBX_MAPPING_BY_EDGE,
-	DE_FBX_MAPPING_ALL_SAME
-} de_fbx_mapping_t;
-
-typedef enum de_fbx_reference_t
-{
-	DE_FBX_REFERENCE_UNKNOWN,
-	DE_FBX_REFERENCE_DIRECT,
-	DE_FBX_REFERENCE_INDEX_TO_DIRECT
-} de_fbx_reference_t;
 
 typedef struct de_fbx_key_frame
 {
@@ -221,55 +204,15 @@ typedef struct de_fbx_t
 	DE_ARRAY_DECLARE(de_fbx_component_t*, components);
 } de_fbx_t;
 
+#include "fbx/impl/fbx_node.h"
+#include "fbx/impl/fbx_ascii.h"
+#include "fbx/impl/fbx_binary.h"
+
 /*=======================================================================================*/
 static int de_fbx_fix_index(int index)
 {
 	/* We have to convert last vertex index of face it’s because the original index is XOR’ed with -1 */
 	return -index - 1;
-}
-
-/*=======================================================================================*/
-static int de_fbx_get_int(de_fbx_node_t* node, int index)
-{
-	return atoi(node->attributes.data[index]);
-}
-
-/*=======================================================================================*/
-static int64_t de_fbx_get_int64(de_fbx_node_t* node, int index)
-{
-	return atoll(node->attributes.data[index]);
-}
-
-/*=======================================================================================*/
-static float de_fbx_get_float(de_fbx_node_t* node, int index)
-{
-	return (float)atof(node->attributes.data[index]);
-}
-
-/*=======================================================================================*/
-/* reads 3 elements from passed index */
-static void de_fbx_get_vec3(de_fbx_node_t* node, int index, de_vec3_t* out)
-{
-	out->x = de_fbx_get_float(node, index);
-	out->y = de_fbx_get_float(node, index + 1);
-	out->z = de_fbx_get_float(node, index + 2);
-}
-
-/*=======================================================================================*/
-/* reads 2 elements from passed index */
-static void de_fbx_get_vec2(de_fbx_node_t* node, int index, de_vec2_t* out)
-{
-	out->x = de_fbx_get_float(node, index);
-	out->y = de_fbx_get_float(node, index + 1);
-}
-
-/*=======================================================================================*/
-/* Allocates new hierarchy node with passed name, returns pointer to new node. */
-static de_fbx_node_t* de_fbx_create_node(const char* name)
-{
-	de_fbx_node_t* node = DE_NEW(de_fbx_node_t);
-	node->name = de_str_copy(name);
-	return node;
 }
 
 /*=======================================================================================*/
@@ -298,294 +241,14 @@ static de_fbx_mapping_t de_fbx_get_mapping(const char* str)
 	return DE_FBX_MAPPING_UNKNOWN;
 }
 
-typedef struct de_fbx_rdbuf_t
-{
-	char chunk[32768];
-	size_t chunk_size;
-	size_t chunk_read_cursor;
-	de_bool_t eof;
-} de_fbx_rdbuf_t;
-
-/*=======================================================================================*/
-static void de_fbx_rdbuf_init(de_fbx_rdbuf_t* rdbuf)
-{
-	rdbuf->chunk_read_cursor = 0;
-	rdbuf->chunk_size = 0;
-	rdbuf->eof = DE_FALSE;
-}
-
-/*=======================================================================================*/
-static char de_fbx_rdbuf_next_symbol(FILE* file, de_fbx_rdbuf_t* rdbuf)
-{
-	if (rdbuf->chunk_read_cursor >= rdbuf->chunk_size)
-	{
-		rdbuf->chunk_size = fread(rdbuf->chunk, sizeof(char), sizeof(rdbuf->chunk), file);
-		rdbuf->chunk_read_cursor = 0;
-
-		if (rdbuf->chunk_size != sizeof(rdbuf->chunk))
-		{
-			rdbuf->eof = 1;
-		}
-	}
-	return rdbuf->chunk[rdbuf->chunk_read_cursor++];
-}
-
-/*=======================================================================================*/
-static de_bool_t de_fbx_rdbuf_is_eof(de_fbx_rdbuf_t* rdbuf)
-{
-	return rdbuf->eof && rdbuf->chunk_read_cursor >= rdbuf->chunk_size;
-}
-
-/*=======================================================================================*/
-/* custom isspace function, because standard implementation uses locale which is slow */
-de_bool_t de_fbx_is_space(char c)
-{
-	return c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v';
-}
-
-/*=======================================================================================*/
-static de_fbx_node_t* de_fbx_parser_parse(const char* filename)
-{
-	int line_size = 0;
-	char buffer[32768];
-	de_fbx_rdbuf_t rdbuf;
-	char name[512];
-	int name_length = 0;
-	char value[512];
-	int value_length = 0;
-	FILE* file;
-	de_fbx_node_t* root;
-	de_fbx_node_t* node = NULL;
-	de_fbx_node_t* parent;
-	de_bool_t read_all;
-	de_bool_t read_value;
-	int i;
-
-	file = fopen(filename, "rb");
-
-	if (!file)
-	{
-		return NULL;
-	}
-
-	root = de_fbx_create_node("__ROOT__");
-	parent = root;
-
-	de_fbx_rdbuf_init(&rdbuf);
-
-	/* Read line by line */
-	while (!de_fbx_rdbuf_is_eof(&rdbuf))
-	{
-		/* Read line, trim spaces (but leave spaces in quotes) */
-		line_size = 0;
-		read_all = DE_FALSE;
-		for (;;)
-		{
-			char symbol = de_fbx_rdbuf_next_symbol(file, &rdbuf);
-
-			if (de_fbx_rdbuf_is_eof(&rdbuf))
-			{
-				break;
-			}
-
-			if (symbol == '\n')
-			{
-				break;
-			}
-			else if (symbol == '"')
-			{
-				read_all = !read_all;
-			}
-			else
-			{
-				if (read_all || !de_fbx_is_space(symbol))
-				{
-					buffer[line_size++] = (char)symbol;
-				}
-			}
-		}
-		buffer[line_size] = '\0';
-
-		/* Ignore comments */
-		if (buffer[0] == ';')
-		{
-			continue;
-		}
-
-		if (line_size == 0)
-		{
-			continue;
-		}
-
-		/* Parse string */
-		read_value = DE_FALSE;
-		name_length = 0;
-		for (i = 0; i < line_size; ++i)
-		{
-			char symbol = buffer[i];
-			if (i == 0)
-			{
-				if (symbol == '-' || isdigit(symbol))
-				{
-					read_value = DE_TRUE;
-				}
-			}
-			if (symbol == ':' && !read_value)
-			{
-				read_value = DE_TRUE;
-				name[name_length] = '\0';
-				node = de_fbx_create_node(name);
-				name_length = 0;
-				if (parent)
-				{
-					node->parent = parent;
-					DE_ARRAY_APPEND(parent->children, node);
-				}
-			}
-			else if (symbol == '{')
-			{
-				parent = node;
-
-				if (value_length)
-				{
-					value[value_length] = '\0';
-					DE_ARRAY_APPEND(node->attributes, de_str_copy(value));
-					value_length = 0;
-				}
-
-			}
-			else if (symbol == '}')
-			{
-				parent = parent->parent;
-			}
-			else if (symbol == ',' || (i == line_size - 1))
-			{
-				if (symbol != ',')
-				{
-					value[value_length++] = symbol;
-				}
-				value[value_length] = '\0';
-				DE_ARRAY_APPEND(node->attributes, de_str_copy(value));
-				value_length = 0;
-			}
-			else
-			{
-				if (!read_value)
-				{
-					name[name_length++] = symbol;
-				}
-				else
-				{
-					value[value_length++] = symbol;
-				}
-			}
-		}
-
-		read_value = DE_FALSE;
-	}
-
-#if DE_FBX_VERBOSE
-	de_log("FBX: %s is parsed!", filename);
-#endif
-
-	return root;
-}
-
-/*=======================================================================================*/
-static de_fbx_node_t* de_fbx_parser_load_file(const char* filename)
-{
-	return de_fbx_parser_parse(filename);
-}
-
-/*=======================================================================================*/
-static de_fbx_node_t* de_fbx_parser_find_child(de_fbx_node_t* node, const char* name)
-{
-	size_t i;
-
-	/* Look for the node in children nodes. */
-	for (i = 0; i < node->children.size; ++i)
-	{
-		de_fbx_node_t* child = node->children.data[i];
-		if (strcmp(child->name, name) == 0)
-		{
-			return child;
-		}
-	}
-
-	if (i == node->children.size)
-	{
-		de_error("Unable to find %s node", name);
-	}
-
-	return NULL;
-}
-
-/*=======================================================================================*/
-static de_fbx_node_t* de_fbx_parser_get_child(de_fbx_node_t* node, const char* name)
-{
-	size_t i;
-
-	/* Look for the node in children nodes. */
-	for (i = 0; i < node->children.size; ++i)
-	{
-		de_fbx_node_t* child = node->children.data[i];
-		if (strcmp(child->name, name) == 0)
-		{
-			return child;
-		}
-	}
-
-	return NULL;
-}
-
-/*=======================================================================================*/
-static void de_fbx_node_free(de_fbx_node_t* node)
-{
-	size_t i;
-
-	/* Free name string. */
-	de_free(node->name);
-
-	/* Free value strings. */
-	for (i = 0; i < node->attributes.size; ++i)
-	{
-		de_free(node->attributes.data[i]);
-	}
-	DE_ARRAY_FREE(node->attributes);
-
-	/* Free children recursively. */
-	for (i = 0; i < node->children.size; ++i)
-	{
-		de_fbx_node_free(node->children.data[i]);
-	}
-	DE_ARRAY_FREE(node->children);
-
-	/* Free node. */
-	de_free(node);
-}
-
-/*=======================================================================================*/
-static de_fbx_reference_t de_fbx_get_reference(const char* str)
-{
-	if (strcmp(str, "Direct") == 0)
-	{
-		return DE_FBX_REFERENCE_DIRECT;
-	}
-	else if (strcmp(str, "IndexToDirect") == 0 || strcmp(str, "Index") == 0)
-	{
-		return DE_FBX_REFERENCE_INDEX_TO_DIRECT;
-	}
-	return DE_FBX_REFERENCE_UNKNOWN;
-}
-
 /*=======================================================================================*/
 static void de_fbx_read_normals(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 {
 	int i, k;
-	de_fbx_node_t* normals_node = de_fbx_parser_find_child(geom_node, "LayerElementNormal");
-	de_fbx_node_t* map_type = de_fbx_parser_find_child(normals_node, "MappingInformationType");
-	de_fbx_node_t* ref_type = de_fbx_parser_find_child(normals_node, "ReferenceInformationType");
-	de_fbx_node_t* normals = de_fbx_parser_find_child(de_fbx_parser_find_child(normals_node, "Normals"), "a");
+	de_fbx_node_t* normals_node = de_fbx_node_find_child(geom_node, "LayerElementNormal");
+	de_fbx_node_t* map_type = de_fbx_node_find_child(normals_node, "MappingInformationType");
+	de_fbx_node_t* ref_type = de_fbx_node_find_child(normals_node, "ReferenceInformationType");
+	de_fbx_node_t* normals = de_fbx_node_find_child(de_fbx_node_find_child(normals_node, "Normals"), "a");
 
 	geom->normal_mapping = de_fbx_get_mapping(map_type->attributes.data[0]);
 	geom->normal_reference = de_fbx_get_reference(ref_type->attributes.data[0]);
@@ -605,13 +268,13 @@ static void de_fbx_read_faces(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 	int i;
 	de_fbx_node_t* face_array;
 
-	face_array = de_fbx_parser_find_child(de_fbx_parser_find_child(geom_node, "PolygonVertexIndex"), "a");
+	face_array = de_fbx_node_find_child(de_fbx_node_find_child(geom_node, "PolygonVertexIndex"), "a");
 
 	/* find out how many vertices per face */
 	for (j = 0; j < face_array->attributes.size; ++j)
 	{
-		char* value = face_array->attributes.data[j];
-		if (value[0] == '-')
+		int value = de_fbx_get_int(face_array, j);
+		if (value < 0)
 		{
 			geom->vertex_per_face = j + 1;
 			break;
@@ -651,7 +314,7 @@ static void de_fbx_read_vertices(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 	int i, k;
 	de_fbx_node_t* vertex_array;
 
-	vertex_array = de_fbx_parser_find_child(de_fbx_parser_find_child(geom_node, "Vertices"), "a");
+	vertex_array = de_fbx_node_find_child(de_fbx_node_find_child(geom_node, "Vertices"), "a");
 
 	geom->vertex_count = vertex_array->attributes.size / 3;
 	geom->vertices = (de_vec3_t*)de_calloc(geom->vertex_count, sizeof(*geom->vertices));
@@ -667,10 +330,16 @@ static void de_fbx_read_uvs(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 {
 	int i, k;
 	size_t j;
-	de_fbx_node_t* uvs_node = de_fbx_parser_find_child(geom_node, "LayerElementUV");
-	de_fbx_node_t* map_type = de_fbx_parser_find_child(uvs_node, "MappingInformationType");
-	de_fbx_node_t* ref_type = de_fbx_parser_find_child(uvs_node, "ReferenceInformationType");
-	de_fbx_node_t* uvs = de_fbx_parser_find_child(de_fbx_parser_find_child(uvs_node, "UV"), "a");
+	de_fbx_node_t* uvs_node = de_fbx_node_find_child(geom_node, "LayerElementUV");
+
+	if (!uvs_node)
+	{
+		return;
+	}
+
+	de_fbx_node_t* map_type = de_fbx_node_find_child(uvs_node, "MappingInformationType");
+	de_fbx_node_t* ref_type = de_fbx_node_find_child(uvs_node, "ReferenceInformationType");
+	de_fbx_node_t* uvs = de_fbx_node_find_child(de_fbx_node_find_child(uvs_node, "UV"), "a");
 
 	geom->uv_mapping = de_fbx_get_mapping(map_type->attributes.data[0]);
 	geom->uv_reference = de_fbx_get_reference(ref_type->attributes.data[0]);
@@ -686,7 +355,7 @@ static void de_fbx_read_uvs(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 	/* Read mapping indices */
 	if (geom->uv_reference == DE_FBX_REFERENCE_INDEX_TO_DIRECT)
 	{
-		de_fbx_node_t* uv_index = de_fbx_parser_find_child(de_fbx_parser_find_child(uvs_node, "UVIndex"), "a");
+		de_fbx_node_t* uv_index = de_fbx_node_find_child(de_fbx_node_find_child(uvs_node, "UVIndex"), "a");
 
 		geom->uv_index_count = uv_index->attributes.size;
 		geom->uv_index = (int*)de_malloc(geom->uv_index_count * sizeof(*geom->uv_index));
@@ -702,12 +371,12 @@ static void de_fbx_read_uvs(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 static void de_fbx_read_geom_materials(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 {
 	size_t i;
-	de_fbx_node_t* material_node = de_fbx_parser_get_child(geom_node, "LayerElementMaterial");
+	de_fbx_node_t* material_node = de_fbx_node_get_child(geom_node, "LayerElementMaterial");
 	if (material_node)
 	{
-		de_fbx_node_t* map_type = de_fbx_parser_find_child(material_node, "MappingInformationType");
-		de_fbx_node_t* ref_type = de_fbx_parser_find_child(material_node, "ReferenceInformationType");
-		de_fbx_node_t* materials = de_fbx_parser_find_child(de_fbx_parser_find_child(material_node, "Materials"), "a");
+		de_fbx_node_t* map_type = de_fbx_node_find_child(material_node, "MappingInformationType");
+		de_fbx_node_t* ref_type = de_fbx_node_find_child(material_node, "ReferenceInformationType");
+		de_fbx_node_t* materials = de_fbx_node_find_child(de_fbx_node_find_child(material_node, "Materials"), "a");
 
 		geom->material_mapping = de_fbx_get_mapping(map_type->attributes.data[0]);
 		geom->material_reference = de_fbx_get_reference(ref_type->attributes.data[0]);
@@ -787,7 +456,7 @@ static de_fbx_component_t* de_fbx_read_model(de_fbx_node_t* model_node)
 		model->name = de_str_copy(name);
 	}
 
-	props = de_fbx_parser_find_child(model_node, "Properties70");
+	props = de_fbx_node_find_child(model_node, "Properties70");
 
 	for (i = 0; i < props->children.size; ++i)
 	{
@@ -922,7 +591,7 @@ static de_fbx_component_t* de_fbx_read_texture(de_fbx_node_t* tex_node)
 
 	tex = &comp->s.texture;
 
-	path = de_fbx_parser_find_child(tex_node, "RelativeFilename")->attributes.data[0];
+	path = de_fbx_node_find_child(tex_node, "RelativeFilename")->attributes.data[0];
 	filename = strrchr(path, '\\');
 
 	if (filename)
@@ -950,7 +619,7 @@ static de_fbx_component_t* de_fbx_read_light(de_fbx_node_t* light_node)
 
 	light = &comp->s.light;
 
-	props = de_fbx_parser_find_child(light_node, "Properties70");
+	props = de_fbx_node_find_child(light_node, "Properties70");
 
 	de_color_set(&light->color, 255, 255, 255, 255);
 
@@ -964,7 +633,7 @@ static de_fbx_component_t* de_fbx_read_light(de_fbx_node_t* light_node)
 		prop_name = child->attributes.data[0];
 		if (strcmp(prop_name, "DecayStart") == 0)
 		{
-			light->radius = de_fbx_get_float(child, 4);
+			light->radius = de_fbx_get_double(child, 4);
 		}
 		else if (strcmp(prop_name, "Color") == 0)
 		{
@@ -972,9 +641,9 @@ static de_fbx_component_t* de_fbx_read_light(de_fbx_node_t* light_node)
 
 			if (child->attributes.size > 5)
 			{
-				r = de_fbx_get_float(child, 4);
-				g = de_fbx_get_float(child, 5);
-				b = de_fbx_get_float(child, 6);
+				r = de_fbx_get_double(child, 4);
+				g = de_fbx_get_double(child, 5);
+				b = de_fbx_get_double(child, 6);
 
 				light->color.r = (unsigned char)(255 * r);
 				light->color.g = (unsigned char)(255 * g);
@@ -1008,16 +677,16 @@ static de_fbx_component_t* de_fbx_read_animation_curve(de_fbx_node_t* anim_curve
 
 	curve = &comp->s.animation_curve;
 
-	key_time = de_fbx_parser_find_child(anim_curve_node, "KeyTime");
-	key_value = de_fbx_parser_find_child(anim_curve_node, "KeyValueFloat");
+	key_time = de_fbx_node_find_child(anim_curve_node, "KeyTime");
+	key_value = de_fbx_node_find_child(anim_curve_node, "KeyValueFloat");
 
 	if (key_value == NULL || key_time == NULL)
 	{
 		de_error("FBX: KeyTime or KeyValueFloat is missing");
 	}
 
-	key_time_array = de_fbx_parser_find_child(key_time, "a");
-	key_value_array = de_fbx_parser_find_child(key_value, "a");
+	key_time_array = de_fbx_node_find_child(key_time, "a");
+	key_value_array = de_fbx_node_find_child(key_value, "a");
 
 	if (key_time_array->attributes.size != key_value_array->attributes.size)
 	{
@@ -1095,10 +764,10 @@ static de_fbx_component_t* de_fbx_read_sub_deformer(de_fbx_node_t* sub_deformer_
 
 	sub_deformer = &comp->s.sub_deformer;
 
-	indices = de_fbx_parser_find_child(de_fbx_parser_find_child(sub_deformer_node, "Indexes"), "a");
-	weights = de_fbx_parser_find_child(de_fbx_parser_find_child(sub_deformer_node, "Weights"), "a");
-	transform = de_fbx_parser_find_child(de_fbx_parser_find_child(sub_deformer_node, "Transform"), "a");
-	transform_link = de_fbx_parser_find_child(de_fbx_parser_find_child(sub_deformer_node, "TransformLink"), "a");
+	indices = de_fbx_node_find_child(de_fbx_node_find_child(sub_deformer_node, "Indexes"), "a");
+	weights = de_fbx_node_find_child(de_fbx_node_find_child(sub_deformer_node, "Weights"), "a");
+	transform = de_fbx_node_find_child(de_fbx_node_find_child(sub_deformer_node, "Transform"), "a");
+	transform_link = de_fbx_node_find_child(de_fbx_node_find_child(sub_deformer_node, "TransformLink"), "a");
 
 	if (transform->attributes.size != 16)
 	{
@@ -1164,8 +833,8 @@ static de_fbx_t* de_fbx_read(de_fbx_node_t* root)
 	de_fbx_t* fbx;
 
 	/* Check header first */
-	header = de_fbx_parser_find_child(root, "FBXHeaderExtension");
-	version = de_fbx_parser_find_child(header, "FBXVersion");
+	header = de_fbx_node_find_child(root, "FBXHeaderExtension");
+	version = de_fbx_node_find_child(header, "FBXVersion");
 	version_num = de_fbx_get_int(version, 0);
 
 	if (version_num < 7100)
@@ -1178,7 +847,7 @@ static de_fbx_t* de_fbx_read(de_fbx_node_t* root)
 	fbx = DE_NEW(de_fbx_t);
 
 	/* Read all supported objects from fbx and convert it to suitable format */
-	objects = de_fbx_parser_find_child(root, "Objects");
+	objects = de_fbx_node_find_child(root, "Objects");
 	for (i = 0; i < objects->children.size; ++i)
 	{
 		de_fbx_node_t* child = objects->children.data[i];
@@ -1245,7 +914,7 @@ static de_fbx_t* de_fbx_read(de_fbx_node_t* root)
 #endif
 
 	/* Read connections and connect components */
-	connections = de_fbx_parser_find_child(root, "Connections");
+	connections = de_fbx_node_find_child(root, "Connections");
 	for (i = 0; i < connections->children.size; ++i)
 	{
 		de_fbx_node_t* child = connections->children.data[i];
@@ -1585,6 +1254,27 @@ static void de_fbx_eval_keyframe(float time,
 
 /*=======================================================================================*/
 /**
+ * Check for invalid faces first and discard such faces.
+ * Invalid faces can be produced by FBX triangulator when it
+ * cannot triangulate a polygon correctly.
+ */
+static de_bool_t de_fbx_is_invalid_face(de_fbx_face_t* face, de_fbx_geom_t* geom)
+{
+	size_t i;
+
+	for (i = 0; i < geom->vertex_per_face; ++i)
+	{
+		if ((size_t)face->v[i] >= (size_t)geom->vertex_count)
+		{
+			return DE_TRUE;			
+		}
+	}
+
+	return DE_FALSE;
+}
+
+/*=======================================================================================*/
+/**
  * @brief Converts FBX to scene engine's scene nodes hierarchy
  * @param fbx
  * @return
@@ -1598,6 +1288,9 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 	int uv_index;
 	de_node_t* root;
 	de_animation_t* anim;
+	de_renderer_t* renderer;
+
+	renderer = scene->core->renderer;
 
 	root = de_node_create(scene, DE_NODE_BASE);
 	de_scene_add_node(scene, root);
@@ -1667,7 +1360,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 			de_fbx_quat_from_euler(&rq, &mdl->geometric_rotation);
 			de_mat4_rotation(&r, &rq);
 
-			de_mat4_scale(&s, &mdl->scale);
+			de_mat4_scale(&s, &mdl->geometric_scale);
 
 			de_mat4_mul(&geometric_transform, &t, &r);
 			de_mat4_mul(&geometric_transform, &geometric_transform, &s);
@@ -1687,30 +1380,31 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 		{
 			de_fbx_geom_t* geom;
 			de_mesh_t* mesh;
-
+			
 			geom = mdl->geoms.data[k];
 			mesh = &node->s.mesh;
 
+			/* Create surfaces per material */
 			if (mdl->materials.size == 0)
 			{
-				de_mesh_add_surface(mesh, de_renderer_create_surface(scene->core->renderer));
+				de_mesh_add_surface(mesh, de_renderer_create_surface(renderer));
 			}
 			else
 			{
 				for (k = 0; k < mdl->materials.size; ++k)
 				{
-					de_surface_t* surf = de_renderer_create_surface(scene->core->renderer);
+					de_surface_t* surf = de_renderer_create_surface(renderer);
 					de_fbx_material_t* mat = mdl->materials.data[k];
 					if (mat->diffuse_tex)
 					{
 						char* filename = de_str_format("data/textures/%s", mat->diffuse_tex->filename);
-						de_texture_t* texture = de_renderer_request_texture(scene->core->renderer, filename);
+						de_texture_t* texture = de_renderer_request_texture(renderer, filename);
 						de_surface_set_texture(surf, texture);
 					}
 					de_mesh_add_surface(mesh, surf);
 				}
 			}
-
+			
 			normal_index = 0;
 			uv_index = 0;
 			material_index = 0;
@@ -1718,24 +1412,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 			{
 				de_fbx_face_t* face = geom->faces + n;
 
-				de_bool_t invalid_face = DE_FALSE;
-
-				/**
-				 * Check for invalid faces first and discard such faces.
-				 * Invalid faces can be produced by FBX triangulator when it
-				 * cannot triangulate a polygon correctly.
-				 **/
-				for (m = 0; m < geom->vertex_per_face; ++m)
-				{
-					if ((size_t)face->v[m] >= (size_t)geom->vertex_count)
-					{
-						invalid_face = DE_TRUE;
-
-						break;
-					}
-				}
-
-				if (invalid_face)
+				if (de_fbx_is_invalid_face(face, geom))
 				{
 					continue;
 				}
@@ -1774,6 +1451,9 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 						{
 							v.tex_coord = geom->uvs[geom->uv_index[uv_index++]];
 						}
+						break;
+					case DE_FBX_MAPPING_UNKNOWN:
+						/* means that there is no uvs */
 						break;
 					default:
 						de_error("FBX: UV mapping is not supported");
@@ -1905,10 +1585,18 @@ de_node_t* de_fbx_load_to_scene(de_scene_t* scene, const char* file)
 	de_fbx_t* fbx;
 	de_node_t* root_node;
 	float last_time;
+	de_fbx_buffer_t data_buf;
 
 	last_time = de_time_get_seconds();
 
-	root = de_fbx_parser_load_file(file);
+	if (de_fbx_is_binary(file))
+	{
+		root = de_fbx_binary_load_file(file, &data_buf);
+	}
+	else
+	{
+		root = de_fbx_ascii_load_file(file, &data_buf);
+	}
 
 	if (!root)
 	{
@@ -1932,5 +1620,28 @@ de_node_t* de_fbx_load_to_scene(de_scene_t* scene, const char* file)
 
 	de_log("FBX: %s is loaded in %f seconds!", file, de_time_get_seconds() - last_time);
 
+	de_fbx_buffer_free(&data_buf);
+
 	return root_node;
+}
+
+de_bool_t de_fbx_is_binary(const char* filename)
+{
+	char magic[18];
+	de_bool_t result;
+
+	FILE* file = fopen(filename, "rb");
+
+	if (!file)
+	{
+		return DE_FALSE;
+	}
+
+	fread(magic, sizeof(char), 18, file);
+
+	result = strcmp(magic, "Kaydara FBX Binary") == 0;
+
+	fclose(file);
+
+	return result;
 }

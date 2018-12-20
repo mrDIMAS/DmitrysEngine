@@ -10,7 +10,7 @@ Please note, that this engine is at very early development stage and some featur
 
 ## Features
 - Header only - no need to build as separate project, just `#include "de_main.h"` so extremely fast compilation.
-- FBX support (for now without skinning)
+- FBX support - both ASCII and binary (for now without skinning)
 - Modern rendering techniques (still lacking, currently contains only deferred shading)
 - TTF fonts support (compound characters support is not implemented yet)
 - GUI (inspired by WPF)

@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -32,10 +32,10 @@ static de_bool_t de_fbx_fread(void* buffer, size_t size, FILE* f)
 	return fread(buffer, 1, size, f) == size;
 }
 
-/** 
+/**
  * Very inefficient for now. Every attribute allocates its own memory block. So even
  * to store 1 byte we doing de_malloc. TODO: Should be optimized!
- * 
+ *
  * Perform reading using this specification:
  * https://code.blender.org/2013/08/fbx-binary-file-format-specification/
  **/
@@ -92,7 +92,7 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 		de_log("FBX Binary: Unable to read name of node!");
 
 		return NULL;
-	}	
+	}
 	node->name[name_len] = '\0';
 
 	for (i = 0; i < num_attrib; ++i)
@@ -104,8 +104,8 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 
 		/* Simple types */
 		switch (type_code)
-		{			
-		case 'Y': 
+		{
+		case 'Y':
 			size = 2;
 			break;
 		case 'C':
@@ -129,7 +129,7 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 
 		/* We have a simple type */
 		if (size)
-		{			
+		{
 			void* attrib = de_fbx_buffer_alloc(data_buf, size);
 			if (!de_fbx_fread(attrib, size, f))
 			{
@@ -172,7 +172,7 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 				uint32_t encoding;
 				uint32_t compressed_length;
 				char* raw_array = NULL;
-				
+
 				if (!de_fbx_fread(&length, sizeof(length), f))
 				{
 					de_log("FBX Binary: Unable to read array length!");
@@ -197,7 +197,7 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 				if (encoding == 0)
 				{
 					size_t total_length = size * length;
-										
+
 					raw_array = de_malloc(total_length);
 					if (!de_fbx_fread(raw_array, total_length, f))
 					{
@@ -206,12 +206,11 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 						de_free(raw_array);
 
 						return NULL;
-					}				
+					}
 				}
 				else
 				{
 					void* compressed;
-					void* decompressed;
 					size_t decompressed_length;
 
 					compressed = de_malloc(compressed_length);
@@ -225,7 +224,7 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 					}
 
 					raw_array = tinfl_decompress_mem_to_heap(compressed, compressed_length, &decompressed_length, TINFL_FLAG_PARSE_ZLIB_HEADER);
-					if (!raw_array)					
+					if (!raw_array)
 					{
 						de_free(compressed);
 
@@ -233,6 +232,8 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 
 						return NULL;
 					}
+
+					de_free(compressed);
 				}
 
 				/* Here we should add child node called "a" to make binary format compatible with ASCII-designed
@@ -250,19 +251,21 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 						void* item = de_fbx_buffer_alloc(data_buf, size);
 						memcpy(item, raw_array + n, size);
 						DE_ARRAY_APPEND(a_node->attributes, item);
-					}					
+					}
 					DE_ARRAY_APPEND(node->children, a_node);
 				}
-			} 
+
+				de_free(raw_array);
+			}
 			else
 			{
 				/* We have a string (or raw data) */
 				if (type_code == 'S' || type_code == 'R')
 				{
 					char* str;
-					uint32_t length;		
+					uint32_t length;
 					uint32_t buffer_len;
-			
+
 					if (!de_fbx_fread(&length, sizeof(length), f))
 					{
 						de_log("FBX Binary: Unable to read string/raw length!");
@@ -283,9 +286,9 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 						return NULL;
 					}
 
-					/* Make sure to add null terminator for strings */				
+					/* Make sure to add null terminator for strings */
 					str[length] = '\0';
-					
+
 					DE_ARRAY_APPEND(node->attributes, str);
 				}
 				else
@@ -308,7 +311,7 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 
 		while (ftell(f) < null_record_position)
 		{
-			de_fbx_node_t* child = de_fbx_binary_read_node(data_buf, f);		
+			de_fbx_node_t* child = de_fbx_binary_read_node(data_buf, f);
 			if (child == NULL)
 			{
 				return NULL;
@@ -359,7 +362,7 @@ de_fbx_node_t* de_fbx_binary_load_file(const char* filename, de_fbx_buffer_t* da
 	fseek(file, 0, SEEK_SET);
 
 	de_fbx_buffer_init(data_buf, total_length * 5);
-	
+
 	/* Ignore all stuff until version */
 	de_fignore(file, 23);
 

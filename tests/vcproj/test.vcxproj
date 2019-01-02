@@ -164,6 +164,7 @@
     <ClInclude Include="..\..\core\impl\core.h" />
     <ClInclude Include="..\..\core\impl\log.h" />
     <ClInclude Include="..\..\core\impl\memmgr.h" />
+    <ClInclude Include="..\..\core\impl\pool.h" />
     <ClInclude Include="..\..\core\impl\rect.h" />
     <ClInclude Include="..\..\core\impl\rectpack.h" />
     <ClInclude Include="..\..\core\impl\string.h" />
@@ -171,6 +172,7 @@
     <ClInclude Include="..\..\core\linked_list.h" />
     <ClInclude Include="..\..\core\log.h" />
     <ClInclude Include="..\..\core\memmgr.h" />
+    <ClInclude Include="..\..\core\pool.h" />
     <ClInclude Include="..\..\core\rect.h" />
     <ClInclude Include="..\..\core\rectpack.h" />
     <ClInclude Include="..\..\core\string.h" />
@@ -217,7 +219,9 @@
     <ClInclude Include="..\..\gui\window.h" />
     <ClInclude Include="..\..\input\input.h" />
     <ClInclude Include="..\..\math\impl\mathlib.h" />
+    <ClInclude Include="..\..\math\impl\triangulator.h" />
     <ClInclude Include="..\..\math\mathlib.h" />
+    <ClInclude Include="..\..\math\triangulator.h" />
     <ClInclude Include="..\..\physics\collision.h" />
     <ClInclude Include="..\..\physics\impl\collision.h" />
     <ClInclude Include="..\..\platform\impl\win32.h" />
@@ -250,7 +254,6 @@
     <ClInclude Include="..\..\vg\vgraster.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\external\miniz\miniz_tinfl.c" />
     <ClCompile Include="..\src\main.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

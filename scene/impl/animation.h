@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -60,7 +60,7 @@ void de_animation_track_add_keyframe(de_animation_track_t* track, const de_keyfr
 			}
 		}
 
-		DE_ARRAY_INSERT(track->keyframes, i, *keyframe);		
+		DE_ARRAY_INSERT(track->keyframes, i, *keyframe);
 	}
 }
 
@@ -170,7 +170,7 @@ void de_animation_update(de_animation_t* anim, float dt)
 
 		node = track->node;
 
-		de_animation_track_get_keyframe(track, anim->time_position, &keyframe);		
+		de_animation_track_get_keyframe(track, anim->time_position, &keyframe);
 
 		/* Accumulate position */
 		de_vec3_add(&node->position, &node->position, &keyframe.position);
@@ -185,7 +185,7 @@ void de_animation_update(de_animation_t* anim, float dt)
 	}
 
 	de_animation_set_time_position(anim, nextTimePos);
-	
+
 	/* Handle fading - part of animation blending */
 	if (anim->fade_step != 0.0f)
 	{
@@ -193,7 +193,7 @@ void de_animation_update(de_animation_t* anim, float dt)
 		if (anim->fade_step < 0 && anim->weight <= 0)
 		{
 			anim->weight = 0;
-			de_animation_reset_flags(anim, DE_ANIMATION_FLAG_ENABLED);			
+			de_animation_reset_flags(anim, DE_ANIMATION_FLAG_ENABLED);
 			anim->fade_step = 0;
 		}
 		else if (anim->fade_step > 0 && anim->weight >= 1)
@@ -239,7 +239,7 @@ void de_animation_reset_flags(de_animation_t* anim, int flags)
 void de_animation_clamp_length(de_animation_t* anim)
 {
 	size_t i;
-	
+
 	for (i = 0; i < anim->tracks.size; ++i)
 	{
 		de_animation_track_t* track = anim->tracks.data[i];

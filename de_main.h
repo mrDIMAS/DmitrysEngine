@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -36,6 +36,7 @@ extern "C" {
 #error Compiler not supported
 #endif
 
+#define _USE_MATH_DEFINES
 #define DE_UNUSED(x) ((void)x)
 
 /* Standard library */
@@ -72,27 +73,25 @@ extern "C" {
 #  include "GL/glx.h"
 #endif
 
-#include "miniz/miniz_tinfl.h"
-
 /* Forward declarations */
-typedef struct de_renderer_t de_renderer_t;
-typedef struct de_node_t de_node_t;
-typedef struct de_surface_t de_surface_t;
-typedef struct de_body_t de_body_t;
-typedef struct de_animation_track_t de_animation_track_t;
-typedef struct de_texture_t de_texture_t;
-typedef struct de_static_triangle_t de_static_triangle_t;
-typedef struct de_static_geometry_t de_static_geometry_t;
-typedef struct de_mesh_t de_mesh_t;
-typedef struct de_light_t de_light_t;
-typedef struct de_gui_t de_gui_t;
-typedef struct de_core_t de_core_t;
-typedef struct de_scene_t de_scene_t;
+	typedef struct de_renderer_t de_renderer_t;
+	typedef struct de_node_t de_node_t;
+	typedef struct de_surface_t de_surface_t;
+	typedef struct de_body_t de_body_t;
+	typedef struct de_animation_track_t de_animation_track_t;
+	typedef struct de_texture_t de_texture_t;
+	typedef struct de_static_triangle_t de_static_triangle_t;
+	typedef struct de_static_geometry_t de_static_geometry_t;
+	typedef struct de_mesh_t de_mesh_t;
+	typedef struct de_light_t de_light_t;
+	typedef struct de_gui_t de_gui_t;
+	typedef struct de_core_t de_core_t;
+	typedef struct de_scene_t de_scene_t;
 
-/**
- * Order is important here, because some parts depends on other
- * Modules with minimum dependencies should be placed before others.
- **/
+	/**
+	 * Order is important here, because some parts depends on other
+	 * Modules with minimum dependencies should be placed before others.
+	 **/
 #include "core/bool.h"
 #include "core/log.h"
 #include "core/byteorder.h"
@@ -104,8 +103,10 @@ typedef struct de_scene_t de_scene_t;
 #include "core/linked_list.h"
 #include "core/time.h"
 #include "core/color.h"
+#include "core/pool.h"
 #include "resources/builtin_fonts.h"
 #include "math/mathlib.h"
+#include "math/triangulator.h"
 #include "core/rect.h"
 #include "renderer/vertex.h"	
 #include "core/rectpack.h"
@@ -129,6 +130,13 @@ typedef struct de_scene_t de_scene_t;
 #include "core/core.h" 
 #include "sound/sound.h"
 
+	 /* TINFL (part of miniz) - used to decompress FBX data */
+#ifdef DE_IMPLEMENTATION
+#  define TINFL_IMPLEMENTATION
+#endif
+
+#include "miniz/miniz_tinfl.h"
+
 /**
  * Implementation.
  * Not sensitive to order of includes.
@@ -142,6 +150,7 @@ typedef struct de_scene_t de_scene_t;
 #  include "resources/impl/image.h"
 #  include "core/impl/byteorder.h"
 #  include "core/impl/color.h"
+#  include "core/impl/pool.h"
 #  include "core/impl/log.h" 
 #  include "core/impl/memmgr.h"
 #  include "core/impl/base64.h"
@@ -154,6 +163,7 @@ typedef struct de_scene_t de_scene_t;
 #  include "fbx/impl/fbx.h"
 #  include "font/impl/font.h"
 #  include "math/impl/mathlib.h"
+#  include "math/impl/triangulator.h"
 #  include "scene/impl/animation.h"
 #  include "scene/impl/camera.h"
 #  include "scene/impl/light.h"

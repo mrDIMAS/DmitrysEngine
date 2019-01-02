@@ -10,7 +10,7 @@ de_gui_node_t* de_gui_text_box_create(de_gui_t* gui)
 {
 	de_gui_node_t* n;
 	de_gui_text_box_t* tb;
-	
+
 	static de_gui_dispatch_table_t dispatch_table;
 	{
 		static de_bool_t init = DE_FALSE;

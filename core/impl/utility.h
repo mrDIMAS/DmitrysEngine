@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -54,7 +54,7 @@ char * de_load_file_into_memory(const char * path, size_t* out_size)
 	/* close file and write trailing zero at end of content array */
 	fclose(file);
 	content[file_size] = '\0';
-	
+
 	return content;
 }
 

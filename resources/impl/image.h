@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -50,7 +50,7 @@ de_bool_t de_image_load_tga(const char* filename, de_image_t* img)
 		return DE_FALSE;
 	}
 
-	#define READ_VAR(var) fread(&var, sizeof(var), 1, file)
+#define READ_VAR(var) fread(&var, sizeof(var), 1, file)
 	/* Read TGA header */
 	READ_VAR(header.idLength);
 	READ_VAR(header.colorMapType);
@@ -64,7 +64,7 @@ de_bool_t de_image_load_tga(const char* filename, de_image_t* img)
 	READ_VAR(header.height);
 	READ_VAR(header.bitsPerPixel);
 	READ_VAR(header.imageDescriptor);
-	#undef READ_VAR
+#undef READ_VAR
 
 	/* Create new texture */
 	img->width = header.width;

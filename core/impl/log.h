@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -72,11 +72,11 @@ void de_error(const char* message, ...)
 	va_end(argument_list);
 	de_write_log(format_buffer, DE_TRUE);
 	de_engine_platform_message_box(format_buffer);
-	#ifdef _MSC_VER
+#ifdef _MSC_VER
 	__debugbreak();
-	#else
+#else
 	__asm__("int $3");
-	#endif
+#endif
 	exit(EXIT_FAILURE);
 }
 

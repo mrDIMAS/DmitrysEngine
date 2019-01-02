@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -251,7 +251,7 @@ static void de_win32_load_wgl_extensions(de_core_t* core)
 		de_error("Win32: Failed to make dummy OpenGL context current!");
 	}
 
-	#define DE_GET_WGL_PROC_ADDRESS(type, func)                    \
+#define DE_GET_WGL_PROC_ADDRESS(type, func)                    \
 	func = (type)wglGetProcAddress(#func);                     \
 	if(!func) {                                                \
 		de_error("Unable to load %s function pointer", #func); \
@@ -263,7 +263,7 @@ static void de_win32_load_wgl_extensions(de_core_t* core)
 	DE_GET_WGL_PROC_ADDRESS(PFNWGLCHOOSEPIXELFORMATARBPROC, wglChoosePixelFormatARB);
 	DE_GET_WGL_PROC_ADDRESS(PFNWGLCREATECONTEXTATTRIBSARBPROC, wglCreateContextAttribsARB);
 
-	#undef DE_GET_WGL_PROC_ADDRESS
+#undef DE_GET_WGL_PROC_ADDRESS
 
 	wglMakeCurrent(NULL, NULL);
 	wglDeleteContext(core->platform.dummy_context);

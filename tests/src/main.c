@@ -323,7 +323,7 @@ void main_menu_free(main_menu_t* menu)
 
 /*=======================================================================================*/
 game_t* game_create(void)
-{	
+{
 	game_t* game;
 
 	game = DE_NEW(game_t);
@@ -335,7 +335,7 @@ game_t* game_create(void)
 		params.height = 1000;
 
 		game->core = de_init(&params);
-		de_renderer_set_framerate_limit(game->core->renderer, 0);		
+		de_renderer_set_framerate_limit(game->core->renderer, 0);
 	}
 
 	/* Create menu */
@@ -395,13 +395,16 @@ void game_close(game_t* game)
 	de_free(game);
 }
 
+
 /*=======================================================================================*/
 int main(int argc, char** argv)
-{	
+{
 	game_t* game;
 
 	DE_UNUSED(argc);
 	DE_UNUSED(argv);
+
+	//de_triangulator_tests();
 
 	game = game_create();
 

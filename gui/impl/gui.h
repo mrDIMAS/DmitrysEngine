@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -200,7 +200,7 @@ void de_gui_shutdown(de_gui_t* gui)
 	{
 		de_gui_node_free(gui->nodes.head);
 	}
-	
+
 	de_font_free(gui->default_font);
 
 	de_free(gui->text_buffer);
@@ -502,7 +502,7 @@ void de_gui_node_handle_keyboard_input(void)
 
 /*=======================================================================================*/
 void de_gui_update(de_gui_t* gui)
-{		
+{
 	static size_t count = 0;
 
 	{
@@ -1002,7 +1002,7 @@ static void de_gui_node_draw(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t n
 /*=======================================================================================*/
 de_gui_draw_list_t* de_gui_render(de_gui_t* gui)
 {
-	de_gui_node_t* n;	
+	de_gui_node_t* n;
 	de_gui_draw_list_t* dl = &gui->draw_list;
 	uint8_t nesting = 1;
 

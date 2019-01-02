@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -70,7 +70,7 @@ point_array_t de_vg_eval_quad_bezier(const de_point_t * p0, const de_point_t * p
 }
 
 /*=======================================================================================*/
-bool de_line_line_intersection(de_line_t* a, de_line_t* b, de_point_t *out)
+bool de_vg_line_line_intersection(de_line2_t* a, de_line2_t* b, de_point_t *out)
 {
 	float s1x = a->end.x - a->begin.x;
 	float s1y = a->end.y - a->begin.y;
@@ -117,7 +117,7 @@ line_array_t de_vg_polys_to_scanlines(de_polygon_t* polys, size_t poly_count, fl
 
 	for (y = bias; y <= real_height; ++y)
 	{
-		de_line_t scanline;
+		de_line2_t scanline;
 		DE_ARRAY_CLEAR(intersections);
 
 		scanline.begin.x = -1;
@@ -133,7 +133,7 @@ line_array_t de_vg_polys_to_scanlines(de_polygon_t* polys, size_t poly_count, fl
 
 			for (j = 0; j < poly->points.size; j += 2)
 			{
-				de_line_t edge;
+				de_line2_t edge;
 				de_point_t intersection;
 
 				edge.begin = poly->points.data[j];
@@ -145,7 +145,7 @@ line_array_t de_vg_polys_to_scanlines(de_polygon_t* polys, size_t poly_count, fl
 				edge.end.x *= scale;
 				edge.end.y *= scale;
 
-				if (de_line_line_intersection(&scanline, &edge, &intersection))
+				if (de_vg_line_line_intersection(&scanline, &edge, &intersection))
 				{
 					DE_ARRAY_APPEND(intersections, intersection);
 				}
@@ -167,7 +167,7 @@ line_array_t de_vg_polys_to_scanlines(de_polygon_t* polys, size_t poly_count, fl
 		/* Convert intersection points into scanlines */
 		for (i = 0; i < intersections.size; i += 2)
 		{
-			de_line_t line;
+			de_line2_t line;
 
 			line.begin.x = intersections.data[i].x;
 			line.begin.y = y;
@@ -247,7 +247,7 @@ de_bitmap_t de_vg_raster_scanlines(de_bitmap_t* bitmap, line_array_t lines)
 	/* Rasterize lines */
 	for (i = 0; i < lines.size; ++i)
 	{
-		de_line_t* scanline = lines.data + i;
+		de_line2_t* scanline = lines.data + i;
 		for (x = scanline->begin.x; x <= scanline->end.x; ++x)
 		{
 			int px = (int)(x + 0.5f);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -54,7 +54,7 @@ struct de_node_t
 	/**
 	 * FBX stuff, but can be used if you want special transformations
 	 */
-	de_quat_t pre_rotation; 
+	de_quat_t pre_rotation;
 	de_quat_t post_rotation;
 	de_vec3_t rotation_offset;
 	de_vec3_t rotation_pivot;
@@ -65,7 +65,7 @@ struct de_node_t
 	de_node_t* parent; /**< Pool reference to parent node */
 	DE_ARRAY_DECLARE(de_node_t*, children); /**< Array of pool references to child nodes */
 	de_bool_t visible; /**< Local visibility. Actual visibility defined by hierarchy. So if parent node is invisible, then child node will be too */
-	
+
 	/* Physics */
 	de_body_t* body;
 

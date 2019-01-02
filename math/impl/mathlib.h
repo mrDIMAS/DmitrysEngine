@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -939,10 +939,61 @@ int de_ray_plane_intersection(const de_ray_t* ray, const de_plane_t* plane, de_v
 	return 1;
 }
 
-int de_ray_triangle_intersection(const de_ray_t* ray, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c, de_vec3_t* out_intersection_point)
+de_bool_t de_is_point_inside_triangle(const de_vec3_t* point, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c)
 {
 	float baDotba, caDotba, caDotca, invDenom, dot02, dot12, u, v;
-	de_vec3_t vp, point, ca, ba;
+	de_vec3_t vp, ca, ba;
+
+	de_vec3_sub(&ba, b, a);
+	de_vec3_sub(&ca, c, a);
+
+	de_vec3_sub(&vp, point, a);
+
+	baDotba = de_vec3_dot(&ba, &ba);
+	caDotba = de_vec3_dot(&ca, &ba);
+	caDotca = de_vec3_dot(&ca, &ca);
+
+	dot02 = de_vec3_dot(&ca, &vp);
+	dot12 = de_vec3_dot(&ba, &vp);
+
+	invDenom = 1.0f / (caDotca * baDotba - caDotba * caDotba);
+
+	/* calculate barycentric coordinates */
+	u = (baDotba * dot02 - caDotba * dot12) * invDenom;
+	v = (caDotca * dot12 - caDotba * dot02) * invDenom;
+
+	return (u >= 0.0f) && (v >= 0.0f) && (u + v < 1.0f);
+}
+
+de_bool_t de_is_point_inside_triangle_2D(const de_vec2_t* point, const de_vec2_t* a, const de_vec2_t* b, const de_vec2_t* c)
+{
+	float baDotba, caDotba, caDotca, invDenom, dot02, dot12, u, v;
+	de_vec2_t vp, ca, ba;
+
+	de_vec2_sub(&ba, b, a);
+	de_vec2_sub(&ca, c, a);
+
+	de_vec2_sub(&vp, point, a);
+
+	baDotba = de_vec2_dot(&ba, &ba);
+	caDotba = de_vec2_dot(&ca, &ba);
+	caDotca = de_vec2_dot(&ca, &ca);
+
+	dot02 = de_vec2_dot(&ca, &vp);
+	dot12 = de_vec2_dot(&ba, &vp);
+
+	invDenom = 1.0f / (caDotca * baDotba - caDotba * caDotba);
+
+	/* calculate barycentric coordinates */
+	u = (baDotba * dot02 - caDotba * dot12) * invDenom;
+	v = (caDotca * dot12 - caDotba * dot02) * invDenom;
+
+	return (u >= 0.0f) && (v >= 0.0f) && (u + v < 1.0f);
+}
+
+int de_ray_triangle_intersection(const de_ray_t* ray, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c, de_vec3_t* out_intersection_point)
+{
+	de_vec3_t point, ca, ba;
 	de_plane_t plane;
 
 	de_vec3_sub(&ba, b, a);
@@ -959,24 +1010,7 @@ int de_ray_triangle_intersection(const de_ray_t* ray, const de_vec3_t* a, const 
 			*out_intersection_point = point;
 		}
 
-		de_vec3_sub(&vp, &point, a);
-
-		/* check, if intersection point lies in triangle using barycentric
-		* coordinates */
-		baDotba = de_vec3_dot(&ba, &ba);
-		caDotba = de_vec3_dot(&ca, &ba);
-		caDotca = de_vec3_dot(&ca, &ca);
-
-		dot02 = de_vec3_dot(&ca, &vp);
-		dot12 = de_vec3_dot(&ba, &vp);
-
-		invDenom = 1.0f / (caDotca * baDotba - caDotba * caDotba);
-
-		/* calculate barycentric coordinates */
-		u = (baDotba * dot02 - caDotba * dot12) * invDenom;
-		v = (caDotca * dot12 - caDotba * dot02) * invDenom;
-
-		return (u >= 0.0f) && (v >= 0.0f) && (u + v < 1.0f);
+		return de_is_point_inside_triangle(&point, a, b, c);
 	}
 
 	return 0;
@@ -1488,4 +1522,118 @@ float de_fwrap(float n, float min_limit, float max_limit)
 	}
 
 	return n + offset;
+}
+
+/*=======================================================================================*/
+void de_get_polygon_normal(const de_vec3_t* points, size_t count, de_vec3_t* normal)
+{
+	size_t i, j;
+	de_vec3_zero(normal);
+	for (i = 0; i < count; ++i)
+	{
+		j = (i + 1) % count;
+		normal->x += (points[i].y - points[j].y) * (points[i].z + points[j].z);
+		normal->y += (points[i].z - points[j].z) * (points[i].x + points[j].x);
+		normal->z += (points[i].x - points[j].x) * (points[i].y + points[j].y);
+	}
+	de_vec3_normalize(normal, normal);
+}
+
+/*=======================================================================================*/
+double de_get_signed_triangle_area(const de_vec2_t* v1, const de_vec2_t* v2, const de_vec2_t* v3)
+{
+	return 0.5 * (v1->x * ((double)v3->y - v2->y) + v2->x * ((double)v1->y - v3->y) + v3->x * ((double)v2->y - v1->y));
+}
+
+/*=======================================================================================*/
+de_bool_t de_line_line_intersection(const de_vec3_t* a_begin, const de_vec3_t* a_end, const de_vec3_t* b_begin, const de_vec3_t* b_end, de_vec3_t *out)
+{
+	float s1x = a_end->x - a_begin->x;
+	float s1y = a_end->y - a_begin->y;
+	float s2x = b_end->x - b_begin->x;
+	float s2y = b_end->y - b_begin->y;
+	float s = (-s1y * (a_begin->x - b_begin->x) + s1x * (a_begin->y - b_begin->y)) / (-s2x * s1y + s1x * s2y);
+	float t = (s2x * (a_begin->y - b_begin->y) - s2y * (a_begin->x - b_begin->x)) / (-s2x * s1y + s1x * s2y);
+	if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
+	{
+		if (out)
+		{
+			out->x = a_begin->x + (t * s1x);
+			out->y = a_begin->y + (t * s1y);
+		}
+		return DE_TRUE;
+	}
+
+	return DE_FALSE;
+}
+
+/*=======================================================================================*/
+de_plane_class_t de_plane_classify(const de_vec3_t * triangle_normal)
+{
+	float longest = 0.0f;
+		
+	de_plane_class_t plane = DE_PLANE_OXY;
+
+	if (fabsf(triangle_normal->x) > longest)
+	{
+		longest = fabsf(triangle_normal->x);
+		plane = DE_PLANE_OYZ;
+	}
+
+	if (fabsf(triangle_normal->y) > longest)
+	{
+		longest = fabsf(triangle_normal->y);
+		plane = DE_PLANE_OXZ;
+	}
+
+	if (fabsf(triangle_normal->z) > longest)
+	{
+		plane = DE_PLANE_OXY;
+	}
+
+	return plane;
+}
+
+/*=======================================================================================*/
+void de_vec3_to_vec2_by_plane(de_plane_class_t plane, const de_vec3_t* normal, const de_vec3_t * point, de_vec2_t * mapped)
+{
+	if (plane == DE_PLANE_OXY)
+	{		
+		if (normal->z < 0)
+		{
+			mapped->x = point->y;
+			mapped->y = point->x;
+		}
+		else
+		{
+			mapped->x = point->x;
+			mapped->y = point->y;
+		}
+	}
+	else if (plane == DE_PLANE_OXZ)
+	{
+		if (normal->y < 0)
+		{
+			mapped->x = point->x;
+			mapped->y = point->z;
+		}
+		else
+		{
+			mapped->x = point->z;
+			mapped->y = point->x;
+		}
+	}
+	else if (plane == DE_PLANE_OYZ)
+	{
+		if (normal->x < 0)
+		{
+			mapped->x = point->z;
+			mapped->y = point->y;
+		}
+		else
+		{
+			mapped->x = point->y;
+			mapped->y = point->z;
+		}
+	}
 }

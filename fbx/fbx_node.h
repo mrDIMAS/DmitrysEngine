@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -21,7 +21,7 @@
 
 typedef struct de_fbx_buffer_t
 {
-	char* data;	
+	char* data;
 	char* ptr;
 	char* end;
 	size_t size;
@@ -37,14 +37,14 @@ void de_fbx_buffer_init(de_fbx_buffer_t* buf, size_t size)
 
 /**
  * @brief Performs very fast continuous memory "allocations" in fixed-size buffer
- * 
- * Main purpose of this method is to reduce memory thrashing when loading FBX 
+ *
+ * Main purpose of this method is to reduce memory thrashing when loading FBX
  * properties so every property will be placed in the single memory block.
  */
 void* de_fbx_buffer_alloc(de_fbx_buffer_t* buf, size_t size)
 {
 	void* ptr;
-	
+
 	ptr = buf->ptr;
 	buf->ptr += size;
 
@@ -52,7 +52,7 @@ void* de_fbx_buffer_alloc(de_fbx_buffer_t* buf, size_t size)
 	{
 		de_error("buffer overflow");
 	}
-	
+
 	return ptr;
 }
 

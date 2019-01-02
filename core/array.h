@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -32,12 +32,7 @@
 #define DE_ARRAY_INIT(a) memset(&(a), 0, sizeof(a))
 
 /*=======================================================================================*/
-#define DE_ARRAY_GROW(a, n) \
-	do { \
-        de_array_grow_((void**)&(a).data, &(a).size, &(a)._capacity, sizeof(*(a).data), n); \
-	} while(0)
-
-#define de_array_reserve_n(a, n) (DE_ARRAY_GROW(a, n), (a).data - n)
+#define DE_ARRAY_GROW(a, n) de_array_grow_((void**)&(a).data, &(a).size, &(a)._capacity, sizeof(*(a).data), n);
 
 /*=======================================================================================*/
 /* Appends new item into array. Array capacity will be increased if needed */

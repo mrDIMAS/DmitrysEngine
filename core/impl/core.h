@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -113,7 +113,7 @@ void de_update(de_core_t* core, float dt)
 	de_poll_messages(core);
 
 	de_gui_update(core->gui);
-	
+
 	de_physics_step(core, dt);
 
 	DE_LINKED_LIST_FOR_EACH(core->scenes, scene)

@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -20,7 +20,7 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 /**
- * @brief Encodes data into base64 string. You must provide buffer of 
+ * @brief Encodes data into base64 string. You must provide buffer of
  * enough size (use de_base64_encode_data_size)
  */
 char* de_base64_encode(const void* data, size_t size, size_t* out_size);

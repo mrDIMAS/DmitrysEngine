@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -53,7 +53,7 @@ de_gui_node_t* de_gui_scroll_content_presenter_create(de_gui_t* gui)
 {
 	de_gui_node_t* n;
 	de_gui_scroll_content_presenter_t* scp;
-	
+
 	static de_gui_dispatch_table_t dispatch_table;
 	{
 		static de_bool_t init = DE_FALSE;
@@ -66,7 +66,7 @@ de_gui_node_t* de_gui_scroll_content_presenter_create(de_gui_t* gui)
 			init = DE_TRUE;
 		}
 	}
-	
+
 	n = de_gui_node_alloc(gui, DE_GUI_NODE_SCROLL_CONTENT_PRESENTER, &dispatch_table);
 
 	scp = &n->s.scroll_content_presenter;

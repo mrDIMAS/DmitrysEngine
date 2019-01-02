@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -81,8 +81,8 @@ de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type)
 		break;
 	}
 	case DE_NODE_CAMERA:
-	{		
-		de_camera_init(node, &node->s.camera);		
+	{
+		de_camera_init(node, &node->s.camera);
 		break;
 	}
 	case DE_NODE_LIGHT:
@@ -136,8 +136,8 @@ void de_node_calculate_transforms(de_node_t* node)
 
 	/**
 	 * TODO: Why there is so much matrices? Because of FBX support.
-	 * FBX uses very complex transformations and there is no way (in my opinion) 
-	 * to convert these to just three parameters: 
+	 * FBX uses very complex transformations and there is no way (in my opinion)
+	 * to convert these to just three parameters:
 	 *  - translation
 	 *  - rotation quaternion
 	 *  - scale

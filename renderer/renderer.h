@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -54,7 +54,7 @@ PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;
 PFNGLGENERATEMIPMAPPROC glGenerateMipmap;
 
 #ifdef _WIN32
-PFNGLACTIVETEXTUREPROC glActiveTexture;	
+PFNGLACTIVETEXTUREPROC glActiveTexture;
 PFNGLCLIENTACTIVETEXTUREPROC glClientActiveTexture;
 #endif
 

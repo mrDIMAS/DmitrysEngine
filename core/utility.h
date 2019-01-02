@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -20,21 +20,21 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 /**
-* @brief Loads file as a null-terminated string. 
+* @brief Loads file as a null-terminated string.
 * @param path file to load
 * @param out_size total bytes count, can be NULL
 */
 char* de_load_file_into_memory(const char * path, size_t* out_size);
 
 /**
- * @brief Converts a file 'source' as array to file 'dest' 
- * 
+ * @brief Converts a file 'source' as array to file 'dest'
+ *
  * Will create a file 'dest' with such content:
- * 
+ *
  * static const char array[] = {
  *     123, 234, 12, 0, 34, 16, ...
  * };
- * 
+ *
  * Can be used to pack any file into a source code file. Useful when
  * you need to store some resource as data in your executable file.
  */

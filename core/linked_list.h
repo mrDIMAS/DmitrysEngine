@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -106,9 +106,15 @@
 /********************************************/
 
 #define DE_LINKED_LIST_FOR_EACH(list, i)  	 \
-	for(i = list.head; i; i = i->next)
+	for(i = (list).head; i; i = i->next)
 
 /********************************************/
 
 #define DE_LINKED_LIST_FOR_EACH_REV(list, i) \
-	for(i = list.tail; i; i = i->prev)
+	for(i = (list).tail; i; i = i->prev)
+
+/********************************************/
+
+#define DE_LINKED_LIST_MAKE_CIRCULAR(list)   \
+    (list).head->prev = (list).tail;         \
+    (list).tail->next = (list).head;

@@ -68,7 +68,7 @@ de_gui_node_t* de_gui_window_create(de_gui_t* gui)
 	de_gui_node_t* n;
 	de_gui_window_t* wnd;
 	const float header_height = 30.0f;
-	
+
 	static de_gui_dispatch_table_t dispatch_table;
 	{
 		static de_bool_t init = DE_FALSE;
@@ -79,11 +79,11 @@ de_gui_node_t* de_gui_window_create(de_gui_t* gui)
 			init = DE_TRUE;
 		}
 	}
-	
+
 	n = de_gui_node_alloc(gui, DE_GUI_NODE_WINDOW, &dispatch_table);
 
 	wnd = &n->s.window;
-	
+
 	wnd->border = de_gui_border_create(gui);
 	de_gui_node_set_color_rgba(wnd->border, 120, 120, 120, 255);
 	de_gui_node_attach(wnd->border, n);

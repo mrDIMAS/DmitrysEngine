@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -89,6 +89,16 @@ typedef struct de_plane_t
 	de_vec3_t n; /**< Normal vector of the plane */
 	float d;     /**< Distance to the plane from the origin */
 } de_plane_t;
+
+/**
+ * Fixed plane class.
+ */
+typedef enum de_plane_class_t
+{
+	DE_PLANE_OXY = 1,
+	DE_PLANE_OXZ = 2,
+	DE_PLANE_OYZ = 3,
+} de_plane_class_t;
 
 /**
  * Culling frustum
@@ -1026,3 +1036,40 @@ unsigned int de_ceil_pow2(unsigned int v);
  * Note: Original source code from HPL Engine by Frictional Games, bug fixed by Dmitry Stepanov
  */
 float de_fwrap(float n, float min_limit, float max_limit);
+
+/**
+ * @brief Calculates normal of a polygon using Newell's method.
+ *
+ * Note: To get accurate results, a polygon should be flat.
+ */
+void de_get_polygon_normal(const de_vec3_t* points, size_t count, de_vec3_t* normal);
+
+/**
+ * @brief Checks if a point lies inside of a triangle.
+ */
+de_bool_t de_is_point_inside_triangle(const de_vec3_t* point, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c);
+
+de_bool_t de_is_point_inside_triangle_2D(const de_vec2_t* point, const de_vec2_t* a, const de_vec2_t* b, const de_vec2_t* c);
+
+/**
+ * @brief Returns signed area of a 2D triangle.
+ */
+double de_get_signed_triangle_area(const de_vec2_t* v1, const de_vec2_t* v2, const de_vec2_t* v3);
+
+/**
+ * @brief Checks intersection between two lines.
+ */
+de_bool_t de_line_line_intersection(const de_vec3_t* a_begin, const de_vec3_t* a_end, const de_vec3_t* b_begin, const de_vec3_t* b_end, de_vec3_t *out);
+
+/**
+ * @brief Returns closest class of plane by its normal. 
+ */
+de_plane_class_t de_plane_classify(const de_vec3_t * triangle_normal);
+
+/**
+ * @brief Maps 3d point onto 2d plane of selected class.
+ * 
+ * Main purpose of this function is to make a quick projection of 3d point onto 
+ * 2D plane.
+ */
+void de_vec3_to_vec2_by_plane(de_plane_class_t plane, const de_vec3_t* normal, const de_vec3_t * point, de_vec2_t * mapped);

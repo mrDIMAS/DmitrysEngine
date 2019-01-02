@@ -176,7 +176,7 @@ static void de_renderer_upload_surface(de_surface_t* s);
 /*=======================================================================================*/
 static void de_renderer_load_extensions()
 {
-	#define GET_GL_EXT(type, func) func = (type)de_engine_platform_get_proc_address(#func); \
+#define GET_GL_EXT(type, func) func = (type)de_engine_platform_get_proc_address(#func); \
 								   if(!func) de_error("Unable to load "#func" function pointer");
 
 	GET_GL_EXT(PFNGLCREATESHADERPROC, glCreateShader);
@@ -210,7 +210,7 @@ static void de_renderer_load_extensions()
 	GET_GL_EXT(PFNGLGENVERTEXARRAYSPROC, glGenVertexArrays);
 	GET_GL_EXT(PFNGLBINDVERTEXARRAYPROC, glBindVertexArray);
 	GET_GL_EXT(PFNGLDELETEVERTEXARRAYSPROC, glDeleteVertexArrays);
-		
+
 #ifdef _WIN32	
 	/* Windows does support ony OpenGL 1.1 and we must obtain these pointers */
 	GET_GL_EXT(PFNGLACTIVETEXTUREPROC, glActiveTexture);
@@ -231,15 +231,15 @@ static void de_renderer_load_extensions()
 	GET_GL_EXT(PFNGLCHECKFRAMEBUFFERSTATUSPROC, glCheckFramebufferStatus);
 	GET_GL_EXT(PFNGLBINDFRAMEBUFFERPROC, glBindFramebuffer);
 
-	#undef GET_GL_EXT
+#undef GET_GL_EXT
 
 	de_log("Extensions loaded!");
 }
 
 /*=======================================================================================*/
 static void de_create_gbuffer(de_renderer_t* r, int width, int height)
-{	
-	de_gbuffer_t * gbuf = &r->gbuffer;	
+{
+	de_gbuffer_t * gbuf = &r->gbuffer;
 
 	DE_GL_CALL(glGenFramebuffers(1, &gbuf->fbo));
 	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, gbuf->fbo));
@@ -375,9 +375,9 @@ static void de_create_builtin_shaders(de_renderer_t* r)
 /*=======================================================================================*/
 de_renderer_t* de_renderer_init(de_core_t* core)
 {
-	#if VERBOSE_INIT
+#if VERBOSE_INIT
 	int i, num_extensions;
-	#endif
+#endif
 	de_renderer_t* r = DE_NEW(de_renderer_t);
 	r->core = core;
 
@@ -389,13 +389,13 @@ de_renderer_t* de_renderer_init(de_core_t* core)
 	de_renderer_load_extensions();
 	de_create_builtin_shaders(r);
 
-	#if VERBOSE_INIT
+#if VERBOSE_INIT
 	glGetIntegerv(GL_NUM_EXTENSIONS, &num_extensions);
 	for (i = 0; i < num_extensions; ++i)
 	{
 		de_log((char*)glGetStringi(GL_EXTENSIONS, i));
 	}
-	#endif
+#endif
 
 	DE_GL_CALL(glEnable(GL_DEPTH_TEST));
 	DE_GL_CALL(glEnable(GL_CULL_FACE));
@@ -460,7 +460,7 @@ void de_renderer_free(de_renderer_t* r)
 static void de_render_surface_normals(de_renderer_t* r, de_surface_t* surface)
 {
 	size_t i;
-	
+
 	DE_ARRAY_CLEAR(r->test_surface->vertices);
 	DE_ARRAY_CLEAR(r->test_surface->indices);
 	r->test_surface->need_upload = DE_TRUE;
@@ -517,7 +517,7 @@ GLuint de_renderer_create_gpu_program(const char* vertexSource, const char* frag
 {
 	GLint linked;
 	GLuint vertex_shader, fragment_shader, program;
-	
+
 	vertex_shader = de_renderer_create_shader(GL_VERTEX_SHADER, vertexSource);
 	fragment_shader = de_renderer_create_shader(GL_FRAGMENT_SHADER, fragmentSource);
 	program = glCreateProgram();
@@ -544,7 +544,7 @@ GLuint de_renderer_create_gpu_program(const char* vertexSource, const char* frag
 
 /*=======================================================================================*/
 static void de_renderer_upload_surface(de_surface_t* s)
-{	
+{
 	glBindVertexArray(s->vao);
 
 	glBindBuffer(GL_ARRAY_BUFFER, s->vbo);
@@ -660,7 +660,7 @@ de_texture_t* de_renderer_request_texture(de_renderer_t* r, const char* file)
 de_texture_t* de_renderer_create_texture(de_renderer_t* r, size_t w, size_t h, size_t byte_per_pixel)
 {
 	de_texture_t* tex;
-	
+
 	tex = DE_NEW(de_texture_t);
 	tex->renderer = r;
 	tex->width = w;
@@ -733,7 +733,7 @@ static void de_render_fullscreen_quad(de_renderer_t* r)
 static void de_render_mesh(de_renderer_t* r, de_mesh_t* mesh)
 {
 	size_t i;
-	
+
 	for (i = 0; i < mesh->surfaces.size; ++i)
 	{
 		de_surface_t* surf = mesh->surfaces.data[i];
@@ -792,7 +792,7 @@ static void de_upload_textures(de_renderer_t* r)
 
 void de_renderer_render(de_renderer_t* r)
 {
-	de_core_t* core = r->core;	
+	de_core_t* core = r->core;
 	static int last_time_ms;
 	int current_time_ms;
 	int time_limit_ms;

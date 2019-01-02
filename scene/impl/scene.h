@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -126,7 +126,7 @@ void de_scene_add_node(de_scene_t* s, de_node_t* node)
 void de_scene_remove_node(de_scene_t* s, de_node_t* node)
 {
 	de_animation_t* anim;
-		
+
 	if (node == s->active_camera)
 	{
 		s->active_camera = NULL;
@@ -159,7 +159,7 @@ de_animation_t* de_animation_create(de_scene_t* s)
 	de_animation_t* animation;
 
 	animation = DE_NEW(de_animation_t);
-	
+
 	animation->scene = s;
 	animation->weight = 1.0f;
 	animation->speed = 1.0f;
@@ -191,11 +191,11 @@ void de_scene_update(de_scene_t* s, float dt)
 {
 	de_animation_t* anim;
 	de_node_t* node;
-	
+
 #if 1
 	/**
-	 * Animations prepass - reset local transform of associated track nodes 
-	 * for blending 
+	 * Animations prepass - reset local transform of associated track nodes
+	 * for blending
 	 **/
 	DE_LINKED_LIST_FOR_EACH(s->animations, anim)
 	{
@@ -224,7 +224,7 @@ void de_scene_update(de_scene_t* s, float dt)
 
 #endif
 
-	/** 
+	/**
 	 * Calculate transforms of nodes
 	 */
 	DE_LINKED_LIST_FOR_EACH(s->nodes, node)

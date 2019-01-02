@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -499,7 +499,7 @@ static void de_convert_curves_to_line_set(de_ttf_glyph_t * glyph)
 	int i;
 	size_t j;
 	size_t k;
-	glyph->contours = (de_polygon_t *) de_calloc(glyph->num_contours, sizeof(*glyph->contours));
+	glyph->contours = (de_polygon_t *)de_calloc(glyph->num_contours, sizeof(*glyph->contours));
 
 	for (i = 0; i < glyph->num_contours; ++i)
 	{
@@ -764,7 +764,7 @@ de_font_t* de_font_load_ttf_from_memory(de_core_t* core, void* data, float heigh
 	font->line_gap = back_scaler * de_ptr_to_i16(ttf.hhea_table + 8);
 
 	font->glyph_count = ttf.num_glyphs;
-	font->glyphs = (de_glyph_t*) de_calloc(ttf.num_glyphs, sizeof(de_glyph_t));
+	font->glyphs = (de_glyph_t*)de_calloc(ttf.num_glyphs, sizeof(de_glyph_t));
 
 	for (i = 0; i < font->glyph_count; ++i)
 	{

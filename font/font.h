@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -68,7 +68,7 @@ de_font_t* de_font_load_ttf_from_memory(de_core_t* core, void* data, float heigh
 void de_font_free(de_font_t* font);
 
 /**
- * @brief Tries to find a glyph by its unicode value. 
+ * @brief Tries to find a glyph by its unicode value.
  * Returns NULL if glyph not found
  */
 de_glyph_t* de_font_get_glyph(const de_font_t* font, uint32_t code);

@@ -18,7 +18,7 @@ static void de_gui_canvas_deinit(de_gui_node_t* n)
 de_gui_node_t* de_gui_canvas_create(de_gui_t* gui)
 {
 	de_gui_node_t* n;
-		
+
 	static de_gui_dispatch_table_t dispatch_table;
 	{
 		static de_bool_t init = DE_FALSE;

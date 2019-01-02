@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2018 Dmitry Stepanov a.k.a mr.DIMAS
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the
@@ -21,8 +21,6 @@
 
 /**
  * ASCII + Binary FBX Loader
- *
- * Supported versions: 7200, 7100, 7000 (higher versions are not tested yet)
  **/
 
 #define DE_FBX_VERBOSE 0
@@ -40,11 +38,6 @@ typedef struct de_fbx_key_frame
 	de_vec3_t scale;
 	de_vec3_t rotation; /* euler angles */
 } de_fbx_key_frame_t;
-
-typedef struct de_fbx_face_t
-{
-	int v[4];
-} de_fbx_face_t;
 
 typedef struct de_fbx_time_value_pair_t
 {
@@ -101,9 +94,8 @@ typedef struct de_fbx_geom_t
 	de_vec3_t* vertices;
 	int vertex_count;
 
-	de_fbx_face_t* faces;
-	int face_count;
-	int vertex_per_face;
+	int* indices;
+	int index_count;
 
 	de_vec3_t* normals;
 	int normal_count;
@@ -212,7 +204,7 @@ typedef struct de_fbx_t
 static int de_fbx_fix_index(int index)
 {
 	/* We have to convert last vertex index of face it’s because the original index is XOR’ed with -1 */
-	return -index - 1;
+	return index < 0 ? -index - 1 : index;
 }
 
 /*=======================================================================================*/
@@ -264,47 +256,17 @@ static void de_fbx_read_normals(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 /*=======================================================================================*/
 static void de_fbx_read_faces(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 {
-	size_t j, k;
 	int i;
-	de_fbx_node_t* face_array;
+	de_fbx_node_t* index_array;
 
-	face_array = de_fbx_node_find_child(de_fbx_node_find_child(geom_node, "PolygonVertexIndex"), "a");
+	index_array = de_fbx_node_find_child(de_fbx_node_find_child(geom_node, "PolygonVertexIndex"), "a");
 
-	/* find out how many vertices per face */
-	for (j = 0; j < face_array->attributes.size; ++j)
+	geom->index_count = index_array->attributes.size;
+	geom->indices = (int*)de_calloc(geom->index_count, sizeof(*geom->indices));
+
+	for (i = 0; i < geom->index_count; ++i)
 	{
-		int value = de_fbx_get_int(face_array, j);
-		if (value < 0)
-		{
-			geom->vertex_per_face = j + 1;
-			break;
-		}
-	}
-
-	if (geom->vertex_per_face != 3)
-	{
-		de_error("FBX: You must triangulate your mesh!");
-	}
-
-	geom->face_count = face_array->attributes.size / geom->vertex_per_face;
-	geom->faces = (de_fbx_face_t*)de_calloc(geom->face_count, sizeof(*geom->faces));
-
-	for (i = 0, k = 0; i < geom->face_count; ++i, k += geom->vertex_per_face)
-	{
-		de_fbx_face_t* face = geom->faces + i;
-		if (geom->vertex_per_face == 4)
-		{
-			face->v[0] = de_fbx_get_int(face_array, k);
-			face->v[1] = de_fbx_get_int(face_array, k + 1);
-			face->v[2] = de_fbx_get_int(face_array, k + 2);
-			face->v[3] = de_fbx_fix_index(de_fbx_get_int(face_array, k + 3));
-		}
-		else
-		{
-			face->v[0] = de_fbx_get_int(face_array, k);
-			face->v[1] = de_fbx_get_int(face_array, k + 1);
-			face->v[2] = de_fbx_fix_index(de_fbx_get_int(face_array, k + 2));
-		}
+		geom->indices[i] = de_fbx_get_int(index_array, i);
 	}
 }
 
@@ -390,6 +352,7 @@ static void de_fbx_read_geom_materials(de_fbx_node_t* geom_node, de_fbx_geom_t* 
 	}
 }
 
+/*=======================================================================================*/
 static de_fbx_component_t* de_fbx_alloc_component(de_fbx_component_type_t type, int index)
 {
 	de_fbx_component_t* comp = DE_NEW(de_fbx_component_t);
@@ -419,7 +382,7 @@ static void de_fbx_geom_free(de_fbx_geom_t* geom)
 	de_free(geom->vertices);
 	de_free(geom->binormals);
 	de_free(geom->normals);
-	de_free(geom->faces);
+	de_free(geom->indices);
 	de_free(geom->tangents);
 	de_free(geom->uvs);
 	de_free(geom->uv_index);
@@ -541,6 +504,7 @@ static int de_fbx_component_index_comparer(const void* a, const void* b)
 	return 1;
 }
 
+/*=======================================================================================*/
 static void de_fbx_sort_components_by_index(de_fbx_t* fbx)
 {
 	DE_ARRAY_QSORT(fbx->components, de_fbx_component_index_comparer);
@@ -1073,7 +1037,7 @@ static void de_fbx_quat_from_euler(de_quat_t* out, const de_vec3_t * euler_angle
 
 /*=======================================================================================*/
 /**
- * @brief Searches for next closest time to given. When 'current_time' is end time - returns FLT_MAX 
+ * @brief Searches for next closest time to given. When 'current_time' is end time - returns FLT_MAX
  */
 static float de_fbx_get_next_keyframe_time(float current_time,
 	de_fbx_animation_curve_node_t* t,
@@ -1084,7 +1048,7 @@ static float de_fbx_get_next_keyframe_time(float current_time,
 	size_t k, n;
 	float closest_time = FLT_MAX;
 	de_fbx_animation_curve_node_t* curve_set[3];
-	
+
 	curve_set[0] = t;
 	curve_set[1] = r;
 	curve_set[2] = s;
@@ -1132,7 +1096,7 @@ static float de_fbx_eval_curve(float time, de_fbx_animation_curve_t* curve)
 	size_t i;
 	size_t key_count = curve->keys.size;
 	de_fbx_time_value_pair_t* keys;
-	
+
 	if (curve->keys.size == 0)
 	{
 		de_log("FBX: Trying to evaluate curve with no keys!");
@@ -1171,7 +1135,7 @@ static float de_fbx_eval_curve(float time, de_fbx_animation_curve_t* curve)
 			return cur->value + k * val_span;
 		}
 	}
-	
+
 	/* must be unreached */
 	de_log("FBX: How the hell did you get here?!");
 
@@ -1189,6 +1153,7 @@ static void de_fbx_eval_float3_curve_node(float time, de_fbx_animation_curve_nod
 	if (node->curves.size != 3)
 	{
 		de_log("FBX: Attempt to evaluate non-float3 curve node!");
+		return;
 	}
 
 	/* TODO: Here we making assumption that curves for X Y Z will be in that order. This may be wrong!
@@ -1209,7 +1174,7 @@ static void de_fbx_eval_float3_curve_node(float time, de_fbx_animation_curve_nod
 static void de_fbx_eval_keyframe(float time,
 	de_fbx_animation_curve_node_t* t_node,
 	de_fbx_animation_curve_node_t* r_node,
-	de_fbx_animation_curve_node_t* s_node, 
+	de_fbx_animation_curve_node_t* s_node,
 	de_keyframe_t* out_key)
 {
 	de_vec3_t euler_angles;
@@ -1232,7 +1197,7 @@ static void de_fbx_eval_keyframe(float time,
 		de_vec3_set(&euler_angles, 0, 0, 0);
 	}
 	de_fbx_quat_from_euler(&out_key->rotation, &euler_angles);
-	
+
 	if (s_node)
 	{
 		de_fbx_eval_float3_curve_node(time, s_node, &out_key->scale);
@@ -1252,25 +1217,94 @@ static void de_fbx_eval_keyframe(float time,
 	out_key->time = time;
 }
 
-/*=======================================================================================*/
 /**
- * Check for invalid faces first and discard such faces.
- * Invalid faces can be produced by FBX triangulator when it
- * cannot triangulate a polygon correctly.
+ * @brief Reads N indices from 'start' position until negative index is not found.
+ * If index count == 3, writes out triangle indices, otherwise performs triangulation
+ * of a polygon.
+ * @param out_index_count If returned number is negative, then you must skip the face - it is probably corrupted or badly formed.
+ * @return Returns number of indices that have been processed.
+ *
+ * IMPORTANT NOTE: This routine will modify indices array so it will not be contain negative
+ * indices! In 99.99% cases this is fine.
  */
-static de_bool_t de_fbx_is_invalid_face(de_fbx_face_t* face, de_fbx_geom_t* geom)
+int de_fbx_prepare_faces(de_fbx_geom_t* geom, int start, int* out_indices, int* out_index_count, int* out_relative_indices)
 {
-	size_t i;
+	int i;
+	int vertex_per_face = 0;
 
-	for (i = 0; i < geom->vertex_per_face; ++i)
+	/* count how many vertices are per face */
+	for (i = start; i < geom->index_count; ++i)
 	{
-		if ((size_t)face->v[i] >= (size_t)geom->vertex_count)
+		++vertex_per_face;
+
+		if (geom->indices[i] < 0)
 		{
-			return DE_TRUE;			
+			geom->indices[i] = de_fbx_fix_index(geom->indices[i]);
+
+			break;
 		}
 	}
 
-	return DE_FALSE;
+	if (vertex_per_face == 3)
+	{
+		/* we have a triangle */
+		out_indices[0] = geom->indices[start];
+		out_indices[1] = geom->indices[start + 1];
+		out_indices[2] = geom->indices[start + 2];
+
+		out_relative_indices[0] = 0;
+		out_relative_indices[1] = 1;
+		out_relative_indices[2] = 2;
+
+		*out_index_count = 3;
+
+		/* check for valid indices here: some triangulators can produce garbage indices.
+		 * I encountered this problem in 3ds max 2012 FBX exporter, it just ignores 
+		 * triangulation checkbox and performs triangulation which fails on non-simple polygons.
+		 **/
+		for (i = 0; i < 3; ++i)
+		{
+			if (out_indices[i] > geom->vertex_count)
+			{
+				/* indicate that processed face is invalid */
+				*out_index_count = -1;
+				break;
+			}
+		}
+	}
+	else if (vertex_per_face > 3)
+	{
+		/* triangulate a polygon. not optimal - performs a lot of malloc's
+		 * TODO: optimize this mess! */
+		de_vec3_t* vertices = (de_vec3_t*)de_malloc(vertex_per_face * sizeof(de_vec3_t));
+		/* fill vertices */
+		for (i = 0; i < vertex_per_face; ++i)
+		{
+			vertices[i] = geom->vertices[geom->indices[start + i]];
+		}
+		int* indices = de_triangulate(vertices, vertex_per_face, out_index_count);
+		if (indices == NULL || (*out_index_count % 3) != 0)
+		{
+			de_log("FBX: unable to triangulate a polygon. not a simple polygon?");
+		}
+		if (indices)
+		{
+			/* remap indices back to model */
+			for (i = 0; i < *out_index_count; ++i)
+			{
+				out_indices[i] = geom->indices[start + indices[i]];
+			}
+		}		
+		memcpy(out_relative_indices, indices, *out_index_count * sizeof(int));		
+		de_free(vertices);
+		de_free(indices);
+	}
+	else
+	{
+		de_log("FBX: vertex per face less than 3???");
+	}
+
+	return vertex_per_face;
 }
 
 /*=======================================================================================*/
@@ -1283,12 +1317,11 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 {
 	size_t i, k;
 	int n, m;
-	int normal_index;
 	int material_index;
-	int uv_index;
 	de_node_t* root;
 	de_animation_t* anim;
 	de_renderer_t* renderer;
+	int temp_indices[8192];
 
 	renderer = scene->core->renderer;
 
@@ -1346,9 +1379,9 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 
 		de_node_calculate_transforms(node);
 
-		/* Build geometric transform matrix to bake it into vertex buffer 
+		/* Build geometric transform matrix to bake it into vertex buffer
 		 * TODO: not sure if this is right, but according to FBX manual
-		 * geometric transform is not inherited and applied directly to 
+		 * geometric transform is not inherited and applied directly to
 		 * global transform after was calculated.
 		 **/
 		{
@@ -1380,7 +1413,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 		{
 			de_fbx_geom_t* geom;
 			de_mesh_t* mesh;
-			
+
 			geom = mdl->geoms.data[k];
 			mesh = &node->s.mesh;
 
@@ -1404,23 +1437,27 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 					de_mesh_add_surface(mesh, surf);
 				}
 			}
-			
-			normal_index = 0;
-			uv_index = 0;
-			material_index = 0;
-			for (n = 0; n < geom->face_count; ++n)
-			{
-				de_fbx_face_t* face = geom->faces + n;
 
-				if (de_fbx_is_invalid_face(face, geom))
+			material_index = 0;
+			for (n = 0; n < geom->index_count; )
+			{
+				int index_per_face;
+				int relative_indices[512]; /* should be enough to hold even large polygons */
+				int origin = n;
+				int processed_indices = de_fbx_prepare_faces(geom, n, temp_indices, &index_per_face, relative_indices);
+
+				n += processed_indices;
+
+				/* face is invalid, skip it and move to next one */
+				if (index_per_face < 0)
 				{
 					continue;
 				}
 
-				for (m = 0; m < geom->vertex_per_face; ++m)
+				for (m = 0; m < index_per_face; ++m)
 				{
 					de_vertex_t v = { 0 };
-					int index = face->v[m];
+					int index = temp_indices[m];
 					int surface_index = 0;
 
 					v.position = geom->vertices[index];
@@ -1430,7 +1467,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 					switch (geom->normal_mapping)
 					{
 					case DE_FBX_MAPPING_BY_POLYGON_VERTEX:
-						v.normal = geom->normals[normal_index++];
+						v.normal = geom->normals[origin + relative_indices[m]];
 						break;
 					case DE_FBX_MAPPING_BY_VERTEX:
 						v.normal = geom->normals[index];
@@ -1445,11 +1482,11 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 					case DE_FBX_MAPPING_BY_POLYGON_VERTEX:
 						if (geom->uv_reference == DE_FBX_REFERENCE_DIRECT)
 						{
-							v.tex_coord = geom->uvs[uv_index++];
+							v.tex_coord = geom->uvs[origin + relative_indices[m]];
 						}
 						else if (geom->uv_reference == DE_FBX_REFERENCE_INDEX_TO_DIRECT)
 						{
-							v.tex_coord = geom->uvs[geom->uv_index[uv_index++]];
+							v.tex_coord = geom->uvs[geom->uv_index[origin + relative_indices[m]]];
 						}
 						break;
 					case DE_FBX_MAPPING_UNKNOWN:
@@ -1498,18 +1535,18 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 			de_fbx_animation_curve_node_t* lcl_translation = NULL;
 			de_fbx_animation_curve_node_t* lcl_rotation = NULL;
 			de_fbx_animation_curve_node_t* lcl_scale = NULL;
-			
+
 			/* find supported curve nodes (translation, rotation, scale) */
 			for (k = 0; k < mdl->animation_curve_nodes.size; ++k)
 			{
 				de_fbx_animation_curve_node_t* curve_node = mdl->animation_curve_nodes.data[k];
-								
+
 				if (curve_node->type == DE_FBX_ANIMATION_CURVE_NODE_ROTATION)
 				{
 					if (!lcl_rotation)
 					{
 						lcl_rotation = curve_node;
-					} 
+					}
 					else
 					{
 						de_log("FBX: another local rotation curve node?");
@@ -1539,7 +1576,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 				}
 			}
 
-			/* convert to engine format */			
+			/* convert to engine format */
 			track = de_animation_track_create(anim);
 			de_animation_add_track(anim, track);
 
@@ -1550,7 +1587,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 		#endif
 
 			/* TODO: Very brittle method, relies on compare two floats! Should be rewritten! */
-			for(;;)
+			for (;;)
 			{
 				de_keyframe_t keyframe;
 
@@ -1639,7 +1676,7 @@ de_bool_t de_fbx_is_binary(const char* filename)
 
 	fread(magic, sizeof(char), 18, file);
 
-	result = strcmp(magic, "Kaydara FBX Binary") == 0;
+	result = strncmp(magic, "Kaydara FBX Binary", 18) == 0;
 
 	fclose(file);
 

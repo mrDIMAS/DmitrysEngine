@@ -19,11 +19,24 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/*=======================================================================================*/
-void de_color_set(de_color_t* color, unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+typedef struct de_triangulator_vertex_t
 {
-	color->r = r;
-	color->g = g;
-	color->b = b;
-	color->a = a;
-}
+	de_vec2_t position;
+	size_t index;
+	DE_LINKED_LIST_ITEM(struct de_triangulator_vertex_t);
+} de_triangulator_vertex_t;
+
+typedef DE_LINKED_LIST_DECLARE(de_triangulator_vertex_t, de_triangulator_polygon_t);
+
+/**
+ * @brief Performs ear-clipping triangulation of a simple polygon.
+ * @return Returns set of indices that forms triangles.
+ * 
+ * TODO: add special case for quadrilaterals!
+ */
+int* de_triangulate(de_vec3_t* polygon, size_t vertex_count, int* out_count);
+
+/**
+ * @brief Tests for triangulator.
+ */
+void de_triangulator_tests(void);

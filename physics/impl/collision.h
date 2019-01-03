@@ -367,6 +367,11 @@ void de_body_set_radius(de_body_t * body, float radius)
 	body->radius = radius;
 }
 
+float de_body_get_radius(de_body_t* body)
+{
+	return body->radius;
+}
+
 /*=======================================================================================*/
 void de_body_move(de_body_t * body, const de_vec3_t* velocity)
 {

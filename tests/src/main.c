@@ -31,38 +31,47 @@ struct player_t
 	de_node_t* pivot;
 	de_node_t* camera;
 	de_node_t* flash_light;
+	de_body_t* body;
 	float pitch;
 	float yaw;
+	float move_speed;
+	float stand_body_radius;
+	float crouch_body_radius;
+	float stand_up_speed;
+	float sit_down_speed;
+	float run_speed_multiplier;
+	float camera_wobble;
+	de_vec3_t camera_offset;
+	de_vec3_t camera_dest_offset;
+	de_vec3_t camera_position;
 };
 
 /*=======================================================================================*/
 player_t* player_create(level_t* level)
-{
-	de_vec3_t pos;
-	de_body_t* body;
+{	
 	player_t* p;
 
 	p = DE_NEW(player_t);
 
 	p->parent_level = level;
+	p->move_speed = 0.028f;
+	p->stand_body_radius = 0.5f;
+	p->crouch_body_radius = 0.35f;
+	p->sit_down_speed = 0.045f;
+	p->stand_up_speed = 0.06f;
+	p->run_speed_multiplier = 1.75f;
+	de_vec3_set(&p->camera_position, 0, p->stand_body_radius, 0);
 
-	body = de_scene_create_body(level->scene);
-	de_body_set_radius(body, 0.25);
-#if 0
-	{
-		de_vec3_t gravity = { 0, 0, 0 };
-		de_body_set_gravity(body, &gravity);
-	}
-#endif
+	p->body = de_scene_create_body(level->scene);
+	de_body_set_radius(p->body, p->stand_body_radius);
 
 	p->pivot = de_node_create(level->scene, DE_NODE_BASE);
 	de_scene_add_node(level->scene, p->pivot);
-	de_node_set_body(p->pivot, body);
-	de_node_set_local_position(p->pivot, de_vec3_set(&pos, 0, 1, 0));
+	de_node_set_body(p->pivot, p->body);
 
 	p->camera = de_node_create(level->scene, DE_NODE_CAMERA);
 	de_scene_add_node(level->scene, p->camera);
-	de_node_set_local_position(p->camera, de_vec3_set(&pos, 0, 0.88f, 0));
+	de_node_set_local_position(p->camera, &p->camera_position);
 	de_node_attach(p->camera, p->pivot);
 
 	p->flash_light = de_node_create(level->scene, DE_NODE_LIGHT);
@@ -91,13 +100,11 @@ void player_update(player_t* p)
 	de_vec3_t look, side, offset;
 	de_quat_t pitch_rot, yaw_rot;
 	de_vec2_t mouse_vel;
-	float move_speed = 0.1f;
-	de_body_t* body;
+	float speed_multiplier = 1.0f;
+	de_bool_t is_moving = DE_FALSE;
 
 	pivot = p->pivot;
 	camera = p->camera;
-
-	body = pivot->body;
 
 	de_get_mouse_velocity(core, &mouse_vel);
 
@@ -105,42 +112,103 @@ void player_update(player_t* p)
 	de_node_get_look_vector(pivot, &look);
 	de_node_get_side_vector(pivot, &side);
 
+	/* movement */
 	if (de_is_key_pressed(core, DE_KEY_W))
-	{
-		/*de_vec3_add(&offset, &offset, &look);*/
+	{		
 		de_vec3_sub(&offset, &offset, &look);
+		
+		is_moving = DE_TRUE;
 	}
 	if (de_is_key_pressed(core, DE_KEY_S))
-	{
-		/*de_vec3_sub(&offset, &offset, &look);*/
+	{		
 		de_vec3_add(&offset, &offset, &look);
+
+		is_moving = DE_TRUE;
 	}
 	if (de_is_key_pressed(core, DE_KEY_A))
 	{
 		de_vec3_sub(&offset, &offset, &side);
+
+		is_moving = DE_TRUE;
 	}
 	if (de_is_key_pressed(core, DE_KEY_D))
 	{
 		de_vec3_add(&offset, &offset, &side);
+
+		is_moving = DE_TRUE;
 	}
+
+	/* jump */
 	if (de_is_key_pressed(core, DE_KEY_Space))
 	{
-		for (k = 0; k < body->contact_count; ++k)
+		for (k = 0; k < p->body->contact_count; ++k)
 		{
-			if (body->contacts[k].normal.y > 0.7f)
+			if (p->body->contacts[k].normal.y > 0.7f)
 			{
-				de_body_set_y_velocity(body, 0.075f);
+				de_body_set_y_velocity(p->body, 0.075f);
 				break;
 			}
 		}
 	}
+
+	/* crouch */
 	if (de_is_key_pressed(core, DE_KEY_C))
 	{
-		de_vec3_sub(&offset, &offset, &up_axis);
+		float radius = de_body_get_radius(p->body);
+		radius -= p->sit_down_speed;
+		if (radius < p->crouch_body_radius)
+		{
+			radius = p->crouch_body_radius;
+		}
+		de_body_set_radius(p->body, radius);
+	}
+	else
+	{
+		float radius = de_body_get_radius(p->body);
+		radius += p->stand_up_speed;
+		if (radius > p->stand_body_radius)
+		{
+			radius = p->stand_body_radius;
+		}
+		de_body_set_radius(p->body, radius);
+	}
+
+	/* make sure that camera will be always at the top of the body */
+	p->camera_position.y = p->body->radius;
+
+	/* apply camera wobbling */
+	if (is_moving)
+	{
+		p->camera_dest_offset.x = 0.05f * cos(p->camera_wobble * 0.5f);
+		p->camera_dest_offset.y = 0.1f * sin(p->camera_wobble);
+		
+		p->camera_wobble += 0.25f;
+	}
+	else
+	{
+		p->camera_dest_offset.x = 0;
+		p->camera_dest_offset.y = 0;
+	}
+	
+	/* camera offset will follow destination offset -> smooth movements */
+	p->camera_offset.x += (p->camera_dest_offset.x - p->camera_offset.x) * 0.1f;
+	p->camera_offset.y += (p->camera_dest_offset.y - p->camera_offset.y) * 0.1f;
+	p->camera_offset.z += (p->camera_dest_offset.z - p->camera_offset.z) * 0.1f;
+	
+	{
+		de_vec3_t combined_position;
+		de_vec3_add(&combined_position, &p->camera_position, &p->camera_offset);
+		de_node_set_local_position(p->camera, &combined_position);
+	}
+
+	/* run */
+	if (de_is_key_pressed(core, DE_KEY_LSHIFT))
+	{
+		speed_multiplier = p->run_speed_multiplier;
 	}
 
 	de_vec3_normalize(&offset, &offset);
-	de_vec3_scale(&offset, &offset, move_speed);
+	de_vec3_scale(&offset, &offset, speed_multiplier * p->move_speed);
 
 	p->yaw -= mouse_vel.x;
 	p->pitch -= mouse_vel.y;
@@ -154,10 +222,10 @@ void player_update(player_t* p)
 		p->pitch = -90.0;
 	}
 
-	de_body_set_x_velocity(body, 0);
-	de_body_set_z_velocity(body, 0);
+	de_body_set_x_velocity(p->body, 0);
+	de_body_set_z_velocity(p->body, 0);
 
-	de_body_move(body, &offset);
+	de_body_move(p->body, &offset);
 
 	de_node_set_local_rotation(pivot, de_quat_from_axis_angle(&yaw_rot, &up_axis, de_deg_to_rad(p->yaw)));
 	de_node_set_local_rotation(camera, de_quat_from_axis_angle(&pitch_rot, &right_axis, de_deg_to_rad(p->pitch)));
@@ -395,7 +463,6 @@ void game_close(game_t* game)
 	de_free(game);
 }
 
-
 /*=======================================================================================*/
 int main(int argc, char** argv)
 {
@@ -403,8 +470,6 @@ int main(int argc, char** argv)
 
 	DE_UNUSED(argc);
 	DE_UNUSED(argv);
-
-	//de_triangulator_tests();
 
 	game = game_create();
 

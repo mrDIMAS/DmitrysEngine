@@ -147,11 +147,7 @@ void de_fbx_node_free(de_fbx_node_t* node)
 	/* Free name string. */
 	de_free(node->name);
 
-	/* Free value strings. */
-	for (i = 0; i < node->attributes.size; ++i)
-	{
-		//de_free(node->attributes.data[i]);
-	}
+	/* Free attributes. */
 	DE_ARRAY_FREE(node->attributes);
 
 	/* Free children recursively. */

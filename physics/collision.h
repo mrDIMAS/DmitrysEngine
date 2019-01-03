@@ -36,7 +36,7 @@ typedef struct de_contact_s
 
 /**
 * @class de_body_s
-* @brief Body type for position-based physics
+* @brief Body type for position-based physics.
 *
 * Each body is a sphere (particle). But can represent capsule too.
 */
@@ -94,44 +94,37 @@ struct de_static_geometry_t
 };
 
 /**
-* @brief
+* @brief Changes actual position of a body by velocity vector. After this routine,
+* body will be moving with passed velocity.
 * @param body
 * @param velocity
 */
 void de_body_move(de_body_t* body, const de_vec3_t* velocity);
 
 /**
-* @brief
+* @brief Sets actual velocity of a body.
 * @param body
 * @param velocity
 */
 void de_body_set_velocity(de_body_t* body, const de_vec3_t* velocity);
 
 /**
-* @brief
-* @param body
-* @param x_velocity
+* @brief Sets X parts of velocity independently
 */
 void de_body_set_x_velocity(de_body_t* body, float x_velocity);
 
 /**
-* @brief
-* @param body
-* @param y_velocity
+* @brief Sets Y parts of velocity independently
 */
 void de_body_set_y_velocity(de_body_t* body, float y_velocity);
 
 /**
-* @brief
-* @param body
-* @param z_velocity
+* @brief Sets Z parts of velocity independently
 */
 void de_body_set_z_velocity(de_body_t* body, float z_velocity);
 
 /**
-* @brief
-* @param body
-* @param velocity
+* @brief Write out current velocity of the body.
 */
 void de_body_get_velocity(de_body_t* body, de_vec3_t* velocity);
 
@@ -156,10 +149,22 @@ void de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t
 */
 void de_physics_step(de_core_t* core, float dt);
 
-
+/**
+ * @brief Sets gravity vector for a body.
+ */
 void de_body_set_gravity(de_body_t* body, const de_vec3_t* gravity);
 
-
+/**
+ * @brief Sets actual position of a body, velocity will be set to zero.
+ */
 void de_body_set_position(de_body_t* body, const de_vec3_t* pos);
 
+/**
+ * @brief Sets actual body radius.
+ */
 void de_body_set_radius(de_body_t* body, float radius);
+
+/**
+ * @brief Returns actual body radius.
+ */
+float de_body_get_radius(de_body_t* body);

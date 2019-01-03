@@ -1227,7 +1227,12 @@ static void de_fbx_eval_keyframe(float time,
  * IMPORTANT NOTE: This routine will modify indices array so it will not be contain negative
  * indices! In 99.99% cases this is fine.
  */
-int de_fbx_prepare_faces(de_fbx_geom_t* geom, int start, int* out_indices, int* out_index_count, int* out_relative_indices)
+static int de_fbx_prepare_next_face(de_fbx_geom_t* geom,
+	int start,
+	int* out_indices,
+	int* out_index_count,
+	int* out_relative_indices,
+	int out_rel_indices_buffer_size)
 {
 	int i;
 	int vertex_per_face = 0;
@@ -1259,7 +1264,7 @@ int de_fbx_prepare_faces(de_fbx_geom_t* geom, int start, int* out_indices, int* 
 		*out_index_count = 3;
 
 		/* check for valid indices here: some triangulators can produce garbage indices.
-		 * I encountered this problem in 3ds max 2012 FBX exporter, it just ignores 
+		 * I encountered this problem in 3ds max 2012 FBX exporter, it just ignores
 		 * triangulation checkbox and performs triangulation which fails on non-simple polygons.
 		 **/
 		for (i = 0; i < 3; ++i)
@@ -1274,30 +1279,29 @@ int de_fbx_prepare_faces(de_fbx_geom_t* geom, int start, int* out_indices, int* 
 	}
 	else if (vertex_per_face > 3)
 	{
-		/* triangulate a polygon. not optimal - performs a lot of malloc's
-		 * TODO: optimize this mess! */
-		de_vec3_t* vertices = (de_vec3_t*)de_malloc(vertex_per_face * sizeof(de_vec3_t));
+		/* triangulate a polygon */
+
 		/* fill vertices */
+		de_vec3_t* vertices = (de_vec3_t*)de_malloc(vertex_per_face * sizeof(de_vec3_t));
 		for (i = 0; i < vertex_per_face; ++i)
 		{
 			vertices[i] = geom->vertices[geom->indices[start + i]];
 		}
-		int* indices = de_triangulate(vertices, vertex_per_face, out_index_count);
-		if (indices == NULL || (*out_index_count % 3) != 0)
+
+		*out_index_count = de_triangulate(vertices, vertex_per_face, out_relative_indices, out_rel_indices_buffer_size);
+
+		if (*out_index_count < 0)
 		{
 			de_log("FBX: unable to triangulate a polygon. not a simple polygon?");
 		}
-		if (indices)
+
+		/* remap indices back to model */
+		for (i = 0; i < *out_index_count; ++i)
 		{
-			/* remap indices back to model */
-			for (i = 0; i < *out_index_count; ++i)
-			{
-				out_indices[i] = geom->indices[start + indices[i]];
-			}
-		}		
-		memcpy(out_relative_indices, indices, *out_index_count * sizeof(int));		
+			out_indices[i] = geom->indices[start + out_relative_indices[i]];
+		}
+
 		de_free(vertices);
-		de_free(indices);
 	}
 	else
 	{
@@ -1321,7 +1325,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 	de_node_t* root;
 	de_animation_t* anim;
 	de_renderer_t* renderer;
-	int temp_indices[8192];
+	int temp_indices[8192], relative_indices[8192];
 
 	renderer = scene->core->renderer;
 
@@ -1442,11 +1446,9 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 			for (n = 0; n < geom->index_count; )
 			{
 				int index_per_face;
-				int relative_indices[512]; /* should be enough to hold even large polygons */
 				int origin = n;
-				int processed_indices = de_fbx_prepare_faces(geom, n, temp_indices, &index_per_face, relative_indices);
 
-				n += processed_indices;
+				n += de_fbx_prepare_next_face(geom, n, temp_indices, &index_per_face, relative_indices, sizeof(relative_indices) / sizeof(relative_indices[0]));;
 
 				/* face is invalid, skip it and move to next one */
 				if (index_per_face < 0)

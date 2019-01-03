@@ -30,11 +30,17 @@ typedef DE_LINKED_LIST_DECLARE(de_triangulator_vertex_t, de_triangulator_polygon
 
 /**
  * @brief Performs ear-clipping triangulation of a simple polygon.
- * @return Returns set of indices that forms triangles.
+ * @return Returns count of indices that forms triangles.
  * 
  * TODO: add special case for quadrilaterals!
  */
-int* de_triangulate(de_vec3_t* polygon, size_t vertex_count, int* out_count);
+int de_triangulate(de_vec3_t* polygon, size_t vertex_count, int* out_indices, int buffer_size);
+
+/**
+ * @brief Returns approximate count of indices that is enough to store result
+ * of triangulation. Count of triangles will be index_count / 3.
+ */
+int de_triangulate_get_approx_index_count(size_t vertex_count);
 
 /**
  * @brief Tests for triangulator.

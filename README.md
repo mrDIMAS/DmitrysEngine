@@ -24,3 +24,6 @@ Please note, that this engine is at very early development stage and some featur
 - Stability
 - Sound 
 - Support more 3D formats (3ds for example)
+
+## Dependencies (header only)
+- miniz_tinfl - to decompress FBX compressed data.

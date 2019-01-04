@@ -105,8 +105,22 @@ void de_node_attach(de_node_t* node, de_node_t* parent)
 		return;
 	}
 
+	de_node_detach(node);
+
 	DE_ARRAY_APPEND(parent->children, node);
 	node->parent = parent;
+}
+
+/*=======================================================================================*/
+void de_node_detach(de_node_t* node)
+{
+	if (!node || !node->parent)
+	{
+		return;
+	}
+
+	DE_ARRAY_REMOVE(node->parent->children, node);
+	node->parent = NULL;
 }
 
 /*=======================================================================================*/
@@ -246,6 +260,16 @@ void de_node_set_local_position(de_node_t* node, de_vec3_t* pos)
 	{
 		node->position = *pos;
 	}
+}
+
+/*=======================================================================================*/
+void de_node_set_local_position_xyz(de_node_t* node, float x, float y, float z)
+{
+	de_vec3_t p;
+
+	de_vec3_set(&p, x, y, z);
+
+	de_node_set_local_position(node, &p);
 }
 
 /*=======================================================================================*/

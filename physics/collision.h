@@ -168,3 +168,7 @@ void de_body_set_radius(de_body_t* body, float radius);
  * @brief Returns actual body radius.
  */
 float de_body_get_radius(de_body_t* body);
+
+size_t de_body_get_contact_count(de_body_t* body);
+
+de_contact_t* de_body_get_contact(de_body_t* body, size_t i);

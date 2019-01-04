@@ -351,25 +351,46 @@ void de_physics_step(de_core_t* core, float dt)
 	}
 }
 
+/*=======================================================================================*/
 void de_body_set_gravity(de_body_t * body, const de_vec3_t * gravity)
 {
 	body->gravity = *gravity;
 }
 
+/*=======================================================================================*/
 void de_body_set_position(de_body_t * body, const de_vec3_t * pos)
 {
 	body->position = *pos;
 	body->last_position = *pos;
 }
 
+/*=======================================================================================*/
 void de_body_set_radius(de_body_t * body, float radius)
 {
 	body->radius = radius;
 }
 
+/*=======================================================================================*/
 float de_body_get_radius(de_body_t* body)
 {
 	return body->radius;
+}
+
+/*=======================================================================================*/
+size_t de_body_get_contact_count(de_body_t* body)
+{
+	return body->contact_count;
+}
+
+/*=======================================================================================*/
+de_contact_t* de_body_get_contact(de_body_t* body, size_t i)
+{
+	if (i >= DE_MAX_CONTACTS)
+	{
+		return NULL;
+	}
+
+	return body->contacts + i;
 }
 
 /*=======================================================================================*/

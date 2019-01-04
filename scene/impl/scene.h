@@ -199,17 +199,20 @@ void de_scene_update(de_scene_t* s, float dt)
 	 **/
 	DE_LINKED_LIST_FOR_EACH(s->animations, anim)
 	{
-		size_t i;
-
-		for (i = 0; i < anim->tracks.size; ++i)
+		if (de_animation_is_flags_set(anim, DE_ANIMATION_FLAG_ENABLED))
 		{
-			de_animation_track_t* track = anim->tracks.data[i];
+			size_t i;
 
-			if (track->node)
+			for (i = 0; i < anim->tracks.size; ++i)
 			{
-				de_vec3_zero(&track->node->position);
-				de_quat_set(&track->node->rotation, 0, 0, 0, 1);
-				de_vec3_set(&track->node->scale, 1, 1, 1);
+				de_animation_track_t* track = anim->tracks.data[i];
+
+				if (track->node)
+				{
+					de_vec3_zero(&track->node->position);
+					de_quat_set(&track->node->rotation, 0, 0, 0, 1);
+					de_vec3_set(&track->node->scale, 1, 1, 1);
+				}
 			}
 		}
 	}

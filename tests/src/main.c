@@ -5,6 +5,7 @@ typedef struct game_t game_t;
 typedef struct main_menu_t main_menu_t;
 typedef struct level_t level_t;
 typedef struct player_t player_t;
+typedef struct weapon_t weapon_t;
 
 struct game_t
 {
@@ -25,6 +26,17 @@ struct level_t
 	player_t* player;
 };
 
+typedef enum weapon_type_t
+{
+	WEAPON_TYPE_SHOTGUN,
+} weapon_type_t;
+
+struct weapon_t
+{
+	weapon_type_t type;
+	de_node_t* model;
+};
+
 struct player_t
 {
 	level_t* parent_level;
@@ -32,6 +44,7 @@ struct player_t
 	de_node_t* camera;
 	de_node_t* flash_light;
 	de_body_t* body;
+	de_node_t* weapon_pivot;
 	float pitch;
 	float yaw;
 	float move_speed;
@@ -44,7 +57,33 @@ struct player_t
 	de_vec3_t camera_offset;
 	de_vec3_t camera_dest_offset;
 	de_vec3_t camera_position;
+	DE_ARRAY_DECLARE(weapon_t*, weapons);
 };
+
+/*=======================================================================================*/
+weapon_t* weapon_create(level_t* level, weapon_type_t type)
+{
+	weapon_t* wpn = DE_NEW(weapon_t);
+
+	wpn->type = type;
+
+	if (type == WEAPON_TYPE_SHOTGUN)
+	{
+		wpn->model = de_fbx_load_to_scene(level->scene, "data/models/shotgun.fbx");
+	}
+	else
+	{
+		de_log("invalid weapon type");
+	}
+
+	return wpn;
+}
+
+/*=======================================================================================*/
+void weapon_update(weapon_t* wpn)
+{
+
+}
 
 /*=======================================================================================*/
 player_t* player_create(level_t* level)
@@ -78,6 +117,19 @@ player_t* player_create(level_t* level)
 	de_light_set_radius(p->flash_light, 4);
 	de_scene_add_node(level->scene, p->flash_light);
 	de_node_attach(p->flash_light, p->camera);
+
+	p->weapon_pivot = de_node_create(level->scene, DE_NODE_BASE);
+	de_scene_add_node(level->scene, p->weapon_pivot);
+	de_node_attach(p->weapon_pivot, p->camera);
+	de_node_set_local_position_xyz(p->weapon_pivot, 0.025, -0.132, -0.5);
+
+	{
+		weapon_t* shotgun = weapon_create(level, WEAPON_TYPE_SHOTGUN);
+		de_node_attach(shotgun->model, p->weapon_pivot);
+		/*de_animation_set_flags()*/
+		//shotgun->model->
+		DE_ARRAY_APPEND(p->weapons, shotgun);
+	}
 
 	return p;
 }
@@ -141,11 +193,16 @@ void player_update(player_t* p)
 	/* jump */
 	if (de_is_key_pressed(core, DE_KEY_Space))
 	{
-		for (k = 0; k < p->body->contact_count; ++k)
+		size_t contact_count = de_body_get_contact_count(p->body);
+
+		for (k = 0; k < contact_count; ++k)
 		{
-			if (p->body->contacts[k].normal.y > 0.7f)
+			de_contact_t* contact = de_body_get_contact(p->body, k);
+
+			if (contact->normal.y > 0.7f)
 			{
 				de_body_set_y_velocity(p->body, 0.075f);
+
 				break;
 			}
 		}
@@ -177,7 +234,7 @@ void player_update(player_t* p)
 	p->camera_position.y = p->body->radius;
 
 	/* apply camera wobbling */
-	if (is_moving)
+	if (is_moving && de_body_get_contact_count(p->body) > 0)
 	{
 		p->camera_dest_offset.x = 0.05f * cos(p->camera_wobble * 0.5f);
 		p->camera_dest_offset.y = 0.1f * sin(p->camera_wobble);
@@ -195,6 +252,7 @@ void player_update(player_t* p)
 	p->camera_offset.y += (p->camera_dest_offset.y - p->camera_offset.y) * 0.1f;
 	p->camera_offset.z += (p->camera_dest_offset.z - p->camera_offset.z) * 0.1f;
 	
+	/* set actual camera position */
 	{
 		de_vec3_t combined_position;
 		de_vec3_add(&combined_position, &p->camera_position, &p->camera_offset);

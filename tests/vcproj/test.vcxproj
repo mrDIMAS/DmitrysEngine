@@ -167,6 +167,7 @@
     <ClInclude Include="..\..\core\impl\pool.h" />
     <ClInclude Include="..\..\core\impl\rect.h" />
     <ClInclude Include="..\..\core\impl\rectpack.h" />
+    <ClInclude Include="..\..\core\impl\serialization.h" />
     <ClInclude Include="..\..\core\impl\string.h" />
     <ClInclude Include="..\..\core\impl\utility.h" />
     <ClInclude Include="..\..\core\linked_list.h" />
@@ -175,6 +176,7 @@
     <ClInclude Include="..\..\core\pool.h" />
     <ClInclude Include="..\..\core\rect.h" />
     <ClInclude Include="..\..\core\rectpack.h" />
+    <ClInclude Include="..\..\core\serialization.h" />
     <ClInclude Include="..\..\core\string.h" />
     <ClInclude Include="..\..\core\thread.h" />
     <ClInclude Include="..\..\core\time.h" />
@@ -224,6 +226,8 @@
     <ClInclude Include="..\..\math\triangulator.h" />
     <ClInclude Include="..\..\physics\collision.h" />
     <ClInclude Include="..\..\physics\impl\collision.h" />
+    <ClInclude Include="..\..\physics\impl\octree.h" />
+    <ClInclude Include="..\..\physics\octree.h" />
     <ClInclude Include="..\..\platform\impl\win32.h" />
     <ClInclude Include="..\..\platform\impl\x11.h" />
     <ClInclude Include="..\..\renderer\impl\renderer.h" />

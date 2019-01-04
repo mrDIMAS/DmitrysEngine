@@ -852,28 +852,28 @@ de_ray_t* de_ray_by_two_points(de_ray_t* out, const de_vec3_t* start, const de_v
 	return out;
 }
 
-int de_ray_aabb_intersection(const de_ray_t* ray, const de_aabb_t* aabb, float* out_tmin, float* out_tmax)
+int de_ray_aabb_intersection(const de_ray_t* ray, const de_vec3_t* min, const de_vec3_t* max, float* out_tmin, float* out_tmax)
 {
 	float tmin, tmax, tymin, tymax, tzmin, tzmax;
 	if (ray->dir.x >= 0)
 	{
-		tmin = (aabb->min.x - ray->origin.x) / ray->dir.x;
-		tmax = (aabb->max.x - ray->origin.x) / ray->dir.x;
+		tmin = (min->x - ray->origin.x) / ray->dir.x;
+		tmax = (max->x - ray->origin.x) / ray->dir.x;
 	}
 	else
 	{
-		tmin = (aabb->max.x - ray->origin.x) / ray->dir.x;
-		tmax = (aabb->min.x - ray->origin.x) / ray->dir.x;
+		tmin = (max->x - ray->origin.x) / ray->dir.x;
+		tmax = (min->x - ray->origin.x) / ray->dir.x;
 	}
 	if (ray->dir.y >= 0)
 	{
-		tymin = (aabb->min.y - ray->origin.y) / ray->dir.y;
-		tymax = (aabb->max.y - ray->origin.y) / ray->dir.y;
+		tymin = (min->y - ray->origin.y) / ray->dir.y;
+		tymax = (max->y - ray->origin.y) / ray->dir.y;
 	}
 	else
 	{
-		tymin = (aabb->max.y - ray->origin.y) / ray->dir.y;
-		tymax = (aabb->min.y - ray->origin.y) / ray->dir.y;
+		tymin = (max->y - ray->origin.y) / ray->dir.y;
+		tymax = (min->y - ray->origin.y) / ray->dir.y;
 	}
 	if ((tmin > tymax) || (tymin > tmax))
 	{
@@ -889,13 +889,13 @@ int de_ray_aabb_intersection(const de_ray_t* ray, const de_aabb_t* aabb, float* 
 	}
 	if (ray->dir.z >= 0)
 	{
-		tzmin = (aabb->min.z - ray->origin.z) / ray->dir.z;
-		tzmax = (aabb->max.z - ray->origin.z) / ray->dir.z;
+		tzmin = (min->z - ray->origin.z) / ray->dir.z;
+		tzmax = (max->z - ray->origin.z) / ray->dir.z;
 	}
 	else
 	{
-		tzmin = (aabb->max.z - ray->origin.z) / ray->dir.z;
-		tzmax = (aabb->min.z - ray->origin.z) / ray->dir.z;
+		tzmin = (max->z - ray->origin.z) / ray->dir.z;
+		tzmax = (min->z - ray->origin.z) / ray->dir.z;
 	}
 	if ((tmin > tzmax) || (tzmin > tmax))
 	{
@@ -1111,6 +1111,10 @@ de_quat_t* de_quat_slerp(de_quat_t* out, const de_quat_t* a, const de_quat_t* b,
 			q.w = (a->w * s0 + b->w * s1) * d;
 		}
 		*out = q;
+	}
+	else
+	{
+		*out = *a;
 	}
 	return out;
 }
@@ -1345,29 +1349,29 @@ int de_aabb_sphere_intersection(const de_aabb_t* aabb, const de_vec3_t* aabb_off
 
 	if (position->x < min.x)
 	{
-		dmin += sdUtilSqr(position->x - min.x);
+		dmin += de_sqr(position->x - min.x);
 	}
 	else if (position->x > max.x)
 	{
-		dmin += sdUtilSqr(position->x - max.x);
+		dmin += de_sqr(position->x - max.x);
 	}
 
 	if (position->y < min.y)
 	{
-		dmin += sdUtilSqr(position->y - min.y);
+		dmin += de_sqr(position->y - min.y);
 	}
 	else if (position->y > max.y)
 	{
-		dmin += sdUtilSqr(position->y - max.y);
+		dmin += de_sqr(position->y - max.y);
 	}
 
 	if (position->z < min.z)
 	{
-		dmin += sdUtilSqr(position->z - min.z);
+		dmin += de_sqr(position->z - min.z);
 	}
 	else if (position->z > max.z)
 	{
-		dmin += sdUtilSqr(position->z - max.z);
+		dmin += de_sqr(position->z - max.z);
 	}
 
 	return dmin <= r2 ||
@@ -1438,7 +1442,7 @@ de_aabb_t* de_aabb_invalidate(de_aabb_t* aabb)
 	return de_aabb_recompute_corners(aabb);
 }
 
-float sdUtilSqr(float a)
+float de_sqr(float a)
 {
 	return a * a;
 }

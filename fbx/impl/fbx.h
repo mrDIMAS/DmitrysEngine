@@ -151,9 +151,13 @@ struct de_fbx_model_t
 	de_vec3_t geometric_rotation;
 	de_vec3_t geometric_scale;
 
+	/* Used to link fbx node with engine node */
+	de_node_t* engine_node;
+
 	DE_ARRAY_DECLARE(de_fbx_geom_t*, geoms);
 	DE_ARRAY_DECLARE(de_fbx_material_t*, materials);
 	DE_ARRAY_DECLARE(de_fbx_animation_curve_node_t*, animation_curve_nodes);
+	DE_ARRAY_DECLARE(de_fbx_model_t*, children);
 
 	/* Components */
 	de_fbx_light_t* light;
@@ -688,15 +692,15 @@ static de_fbx_component_t* de_fbx_read_animation_curve_node_t(de_fbx_node_t* ani
 
 	type_str = anim_curve_fbx_node->attributes.data[1];
 
-	if (strcmp(type_str, "AnimCurveNode::T") == 0)
+	if (strcmp(type_str, "T") == 0 || strcmp(type_str, "AnimCurveNode::T") == 0)
 	{
 		anim_curve_node->type = DE_FBX_ANIMATION_CURVE_NODE_TRANSLATION;
 	}
-	else if (strcmp(type_str, "AnimCurveNode::R") == 0)
+	else if (strcmp(type_str, "R") == 0 || strcmp(type_str, "AnimCurveNode::R") == 0)
 	{
 		anim_curve_node->type = DE_FBX_ANIMATION_CURVE_NODE_ROTATION;
 	}
-	else if (strcmp(type_str, "AnimCurveNode::S") == 0)
+	else if (strcmp(type_str, "S") == 0 || strcmp(type_str, "AnimCurveNode::S") == 0)
 	{
 		anim_curve_node->type = DE_FBX_ANIMATION_CURVE_NODE_SCALE;
 	}
@@ -926,6 +930,10 @@ static de_fbx_t* de_fbx_read(de_fbx_node_t* root)
 		else if (child_comp->type == DE_FBX_COMPONENT_LIGHT && parent_comp->type == DE_FBX_COMPONENT_MODEL)
 		{
 			parent_comp->s.model.light = &child_comp->s.light;
+		}
+		else if (child_comp->type == DE_FBX_COMPONENT_MODEL && parent_comp->type == DE_FBX_COMPONENT_MODEL)
+		{
+			DE_ARRAY_APPEND(parent_comp->s.model.children, &child_comp->s.model);
 		}
 	}
 
@@ -1326,7 +1334,8 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 	de_animation_t* anim;
 	de_renderer_t* renderer;
 	int temp_indices[8192], relative_indices[8192];
-
+	DE_ARRAY_DECLARE(de_node_t*, created_nodes);
+	
 	renderer = scene->core->renderer;
 
 	root = de_node_create(scene, DE_NODE_BASE);
@@ -1334,6 +1343,8 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 
 	/* Each scene has animation */
 	anim = de_animation_create(scene);
+
+	DE_ARRAY_INIT(created_nodes);
 
 	/**
 	 * Convert models first.
@@ -1368,6 +1379,12 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 
 		node = de_node_create(scene, type);
 		de_scene_add_node(scene, node);
+
+		DE_ARRAY_APPEND(created_nodes, node);
+
+		/* save pointer to fbx struct to make further linking easier */
+		node->user_data = mdl;
+		mdl->engine_node = node;
 
 		node->name = de_str_copy(mdl->name);
 
@@ -1610,6 +1627,25 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 
 		de_node_attach(node, root);
 	}
+
+	/* Link nodes according to hierarchy */
+	for (i = 0; i < created_nodes.size; ++i)
+	{
+		de_node_t* node = created_nodes.data[i];
+		de_fbx_model_t* fbx_model = (de_fbx_model_t*)node->user_data;
+
+		if (fbx_model->children.size > 0)
+		{
+			for (k = 0; k < fbx_model->children.size; ++k)
+			{
+				de_node_t* child = fbx_model->children.data[k]->engine_node;
+
+				de_node_attach(child, node);
+			}
+		}		
+	}
+
+	DE_ARRAY_FREE(created_nodes);
 
 	de_animation_clamp_length(anim);
 	anim->speed = 0.1f;

@@ -66,6 +66,8 @@ struct de_node_t
 	DE_ARRAY_DECLARE(de_node_t*, children); /**< Array of pool references to child nodes */
 	de_bool_t visible; /**< Local visibility. Actual visibility defined by hierarchy. So if parent node is invisible, then child node will be too */
 
+	void* user_data;
+
 	/* Physics */
 	de_body_t* body;
 
@@ -98,6 +100,11 @@ void de_node_free(de_node_t* node);
 * @param parent reference to parent node
 */
 void de_node_attach(de_node_t* node, de_node_t* parent);
+
+/**
+ * @brief Detaches node from current parent.
+ */
+void de_node_detach(de_node_t* node);
 
 /**
 * @brief Calculates local and global transforms. Global transform takes into account node hierarchy
@@ -139,6 +146,12 @@ void de_node_get_global_position(de_node_t* node, de_vec3_t* pos);
 * @param pos new position of node
 */
 void de_node_set_local_position(de_node_t* node, de_vec3_t* pos);
+
+/**
+* @brief Sets local position of node. Sets "need_update" flag
+* @param node pointer to node
+*/
+void de_node_set_local_position_xyz(de_node_t* node, float x, float y, float z);
 
 /**
 * @brief Sets local rotation of node. Sets "need_update" flag

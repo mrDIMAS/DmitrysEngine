@@ -682,7 +682,7 @@ de_ray_t* de_ray_by_two_points(de_ray_t* out, const de_vec3_t* start, const de_v
  * @param out_tmax
  * @return
  */
-int de_ray_aabb_intersection(const de_ray_t* ray, const de_aabb_t* aabb, float* out_tmin, float* out_tmax);
+int de_ray_aabb_intersection(const de_ray_t* ray, const de_vec3_t* min, const de_vec3_t* max, float* out_tmin, float* out_tmax);
 
 /**
  * @brief
@@ -982,7 +982,7 @@ de_aabb_t* de_aabb_invalidate(de_aabb_t* aabb);
  * @param a scalar
  * @return @a^2
  */
-float sdUtilSqr(float a);
+float de_sqr(float a);
 
 /**
  * @brief Converts radians to degress

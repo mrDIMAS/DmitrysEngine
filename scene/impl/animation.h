@@ -35,6 +35,8 @@ de_animation_track_t* de_animation_track_create(de_animation_t* anim)
 void de_animation_track_free(de_animation_track_t* track)
 {
 	DE_ARRAY_FREE(track->keyframes);
+
+	de_free(track);
 }
 
 /*=======================================================================================*/
@@ -75,6 +77,7 @@ void de_animation_free(de_animation_t* anim)
 	{
 		de_animation_track_free(anim->tracks.data[i]);
 	}
+	DE_ARRAY_FREE(anim->tracks);
 
 	de_free(anim);
 }

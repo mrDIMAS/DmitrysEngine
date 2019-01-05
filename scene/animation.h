@@ -50,8 +50,8 @@ struct de_animation_track_t
 
 typedef enum de_animation_flags_t
 {
-	DE_ANIMATION_FLAG_ENABLED, /**< Is animation enabled? */
-	DE_ANIMATION_FLAG_LOOPED   /**< Is animation looped */
+	DE_ANIMATION_FLAG_ENABLED = DE_BIT(0), /**< Is animation enabled? */
+	DE_ANIMATION_FLAG_LOOPED = DE_BIT(1)  /**< Is animation looped */
 } de_animation_flags_t;
 
 /**

@@ -46,7 +46,9 @@ struct player_t
 	de_body_t* body;
 	de_node_t* weapon_pivot;
 	float pitch;
+	float desired_pitch;
 	float yaw;
+	float desired_yaw;
 	float move_speed;
 	float stand_body_radius;
 	float crouch_body_radius;
@@ -77,6 +79,13 @@ weapon_t* weapon_create(level_t* level, weapon_type_t type)
 	}
 
 	return wpn;
+}
+
+/*=======================================================================================*/
+void weapon_free(weapon_t* wpn)
+{
+	de_node_free(wpn->model);
+	de_free(wpn);
 }
 
 /*=======================================================================================*/
@@ -137,6 +146,14 @@ player_t* player_create(level_t* level)
 /*=======================================================================================*/
 void player_free(player_t* p)
 {
+	size_t i;
+
+	for (i = 0; i < p->weapons.size; ++i)
+	{
+		weapon_free(p->weapons.data[i]);
+	}
+	DE_ARRAY_FREE(p->weapons);
+
 	de_node_free(p->pivot);
 	de_free(p);
 }
@@ -227,7 +244,7 @@ void player_update(player_t* p)
 		{
 			radius = p->stand_body_radius;
 		}
-		de_body_set_radius(p->body, radius);
+		de_body_set_radius(p->body, radius);		
 	}
 
 	/* make sure that camera will be always at the top of the body */
@@ -268,18 +285,21 @@ void player_update(player_t* p)
 	de_vec3_normalize(&offset, &offset);
 	de_vec3_scale(&offset, &offset, speed_multiplier * p->move_speed);
 
-	p->yaw -= mouse_vel.x;
-	p->pitch -= mouse_vel.y;
+	p->desired_yaw -= mouse_vel.x;
+	p->desired_pitch -= mouse_vel.y;
 
-	if (p->pitch > 90.0)
+	if (p->desired_pitch > 90.0)
 	{
-		p->pitch = 90.0;
+		p->desired_pitch = 90.0;
 	}
-	if (p->pitch < -90.0)
+	if (p->desired_pitch < -90.0)
 	{
-		p->pitch = -90.0;
+		p->desired_pitch = -90.0;
 	}
 
+	p->yaw += (p->desired_yaw - p->yaw) * 0.22f;
+	p->pitch += (p->desired_pitch - p->pitch) * 0.22f;
+		
 	de_body_set_x_velocity(p->body, 0);
 	de_body_set_z_velocity(p->body, 0);
 
@@ -348,7 +368,7 @@ void level_free(level_t* level)
 void quit_on_click(de_gui_node_t* node)
 {
 	DE_UNUSED(node);
-	de_stop(node->gui->core);
+	de_core_stop(node->gui->core);
 }
 
 /*=======================================================================================*/
@@ -359,8 +379,15 @@ main_menu_t* main_menu_create(game_t* game)
 
 	/* main window */
 	{
+		float window_width = 400;
+		float window_height = 500;
+		float window_x = (de_core_get_window_width(game->core) - window_width) * 0.5f;
+		float window_y = (de_core_get_window_height(game->core) - window_height) * 0.5f;
+
 		menu->window = de_gui_window_create(gui);
-		de_gui_node_set_desired_size(menu->window, 400, 500);
+		de_gui_node_set_desired_size(menu->window, window_width, window_height);
+		de_gui_node_set_desired_local_position(menu->window, window_x, window_y);
+		de_gui_window_set_flags(menu->window, DE_GUI_WINDOW_FLAGS_NO_MOVE);
 
 		de_gui_node_t* grid = de_gui_grid_create(gui);
 		de_gui_node_set_desired_size(grid, 100, 100);
@@ -460,7 +487,7 @@ game_t* game_create(void)
 		params.width = 1200;
 		params.height = 1000;
 
-		game->core = de_init(&params);
+		game->core = de_core_init(&params);
 		de_renderer_set_framerate_limit(game->core->renderer, 0);
 	}
 
@@ -488,11 +515,11 @@ void game_main_loop(game_t* game)
 	fixedFPS = 60.0;
 	fixedTimeStep = 1.0f / fixedFPS;
 	gameClock = de_time_get_seconds();
-	while (de_is_running(game->core))
+	while (de_core_is_running(game->core))
 	{
 		if (de_is_key_pressed(game->core, DE_KEY_ESC))
 		{
-			de_stop(game->core);
+			de_core_stop(game->core);
 		}
 
 		dt = de_time_get_seconds() - gameClock;
@@ -501,7 +528,7 @@ void game_main_loop(game_t* game)
 			dt -= fixedTimeStep;
 			gameClock += fixedTimeStep;
 
-			de_update(game->core, fixedTimeStep);
+			de_core_update(game->core, fixedTimeStep);
 
 			level_update(game->level);
 		}
@@ -516,7 +543,7 @@ void game_close(game_t* game)
 	level_free(game->level);
 	main_menu_free(game->main_menu);
 
-	de_shutdown(game->core);
+	de_core_shutdown(game->core);
 
 	de_free(game);
 }

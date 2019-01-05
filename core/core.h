@@ -69,37 +69,41 @@ struct de_core_t
 /**
 * @brief Creates window and initializes OpenGL
 */
-de_core_t* de_init(const de_engine_params_t* params);
+de_core_t* de_core_init(const de_engine_params_t* params);
 
 /**
 * @brief Destroys window and OpenGL context
 */
-void de_shutdown(de_core_t* core);
+void de_core_shutdown(de_core_t* core);
 
 /**
 * @brief Returns DE_TRUE if engine is running
 */
-de_bool_t de_is_running(de_core_t* core);
+de_bool_t de_core_is_running(de_core_t* core);
 
 /**
  * @brief Stops engine.
  */
-void de_stop(de_core_t* core);
-
-/**
-* @brief Updates message queue from OS. No need to call directly!
-*/
-void de_poll_messages(de_core_t* core);
+void de_core_stop(de_core_t* core);
 
 /**
  * @brief Performs one tick of update
  */
-void de_update(de_core_t* core, float dt);
+void de_core_update(de_core_t* core, float dt);
+
+/**
+ * @brief Returns current width of render window.
+ */
+unsigned int de_core_get_window_width(de_core_t* core);
+
+/**
+ * @brief Returns current height of render window.
+ */
+unsigned int de_core_get_window_height(de_core_t* core);
 
 /**
 * Platform-specific function prototypes.
 * Each of below functions must be implemented for each platform.
-* Below functions is private, and not exported into dynamic library!
 */
 
 typedef void(*de_proc)(void);

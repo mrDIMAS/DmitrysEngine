@@ -452,6 +452,7 @@ void de_renderer_free(de_renderer_t* r)
 {
 	de_renderer_free_surface(r->quad);
 	de_renderer_free_surface(r->test_surface);
+	de_texture_release(r->white_dummy);
 
 	de_free(r);
 }
@@ -646,7 +647,7 @@ de_texture_t* de_renderer_request_texture(de_renderer_t* r, const char* file)
 	tex->id = 0;
 	tex->type = DE_TEXTURE_TYPE_2D;
 	tex->pixels = img.data;
-	tex->ref_count = 1;
+	tex->ref_count = 0;
 	tex->need_upload = 1;
 
 	DE_LINKED_LIST_APPEND(r->textures, tex);

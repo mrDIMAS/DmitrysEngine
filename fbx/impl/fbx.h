@@ -490,6 +490,7 @@ static void de_fbx_model_free(de_fbx_model_t* model)
 	DE_ARRAY_FREE(model->geoms);
 	DE_ARRAY_FREE(model->materials);
 	DE_ARRAY_FREE(model->animation_curve_nodes);
+	DE_ARRAY_FREE(model->children);
 }
 
 /*=======================================================================================*/

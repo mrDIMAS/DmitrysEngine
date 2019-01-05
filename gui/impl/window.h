@@ -6,13 +6,17 @@ static void de_gui_window_header_mouse_down(de_gui_node_t* node, de_gui_routed_e
 
 	DE_ASSERT_NODE_TYPE(node, DE_GUI_NODE_BORDER);
 
-	de_gui_node_capture_mouse(node);
 	window_node = de_gui_node_find_parent_of_type(node, DE_GUI_NODE_WINDOW);
-	wnd = &window_node->s.window;
-	wnd->is_dragging = DE_TRUE;
-	de_vec2_set(&wnd->mouse_click_pos, args->s.mouse_down.pos.x, args->s.mouse_down.pos.y);
-	de_vec2_set(&wnd->init_pos, window_node->actual_local_position.x, window_node->actual_local_position.y);
-	args->handled = DE_TRUE;
+
+	if (!de_gui_window_is_flags_set(window_node, DE_GUI_WINDOW_FLAGS_NO_MOVE))
+	{
+		de_gui_node_capture_mouse(node);
+		wnd = &window_node->s.window;
+		wnd->is_dragging = DE_TRUE;
+		de_vec2_set(&wnd->mouse_click_pos, args->s.mouse_down.pos.x, args->s.mouse_down.pos.y);
+		de_vec2_set(&wnd->init_pos, window_node->actual_local_position.x, window_node->actual_local_position.y);
+		args->handled = DE_TRUE;
+	}
 }
 
 /*=======================================================================================*/
@@ -23,11 +27,15 @@ static void de_gui_window_header_mouse_up(de_gui_node_t* n, de_gui_routed_event_
 
 	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_BORDER);
 
-	de_gui_node_release_mouse_capture(n);
 	window_node = de_gui_node_find_parent_of_type(n, DE_GUI_NODE_WINDOW);
-	wnd = &window_node->s.window;
-	wnd->is_dragging = DE_FALSE;
-	args->handled = DE_TRUE;
+
+	if (!de_gui_window_is_flags_set(window_node, DE_GUI_WINDOW_FLAGS_NO_MOVE))
+	{
+		de_gui_node_release_mouse_capture(n);
+		wnd = &window_node->s.window;
+		wnd->is_dragging = DE_FALSE;
+		args->handled = DE_TRUE;
+	}
 }
 
 /*=======================================================================================*/
@@ -39,18 +47,22 @@ static void de_gui_window_header_mouse_move(de_gui_node_t* n, de_gui_routed_even
 	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_BORDER);
 
 	window_node = de_gui_node_find_parent_of_type(n, DE_GUI_NODE_WINDOW);
-	wnd = &window_node->s.window;
-	if (wnd->is_dragging)
+
+	if (!de_gui_window_is_flags_set(window_node, DE_GUI_WINDOW_FLAGS_NO_MOVE))
 	{
-		de_vec2_t* mouse_pos = &args->s.mouse_move.pos;
+		wnd = &window_node->s.window;
+		if (wnd->is_dragging)
+		{
+			de_vec2_t* mouse_pos = &args->s.mouse_move.pos;
 
-		de_vec2_t delta;
-		de_vec2_sub(&delta, mouse_pos, &wnd->mouse_click_pos);
+			de_vec2_t delta;
+			de_vec2_sub(&delta, mouse_pos, &wnd->mouse_click_pos);
 
-		window_node->desired_local_position.x = wnd->init_pos.x + delta.x;
-		window_node->desired_local_position.y = wnd->init_pos.y + delta.y;
+			window_node->desired_local_position.x = wnd->init_pos.x + delta.x;
+			window_node->desired_local_position.y = wnd->init_pos.y + delta.y;
 
-		args->handled = DE_TRUE;
+			args->handled = DE_TRUE;
+		}
 	}
 }
 
@@ -158,4 +170,18 @@ de_gui_node_t * de_gui_window_get_content(de_gui_node_t * window)
 {
 	DE_ASSERT_NODE_TYPE(window, DE_GUI_NODE_WINDOW);
 	return window->s.window.scroll_viewer->s.scroll_viewer.content;
+}
+
+/*=======================================================================================*/
+void de_gui_window_set_flags(de_gui_node_t* window, uint32_t flags)
+{
+	DE_ASSERT_NODE_TYPE(window, DE_GUI_NODE_WINDOW);
+	window->s.window.flags |= flags;
+}
+
+/*=======================================================================================*/
+de_bool_t de_gui_window_is_flags_set(de_gui_node_t* window, uint32_t flags)
+{
+	DE_ASSERT_NODE_TYPE(window, DE_GUI_NODE_WINDOW);
+	return (window->s.window.flags & flags) == flags;
 }

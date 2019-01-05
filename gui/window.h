@@ -19,6 +19,11 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+typedef enum de_gui_window_flags_t
+{
+	DE_GUI_WINDOW_FLAGS_NO_MOVE = DE_BIT(0),
+} de_gui_window_flags_t;
+
 /**
 * @brief
 */
@@ -35,6 +40,7 @@ typedef struct de_gui_window_t
 	de_bool_t is_dragging;
 	de_vec2_t mouse_click_pos;
 	de_vec2_t init_pos;
+	uint32_t flags;
 } de_gui_window_t;
 
 de_gui_node_t* de_gui_window_create(de_gui_t* gui);
@@ -44,3 +50,7 @@ de_gui_node_t* de_gui_window_get_title(de_gui_node_t* window);
 void de_gui_window_set_content(de_gui_node_t* window, de_gui_node_t* content);
 
 de_gui_node_t* de_gui_window_get_content(de_gui_node_t* window);
+
+void de_gui_window_set_flags(de_gui_node_t* window, uint32_t flags);
+
+de_bool_t de_gui_window_is_flags_set(de_gui_node_t* window, uint32_t flags);

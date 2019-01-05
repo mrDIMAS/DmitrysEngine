@@ -21,7 +21,7 @@
 
 
 /*=======================================================================================*/
-de_core_t* de_init(const de_engine_params_t* params)
+de_core_t* de_core_init(const de_engine_params_t* params)
 {
 	de_core_t* core;
 
@@ -46,7 +46,7 @@ de_core_t* de_init(const de_engine_params_t* params)
 }
 
 /*=======================================================================================*/
-void de_shutdown(de_core_t* core)
+void de_core_shutdown(de_core_t* core)
 {
 	de_gui_shutdown(core->gui);
 	de_renderer_free(core->renderer);
@@ -57,19 +57,19 @@ void de_shutdown(de_core_t* core)
 }
 
 /*=======================================================================================*/
-void de_poll_messages(de_core_t* core)
+static void de_core_poll_messages(de_core_t* core)
 {
 	de_engine_platform_message_queue(core);
 }
 
 /*=======================================================================================*/
-de_bool_t de_is_running(de_core_t* core)
+de_bool_t de_core_is_running(de_core_t* core)
 {
 	return core->running;
 }
 
 /*=======================================================================================*/
-void de_stop(de_core_t* core)
+void de_core_stop(de_core_t* core)
 {
 	core->running = DE_FALSE;
 }
@@ -106,11 +106,11 @@ void de_get_mouse_pos(de_core_t* core, de_vec2_t* pos)
 }
 
 /*=======================================================================================*/
-void de_update(de_core_t* core, float dt)
+void de_core_update(de_core_t* core, float dt)
 {
 	de_scene_t* scene;
 
-	de_poll_messages(core);
+	de_core_poll_messages(core);
 
 	de_gui_update(core->gui);
 
@@ -120,4 +120,16 @@ void de_update(de_core_t* core, float dt)
 	{
 		de_scene_update(scene, dt);
 	}
+}
+
+/*=======================================================================================*/
+unsigned int de_core_get_window_width(de_core_t* core)
+{
+	return core->params.width;
+}
+
+/*=======================================================================================*/
+unsigned int de_core_get_window_height(de_core_t* core)
+{
+	return core->params.height;
 }

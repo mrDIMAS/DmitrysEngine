@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 
-	/* Suppress compiler-specific warnings */
+/* Suppress compiler-specific warnings */
 #ifdef _MSC_VER
 #  define _CRT_SECURE_NO_WARNINGS
 #  pragma warning(disable : 4204 4820)
@@ -38,6 +38,7 @@ extern "C" {
 
 #define _USE_MATH_DEFINES
 #define DE_UNUSED(x) ((void)x)
+#define DE_BIT(n) (1 << n)
 
 /* Standard library */
 #include <stdlib.h>
@@ -74,24 +75,24 @@ extern "C" {
 #endif
 
 /* Forward declarations */
-	typedef struct de_renderer_t de_renderer_t;
-	typedef struct de_node_t de_node_t;
-	typedef struct de_surface_t de_surface_t;
-	typedef struct de_body_t de_body_t;
-	typedef struct de_animation_track_t de_animation_track_t;
-	typedef struct de_texture_t de_texture_t;
-	typedef struct de_static_triangle_t de_static_triangle_t;
-	typedef struct de_static_geometry_t de_static_geometry_t;
-	typedef struct de_mesh_t de_mesh_t;
-	typedef struct de_light_t de_light_t;
-	typedef struct de_gui_t de_gui_t;
-	typedef struct de_core_t de_core_t;
-	typedef struct de_scene_t de_scene_t;
+typedef struct de_renderer_t de_renderer_t;
+typedef struct de_node_t de_node_t;
+typedef struct de_surface_t de_surface_t;
+typedef struct de_body_t de_body_t;
+typedef struct de_animation_track_t de_animation_track_t;
+typedef struct de_texture_t de_texture_t;
+typedef struct de_static_triangle_t de_static_triangle_t;
+typedef struct de_static_geometry_t de_static_geometry_t;
+typedef struct de_mesh_t de_mesh_t;
+typedef struct de_light_t de_light_t;
+typedef struct de_gui_t de_gui_t;
+typedef struct de_core_t de_core_t;
+typedef struct de_scene_t de_scene_t;
 
-	/**
-	 * Order is important here, because some parts depends on other
-	 * Modules with minimum dependencies should be placed before others.
-	 **/
+/**
+ * Order is important here, because some parts depends on other
+ * Modules with minimum dependencies should be placed before others.
+ **/
 #include "core/bool.h"
 #include "core/log.h"
 #include "core/byteorder.h"
@@ -132,7 +133,7 @@ extern "C" {
 #include "core/core.h" 
 #include "sound/sound.h"
 
-	 /* TINFL (part of miniz) - used to decompress FBX data */
+/* TINFL (part of miniz) - used to decompress FBX data */
 #ifdef DE_IMPLEMENTATION
 #  define TINFL_IMPLEMENTATION
 #endif

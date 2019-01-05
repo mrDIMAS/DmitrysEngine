@@ -48,9 +48,7 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 	uint32_t num_attrib;
 	uint32_t attrib_list_len;
 	uint8_t name_len;
-	de_fbx_node_t* node = DE_NEW(de_fbx_node_t);
-
-	node->is_binary = DE_TRUE;
+	de_fbx_node_t* node;
 
 	if (!de_fbx_fread(&end_offset, sizeof(end_offset), f))
 	{
@@ -64,6 +62,10 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 	{
 		return NULL;
 	}
+
+	node = DE_NEW(de_fbx_node_t);
+
+	node->is_binary = DE_TRUE;
 
 	if (!de_fbx_fread(&num_attrib, sizeof(num_attrib), f))
 	{

@@ -24,6 +24,16 @@ void de_node_free(de_node_t* node)
 {
 	size_t i;
 
+	/* Free children first */
+	while(node->children.size)
+	{
+		de_node_free(node->children.data[0]);
+	}
+	DE_ARRAY_FREE(node->children);
+
+	/* Free the node */
+	de_node_detach(node);
+
 	if (node->scene)
 	{
 		de_scene_remove_node(node->scene, node);
@@ -45,15 +55,7 @@ void de_node_free(de_node_t* node)
 		de_light_deinit(&node->s.light);
 		break;
 	}
-
-	/* Free children */
-	for (i = 0; i < node->children.size; ++i)
-	{
-		de_node_free(node->children.data[i]);
-	}
-	DE_ARRAY_FREE(node->children);
-
-
+	
 	de_free(node);
 }
 

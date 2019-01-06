@@ -35,6 +35,14 @@ typedef struct de_gui_thickness_t
 	float bottom;
 } de_gui_thickness_t;
 
+typedef void(*de_gui_callback_func_t)(de_gui_node_t*, void*);
+
+typedef struct de_gui_callback_t
+{	
+	void* user_data;
+	de_gui_callback_func_t func;
+} de_gui_callback_t;
+
 #define DE_ASSERT_NODE_TYPE(node, expected_type) \
 	if(node->type != expected_type) de_error("Node must be " #expected_type " type!")
 
@@ -228,6 +236,7 @@ struct de_gui_node_t
 	struct de_gui_node_t* parent;                       /**< Pointer to parent node */
 	DE_ARRAY_DECLARE(struct de_gui_node_t*, children);  /**< Array of children nodes */
 	DE_ARRAY_DECLARE(int, geometry);                    /**< Array of indices to draw command in draw list */
+	de_bool_t is_hit_test_visible;                      /**< Will this control participate in hit-test */
 
 	/* Specialization (type-specific data) */
 	union
@@ -322,6 +331,8 @@ de_bool_t de_gui_node_set_property(de_gui_node_t* n, const char* name, const voi
 de_bool_t de_gui_node_parse_property(de_gui_node_t* n, const char* name, const char* value);
 
 de_bool_t de_gui_node_get_property(de_gui_node_t* n, const char* name, void* value, size_t data_size);
+
+void de_gui_node_set_hit_test_visible(de_gui_node_t* n, de_bool_t visibility);
 
 /**
  * @brief

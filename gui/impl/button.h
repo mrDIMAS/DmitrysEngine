@@ -64,9 +64,9 @@ static void de_button_border_mouse_up(de_gui_node_t* border, de_gui_routed_event
 	{
 		border->color = btn->normal_color;
 	}
-	if (btn->click && btn->was_pressed)
+	if (btn->click.func && btn->was_pressed)
 	{
-		btn->click(border);
+		btn->click.func(border, btn->click.user_data);
 	}
 	args->handled = DE_TRUE;
 }
@@ -127,6 +127,8 @@ de_gui_node_t* de_gui_button_create(de_gui_t* gui)
 	b->border->mouse_enter = de_button_border_mouse_enter;
 	b->border->mouse_leave = de_button_border_mouse_leave;
 	b->text = de_gui_text_create(gui);
+	de_gui_text_set_alignment(b->text, DE_GUI_TA_CENTER);
+	de_gui_node_set_hit_test_visible(b->text, DE_FALSE);
 	de_gui_node_set_color_rgba(b->text, 220, 220, 220, 255);
 	de_gui_border_set_stroke_color_rgba(b->border, 80, 80, 80, 255);
 	de_gui_node_attach(b->border, n);
@@ -135,11 +137,12 @@ de_gui_node_t* de_gui_button_create(de_gui_t* gui)
 }
 
 /*=======================================================================================*/
-void de_gui_button_set_click(de_gui_node_t* node, void(*on_click)(de_gui_node_t*))
+void de_gui_button_set_click(de_gui_node_t* node, de_gui_callback_func_t click, void* user_data)
 {
 	DE_ASSERT_NODE_TYPE(node, DE_GUI_NODE_BUTTON);
 
-	node->s.button.click = on_click;
+	node->s.button.click.func = click;
+	node->s.button.click.user_data = user_data;
 }
 
 /*=======================================================================================*/

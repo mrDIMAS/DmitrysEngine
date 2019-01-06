@@ -245,6 +245,11 @@ static de_gui_node_t* de_gui_node_pick(de_gui_node_t* n, const de_vec2_t* mouse_
 	de_gui_node_t* picked = NULL;
 	int topmost_picked_level = 0;
 
+	if (!n->is_hit_test_visible)
+	{
+		return NULL;
+	}
+
 	if (de_gui_node_contains_point(n, mouse_pos))
 	{
 		picked = n;
@@ -615,6 +620,7 @@ de_gui_node_t* de_gui_node_alloc(de_gui_t* gui, de_gui_node_type_t type, de_gui_
 	de_color_set(&n->color, 255, 255, 255, 255);
 
 	n->visibility = DE_GUI_NODE_VISIBILITY_VISIBLE;
+	n->is_hit_test_visible = DE_TRUE;
 
 	/* alignment */
 	n->vertical_alignment = DE_GUI_VERTICAL_ALIGNMENT_STRETCH;
@@ -883,6 +889,12 @@ de_bool_t de_gui_node_get_property(de_gui_node_t* n, const char* name, void* val
 	DE_DECLARE_PROPERTY_SETTER(de_gui_node_t, screen_position, name, DE_GUI_NODE_SCREEN_POSITION_PROPERTY, value, data_size, n);
 
 	return DE_FALSE;
+}
+
+/*=======================================================================================*/
+void de_gui_node_set_hit_test_visible(de_gui_node_t* n, de_bool_t visibility)
+{
+	n->is_hit_test_visible = visibility;
 }
 
 /*=======================================================================================*/

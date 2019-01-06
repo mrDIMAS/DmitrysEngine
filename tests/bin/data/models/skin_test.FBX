@@ -8,13 +8,13 @@ FBXHeaderExtension:  {
     FBXVersion: 7200
     CreationTimeStamp:  {
         Version: 1000
-        Year: 2018
-        Month: 12
-        Day: 15
-        Hour: 15
-        Minute: 43
-        Second: 34
-        Millisecond: 186
+        Year: 2019
+        Month: 1
+        Day: 5
+        Hour: 21
+        Minute: 50
+        Second: 42
+        Millisecond: 122
     }
     Creator: "FBX SDK/FBX Plugins version 2012.0"
     SceneInfo: "SceneInfo::GlobalInfo", "UserData" {
@@ -36,13 +36,13 @@ FBXHeaderExtension:  {
             P: "Original|ApplicationVendor", "KString", "", "", "Autodesk"
             P: "Original|ApplicationName", "KString", "", "", "3ds Max"
             P: "Original|ApplicationVersion", "KString", "", "", "2012"
-            P: "Original|DateTime_GMT", "DateTime", "", "", "15/12/2018 12:43:34.186"
+            P: "Original|DateTime_GMT", "DateTime", "", "", "05/01/2019 18:50:42.122"
             P: "Original|FileName", "KString", "", "", "C:\DmitrysEngine\DmitrysEngine\tests\bin\data\models\skin_test.FBX"
             P: "LastSaved", "Compound", "", ""
             P: "LastSaved|ApplicationVendor", "KString", "", "", "Autodesk"
             P: "LastSaved|ApplicationName", "KString", "", "", "3ds Max"
             P: "LastSaved|ApplicationVersion", "KString", "", "", "2012"
-            P: "LastSaved|DateTime_GMT", "DateTime", "", "", "15/12/2018 12:43:34.186"
+            P: "LastSaved|DateTime_GMT", "DateTime", "", "", "05/01/2019 18:50:42.122"
         }
     }
 }
@@ -60,7 +60,7 @@ GlobalSettings:  {
         P: "UnitScaleFactor", "double", "Number", "",2.54
         P: "OriginalUnitScaleFactor", "double", "Number", "",2.54
         P: "AmbientColor", "ColorRGB", "Color", "",0,0,0
-        P: "DefaultCamera", "KString", "", "", "Producer Left"
+        P: "DefaultCamera", "KString", "", "", "Producer Top"
         P: "TimeMode", "enum", "", "",6
         P: "TimeSpanStart", "KTime", "Time", "",0
         P: "TimeSpanStop", "KTime", "Time", "",153953860000
@@ -72,7 +72,7 @@ GlobalSettings:  {
 
 Documents:  {
     Count: 1
-    Document: 728574832, "", "Scene" {
+    Document: 853923760, "", "Scene" {
         Properties70:  {
             P: "SourceObject", "object", "", ""
             P: "ActiveAnimStackName", "KString", "", "", ""
@@ -233,7 +233,7 @@ Definitions:  {
 ;------------------------------------------------------------------
 
 Objects:  {
-    Geometry: 308243328, "Geometry::", "Mesh" {
+    Geometry: 853983696, "Geometry::", "Mesh" {
         Properties70:  {
             P: "Color", "ColorRGB", "Color", "",0.423529411764706,0.0313725490196078,0.533333333333333
         }
@@ -332,19 +332,19 @@ a: 1,1,0,1,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,1,0,1,0,1,0,0
             }
         }
     }
-    NodeAttribute: 308225536, "NodeAttribute::", "LimbNode" {
+    NodeAttribute: 853971072, "NodeAttribute::", "LimbNode" {
         Properties70:  {
             P: "Size", "double", "Number", "",21.0568871498108
         }
         TypeFlags: "Skeleton"
     }
-    NodeAttribute: 308235456, "NodeAttribute::", "LimbNode" {
+    NodeAttribute: 853968048, "NodeAttribute::", "LimbNode" {
         Properties70:  {
             P: "Size", "double", "Number", "",21.0568871498108
         }
         TypeFlags: "Skeleton"
     }
-    Model: 308169568, "Model::Box001", "Mesh" {
+    Model: 853936528, "Model::Box001", "Mesh" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -360,7 +360,7 @@ a: 1,1,0,1,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,1,0,1,0,1,0,0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 308174128, "Model::Bone001", "LimbNode" {
+    Model: 853941136, "Model::Bone001", "LimbNode" {
         Version: 232
         Properties70:  {
             P: "PreRotation", "Vector3D", "Vector", "",-90,0,0
@@ -378,7 +378,7 @@ a: 1,1,0,1,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,1,0,1,0,1,0,0
         Shading: T
         Culling: "CullingOff"
     }
-    Model: 308171408, "Model::Bone002", "LimbNode" {
+    Model: 853945648, "Model::Bone002", "LimbNode" {
         Version: 232
         Properties70:  {
             P: "InheritType", "enum", "", "",1
@@ -394,41 +394,41 @@ a: 1,1,0,1,1,1,1,0,1,1,1,0,1,1,1,0,1,1,1,0,1,1,0,1,0,1,0,1,0,0
         Shading: T
         Culling: "CullingOff"
     }
-    Pose: 308364304, "Pose::BIND_POSES", "BindPose" {
+    Pose: 854019568, "Pose::BIND_POSES", "BindPose" {
         Type: "BindPose"
         Version: 100
         NbPoseNodes: 3
         PoseNode:  {
-            Node: 308169568
+            Node: 853936528
             Matrix: *16 {
 a: 1,0,0,0,0,0,-1,0,0,1,0,0,0,0,0,1
 } 
         }
         PoseNode:  {
-            Node: 308174128
+            Node: 853941136
             Matrix: *16 {
 a: 0.00378782232291996,0,-0.999992847442627,0,-0.999992847442627,0,-0.00378782232291996,0,0,1,0,0,-0.00399285554885864,0,2.98130798339844,1
 } 
         }
         PoseNode:  {
-            Node: 308171408
+            Node: 853945648
             Matrix: *16 {
 a: -4.42378222942352e-009,0,-1,0,-1,0,4.42378222942352e-009,0,0,1,0,0,0.00740141980350018,0,-0.0267972946166992,1
 } 
         }
     }
-    Deformer: 308374048, "Deformer::", "Skin" {
+    Deformer: 854000576, "Deformer::", "Skin" {
         Version: 101
         Link_DeformAcuracy: 50
     }
-    Deformer: 308377024, "SubDeformer::", "Cluster" {
+    Deformer: 854007056, "SubDeformer::", "Cluster" {
         Version: 100
         UserData: "", ""
         Indexes: *8 {
 a: 0,1,2,3,6,7,8,9
 } 
         Weights: *8 {
-a: 1,1,1,1,1,1,1,1
+a: 1,1,0.564607262611389,0.561975002288818,1,1,0.564607262611389,0.561975002288818
 } 
         Transform: *16 {
 a: 0.00378782216180463,-0.99999280490857,6.12319006873131e-017,0,0.99999280490857,0.00378782216180463,6.10004027381253e-017,0,-6.12318993850832e-017,6.10004014408187e-017,1,0,2.98130165684165,0.00729983763078376,-4.46986148947872e-019,1
@@ -437,14 +437,14 @@ a: 0.00378782216180463,-0.99999280490857,6.12319006873131e-017,0,0.9999928049085
 a: 0.00378782232291723,0,-0.999992847442627,0,-0.999992847442627,6.12323412596069e-017,-0.00378782232291723,0,6.12319006873131e-017,1,2.31937219242323e-019,0,-0.00399285554885864,0,2.98130798339844,1
 } 
     }
-    Deformer: 308366240, "SubDeformer::", "Cluster" {
+    Deformer: 854027536, "SubDeformer::", "Cluster" {
         Version: 100
         UserData: "", ""
-        Indexes: *4 {
-a: 4,5,10,11
+        Indexes: *8 {
+a: 2,3,4,5,8,9,10,11
 } 
-        Weights: *4 {
-a: 1,1,1,1
+        Weights: *8 {
+a: 0.435392707586288,0.438024997711182,1,1,0.435392707586288,0.438024997711182,1,1
 } 
         Transform: *16 {
 a: 6.12323399573677e-017,-1,6.12323399573677e-017,0,1,6.12323399573677e-017,6.12323399573677e-017,0,-6.12323399573677e-017,6.12323399573677e-017,1,0,-0.0267972946166992,0.00740141980350017,-4.53206253575116e-019,1
@@ -453,9 +453,9 @@ a: 6.12323399573677e-017,-1,6.12323399573677e-017,0,1,6.12323399573677e-017,6.12
 a: 6.12323399573677e-017,0,-1,0,-1,6.12323399573677e-017,-6.12323399573677e-017,0,6.12323399573677e-017,1,3.74939945665464e-033,0,0.00740141980350018,0,-0.0267972946166992,1
 } 
     }
-    AnimationStack: 308156816, "AnimStack::Take 001", "" {
+    AnimationStack: 853907664, "AnimStack::Take 001", "" {
     }
-    AnimationLayer: 308180432, "AnimLayer::BaseLayer", "" {
+    AnimationLayer: 853961520, "AnimLayer::BaseLayer", "" {
     }
 }
 
@@ -465,40 +465,40 @@ a: 6.12323399573677e-017,0,-1,0,-1,6.12323399573677e-017,-6.12323399573677e-017,
 Connections:  {
     
     ;Model::Box001, Model::RootNode
-    C: "OO",308169568,0
+    C: "OO",853936528,0
     
     ;Model::Bone001, Model::RootNode
-    C: "OO",308174128,0
+    C: "OO",853941136,0
     
     ;AnimLayer::BaseLayer, AnimStack::Take 001
-    C: "OO",308180432,308156816
+    C: "OO",853961520,853907664
     
     ;Geometry::, Model::Box001
-    C: "OO",308243328,308169568
+    C: "OO",853983696,853936528
     
     ;Model::Bone002, Model::Bone001
-    C: "OO",308171408,308174128
+    C: "OO",853945648,853941136
     
     ;NodeAttribute::, Model::Bone001
-    C: "OO",308225536,308174128
+    C: "OO",853971072,853941136
     
     ;NodeAttribute::, Model::Bone002
-    C: "OO",308235456,308171408
+    C: "OO",853968048,853945648
     
     ;Deformer::, Geometry::
-    C: "OO",308374048,308243328
+    C: "OO",854000576,853983696
     
     ;SubDeformer::, Deformer::
-    C: "OO",308377024,308374048
+    C: "OO",854007056,854000576
     
     ;SubDeformer::, Deformer::
-    C: "OO",308366240,308374048
+    C: "OO",854027536,854000576
     
     ;Model::Bone001, SubDeformer::
-    C: "OO",308174128,308377024
+    C: "OO",853941136,854007056
     
     ;Model::Bone002, SubDeformer::
-    C: "OO",308171408,308366240
+    C: "OO",853945648,854027536
 }
 ;Takes section
 ;----------------------------------------------------

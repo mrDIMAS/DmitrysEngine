@@ -106,7 +106,7 @@ char * de_serialize_heap_string(de_serializer_t * s, char * str)
 		do
 		{
 			fread(&symbol, 1, 1, s->file);
-			str = realloc(str, ++symbolCount);
+			str = (char*)realloc(str, ++symbolCount);
 			str[symbolCount - 1] = symbol;
 		} while (symbol != '\0');
 	}
@@ -136,7 +136,7 @@ void * de_serialize_pointer(de_serializer_t * s, void * p, int size)
 		/* check for existing pointer pair - "last-current" */
 		de_pointer_pair_t * existing = NULL;
 		de_bool_t alreadyExists = DE_FALSE;
-		for (int i = 0; i < s->pointerPairs.size; ++i)
+		for (size_t i = 0; i < s->pointerPairs.size; ++i)
 		{
 			if (s->pointerPairs.data[i].last == (intptr_t)ptr)
 			{
@@ -158,7 +158,7 @@ void * de_serialize_pointer(de_serializer_t * s, void * p, int size)
 			/* object doesn't exist, create new one */
 			if (size)
 			{
-				p = de_malloc(1, size);
+				p = de_malloc(size);
 			}
 			else
 			{

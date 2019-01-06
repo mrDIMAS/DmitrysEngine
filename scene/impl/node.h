@@ -22,8 +22,6 @@
 /*=======================================================================================*/
 void de_node_free(de_node_t* node)
 {
-	size_t i;
-
 	/* Free children first */
 	while(node->children.size)
 	{

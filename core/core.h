@@ -102,6 +102,16 @@ unsigned int de_core_get_window_width(de_core_t* core);
 unsigned int de_core_get_window_height(de_core_t* core);
 
 /**
+ * @brief Returns current renderer of the core.
+ */
+de_renderer_t* de_core_get_renderer(de_core_t* core);
+
+/**
+ * @brief Returns current gui subsystem of the core.
+ */
+de_gui_t* de_core_get_gui(de_core_t* core);
+
+/**
 * Platform-specific function prototypes.
 * Each of below functions must be implemented for each platform.
 */

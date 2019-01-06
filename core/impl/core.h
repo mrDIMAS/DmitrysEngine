@@ -133,3 +133,15 @@ unsigned int de_core_get_window_height(de_core_t* core)
 {
 	return core->params.height;
 }
+
+/*=======================================================================================*/
+de_renderer_t* de_core_get_renderer(de_core_t* core)
+{
+	return core->renderer;
+}
+
+/*=======================================================================================*/
+de_gui_t* de_core_get_gui(de_core_t* core)
+{
+	return core->gui;
+}

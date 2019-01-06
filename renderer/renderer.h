@@ -164,6 +164,10 @@ struct de_renderer_t
 	} gui_render_buffers;
 
 	DE_LINKED_LIST_DECLARE(de_texture_t, textures);
+
+	/* statistics (time in milliseconds) */
+	float frame_time; 
+	size_t frames_per_second;
 };
 
 /**
@@ -213,6 +217,16 @@ de_texture_t* de_renderer_create_texture(de_renderer_t* r, size_t w, size_t h, s
 void de_renderer_set_framerate_limit(de_renderer_t* r, int limit);
 
 /**
-* @brief Performs rendering of every scene
-*/
+ * @brief Performs rendering of every scene
+ */
 void de_renderer_render(de_renderer_t* r);
+
+/**
+ * @brief Returns FPS.
+ */
+size_t de_renderer_get_fps(de_renderer_t* r);
+
+/**
+ * @brief Returns time consumed by the renderer to draw one frame.
+ */
+float de_render_get_frame_time(de_renderer_t* r);

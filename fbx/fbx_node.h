@@ -29,7 +29,7 @@ typedef struct de_fbx_buffer_t
 
 void de_fbx_buffer_init(de_fbx_buffer_t* buf, size_t size)
 {
-	buf->data = de_malloc(size);
+	buf->data = (char*) de_malloc(size);
 	buf->ptr = buf->data;
 	buf->end = (char*)buf->data + size;
 	buf->size = size;

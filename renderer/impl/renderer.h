@@ -399,7 +399,7 @@ de_renderer_t* de_renderer_init(de_core_t* core)
 
 	DE_GL_CALL(glEnable(GL_DEPTH_TEST));
 	DE_GL_CALL(glEnable(GL_CULL_FACE));
-	glCullFace(GL_FRONT);
+	glCullFace(GL_BACK);
 
 	de_create_gbuffer(r, core->params.width, core->params.height);
 
@@ -725,12 +725,14 @@ static void de_upload_texture(de_texture_t* texture)
 	texture->need_upload = DE_FALSE;
 }
 
+/*=======================================================================================*/
 static void de_render_fullscreen_quad(de_renderer_t* r)
 {
 	DE_GL_CALL(glBindVertexArray(r->quad->vao));
 	DE_GL_CALL(glDrawElements(GL_TRIANGLES, r->quad->indices.size, GL_UNSIGNED_INT, NULL));
 }
 
+/*=======================================================================================*/
 static void de_render_mesh(de_renderer_t* r, de_mesh_t* mesh)
 {
 	size_t i;
@@ -759,6 +761,7 @@ static void de_render_mesh(de_renderer_t* r, de_mesh_t* mesh)
 	}
 }
 
+/*=======================================================================================*/
 static void de_render_mesh_normals(de_renderer_t* r, de_mesh_t* mesh)
 {
 	size_t i;
@@ -768,6 +771,7 @@ static void de_render_mesh_normals(de_renderer_t* r, de_mesh_t* mesh)
 	}
 }
 
+/*=======================================================================================*/
 static void de_set_viewport(const de_rectf_t* viewport, unsigned int window_width, unsigned int window_height)
 {
 	int viewport_x = (int)(viewport->x * window_width);
@@ -778,6 +782,7 @@ static void de_set_viewport(const de_rectf_t* viewport, unsigned int window_widt
 	DE_GL_CALL(glViewport(viewport_x, viewport_y, viewport_w, viewport_h));
 }
 
+/*=======================================================================================*/
 static void de_upload_textures(de_renderer_t* r)
 {
 	de_texture_t* texture;
@@ -791,6 +796,7 @@ static void de_upload_textures(de_renderer_t* r)
 	}
 }
 
+/*=======================================================================================*/
 void de_renderer_render(de_renderer_t* r)
 {
 	de_core_t* core = r->core;
@@ -800,22 +806,32 @@ void de_renderer_render(de_renderer_t* r)
 	size_t i;
 	de_scene_t* scene;
 	de_mat4_t y_flip_ortho, ortho;
+	de_rectf_t gui_viewport = { 0, 0, 1, 1 };
 	GLenum buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT };
 	float w = (float)core->params.width;
 	float h = (float)core->params.height;
+	float frame_start_time = de_time_get_seconds();
 
 	/* Upload textures first */
 	de_upload_textures(r);
 
-	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, r->gbuffer.fbo));
+	if (core->scenes.head)
+	{
+		DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, r->gbuffer.fbo));
+		DE_GL_CALL(glDrawBuffers(3, buffers));
+	}
+	else
+	{
+		/* bind back buffer if no scenes */
+		DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+	}
 	glClearColor(0.1f, 0.1f, 0.1f, 0);
 	DE_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 	glClearColor(0.0f, 0.0f, 0.0f, 0);
 
-	DE_GL_CALL(glDrawBuffers(3, buffers));
-
 	DE_GL_CALL(glUseProgram(r->gbuffer_shader.program));
 	DE_GL_CALL(glUniform1i(r->gbuffer_shader.diffuse_texture, 0));
+	DE_GL_CALL(glEnable(GL_CULL_FACE));
 
 	/* render each scene */
 	DE_LINKED_LIST_FOR_EACH(core->scenes, scene)
@@ -899,7 +915,6 @@ void de_renderer_render(de_renderer_t* r)
 			}
 		}
 
-		/*DE_GL_CALL(glEnable(GL_CULL_FACE));*/
 		DE_GL_CALL(glEnable(GL_DEPTH_TEST));
 		DE_GL_CALL(glDisable(GL_BLEND));
 
@@ -925,10 +940,21 @@ void de_renderer_render(de_renderer_t* r)
 		}
 	}
 
+	/* Unbind FBO textures */
+	DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
+	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+	DE_GL_CALL(glActiveTexture(GL_TEXTURE1));
+	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+	DE_GL_CALL(glActiveTexture(GL_TEXTURE2));
+	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+
+	de_set_viewport(&gui_viewport, core->params.width, core->params.height);
+
 	DE_GL_CALL(glDisable(GL_DEPTH_TEST));
 	DE_GL_CALL(glEnable(GL_BLEND));
 	DE_GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 	DE_GL_CALL(glEnable(GL_STENCIL_TEST));
+	DE_GL_CALL(glDisable(GL_CULL_FACE));
 	/* Render GUI */
 	{
 		int index_bytes, vertex_bytes;
@@ -1005,13 +1031,8 @@ void de_renderer_render(de_renderer_t* r)
 	DE_GL_CALL(glDisable(GL_BLEND));
 	DE_GL_CALL(glEnable(GL_DEPTH_TEST));
 
-	/* Unbind FBO textures */
-	DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
-	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
-	DE_GL_CALL(glActiveTexture(GL_TEXTURE1));
-	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
-	DE_GL_CALL(glActiveTexture(GL_TEXTURE2));
-	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+	r->frame_time = 1000.0f * (de_time_get_seconds() - frame_start_time);
+	r->frames_per_second = (size_t)(1000.0f / r->frame_time);
 
 	de_engine_platform_swap_buffers(r->core);
 
@@ -1028,4 +1049,16 @@ void de_renderer_render(de_renderer_t* r)
 void de_renderer_set_framerate_limit(de_renderer_t* r, int limit)
 {
 	r->frame_rate_limit = limit;
+}
+
+/*=======================================================================================*/
+size_t de_renderer_get_fps(de_renderer_t* r)
+{
+	return r->frames_per_second;
+}
+
+/*=======================================================================================*/
+float de_render_get_frame_time(de_renderer_t* r)
+{
+	return r->frame_time;
 }

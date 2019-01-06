@@ -141,7 +141,7 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 
 				return NULL;
 			}
-			DE_ARRAY_APPEND(node->attributes, attrib);
+			DE_ARRAY_APPEND(node->attributes, (char*)attrib);
 		}
 		else
 		{
@@ -200,7 +200,7 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 				{
 					size_t total_length = size * length;
 
-					raw_array = de_malloc(total_length);
+					raw_array = (char*) de_malloc(total_length);
 					if (!de_fbx_fread(raw_array, total_length, f))
 					{
 						de_log("FBX Binary: Unable to read plain array data!");
@@ -225,7 +225,7 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 						return NULL;
 					}
 
-					raw_array = tinfl_decompress_mem_to_heap(compressed, compressed_length, &decompressed_length, TINFL_FLAG_PARSE_ZLIB_HEADER);
+					raw_array = (char*) tinfl_decompress_mem_to_heap(compressed, compressed_length, &decompressed_length, TINFL_FLAG_PARSE_ZLIB_HEADER);
 					if (!raw_array)
 					{
 						de_free(compressed);
@@ -252,7 +252,7 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 					{
 						void* item = de_fbx_buffer_alloc(data_buf, size);
 						memcpy(item, raw_array + n, size);
-						DE_ARRAY_APPEND(a_node->attributes, item);
+						DE_ARRAY_APPEND(a_node->attributes, (char*)item);
 					}
 					DE_ARRAY_APPEND(node->children, a_node);
 				}
@@ -278,7 +278,7 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 					/* Strings or raw data will always contain null terminator */
 					buffer_len = length + 1;
 
-					str = de_fbx_buffer_alloc(data_buf, buffer_len);
+					str = (char*) de_fbx_buffer_alloc(data_buf, buffer_len);
 					if (!de_fbx_fread(str, length, f))
 					{
 						de_log("FBX Binary: Unable to read string/raw data!");

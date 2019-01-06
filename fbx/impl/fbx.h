@@ -1328,8 +1328,8 @@ static int de_fbx_prepare_next_face(de_fbx_geom_t* geom,
  */
 static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 {
-	size_t i, k;
-	int n, m;
+	size_t i, k, deformer_num;
+	int n, m, sub_deformer_num;
 	int material_index;
 	de_node_t* root;
 	de_animation_t* anim;
@@ -1535,6 +1535,19 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 						}
 					}
 
+					/* Skinning */
+					for (deformer_num = 0; deformer_num < geom->deformers.size; ++deformer_num)
+					{
+						de_fbx_deformer_t* deformer = geom->deformers.data[deformer_num];
+
+						for (sub_deformer_num = 0; sub_deformer_num < deformer->sub_deformers.size; ++sub_deformer_num)
+						{
+							de_fbx_sub_deformer_t* sub_deformer = deformer->sub_deformers.data[sub_deformer_num];
+
+							//v.bone_weights
+						}
+					}
+
 					de_fbx_add_vertex_to_surface(mesh->surfaces.data[surface_index], &v);
 				}
 
@@ -1612,6 +1625,12 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 				de_keyframe_t keyframe;
 
 				de_fbx_eval_keyframe(time, lcl_translation, lcl_rotation, lcl_scale, &keyframe);
+
+				/* bake node scaling into keyframe, we need this because it seems that
+				 * fbx keeps scaling relative to node's scaling */				
+				keyframe.scale.x *= node->scale.x;
+				keyframe.scale.y *= node->scale.y;
+				keyframe.scale.z *= node->scale.z;
 
 				de_animation_track_add_keyframe(track, &keyframe);
 

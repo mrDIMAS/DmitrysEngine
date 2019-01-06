@@ -51,10 +51,11 @@ static void de_gui_scroll_bar_update_indicator(de_gui_node_t* node)
 }
 
 /*=======================================================================================*/
-static void de_gui_scroll_bar_on_up_click(de_gui_node_t* node)
+static void de_gui_scroll_bar_on_up_click(de_gui_node_t* node, void* user_data)
 {
 	de_gui_node_t* scroll_bar_node = de_gui_node_find_parent_of_type(node, DE_GUI_NODE_SCROLL_BAR);
 	de_gui_scroll_bar_t* sb = &scroll_bar_node->s.scroll_bar;
+	DE_UNUSED(user_data);
 	sb->value -= sb->step;
 	if (sb->value < sb->min)
 	{
@@ -68,10 +69,11 @@ static void de_gui_scroll_bar_on_up_click(de_gui_node_t* node)
 }
 
 /*=======================================================================================*/
-static void de_gui_scroll_bar_on_down_click(de_gui_node_t* node)
+static void de_gui_scroll_bar_on_down_click(de_gui_node_t* node, void* user_data)
 {
 	de_gui_node_t* scroll_bar_node = de_gui_node_find_parent_of_type(node, DE_GUI_NODE_SCROLL_BAR);
 	de_gui_scroll_bar_t* sb = &scroll_bar_node->s.scroll_bar;
+	DE_UNUSED(user_data);
 	sb->value += sb->step;
 	if (sb->value > sb->max)
 	{
@@ -211,13 +213,13 @@ de_gui_node_t* de_gui_scroll_bar_create(de_gui_t* gui)
 	de_gui_text_set_text(de_gui_button_get_text(sb->up_button), "<");
 	de_gui_text_set_alignment(de_gui_button_get_text(sb->up_button), DE_GUI_TA_CENTER);
 	de_gui_node_attach(sb->up_button, sb->grid);
-	de_gui_button_set_click(sb->up_button, de_gui_scroll_bar_on_up_click);
+	de_gui_button_set_click(sb->up_button, de_gui_scroll_bar_on_up_click, NULL);
 
 	sb->down_button = de_gui_button_create(gui);
 	de_gui_text_set_text(de_gui_button_get_text(sb->down_button), ">");
 	de_gui_text_set_alignment(de_gui_button_get_text(sb->down_button), DE_GUI_TA_CENTER);
 	de_gui_node_attach(sb->down_button, sb->grid);
-	de_gui_button_set_click(sb->down_button, de_gui_scroll_bar_on_down_click);
+	de_gui_button_set_click(sb->down_button, de_gui_scroll_bar_on_down_click, NULL);
 
 	de_gui_scroll_bar_set_direction(n, DE_GUI_SCROLL_BAR_ORIENTATION_HORIZONTAL);
 	de_gui_scroll_bar_update_indicator(n);

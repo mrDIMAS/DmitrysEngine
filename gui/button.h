@@ -29,7 +29,7 @@ typedef struct de_gui_button_t
 	de_color_t hover_color;
 	struct de_gui_node_t* border;
 	struct de_gui_node_t* text;
-	void(*click)(de_gui_node_t*);
+	de_gui_callback_t click;	
 	de_bool_t was_pressed;
 } de_gui_button_t;
 
@@ -39,7 +39,7 @@ de_gui_node_t* de_gui_button_create(de_gui_t* gui);
 * @brief
 * @param node
 */
-void de_gui_button_set_click(de_gui_node_t* node, void(*on_click)(de_gui_node_t*));
+void de_gui_button_set_click(de_gui_node_t* node, de_gui_callback_func_t click, void* user_data);
 
 /**
 * @brief

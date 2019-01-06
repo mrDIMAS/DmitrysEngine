@@ -53,7 +53,7 @@ static int de_octree_count_leafs(de_octree_t* octree)
 static void de_octree_create_trace_buffers(de_octree_t* octree)
 {
 	int leafCount = de_octree_count_leafs(octree);
-	octree->traceBuffer.nodes = de_calloc(leafCount, sizeof(*octree->traceBuffer.nodes));
+	octree->traceBuffer.nodes = (de_octree_node_t **)de_calloc(leafCount, sizeof(*octree->traceBuffer.nodes));
 	octree->traceBuffer.size = 0;
 }
 
@@ -110,7 +110,7 @@ static void de_octree_build_recursive_internal(
 	{
 		size_t sizeBytes = sizeof(int)* index_count;
 		node->indexCount = index_count;
-		node->indices = de_malloc(sizeBytes);
+		node->indices = (int *) de_malloc(sizeBytes);
 		memcpy(node->indices, indices, sizeBytes);
 	}
 	else

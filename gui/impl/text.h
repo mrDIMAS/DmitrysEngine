@@ -27,21 +27,22 @@ static void de_gui_text_break_on_lines(de_gui_node_t* node)
 	DE_ARRAY_CLEAR(txt->lines);
 	for (i = 0; i < txt->str.size; ++i)
 	{
-		float new_width;
+		float new_width;		
 		uint32_t code = txt->str.data[i];
 		de_glyph_t* glyph = de_font_get_glyph(txt->font, code);
 		if (!glyph)
 		{
 			continue;
-		}
+		}		
 		new_width = line.width + glyph->advance;
 		if (new_width > node->actual_size.x || code == '\n')
 		{
+			de_bool_t control_char = code == '\n' || code == '\r';
 			/* commit line */
 			DE_ARRAY_APPEND(txt->lines, line);
 			/* start new line */
-			line.begin = i;
-			line.end = i;
+			line.begin = control_char ? i + 1 : i;
+			line.end = line.begin;
 			line.width = glyph->advance;
 			txt->total_lines_height += txt->font->ascender;
 		}

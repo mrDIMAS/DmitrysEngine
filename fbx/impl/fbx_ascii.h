@@ -166,7 +166,7 @@ de_fbx_node_t* de_fbx_ascii_load_file(const char* filename, de_fbx_buffer_t* dat
 				{
 					char* attrib;
 					value[value_length] = '\0';
-					attrib = de_fbx_buffer_alloc(data_buf, value_length + 1);
+					attrib = (char*) de_fbx_buffer_alloc(data_buf, value_length + 1);
 					memcpy(attrib, value, value_length + 1);
 					DE_ARRAY_APPEND(node->attributes, attrib);
 					value_length = 0;
@@ -184,7 +184,7 @@ de_fbx_node_t* de_fbx_ascii_load_file(const char* filename, de_fbx_buffer_t* dat
 					value[value_length++] = symbol;
 				}
 				value[value_length] = '\0';
-				attrib = de_fbx_buffer_alloc(data_buf, value_length + 1);
+				attrib = (char*) de_fbx_buffer_alloc(data_buf, value_length + 1);
 				memcpy(attrib, value, value_length + 1);
 				DE_ARRAY_APPEND(node->attributes, attrib);
 				value_length = 0;

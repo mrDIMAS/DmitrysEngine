@@ -475,6 +475,9 @@ de_renderer_t* de_renderer_init(de_core_t* core)
 		pixel->r = pixel->g = pixel->b = pixel->a = 255;
 	}
 
+	r->render_normals = DE_FALSE;
+	r->render_bones = DE_TRUE;
+
 	return r;
 }
 
@@ -495,7 +498,7 @@ static void de_render_surface_normals(de_renderer_t* r, de_surface_t* surface)
 
 	DE_ARRAY_CLEAR(r->test_surface->vertices);
 	DE_ARRAY_CLEAR(r->test_surface->indices);
-	r->test_surface->need_upload = DE_TRUE;
+
 	for (i = 0; i < surface->vertices.size; ++i)
 	{
 		de_vertex_t* vertex;
@@ -515,7 +518,46 @@ static void de_render_surface_normals(de_renderer_t* r, de_surface_t* surface)
 		DE_ARRAY_APPEND(r->test_surface->indices, ia);
 		DE_ARRAY_APPEND(r->test_surface->indices, ib);
 	}
-	de_surface_upload(r->test_surface);
+
+	de_renderer_upload_surface(r->test_surface);
+
+	DE_GL_CALL(glBindVertexArray(r->test_surface->vao));
+	DE_GL_CALL(glDrawElements(GL_LINES, r->test_surface->indices.size, GL_UNSIGNED_INT, NULL));
+}
+
+/*=======================================================================================*/
+static void de_renderer_draw_surface_bones(de_renderer_t* r, de_surface_t* surface)
+{
+	size_t i, j, index = 0;
+
+	DE_ARRAY_CLEAR(r->test_surface->vertices);
+	DE_ARRAY_CLEAR(r->test_surface->indices);
+
+	for (i = 0; i < surface->bones.size; ++i)
+	{
+		de_node_t* bone = surface->bones.data[i];
+		de_vertex_t begin, end;
+
+		for (j = 0; j < bone->children.size; ++j)
+		{
+			de_node_t* next_bone = bone->children.data[j];
+
+			if (!next_bone->is_bone)
+			{
+				continue;
+			}
+			de_node_get_global_position(bone, &begin.position);
+			de_node_get_global_position(next_bone, &end.position);
+			
+			DE_ARRAY_APPEND(r->test_surface->vertices, begin);
+			DE_ARRAY_APPEND(r->test_surface->vertices, end);
+
+			DE_ARRAY_APPEND(r->test_surface->indices, index++);
+			DE_ARRAY_APPEND(r->test_surface->indices, index++);
+		}		
+	}
+
+	de_renderer_upload_surface(r->test_surface);
 
 	DE_GL_CALL(glBindVertexArray(r->test_surface->vao));
 	DE_GL_CALL(glDrawElements(GL_LINES, r->test_surface->indices.size, GL_UNSIGNED_INT, NULL));
@@ -773,9 +815,19 @@ static void de_render_fullscreen_quad(de_renderer_t* r)
 }
 
 /*=======================================================================================*/
+static void de_renderer_draw_mesh_bones(de_renderer_t* r, de_mesh_t* mesh)
+{
+	size_t i;
+	for (i = 0; i < mesh->surfaces.size; ++i)
+	{
+		de_renderer_draw_surface_bones(r, mesh->surfaces.data[i]);
+	}
+}
+
+/*=======================================================================================*/
 static void de_render_mesh(de_renderer_t* r, de_mesh_t* mesh)
 {
-	size_t i, j;
+	size_t i;
 
 	for (i = 0; i < mesh->surfaces.size; ++i)
 	{
@@ -914,7 +966,7 @@ void de_renderer_render(de_renderer_t* r)
 				de_mat4_mul(&wvp_matrix, &camera->view_projection_matrix, is_skinned ? &identity : &node->global_matrix);
 
 				DE_GL_CALL(glUniformMatrix4fv(r->gbuffer_shader.wvp_matrix, 1, GL_FALSE, wvp_matrix.f));
-				DE_GL_CALL(glUniformMatrix4fv(r->gbuffer_shader.world_matrix, 1, GL_FALSE, is_skinned ? &identity : node->global_matrix.f));
+				DE_GL_CALL(glUniformMatrix4fv(r->gbuffer_shader.world_matrix, 1, GL_FALSE, is_skinned ? identity.f : node->global_matrix.f));
 
 				de_render_mesh(r, mesh);
 			}
@@ -994,6 +1046,27 @@ void de_renderer_render(de_renderer_t* r)
 				if (node->type == DE_NODE_TYPE_MESH)
 				{
 					de_render_mesh_normals(r, &node->s.mesh);
+				}
+			}
+		}
+
+		if (r->render_bones)
+		{
+			DE_GL_CALL(glUseProgram(r->flat_shader.program));
+
+			de_set_viewport(&camera->viewport, core->params.width, core->params.height);
+
+			/* Render each node */
+			DE_LINKED_LIST_FOR_EACH(scene->nodes, node)
+			{
+				de_mat4_t wvp_matrix;
+
+				de_mat4_mul(&wvp_matrix, &camera->view_projection_matrix, &identity);
+				DE_GL_CALL(glUniformMatrix4fv(r->flat_shader.wvp_matrix, 1, GL_FALSE, wvp_matrix.f));
+
+				if (node->type == DE_NODE_TYPE_MESH)
+				{
+					de_renderer_draw_mesh_bones(r, &node->s.mesh);
 				}
 			}
 		}

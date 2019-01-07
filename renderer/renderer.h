@@ -154,9 +154,12 @@ struct de_renderer_t
 
 	de_surface_t* quad;
 
-	de_surface_t * test_surface;
-	de_bool_t render_normals;
+	de_surface_t * test_surface;	
 	de_texture_t* white_dummy;
+
+	/* Debugging switches */
+	de_bool_t render_normals;
+	de_bool_t render_bones;
 
 	struct
 	{

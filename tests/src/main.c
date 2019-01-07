@@ -553,6 +553,12 @@ void game_main_loop(game_t* game)
 		dt = de_time_get_seconds() - game_clock;
 		while (dt >= fixed_timestep)
 		{
+			if (dt >= 4 * fixed_timestep)
+			{
+				game_clock = de_time_get_seconds();
+				break;
+			}
+
 			dt -= fixed_timestep;
 			game_clock += fixed_timestep;
 

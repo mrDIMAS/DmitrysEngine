@@ -1350,16 +1350,18 @@ void de_fbx_prepare_deformer(de_fbx_geom_t* geom, de_vertex_bone_group_t* out_ve
 			for (k = 0; k < sub_deformer->indices.size; ++k)
 			{
 				de_vertex_bone_group_t* v;
+
 				size_t index = sub_deformer->indices.data[k];
+				float weight = sub_deformer->weights.data[k];
+
 				v = out_vertices + index;
+
 				if (v->bone_count < 4)
 				{
 					de_bone_proxy_t* bone_proxy;
 					bone_proxy = &v->bones[v->bone_count++];
-					bone_proxy->weight = sub_deformer->weights.data[k];
+					bone_proxy->weight = weight;
 					bone_proxy->node = sub_deformer->model;
-					/* store pointer to sub defomer to quickly extract data from it later on */
-					bone_proxy->user_data = sub_deformer;
 				}
 			}
 		}
@@ -1671,12 +1673,6 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 
 				de_fbx_eval_keyframe(node, time, lcl_translation, lcl_rotation, lcl_scale, &keyframe);
 
-				/* bake node scaling into keyframe, we need this because it seems that
-				 * fbx keeps scaling relative to node's scaling */
-				keyframe.scale.x *= node->scale.x;
-				keyframe.scale.y *= node->scale.y;
-				keyframe.scale.z *= node->scale.z;
-
 				de_animation_track_add_keyframe(track, &keyframe);
 
 				float next_time = de_fbx_get_next_keyframe_time(time, lcl_translation, lcl_rotation, lcl_scale);
@@ -1707,9 +1703,16 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 		}		
 	}
 
+	for (i = 0; i < created_nodes.size; ++i)
+	{
+		de_node_t* node = created_nodes.data[i];
+		de_node_calculate_transforms(node);
+		de_mat4_inverse(&node->inv_bind_pose_matrix, &node->global_matrix);
+	}
+
 	/* Remap pointers to fbx models to engine nodes in every surface (part of skinning)
 	 * We can't set corrent pointers to nodes when filling surface, because not all nodes
-	 * are were created. In addition, create inverse bind transforms of each bone node. */
+	 * are were created.  */
 	for (i = 0; i < created_nodes.size; ++i)
 	{
 		de_node_t* node = created_nodes.data[i];
@@ -1726,21 +1729,13 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 				{
 					de_vertex_bone_group_t* bone_group = surface->skinning_data.data + k;
 					
-					for (n = 0; n < bone_group->bone_count; ++n)
+					for (n = 0; n < (int)bone_group->bone_count; ++n)
 					{
-						de_bone_proxy_t* bone = bone_group->bones + n;
-						de_fbx_sub_deformer_t* sub_deformer = (de_fbx_sub_deformer_t*)bone->user_data;			
+						de_bone_proxy_t* bone = bone_group->bones + n;							
 						de_node_t* bone_node = ((de_fbx_model_t*)bone->node)->engine_node;						
 						bone->node = bone_node;
-						de_node_calculate_transforms(bone_node);
-						if (de_surface_add_bone(surface, bone_node))
-						{
-							/* Calculate inverse bind transform for newly added bone */
-							//de_mat4_inverse(&bone_node->inv_bind_pose_matrix, &sub_deformer->transform);
-							de_mat4_inverse(&bone_node->inv_bind_pose_matrix, &bone_node->global_matrix);
-						}
-						/* clean pointer */
-						bone->user_data = NULL;
+						bone_node->is_bone = DE_TRUE;						
+						de_surface_add_bone(surface, bone_node);
 					}
 				}
 			}

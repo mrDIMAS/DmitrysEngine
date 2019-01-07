@@ -124,7 +124,7 @@ void de_node_detach(de_node_t* node)
 }
 
 /*=======================================================================================*/
-void de_node_calculate_transforms(de_node_t* node)
+de_mat4_t* de_node_calculate_transforms(de_node_t* node)
 {
 	de_mat4_t pre_rotation;
 	de_mat4_t post_rotation;
@@ -140,7 +140,7 @@ void de_node_calculate_transforms(de_node_t* node)
 
 	if (!node)
 	{
-		return;
+		return NULL;
 	}
 
 	if (node->body)
@@ -190,12 +190,14 @@ void de_node_calculate_transforms(de_node_t* node)
 
 	if (node->parent)
 	{
-		de_mat4_mul(&node->global_matrix, &node->parent->global_matrix, &node->local_matrix);
+		de_mat4_mul(&node->global_matrix, de_node_calculate_transforms(node->parent), &node->local_matrix);
 	}
 	else
 	{
 		node->global_matrix = node->local_matrix;
 	}
+
+	return &node->global_matrix;
 }
 
 /*=======================================================================================*/

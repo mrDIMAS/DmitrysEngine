@@ -92,7 +92,7 @@ void de_surface_calculate_normals(de_surface_t * surf)
 /*=======================================================================================*/
 de_bool_t de_surface_prepare_vertices_for_skinning(de_surface_t* surf)
 {
-	size_t i, k, matrix_index = 0;
+	size_t i, k;
 
 	/* ensure that surface can be skinned */
 	if (surf->skinning_data.size != surf->vertices.size)
@@ -114,8 +114,10 @@ de_bool_t de_surface_prepare_vertices_for_skinning(de_surface_t* surf)
 
 		for (k = 0; k < v_bone_group->bone_count; ++k)
 		{
-			v->bone_weights[k] = v_bone_group->bones[k].weight;
-			v->bones[k] = de_surface_get_bone_index(surf, (de_node_t*)v_bone_group->bones[k].node);
+			de_bone_proxy_t* bone_proxy = v_bone_group->bones + k;
+
+			v->bone_weights[k] = bone_proxy->weight;
+			v->bones[k] = (uint8_t)de_surface_get_bone_index(surf, (de_node_t*)bone_proxy->node);
 		}
 	}
 
@@ -141,7 +143,7 @@ de_bool_t de_surface_add_bone(de_surface_t* surf, de_node_t* bone)
 }
 
 /*=======================================================================================*/
-size_t de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone)
+int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone)
 {
 	size_t i;
 

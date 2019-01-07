@@ -64,6 +64,7 @@ struct de_node_t
 	de_bool_t visible; /**< Local visibility. Actual visibility defined by hierarchy. So if parent node is invisible, then child node will be too */
 
 	void* user_data;
+	de_bool_t is_bone;
 
 	/* Physics */
 	de_body_t* body;
@@ -109,7 +110,7 @@ void de_node_detach(de_node_t* node);
 * @brief Calculates local and global transforms. Global transform takes into account node hierarchy
 * @param node pointer to node
 */
-void de_node_calculate_transforms(de_node_t* node);
+de_mat4_t* de_node_calculate_transforms(de_node_t* node);
 
 /**
 * @brief Writes out look vector from node's global transform

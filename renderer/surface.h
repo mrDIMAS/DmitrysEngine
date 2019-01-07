@@ -27,9 +27,6 @@ typedef struct de_bone_proxy_t
 	void* node;
 	/* Actual weight of a node in total transform */
 	float weight;
-	/* Pointer to custom data. Useful when need to fetch something real quick. 
-	 * Used in FBX loader. */
-	void* user_data;
 } de_bone_proxy_t;
 
 typedef struct de_vertex_bone_group_t
@@ -113,7 +110,7 @@ de_bool_t de_surface_add_bone(de_surface_t* surf, de_node_t* bone);
  * 
  * Notes: O(n)
  */
-size_t de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone);
+int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone);
 
 /**
  * @brief Fills matrices for each bone. Matrices array will be filled so each vertex will 

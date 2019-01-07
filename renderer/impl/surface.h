@@ -19,6 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+/*=======================================================================================*/
 void de_surface_load_data(de_surface_t* surf, de_vertex_t* vertices, size_t vertex_count, int* indices, size_t index_count)
 {
 	size_t i;
@@ -37,11 +38,13 @@ void de_surface_load_data(de_surface_t* surf, de_vertex_t* vertices, size_t vert
 	}
 }
 
+/*=======================================================================================*/
 void de_surface_upload(de_surface_t* surf)
 {
 	surf->need_upload = DE_TRUE;
 }
 
+/*=======================================================================================*/
 void de_surface_set_texture(de_surface_t * surf, de_texture_t *tex)
 {
 	if (!surf || !tex)
@@ -54,6 +57,7 @@ void de_surface_set_texture(de_surface_t * surf, de_texture_t *tex)
 	surf->texture = tex;
 }
 
+/*=======================================================================================*/
 void de_surface_calculate_normals(de_surface_t * surf)
 {
 	size_t m;
@@ -83,4 +87,94 @@ void de_surface_calculate_normals(de_surface_t * surf)
 		b->normal = normal;
 		c->normal = normal;
 	}
+}
+
+/*=======================================================================================*/
+de_bool_t de_surface_prepare_vertices_for_skinning(de_surface_t* surf)
+{
+	size_t i, k, matrix_index = 0;
+
+	/* ensure that surface can be skinned */
+	if (surf->skinning_data.size != surf->vertices.size)
+	{
+		return DE_FALSE;
+	}
+
+	/* problem: gpu knows only index of matrix for each vertex that it should apply to vertex 
+	 * to do skinning, but on engine side we want to be able to use scene nodes as bones,
+	 * so here we just calculating index of affecting bone of a vertex, so index will point 
+	 * to matrix that gpu will use.
+	 * */
+
+	/* map bone nodes to bone indices */
+	for (i = 0; i < surf->vertices.size; ++i)
+	{
+		de_vertex_t* v = surf->vertices.data + i;
+		de_vertex_bone_group_t* v_bone_group = surf->skinning_data.data + i;
+
+		for (k = 0; k < v_bone_group->bone_count; ++k)
+		{
+			v->bone_weights[k] = v_bone_group->bones[k].weight;
+			v->bones[k] = de_surface_get_bone_index(surf, (de_node_t*)v_bone_group->bones[k].node);
+		}
+	}
+
+	return DE_TRUE;
+}
+
+/*=======================================================================================*/
+de_bool_t de_surface_add_bone(de_surface_t* surf, de_node_t* bone)
+{
+	size_t i;
+
+	for (i = 0; i < surf->bones.size; ++i)
+	{
+		if (surf->bones.data[i] == bone)
+		{
+			return DE_FALSE;
+		}
+	}
+
+	DE_ARRAY_APPEND(surf->bones, bone);
+
+	return DE_TRUE;
+}
+
+/*=======================================================================================*/
+size_t de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone)
+{
+	size_t i;
+
+	for (i = 0; i < surf->bones.size; ++i)
+	{
+		if (surf->bones.data[i] == bone)
+		{
+			return i;
+		}
+	}
+
+	de_log("error: no such bone %s found in surface's bones!", bone->name);
+
+	return -1;
+}
+
+/*=======================================================================================*/
+void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* mesh_local_transform, de_mat4_t* out_matrices, size_t max_matrices)
+{
+	size_t i;
+
+	for (i = 0; i < surf->bones.size && i < max_matrices; ++i)
+	{
+		de_node_t* bone_node = surf->bones.data[ i];
+		de_mat4_t* m = out_matrices + i;
+
+		de_mat4_mul(m, &bone_node->global_matrix, &bone_node->inv_bind_pose_matrix);
+		de_mat4_mul(m, m, mesh_local_transform);
+	}
+}
+
+/*=======================================================================================*/
+de_bool_t de_surface_is_skinned(de_surface_t* surf)
+{
+	return surf->skinning_data.size > 0;
 }

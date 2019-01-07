@@ -116,7 +116,7 @@ void de_scene_add_node(de_scene_t* s, de_node_t* node)
 
 	node->scene = s;
 
-	if (node->type == DE_NODE_CAMERA)
+	if (node->type == DE_NODE_TYPE_CAMERA)
 	{
 		s->active_camera = node;
 	}

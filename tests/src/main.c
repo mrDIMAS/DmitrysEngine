@@ -115,30 +115,32 @@ player_t* player_create(level_t* level)
 	p->body = de_scene_create_body(level->scene);
 	de_body_set_radius(p->body, p->stand_body_radius);
 
-	p->pivot = de_node_create(level->scene, DE_NODE_BASE);
+	p->pivot = de_node_create(level->scene, DE_NODE_TYPE_BASE);
 	de_scene_add_node(level->scene, p->pivot);
 	de_node_set_body(p->pivot, p->body);
 
-	p->camera = de_node_create(level->scene, DE_NODE_CAMERA);
+	p->camera = de_node_create(level->scene, DE_NODE_TYPE_CAMERA);
 	de_scene_add_node(level->scene, p->camera);
 	de_node_set_local_position(p->camera, &p->camera_position);
 	de_node_attach(p->camera, p->pivot);
 
-	p->flash_light = de_node_create(level->scene, DE_NODE_LIGHT);
+	p->flash_light = de_node_create(level->scene, DE_NODE_TYPE_LIGHT);
 	de_light_set_radius(p->flash_light, 4);
 	de_scene_add_node(level->scene, p->flash_light);
 	de_node_attach(p->flash_light, p->camera);
 
-	p->weapon_pivot = de_node_create(level->scene, DE_NODE_BASE);
+	p->weapon_pivot = de_node_create(level->scene, DE_NODE_TYPE_BASE);
 	de_scene_add_node(level->scene, p->weapon_pivot);
 	de_node_attach(p->weapon_pivot, p->camera);
 	de_node_set_local_position_xyz(p->weapon_pivot, 0.03, -0.052, -0.02);
 
+#if 0
 	{
 		weapon_t* shotgun = weapon_create(level, WEAPON_TYPE_SHOTGUN);
 		de_node_attach(shotgun->model, p->weapon_pivot);
 		DE_ARRAY_APPEND(p->weapons, shotgun);
 	}
+#endif
 
 	return p;
 }
@@ -320,7 +322,7 @@ level_t* level_create_test(game_t* game)
 
 	level->scene = de_scene_create(game->core);
 
-	level->test_fbx = de_fbx_load_to_scene(level->scene, "data/models/cube.fbx");
+	level->test_fbx = de_fbx_load_to_scene(level->scene, "data/models/skin_test.fbx");
 	de_node_set_local_position(level->test_fbx, &rp);
 
 	de_fbx_load_to_scene(level->scene, "data/models/map2_bin.fbx");
@@ -329,7 +331,7 @@ level_t* level_create_test(game_t* game)
 	if (polygon)
 	{
 		de_static_geometry_t* map_collider;
-		assert(polygon->type == DE_NODE_MESH);
+		assert(polygon->type == DE_NODE_TYPE_MESH);
 		map_collider = de_scene_create_static_geometry(level->scene);
 		de_node_calculate_transforms(polygon);
 		de_static_geometry_fill(map_collider, &polygon->s.mesh, polygon->global_matrix);

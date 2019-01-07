@@ -19,6 +19,25 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+typedef struct de_bone_proxy_t
+{
+	/* Pointer to real bone node (de_node_t) which affects vertex. It is multifunctional pointer.
+	 * For example in FBX loader at first step it contains pointer to fbx model (de_fbx_model_t)
+	 * after conversion it will contain pointer to bone node (de_node_t) */
+	void* node;
+	/* Actual weight of a node in total transform */
+	float weight;
+	/* Pointer to custom data. Useful when need to fetch something real quick. 
+	 * Used in FBX loader. */
+	void* user_data;
+} de_bone_proxy_t;
+
+typedef struct de_vertex_bone_group_t
+{	
+	de_bone_proxy_t bones[4];	
+	size_t bone_count; /**< Actual count of bones in group */
+} de_vertex_bone_group_t;
+
 /**
 * @brief Surface
 *
@@ -29,12 +48,14 @@ struct de_surface_t
 {
 	de_renderer_t* renderer;
 	de_texture_t* texture; /**< Pointer to texture */
-	DE_ARRAY_DECLARE(de_vertex_t, vertices);   /**< Array of vertices */
+	DE_ARRAY_DECLARE(de_vertex_t, vertices);   /**< Array of vertices, will be directly uploaded to GPU */
 	DE_ARRAY_DECLARE(int, indices);    /**< Array of faces */
 	GLuint vbo;      /**< Vertex buffer object id */
 	GLuint vao;      /**< Vertex array object id */
 	GLuint ebo;      /**< Element buffer object id */
 	de_bool_t need_upload;    /**< Indicates that surface needs to be uploaded to GPU */
+	DE_ARRAY_DECLARE(de_vertex_bone_group_t, skinning_data); /**< Additional skinning data */
+	DE_ARRAY_DECLARE(de_node_t*, bones); /**< List of bones that affects this surface */
 };
 
 /**
@@ -67,5 +88,37 @@ void de_surface_upload(de_surface_t* surf);
 /**
  * @brief Calculates normals
  * @param surf pointer to surface
+ * 
+ * Note: Dumb, per-face normals generation. 
  */
 void de_surface_calculate_normals(de_surface_t * surf);
+
+/**
+ * @brief Prepares surface's vertices for skinning. 
+ * 
+ * Calculates correct indices of matrices for each vertex in the surface.
+ */
+de_bool_t de_surface_prepare_vertices_for_skinning(de_surface_t* surf);
+
+/**
+ * @brief Adds new surface affecting node.
+ * @return Returns DE_TRUE if bone was added, DE_FALSE - if vertex already added.
+ * 
+ * Notes: amortized O(n)
+ */
+de_bool_t de_surface_add_bone(de_surface_t* surf, de_node_t* bone);
+
+/**
+ * @brief Returns bone index in array of surface's bones. If no bone was found, returns -1.
+ * 
+ * Notes: O(n)
+ */
+size_t de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone);
+
+/**
+ * @brief Fills matrices for each bone. Matrices array will be filled so each vertex will 
+ * have correct index of matrix.
+ */
+void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* mesh_local_transform, de_mat4_t* out_matrices, size_t max_matrices);
+
+de_bool_t de_surface_is_skinned(de_surface_t* surf);

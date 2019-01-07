@@ -1,3 +1,7 @@
+#define DE_RENDERER_MAX_SKINNING_MATRICES 60
+#define DE_STRINGIZE_(x) #x
+#define DE_STRINGIZE(x) DE_STRINGIZE_(x)
+
 /* Built-in shaders */
 static const  char* de_flat_fs =
 "#version 330 core\n"
@@ -69,21 +73,46 @@ static const  char* de_gbuffer_fs =
 
 static const char de_gbuffer_vs[] =
 "#version 330 core\n"
-"layout(location = 0) in vec3 vertexPosition;\n"
-"layout(location = 1) in vec2 vertexTexCoord;\n"
-"layout(location = 2) in vec3 vertexNormal;\n"
-"uniform mat4 worldMatrix;\n"
-"uniform mat4 worldViewProjection;\n"
-"out vec4 position;\n"
-"out vec3 normal;\n"
-"out vec2 texCoord;\n"
-"void main()\n"
-"{\n"
-"	gl_Position = worldViewProjection * vec4(vertexPosition, 1.0);\n"
-"	texCoord = vertexTexCoord;\n"
-"	normal = mat3(worldMatrix) * vertexNormal;\n"
-"	position = gl_Position;\n"
-"}\n";
+"layout(location = 0) in vec3 vertexPosition;"
+"layout(location = 1) in vec2 vertexTexCoord;"
+"layout(location = 2) in vec3 vertexNormal;"
+"layout(location = 3) in vec4 boneWeights;"
+"layout(location = 4) in vec4 boneIndices;"
+"uniform mat4 worldMatrix;"
+"uniform mat4 worldViewProjection;"
+"uniform bool useSkeletalAnimation;"
+"uniform mat4 boneMatrices[" DE_STRINGIZE(DE_RENDERER_MAX_SKINNING_MATRICES) "];"
+"out vec4 position;"
+"out vec3 normal;"
+"out vec2 texCoord;"
+"void main()"
+"{"
+"   vec4 localPosition = vec4(0);"
+"   vec3 localNormal = vec3(0);"
+"   if(useSkeletalAnimation)"
+"   {"
+"       vec4 vertex = vec4(vertexPosition, 1.0);"
+
+"       localPosition += boneMatrices[int(boneIndices.x)] * vertex * boneWeights.x;"
+"       localPosition += boneMatrices[int(boneIndices.y)] * vertex * boneWeights.z;"
+"       localPosition += boneMatrices[int(boneIndices.z)] * vertex * boneWeights.y;"
+"       localPosition += boneMatrices[int(boneIndices.w)] * vertex * boneWeights.w;"
+
+"       localNormal += mat3(boneMatrices[int(boneIndices.x)]) * vertexNormal * boneWeights.x;"
+"       localNormal += mat3(boneMatrices[int(boneIndices.y)]) * vertexNormal * boneWeights.z;"
+"       localNormal += mat3(boneMatrices[int(boneIndices.z)]) * vertexNormal * boneWeights.y;"
+"       localNormal += mat3(boneMatrices[int(boneIndices.w)]) * vertexNormal * boneWeights.w;"
+"   }"
+"   else"
+"   {"
+"       localPosition = vec4(vertexPosition, 1.0);"
+"       localNormal = vertexNormal;"
+"   }"
+"	gl_Position = worldViewProjection * localPosition;"
+"   normal = mat3(worldMatrix) * localNormal;"
+"	texCoord = vertexTexCoord;"
+"	position = gl_Position;"
+"}";
 
 static const char* const de_light_fs =
 "#version 330 core\n"
@@ -345,6 +374,8 @@ static void de_create_builtin_shaders(de_renderer_t* r)
 		s->program = de_renderer_create_gpu_program(de_gbuffer_vs, de_gbuffer_fs);
 		s->wvp_matrix = glGetUniformLocation(s->program, "worldViewProjection");
 		s->world_matrix = glGetUniformLocation(s->program, "worldMatrix");
+		s->use_skeletal_animation = glGetUniformLocation(s->program, "useSkeletalAnimation");
+		s->bone_matrices = glGetUniformLocation(s->program, "boneMatrices");
 
 		s->diffuse_texture = glGetUniformLocation(s->program, "diffuseTexture");
 		s->diffuse_color = glGetUniformLocation(s->program, "diffuseColor");
@@ -563,6 +594,12 @@ static void de_renderer_upload_surface(de_surface_t* s)
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, normal));
 	glEnableVertexAttribArray(2);
 
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, bone_weights));
+	glEnableVertexAttribArray(3);
+
+	glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, bones));
+	glEnableVertexAttribArray(4);
+
 	glBindVertexArray(0);
 
 	s->need_upload = DE_FALSE;
@@ -598,6 +635,9 @@ void de_renderer_free_surface(de_surface_t* surf)
 	/* Delete buffers */
 	DE_ARRAY_FREE(surf->indices);
 	DE_ARRAY_FREE(surf->vertices);
+	DE_ARRAY_FREE(surf->skinning_data);
+	DE_ARRAY_FREE(surf->bones);
+
 	de_free(surf);
 }
 
@@ -735,11 +775,12 @@ static void de_render_fullscreen_quad(de_renderer_t* r)
 /*=======================================================================================*/
 static void de_render_mesh(de_renderer_t* r, de_mesh_t* mesh)
 {
-	size_t i;
+	size_t i, j;
 
 	for (i = 0; i < mesh->surfaces.size; ++i)
 	{
 		de_surface_t* surf = mesh->surfaces.data[i];
+		de_bool_t is_skinned = de_surface_is_skinned(surf);
 
 		if (surf->need_upload)
 		{
@@ -754,6 +795,15 @@ static void de_render_mesh(de_renderer_t* r, de_mesh_t* mesh)
 		else
 		{
 			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->white_dummy->id));
+		}
+
+		DE_GL_CALL(glUniform1i(r->gbuffer_shader.use_skeletal_animation, is_skinned));
+		if (is_skinned)
+		{
+			de_mat4_t matrices[DE_RENDERER_MAX_SKINNING_MATRICES] = { 0 };
+			de_surface_get_skinning_matrices(surf, &mesh->parent_node->local_matrix, matrices, DE_RENDERER_MAX_SKINNING_MATRICES);
+			
+			glUniformMatrix4fv(r->gbuffer_shader.bone_matrices, DE_RENDERER_MAX_SKINNING_MATRICES, GL_FALSE, (const float*)&matrices[0]);
 		}
 
 		DE_GL_CALL(glBindVertexArray(surf->vao));
@@ -806,6 +856,7 @@ void de_renderer_render(de_renderer_t* r)
 	size_t i;
 	de_scene_t* scene;
 	de_mat4_t y_flip_ortho, ortho;
+	de_mat4_t identity;
 	de_rectf_t gui_viewport = { 0, 0, 1, 1 };
 	GLenum buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT };
 	float w = (float)core->params.width;
@@ -814,6 +865,8 @@ void de_renderer_render(de_renderer_t* r)
 
 	/* Upload textures first */
 	de_upload_textures(r);
+
+	de_mat4_identity(&identity);
 
 	if (core->scenes.head)
 	{
@@ -848,16 +901,22 @@ void de_renderer_render(de_renderer_t* r)
 		/* Render each node */
 		DE_LINKED_LIST_FOR_EACH(scene->nodes, node)
 		{
-			de_mat4_t wvp_matrix;
-
-			de_mat4_mul(&wvp_matrix, &camera->view_projection_matrix, &node->global_matrix);
-
-			DE_GL_CALL(glUniformMatrix4fv(r->gbuffer_shader.wvp_matrix, 1, GL_FALSE, wvp_matrix.f));
-			DE_GL_CALL(glUniformMatrix4fv(r->gbuffer_shader.world_matrix, 1, GL_FALSE, node->global_matrix.f));
-
-			if (node->type == DE_NODE_MESH)
+			if (node->type == DE_NODE_TYPE_MESH)
 			{
-				de_render_mesh(r, &node->s.mesh);
+				de_mat4_t wvp_matrix;
+				de_bool_t is_skinned;
+				de_mesh_t* mesh;
+
+				mesh = &node->s.mesh;
+
+				is_skinned = de_mesh_is_skinned(mesh);
+								
+				de_mat4_mul(&wvp_matrix, &camera->view_projection_matrix, is_skinned ? &identity : &node->global_matrix);
+
+				DE_GL_CALL(glUniformMatrix4fv(r->gbuffer_shader.wvp_matrix, 1, GL_FALSE, wvp_matrix.f));
+				DE_GL_CALL(glUniformMatrix4fv(r->gbuffer_shader.world_matrix, 1, GL_FALSE, is_skinned ? &identity : node->global_matrix.f));
+
+				de_render_mesh(r, mesh);
 			}
 		}
 
@@ -889,7 +948,7 @@ void de_renderer_render(de_renderer_t* r)
 
 		DE_LINKED_LIST_FOR_EACH(scene->nodes, node)
 		{
-			if (node->type == DE_NODE_LIGHT)
+			if (node->type == DE_NODE_TYPE_LIGHT)
 			{
 				de_vec3_t pos;
 				de_light_t* light;
@@ -932,7 +991,7 @@ void de_renderer_render(de_renderer_t* r)
 				de_mat4_mul(&wvp_matrix, &camera->view_projection_matrix, &node->global_matrix);
 				DE_GL_CALL(glUniformMatrix4fv(r->flat_shader.wvp_matrix, 1, GL_FALSE, wvp_matrix.f));
 
-				if (node->type == DE_NODE_MESH)
+				if (node->type == DE_NODE_TYPE_MESH)
 				{
 					de_render_mesh_normals(r, &node->s.mesh);
 				}

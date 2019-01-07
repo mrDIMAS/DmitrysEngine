@@ -60,3 +60,4 @@ void de_mesh_calculate_normals(de_mesh_t * mesh);
 */
 void de_mesh_add_surface(de_mesh_t* mesh, de_surface_t* surf);
 
+de_bool_t de_mesh_is_skinned(de_mesh_t* mesh);

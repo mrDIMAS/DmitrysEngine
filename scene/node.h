@@ -21,32 +21,29 @@
 
 typedef enum de_node_type_t
 {
-	DE_NODE_BASE,
-	DE_NODE_LIGHT,
-	DE_NODE_MESH,
-	DE_NODE_CAMERA
+	DE_NODE_TYPE_BASE,
+	DE_NODE_TYPE_LIGHT,
+	DE_NODE_TYPE_MESH,
+	DE_NODE_TYPE_CAMERA
 } de_node_type_t;
 
 /**
  * @class de_node_t
  * @brief Common scene node. Typed union.
  *
- * Actual behaviour of scene node defined by set of its components
+ * Actual behaviour of scene node defined by its actual type.
  */
 struct de_node_t
 {
-	DE_LINKED_LIST_ITEM(struct de_node_t);
-
-	de_scene_t* scene;
-	de_node_type_t type;
-
 	/**
 	 * Standard properties
 	 */
+	de_node_type_t type;
 	char* name;
+	de_scene_t* scene;
 	de_mat4_t local_matrix; /**< Matrix of local transform of the node. Read-only. */
 	de_mat4_t global_matrix; /**< Matrix of global transform of the node. Read-only. */
-
+	de_mat4_t inv_bind_pose_matrix; /**< Matrix for meshes with skeletal animaton */
 	de_vec3_t position; /**< Position of the node relative to parent node (if exists) */
 	de_vec3_t scale; /**< Scale of the node relative to parent node (if exists) */
 	de_quat_t rotation; /**< Rotation of the node relative to parent node (if exists) */
@@ -78,6 +75,8 @@ struct de_node_t
 		de_light_t light;
 		de_camera_t camera;
 	} s;
+
+	DE_LINKED_LIST_ITEM(struct de_node_t);
 };
 
 /**
@@ -181,7 +180,7 @@ void de_node_move(de_node_t* node, de_vec3_t* offset);
 void de_node_set_body(de_node_t* node, de_body_t* body);
 
 /**
-* @brief
+* @brief Performs recursive search on tree to find a specified node.
 * @param root
 * @param name
 * @return

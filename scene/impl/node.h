@@ -41,15 +41,15 @@ void de_node_free(de_node_t* node)
 
 	switch (node->type)
 	{
-	case DE_NODE_BASE:
+	case DE_NODE_TYPE_BASE:
 		break;
-	case DE_NODE_MESH:
+	case DE_NODE_TYPE_MESH:
 		de_mesh_deinit(&node->s.mesh);
 		break;
-	case DE_NODE_CAMERA:
+	case DE_NODE_TYPE_CAMERA:
 		de_camera_deinit(&node->s.camera);
 		break;
-	case DE_NODE_LIGHT:
+	case DE_NODE_TYPE_LIGHT:
 		de_light_deinit(&node->s.light);
 		break;
 	}
@@ -73,19 +73,19 @@ de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type)
 
 	switch (type)
 	{
-	case DE_NODE_BASE:
+	case DE_NODE_TYPE_BASE:
 		break;
-	case DE_NODE_MESH:
+	case DE_NODE_TYPE_MESH:
 	{
 		de_mesh_init(node, &node->s.mesh);
 		break;
 	}
-	case DE_NODE_CAMERA:
+	case DE_NODE_TYPE_CAMERA:
 	{
 		de_camera_init(node, &node->s.camera);
 		break;
 	}
-	case DE_NODE_LIGHT:
+	case DE_NODE_TYPE_LIGHT:
 	{
 		de_light_t* light = &node->s.light;
 		de_light_init(light);

@@ -45,7 +45,7 @@ void de_camera_update(de_camera_t* cam)
 	de_node_t* node = cam->parent_node;
 
 	assert(node);
-	assert(node->type == DE_NODE_CAMERA);
+	assert(node->type == DE_NODE_TYPE_CAMERA);
 
 	de_node_calculate_transforms(node);
 	de_node_get_global_position(node, &eye);

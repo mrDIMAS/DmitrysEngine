@@ -97,6 +97,8 @@ typedef struct de_gbuffer_shader_t
 
 	GLuint world_matrix;
 	GLuint wvp_matrix;
+	GLuint use_skeletal_animation;
+	GLuint bone_matrices;
 
 	GLint diffuse_texture; /**< Diffuse texture uniform location */
 	GLuint diffuse_color;

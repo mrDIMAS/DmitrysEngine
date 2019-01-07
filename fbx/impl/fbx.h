@@ -920,7 +920,7 @@ static de_fbx_t* de_fbx_read(de_fbx_node_t* root)
 		{
 			DE_ARRAY_APPEND(parent_comp->s.deformer.sub_deformers, &child_comp->s.sub_deformer);
 		}
-		else if (child_comp->type == DE_FBX_COMPONENT_DEFORMER && parent_comp->type == DE_FBX_COMPONENT_MODEL)
+		else if (child_comp->type == DE_FBX_COMPONENT_DEFORMER && parent_comp->type == DE_FBX_COMPONENT_GEOM)
 		{
 			DE_ARRAY_APPEND(parent_comp->s.geom.deformers, &child_comp->s.deformer);
 		}
@@ -1003,7 +1003,7 @@ static void de_fbx_free(de_fbx_t* fbx)
  *
  * If surface already has vertex, adds index to face list.
  */
-static void de_fbx_add_vertex_to_surface(de_surface_t* surf, de_vertex_t* new_vertex)
+static void de_fbx_add_vertex_to_surface(de_surface_t* surf, de_vertex_t* new_vertex, de_vertex_bone_group_t* skinning_data)
 {
 	int i;
 	de_bool_t found_identic = DE_FALSE;
@@ -1025,6 +1025,10 @@ static void de_fbx_add_vertex_to_surface(de_surface_t* surf, de_vertex_t* new_ve
 	{
 		i = surf->vertices.size;
 		DE_ARRAY_APPEND(surf->vertices, *new_vertex);
+		if (skinning_data)
+		{
+			DE_ARRAY_APPEND(surf->skinning_data, *skinning_data);
+		}
 	}
 
 	DE_ARRAY_APPEND(surf->indices, i);
@@ -1180,13 +1184,14 @@ static void de_fbx_eval_float3_curve_node(float time, de_fbx_animation_curve_nod
 /**
  * @brief Merges TRS curves into engine keyframe
  */
-static void de_fbx_eval_keyframe(float time,
+static void de_fbx_eval_keyframe(de_node_t* node,
+	float time,
 	de_fbx_animation_curve_node_t* t_node,
 	de_fbx_animation_curve_node_t* r_node,
 	de_fbx_animation_curve_node_t* s_node,
 	de_keyframe_t* out_key)
 {
-	de_vec3_t euler_angles;
+	
 
 	if (t_node)
 	{
@@ -1194,26 +1199,27 @@ static void de_fbx_eval_keyframe(float time,
 	}
 	else
 	{
-		de_vec3_set(&out_key->position, 0, 0, 0);
+		out_key->position = node->position;
 	}
 
 	if (r_node)
 	{
+		de_vec3_t euler_angles;
 		de_fbx_eval_float3_curve_node(time, r_node, &euler_angles);
+		de_fbx_quat_from_euler(&out_key->rotation, &euler_angles);
 	}
 	else
 	{
-		de_vec3_set(&euler_angles, 0, 0, 0);
+		out_key->rotation = node->rotation;
 	}
-	de_fbx_quat_from_euler(&out_key->rotation, &euler_angles);
-
+	
 	if (s_node)
 	{
 		de_fbx_eval_float3_curve_node(time, s_node, &out_key->scale);
 	}
 	else
 	{
-		de_vec3_set(&out_key->scale, 1, 1, 1);
+		out_key->scale = node->scale;
 	}
 
 #if DE_FBX_VERBOSE
@@ -1320,6 +1326,46 @@ static int de_fbx_prepare_next_face(de_fbx_geom_t* geom,
 	return vertex_per_face;
 }
 
+
+
+/**
+ * Iterates thru all sub-deformers and formes a new set of proxy vertices that contains
+ * all bones and their weights. Used to perform fast look up when converting fbx vertices
+ * to engine vertices.
+ *
+ * @param out_vertices Array of vertices of size of total vertex count. Must be zero-ed memory!
+ */
+void de_fbx_prepare_deformer(de_fbx_geom_t* geom, de_vertex_bone_group_t* out_vertices)
+{
+	size_t i, j, k;
+
+	for (i = 0; i < geom->deformers.size; ++i)
+	{
+		de_fbx_deformer_t* deformer = geom->deformers.data[i];
+
+		for (j = 0; j < deformer->sub_deformers.size; ++j)
+		{
+			de_fbx_sub_deformer_t* sub_deformer = deformer->sub_deformers.data[j];
+
+			for (k = 0; k < sub_deformer->indices.size; ++k)
+			{
+				de_vertex_bone_group_t* v;
+				size_t index = sub_deformer->indices.data[k];
+				v = out_vertices + index;
+				if (v->bone_count < 4)
+				{
+					de_bone_proxy_t* bone_proxy;
+					bone_proxy = &v->bones[v->bone_count++];
+					bone_proxy->weight = sub_deformer->weights.data[k];
+					bone_proxy->node = sub_deformer->model;
+					/* store pointer to sub defomer to quickly extract data from it later on */
+					bone_proxy->user_data = sub_deformer;
+				}
+			}
+		}
+	}
+}
+
 /*=======================================================================================*/
 /**
  * @brief Converts FBX to scene engine's scene nodes hierarchy
@@ -1328,18 +1374,18 @@ static int de_fbx_prepare_next_face(de_fbx_geom_t* geom,
  */
 static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 {
-	size_t i, k, deformer_num;
-	int n, m, sub_deformer_num;
+	size_t i, k, j;
+	int n, m;
 	int material_index;
 	de_node_t* root;
 	de_animation_t* anim;
 	de_renderer_t* renderer;
 	int temp_indices[8192], relative_indices[8192];
 	DE_ARRAY_DECLARE(de_node_t*, created_nodes);
-	
+
 	renderer = scene->core->renderer;
 
-	root = de_node_create(scene, DE_NODE_BASE);
+	root = de_node_create(scene, DE_NODE_TYPE_BASE);
 	de_scene_add_node(scene, root);
 
 	/* Each scene has animation */
@@ -1367,15 +1413,15 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 
 		if (mdl->light)
 		{
-			type = DE_NODE_LIGHT;
+			type = DE_NODE_TYPE_LIGHT;
 		}
 		else if (mdl->geoms.size)
 		{
-			type = DE_NODE_MESH;
+			type = DE_NODE_TYPE_MESH;
 		}
 		else
 		{
-			type = DE_NODE_BASE;
+			type = DE_NODE_TYPE_BASE;
 		}
 
 		node = de_node_create(scene, type);
@@ -1435,9 +1481,17 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 		{
 			de_fbx_geom_t* geom;
 			de_mesh_t* mesh;
+			de_vertex_bone_group_t* bone_vertices = NULL;
 
 			geom = mdl->geoms.data[k];
 			mesh = &node->s.mesh;
+
+			if (geom->deformers.size)
+			{
+				/* if we have skinning, we should prepare deformer then */
+				bone_vertices = de_calloc(geom->vertex_count, sizeof(*bone_vertices));
+				de_fbx_prepare_deformer(geom, bone_vertices);
+			}
 
 			/* Create surfaces per material */
 			if (mdl->materials.size == 0)
@@ -1497,6 +1551,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 					}
 					de_vec3_transform_normal(&v.normal, &v.normal, &geometric_transform);
 
+					/* Extract texture coordinates */
 					switch (geom->uv_mapping)
 					{
 					case DE_FBX_MAPPING_BY_POLYGON_VERTEX:
@@ -1535,20 +1590,8 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 						}
 					}
 
-					/* Skinning */
-					for (deformer_num = 0; deformer_num < geom->deformers.size; ++deformer_num)
-					{
-						de_fbx_deformer_t* deformer = geom->deformers.data[deformer_num];
-
-						for (sub_deformer_num = 0; sub_deformer_num < deformer->sub_deformers.size; ++sub_deformer_num)
-						{
-							de_fbx_sub_deformer_t* sub_deformer = deformer->sub_deformers.data[sub_deformer_num];
-
-							//v.bone_weights
-						}
-					}
-
-					de_fbx_add_vertex_to_surface(mesh->surfaces.data[surface_index], &v);
+					de_fbx_add_vertex_to_surface(mesh->surfaces.data[surface_index], &v,
+						geom->deformers.size ? &bone_vertices[index] : NULL);
 				}
 
 				if (geom->material_mapping == DE_FBX_MAPPING_BY_POLYGON)
@@ -1556,6 +1599,8 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 					++material_index;
 				}
 			}
+
+			de_free(bone_vertices);
 		}
 
 		/**
@@ -1624,10 +1669,10 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 			{
 				de_keyframe_t keyframe;
 
-				de_fbx_eval_keyframe(time, lcl_translation, lcl_rotation, lcl_scale, &keyframe);
+				de_fbx_eval_keyframe(node, time, lcl_translation, lcl_rotation, lcl_scale, &keyframe);
 
 				/* bake node scaling into keyframe, we need this because it seems that
-				 * fbx keeps scaling relative to node's scaling */				
+				 * fbx keeps scaling relative to node's scaling */
 				keyframe.scale.x *= node->scale.x;
 				keyframe.scale.y *= node->scale.y;
 				keyframe.scale.z *= node->scale.z;
@@ -1653,18 +1698,73 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 	{
 		de_node_t* node = created_nodes.data[i];
 		de_fbx_model_t* fbx_model = (de_fbx_model_t*)node->user_data;
-
-		if (fbx_model->children.size > 0)
+		
+		for (k = 0; k < fbx_model->children.size; ++k)
 		{
-			for (k = 0; k < fbx_model->children.size; ++k)
-			{
-				de_node_t* child = fbx_model->children.data[k]->engine_node;
+			de_node_t* child = fbx_model->children.data[k]->engine_node;
 
-				de_node_attach(child, node);
-			}
+			de_node_attach(child, node);
 		}		
 	}
 
+	/* Remap pointers to fbx models to engine nodes in every surface (part of skinning)
+	 * We can't set corrent pointers to nodes when filling surface, because not all nodes
+	 * are were created. In addition, create inverse bind transforms of each bone node. */
+	for (i = 0; i < created_nodes.size; ++i)
+	{
+		de_node_t* node = created_nodes.data[i];
+
+		if (node->type == DE_NODE_TYPE_MESH)
+		{
+			de_mesh_t* mesh = &node->s.mesh;
+
+			for (j = 0; j < mesh->surfaces.size; ++j)
+			{
+				de_surface_t* surface = mesh->surfaces.data[j];
+
+				for (k = 0; k < surface->skinning_data.size; ++k)
+				{
+					de_vertex_bone_group_t* bone_group = surface->skinning_data.data + k;
+					
+					for (n = 0; n < bone_group->bone_count; ++n)
+					{
+						de_bone_proxy_t* bone = bone_group->bones + n;
+						de_fbx_sub_deformer_t* sub_deformer = (de_fbx_sub_deformer_t*)bone->user_data;			
+						de_node_t* bone_node = ((de_fbx_model_t*)bone->node)->engine_node;						
+						bone->node = bone_node;
+						de_node_calculate_transforms(bone_node);
+						if (de_surface_add_bone(surface, bone_node))
+						{
+							/* Calculate inverse bind transform for newly added bone */
+							//de_mat4_inverse(&bone_node->inv_bind_pose_matrix, &sub_deformer->transform);
+							de_mat4_inverse(&bone_node->inv_bind_pose_matrix, &bone_node->global_matrix);
+						}
+						/* clean pointer */
+						bone->user_data = NULL;
+					}
+				}
+			}
+		}
+	}
+
+	/* Finally, prepare vertices for skinning */
+	for (i = 0; i < created_nodes.size; ++i)
+	{
+		de_node_t* node = created_nodes.data[i];
+
+		if (node->type == DE_NODE_TYPE_MESH)
+		{
+			de_mesh_t* mesh = &node->s.mesh;
+
+			for (j = 0; j < mesh->surfaces.size; ++j)
+			{
+				de_surface_t* surface = mesh->surfaces.data[j];
+
+				de_surface_prepare_vertices_for_skinning(surface);
+			}
+		}
+	}
+	
 	DE_ARRAY_FREE(created_nodes);
 
 	de_animation_clamp_length(anim);

@@ -33,7 +33,7 @@ void de_light_deinit(de_light_t* light)
 
 void de_light_set_radius(de_node_t * node, float radius)
 {
-	assert(node->type == DE_NODE_LIGHT);
+	assert(node->type == DE_NODE_TYPE_LIGHT);
 	node->s.light.radius = de_maxf(FLT_EPSILON, radius);
 }
 

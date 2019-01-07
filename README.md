@@ -9,18 +9,17 @@ Please note, that this engine is at very early development stage and some featur
 ## Features
 - Header only - no need to build as separate library, just `#include "de_main.h"` so extremely fast compilation.
 - C89 - full compatibility with C++.
-- FBX support - both ASCII and binary (for now without skinning)
+- FBX support - both ASCII and binary
 - Modern rendering techniques (still lacking, currently contains only deferred shading)
 - TTF fonts support (compound characters support is not implemented yet)
 - GUI (inspired by WPF)
 - TGA image loading
 - Position-based physics
+- Skeletal animation
 
 ## Planned features (by priorities)
 - Fix compatibility with C++ (now it not compiles)
-- More complete FBX support (skinning, etc.)
 - Materials (probably PBR)
-- Skinning
 - More GUI widgets (there are still no text input nodes)
 - Stability
 - Sound 
@@ -29,3 +28,8 @@ Please note, that this engine is at very early development stage and some featur
 
 ## Dependencies (header only)
 - miniz_tinfl - to decompress FBX compressed data.
+
+## Code statistics
+- ~16000 lines of code
+- Pure C89
+- Header-only

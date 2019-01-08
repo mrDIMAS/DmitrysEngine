@@ -95,7 +95,7 @@ de_bool_t de_surface_prepare_vertices_for_skinning(de_surface_t* surf)
 	size_t i, k;
 
 	/* ensure that surface can be skinned */
-	if (surf->skinning_data.size != surf->vertices.size)
+	if (surf->vertex_weights.size != surf->vertices.size)
 	{
 		return DE_FALSE;
 	}
@@ -110,14 +110,14 @@ de_bool_t de_surface_prepare_vertices_for_skinning(de_surface_t* surf)
 	for (i = 0; i < surf->vertices.size; ++i)
 	{
 		de_vertex_t* v = surf->vertices.data + i;
-		de_vertex_bone_group_t* v_bone_group = surf->skinning_data.data + i;
+		de_vertex_weight_group_t* weight_group = surf->vertex_weights.data + i;
 
-		for (k = 0; k < v_bone_group->bone_count; ++k)
+		for (k = 0; k < weight_group->weight_count; ++k)
 		{
-			de_bone_proxy_t* bone_proxy = v_bone_group->bones + k;
+			de_vertex_weight_t* vertex_weight = weight_group->bones + k;
 
-			v->bone_weights[k] = bone_proxy->weight;
-			v->bones[k] = (uint8_t)de_surface_get_bone_index(surf, (de_node_t*)bone_proxy->node);
+			v->bone_weights[k] = vertex_weight->weight;
+			v->bone_indices[k] = (uint8_t)de_surface_get_bone_index(surf, (de_node_t*)vertex_weight->node);
 		}
 	}
 
@@ -129,15 +129,15 @@ de_bool_t de_surface_add_bone(de_surface_t* surf, de_node_t* bone)
 {
 	size_t i;
 
-	for (i = 0; i < surf->bones.size; ++i)
+	for (i = 0; i < surf->weights.size; ++i)
 	{
-		if (surf->bones.data[i] == bone)
+		if (surf->weights.data[i] == bone)
 		{
 			return DE_FALSE;
 		}
 	}
 
-	DE_ARRAY_APPEND(surf->bones, bone);
+	DE_ARRAY_APPEND(surf->weights, bone);
 
 	return DE_TRUE;
 }
@@ -147,9 +147,9 @@ int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone)
 {
 	size_t i;
 
-	for (i = 0; i < surf->bones.size; ++i)
+	for (i = 0; i < surf->weights.size; ++i)
 	{
-		if (surf->bones.data[i] == bone)
+		if (surf->weights.data[i] == bone)
 		{
 			return i;
 		}
@@ -165,18 +165,18 @@ void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* mesh_local_
 {
 	size_t i;
 
-	for (i = 0; i < surf->bones.size && i < max_matrices; ++i)
+	for (i = 0; i < surf->weights.size && i < max_matrices; ++i)
 	{
-		de_node_t* bone_node = surf->bones.data[ i];
+		de_node_t* bone_node = surf->weights.data[ i];
 		de_mat4_t* m = out_matrices + i;
 
 		de_mat4_mul(m, &bone_node->global_matrix, &bone_node->inv_bind_pose_matrix);
-		de_mat4_mul(m, m, mesh_local_transform);
+		de_mat4_mul(m, m, mesh_local_transform);	
 	}
 }
 
 /*=======================================================================================*/
 de_bool_t de_surface_is_skinned(de_surface_t* surf)
 {
-	return surf->skinning_data.size > 0;
+	return surf->vertex_weights.size > 0;
 }

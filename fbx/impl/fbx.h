@@ -150,6 +150,9 @@ struct de_fbx_model_t
 	de_vec3_t geometric_translation;
 	de_vec3_t geometric_rotation;
 	de_vec3_t geometric_scale;
+	
+	/* sub-deformer (cluster) will set this to correct value */
+	de_mat4_t inv_bind_transform;
 
 	/* Used to link fbx node with engine node */
 	de_node_t* engine_node;
@@ -410,6 +413,7 @@ static de_fbx_component_t* de_fbx_read_model(de_fbx_node_t* model_node)
 
 	de_vec3_set(&model->scale, 1, 1, 1);
 	de_vec3_set(&model->geometric_scale, 1, 1, 1);
+	de_mat4_identity(&model->inv_bind_transform);
 
 	/* Extract node name */
 	name = model_node->attributes.data[1];
@@ -927,6 +931,8 @@ static de_fbx_t* de_fbx_read(de_fbx_node_t* root)
 		else if (child_comp->type == DE_FBX_COMPONENT_MODEL && parent_comp->type == DE_FBX_COMPONENT_SUB_DEFORMER)
 		{
 			parent_comp->s.sub_deformer.model = &child_comp->s.model;
+
+			de_mat4_inverse(&child_comp->s.model.inv_bind_transform, &parent_comp->s.sub_deformer.transform_link);
 		}
 		else if (child_comp->type == DE_FBX_COMPONENT_LIGHT && parent_comp->type == DE_FBX_COMPONENT_MODEL)
 		{
@@ -1003,7 +1009,7 @@ static void de_fbx_free(de_fbx_t* fbx)
  *
  * If surface already has vertex, adds index to face list.
  */
-static void de_fbx_add_vertex_to_surface(de_surface_t* surf, de_vertex_t* new_vertex, de_vertex_bone_group_t* skinning_data)
+static void de_fbx_add_vertex_to_surface(de_surface_t* surf, de_vertex_t* new_vertex, de_vertex_weight_group_t* vertex_weights)
 {
 	int i;
 	de_bool_t found_identic = DE_FALSE;
@@ -1025,9 +1031,9 @@ static void de_fbx_add_vertex_to_surface(de_surface_t* surf, de_vertex_t* new_ve
 	{
 		i = surf->vertices.size;
 		DE_ARRAY_APPEND(surf->vertices, *new_vertex);
-		if (skinning_data)
+		if (vertex_weights)
 		{
-			DE_ARRAY_APPEND(surf->skinning_data, *skinning_data);
+			DE_ARRAY_APPEND(surf->vertex_weights, *vertex_weights);
 		}
 	}
 
@@ -1335,7 +1341,7 @@ static int de_fbx_prepare_next_face(de_fbx_geom_t* geom,
  *
  * @param out_vertices Array of vertices of size of total vertex count. Must be zero-ed memory!
  */
-void de_fbx_prepare_deformer(de_fbx_geom_t* geom, de_vertex_bone_group_t* out_vertices)
+void de_fbx_prepare_deformer(de_fbx_geom_t* geom, de_vertex_weight_group_t* out_vertices)
 {
 	size_t i, j, k;
 
@@ -1349,19 +1355,19 @@ void de_fbx_prepare_deformer(de_fbx_geom_t* geom, de_vertex_bone_group_t* out_ve
 
 			for (k = 0; k < sub_deformer->indices.size; ++k)
 			{
-				de_vertex_bone_group_t* v;
+				de_vertex_weight_group_t* v;
 
 				size_t index = sub_deformer->indices.data[k];
 				float weight = sub_deformer->weights.data[k];
 
 				v = out_vertices + index;
 
-				if (v->bone_count < 4)
+				if (v->weight_count < 4)
 				{
-					de_bone_proxy_t* bone_proxy;
-					bone_proxy = &v->bones[v->bone_count++];
-					bone_proxy->weight = weight;
-					bone_proxy->node = sub_deformer->model;
+					de_vertex_weight_t* vertex_weight;
+					vertex_weight = &v->bones[v->weight_count++];
+					vertex_weight->weight = weight;
+					vertex_weight->node = sub_deformer->model;
 				}
 			}
 		}
@@ -1446,8 +1452,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 		de_fbx_quat_from_euler(&node->pre_rotation, &mdl->pre_rotation);
 		de_fbx_quat_from_euler(&node->rotation, &mdl->rotation);
 		de_fbx_quat_from_euler(&node->post_rotation, &mdl->post_rotation);
-
-		de_node_calculate_transforms(node);
+		node->inv_bind_pose_matrix = mdl->inv_bind_transform ;
 
 		/* Build geometric transform matrix to bake it into vertex buffer
 		 * TODO: not sure if this is right, but according to FBX manual
@@ -1483,7 +1488,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 		{
 			de_fbx_geom_t* geom;
 			de_mesh_t* mesh;
-			de_vertex_bone_group_t* bone_vertices = NULL;
+			de_vertex_weight_group_t* bone_vertices = NULL;
 
 			geom = mdl->geoms.data[k];
 			mesh = &node->s.mesh;
@@ -1707,7 +1712,6 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 	{
 		de_node_t* node = created_nodes.data[i];
 		de_node_calculate_transforms(node);
-		de_mat4_inverse(&node->inv_bind_pose_matrix, &node->global_matrix);
 	}
 
 	/* Remap pointers to fbx models to engine nodes in every surface (part of skinning)
@@ -1725,15 +1729,16 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 			{
 				de_surface_t* surface = mesh->surfaces.data[j];
 
-				for (k = 0; k < surface->skinning_data.size; ++k)
+				for (k = 0; k < surface->vertex_weights.size; ++k)
 				{
-					de_vertex_bone_group_t* bone_group = surface->skinning_data.data + k;
+					de_vertex_weight_group_t* bone_group = surface->vertex_weights.data + k;
 					
-					for (n = 0; n < (int)bone_group->bone_count; ++n)
+					for (n = 0; n < (int)bone_group->weight_count; ++n)
 					{
-						de_bone_proxy_t* bone = bone_group->bones + n;							
-						de_node_t* bone_node = ((de_fbx_model_t*)bone->node)->engine_node;						
-						bone->node = bone_node;
+						de_vertex_weight_t* vertex_weight = bone_group->bones + n;	
+						de_fbx_model_t* fbx_model = (de_fbx_model_t*)vertex_weight->node;
+						de_node_t* bone_node = fbx_model->engine_node;						
+						vertex_weight->node = bone_node;
 						bone_node->is_bone = DE_TRUE;						
 						de_surface_add_bone(surface, bone_node);
 					}
@@ -1763,7 +1768,6 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 	DE_ARRAY_FREE(created_nodes);
 
 	de_animation_clamp_length(anim);
-	anim->speed = 0.1f;
 
 	return root;
 }

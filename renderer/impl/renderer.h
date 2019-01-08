@@ -94,13 +94,13 @@ static const char de_gbuffer_vs[] =
 "       vec4 vertex = vec4(vertexPosition, 1.0);"
 
 "       localPosition += boneMatrices[int(boneIndices.x)] * vertex * boneWeights.x;"
-"       localPosition += boneMatrices[int(boneIndices.y)] * vertex * boneWeights.z;"
-"       localPosition += boneMatrices[int(boneIndices.z)] * vertex * boneWeights.y;"
+"       localPosition += boneMatrices[int(boneIndices.y)] * vertex * boneWeights.y;"
+"       localPosition += boneMatrices[int(boneIndices.z)] * vertex * boneWeights.z;"
 "       localPosition += boneMatrices[int(boneIndices.w)] * vertex * boneWeights.w;"
 
 "       localNormal += mat3(boneMatrices[int(boneIndices.x)]) * vertexNormal * boneWeights.x;"
-"       localNormal += mat3(boneMatrices[int(boneIndices.y)]) * vertexNormal * boneWeights.z;"
-"       localNormal += mat3(boneMatrices[int(boneIndices.z)]) * vertexNormal * boneWeights.y;"
+"       localNormal += mat3(boneMatrices[int(boneIndices.y)]) * vertexNormal * boneWeights.y;"
+"       localNormal += mat3(boneMatrices[int(boneIndices.z)]) * vertexNormal * boneWeights.z;"
 "       localNormal += mat3(boneMatrices[int(boneIndices.w)]) * vertexNormal * boneWeights.w;"
 "   }"
 "   else"
@@ -533,9 +533,9 @@ static void de_renderer_draw_surface_bones(de_renderer_t* r, de_surface_t* surfa
 	DE_ARRAY_CLEAR(r->test_surface->vertices);
 	DE_ARRAY_CLEAR(r->test_surface->indices);
 
-	for (i = 0; i < surface->bones.size; ++i)
+	for (i = 0; i < surface->weights.size; ++i)
 	{
-		de_node_t* bone = surface->bones.data[i];
+		de_node_t* bone = surface->weights.data[i];
 		de_vertex_t begin, end;
 
 		for (j = 0; j < bone->children.size; ++j)
@@ -639,7 +639,7 @@ static void de_renderer_upload_surface(de_surface_t* s)
 	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, bone_weights));
 	glEnableVertexAttribArray(3);
 
-	glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, bones));
+	glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, bone_indices));
 	glEnableVertexAttribArray(4);
 
 	glBindVertexArray(0);
@@ -677,8 +677,8 @@ void de_renderer_free_surface(de_surface_t* surf)
 	/* Delete buffers */
 	DE_ARRAY_FREE(surf->indices);
 	DE_ARRAY_FREE(surf->vertices);
-	DE_ARRAY_FREE(surf->skinning_data);
-	DE_ARRAY_FREE(surf->bones);
+	DE_ARRAY_FREE(surf->vertex_weights);
+	DE_ARRAY_FREE(surf->weights);
 
 	de_free(surf);
 }

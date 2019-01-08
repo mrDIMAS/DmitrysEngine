@@ -19,7 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef struct de_bone_proxy_t
+typedef struct de_vertex_weight_t
 {
 	/* Pointer to real bone node (de_node_t) which affects vertex. It is multifunctional pointer.
 	 * For example in FBX loader at first step it contains pointer to fbx model (de_fbx_model_t)
@@ -27,13 +27,13 @@ typedef struct de_bone_proxy_t
 	void* node;
 	/* Actual weight of a node in total transform */
 	float weight;
-} de_bone_proxy_t;
+} de_vertex_weight_t;
 
-typedef struct de_vertex_bone_group_t
+typedef struct de_vertex_weight_group_t
 {	
-	de_bone_proxy_t bones[4];	
-	size_t bone_count; /**< Actual count of bones in group */
-} de_vertex_bone_group_t;
+	de_vertex_weight_t bones[4];	
+	size_t weight_count; /**< Actual count of bones in group */
+} de_vertex_weight_group_t;
 
 /**
 * @brief Surface
@@ -51,8 +51,8 @@ struct de_surface_t
 	GLuint vao;      /**< Vertex array object id */
 	GLuint ebo;      /**< Element buffer object id */
 	de_bool_t need_upload;    /**< Indicates that surface needs to be uploaded to GPU */
-	DE_ARRAY_DECLARE(de_vertex_bone_group_t, skinning_data); /**< Additional skinning data */
-	DE_ARRAY_DECLARE(de_node_t*, bones); /**< List of bones that affects this surface */
+	DE_ARRAY_DECLARE(de_vertex_weight_group_t, vertex_weights); /**< Additional skinning data */
+	DE_ARRAY_DECLARE(de_node_t*, weights); /**< List of bones that affects this surface */
 };
 
 /**

@@ -168,10 +168,8 @@ void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* mesh_local_
 	for (i = 0; i < surf->weights.size && i < max_matrices; ++i)
 	{
 		de_node_t* bone_node = surf->weights.data[ i];
-		de_mat4_t* m = out_matrices + i;
-
-		de_mat4_mul(m, &bone_node->global_matrix, &bone_node->inv_bind_pose_matrix);
-		de_mat4_mul(m, m, mesh_local_transform);	
+		de_mat4_t* m = out_matrices + i;		
+		de_mat4_mul(m, &bone_node->global_matrix, &bone_node->inv_bind_pose_matrix);		
 	}
 }
 

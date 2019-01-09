@@ -794,6 +794,19 @@ static void de_fbx_deformer_free(de_fbx_deformer_t* deformer)
 	DE_ARRAY_FREE(deformer->sub_deformers);
 }
 
+
+/*=======================================================================================*/
+static void de_fbx_quat_from_euler(de_quat_t* out, const de_vec3_t * euler_angles)
+{
+	de_vec3_t radians;
+
+	radians.x = de_deg_to_rad(euler_angles->x);
+	radians.y = de_deg_to_rad(euler_angles->y);
+	radians.z = de_deg_to_rad(euler_angles->z);
+
+	de_quat_from_euler(out, &radians, DE_EULER_XYZ);
+}
+
 /*=======================================================================================*/
 static de_fbx_t* de_fbx_read(de_fbx_node_t* root)
 {
@@ -930,9 +943,10 @@ static de_fbx_t* de_fbx_read(de_fbx_node_t* root)
 		}
 		else if (child_comp->type == DE_FBX_COMPONENT_MODEL && parent_comp->type == DE_FBX_COMPONENT_SUB_DEFORMER)
 		{
-			parent_comp->s.sub_deformer.model = &child_comp->s.model;
-
-			de_mat4_inverse(&child_comp->s.model.inv_bind_transform, &parent_comp->s.sub_deformer.transform_link);
+			de_fbx_model_t* mdl = &child_comp->s.model;
+			de_fbx_sub_deformer_t* sub_deformer = &parent_comp->s.sub_deformer;
+			sub_deformer->model = mdl;					
+			mdl->inv_bind_transform = sub_deformer->transform;
 		}
 		else if (child_comp->type == DE_FBX_COMPONENT_LIGHT && parent_comp->type == DE_FBX_COMPONENT_MODEL)
 		{
@@ -1042,17 +1056,6 @@ static void de_fbx_add_vertex_to_surface(de_surface_t* surf, de_vertex_t* new_ve
 	surf->need_upload = DE_TRUE;
 }
 
-/*=======================================================================================*/
-static void de_fbx_quat_from_euler(de_quat_t* out, const de_vec3_t * euler_angles)
-{
-	de_vec3_t radians;
-
-	radians.x = de_deg_to_rad(euler_angles->x);
-	radians.y = de_deg_to_rad(euler_angles->y);
-	radians.z = de_deg_to_rad(euler_angles->z);
-
-	de_quat_from_euler(out, &radians, DE_EULER_XYZ);
-}
 
 /*=======================================================================================*/
 /**

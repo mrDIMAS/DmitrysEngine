@@ -322,7 +322,7 @@ level_t* level_create_test(game_t* game)
 
 	level->scene = de_scene_create(game->core);
 
-	level->test_fbx = de_fbx_load_to_scene(level->scene, "data/models/ripper.fbx");
+	level->test_fbx = de_fbx_load_to_scene(level->scene, "data/models/man2.fbx");
 	de_node_set_local_position(level->test_fbx, &rp);
 
 	de_fbx_load_to_scene(level->scene, "data/models/map2_bin.fbx");

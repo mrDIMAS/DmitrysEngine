@@ -759,17 +759,17 @@ static de_fbx_component_t* de_fbx_read_sub_deformer(de_fbx_node_t* sub_deformer_
 
 	for (i = 0; i < weights->attributes.size; ++i)
 	{
-		float weight = de_fbx_get_float(weights, i);
+		float weight = de_fbx_get_double(weights, i);
 		DE_ARRAY_APPEND(sub_deformer->weights, weight);
 	}
 
 	for (i = 0; i < 16; ++i)
 	{
-		sub_deformer->transform.f[i] = de_fbx_get_float(transform, i);
+		sub_deformer->transform.f[i] = de_fbx_get_double(transform, i);
 	}
 	for (i = 0; i < 16; ++i)
 	{
-		sub_deformer->transform_link.f[i] = de_fbx_get_float(transform_link, i);
+		sub_deformer->transform_link.f[i] = de_fbx_get_double(transform_link, i);
 	}
 
 	return comp;
@@ -873,12 +873,12 @@ static de_fbx_t* de_fbx_read(de_fbx_node_t* root)
 		}
 		else if (strcmp(child->name, "Deformer") == 0)
 		{
-			char* type = child->attributes.data[1];
-			if (strcmp(type, "SubDeformer::") == 0)
+			char* type = child->attributes.data[2];
+			if (strcmp(type, "Cluster") == 0)
 			{
 				DE_ARRAY_APPEND(fbx->components, de_fbx_read_sub_deformer(child));
 			}
-			else if (strcmp(type, "Deformer::") == 0)
+			else if (strcmp(type, "Skin") == 0)
 			{
 				DE_ARRAY_APPEND(fbx->components, de_fbx_read_deformer(child));
 			}

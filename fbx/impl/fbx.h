@@ -261,6 +261,33 @@ static void de_fbx_read_normals(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 }
 
 /*=======================================================================================*/
+static void de_fbx_read_tangents(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
+{
+	int i, k;
+	de_fbx_node_t* tangents_node = de_fbx_node_find_child(geom_node, "LayerElementTangent");
+
+	if (!tangents_node)
+	{
+		geom->tangent_mapping = DE_FBX_MAPPING_UNKNOWN;
+		return;
+	}
+
+	de_fbx_node_t* map_type = de_fbx_node_find_child(tangents_node, "MappingInformationType");
+	de_fbx_node_t* ref_type = de_fbx_node_find_child(tangents_node, "ReferenceInformationType");
+	de_fbx_node_t* tangents = de_fbx_node_find_child(de_fbx_node_find_child(tangents_node, "Tangents"), "a");
+
+	geom->tangent_mapping = de_fbx_get_mapping(map_type->attributes.data[0]);
+	geom->tangent_reference = de_fbx_get_reference(ref_type->attributes.data[0]);
+	geom->tangent_count = tangents->attributes.size / 3;
+	geom->tangents = (de_vec3_t*)de_calloc(geom->tangent_count, sizeof(*geom->tangents));
+
+	for (i = 0, k = 0; i < geom->tangent_count; ++i, k += 3)
+	{
+		de_fbx_get_vec3(tangents, k, &geom->tangents[i]);
+	}
+}
+
+/*=======================================================================================*/
 static void de_fbx_read_faces(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 {
 	int i;
@@ -377,6 +404,7 @@ static de_fbx_component_t* de_fbx_read_geometry(de_fbx_node_t* geom_node)
 	de_fbx_read_vertices(geom_node, geom);
 	de_fbx_read_faces(geom_node, geom);
 	de_fbx_read_normals(geom_node, geom);
+	de_fbx_read_tangents(geom_node, geom);
 	de_fbx_read_uvs(geom_node, geom);
 	de_fbx_read_geom_materials(geom_node, geom);
 
@@ -1200,8 +1228,6 @@ static void de_fbx_eval_keyframe(de_node_t* node,
 	de_fbx_animation_curve_node_t* s_node,
 	de_keyframe_t* out_key)
 {
-	
-
 	if (t_node)
 	{
 		de_fbx_eval_float3_curve_node(time, t_node, &out_key->position);
@@ -1335,8 +1361,6 @@ static int de_fbx_prepare_next_face(de_fbx_geom_t* geom,
 	return vertex_per_face;
 }
 
-
-
 /**
  * Iterates thru all sub-deformers and formes a new set of proxy vertices that contains
  * all bones and their weights. Used to perform fast look up when converting fbx vertices
@@ -1371,6 +1395,10 @@ void de_fbx_prepare_deformer(de_fbx_geom_t* geom, de_vertex_weight_group_t* out_
 					vertex_weight = &v->bones[v->weight_count++];
 					vertex_weight->weight = weight;
 					vertex_weight->node = sub_deformer->model;
+				}
+				else
+				{
+					de_log("FBX: more than 4 weights per vertex??? Excess will be discarded.");
 				}
 			}
 		}
@@ -1547,7 +1575,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 					v.position = geom->vertices[index];
 					de_vec3_transform(&v.position, &v.position, &geometric_transform);
 
-					/* Extract normal */
+					/* Extract normals */
 					switch (geom->normal_mapping)
 					{
 					case DE_FBX_MAPPING_BY_POLYGON_VERTEX:
@@ -1560,6 +1588,23 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 						de_error("FBX: Normal mapping is not supported");
 					}
 					de_vec3_transform_normal(&v.normal, &v.normal, &geometric_transform);
+
+					/* Extract tangents */
+					switch (geom->tangent_mapping)
+					{
+					case DE_FBX_MAPPING_BY_POLYGON_VERTEX:
+						v.tangent = geom->tangents[origin + relative_indices[m]];
+						break;
+					case DE_FBX_MAPPING_BY_VERTEX:
+						v.tangent = geom->tangents[index];
+						break;
+					case DE_FBX_MAPPING_UNKNOWN:
+						/* means that there is no tangents and we'll have to generate them */
+						break;
+					default:
+						de_error("FBX: Tangent mapping is not supported");
+					}
+					de_vec3_transform_normal(&v.tangent, &v.tangent, &geometric_transform);
 
 					/* Extract texture coordinates */
 					switch (geom->uv_mapping)
@@ -1600,6 +1645,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 						}
 					}
 
+					/* Put vertex into correct surface */
 					de_fbx_add_vertex_to_surface(mesh->surfaces.data[surface_index], &v,
 						geom->deformers.size ? &bone_vertices[index] : NULL);
 				}

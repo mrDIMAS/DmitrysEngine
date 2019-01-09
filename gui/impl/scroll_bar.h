@@ -24,7 +24,7 @@ static void de_gui_scroll_bar_update_indicator(de_gui_node_t* node)
 {
 	de_gui_scroll_bar_t* sb;
 	float percent;
-	DE_ASSERT_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
 	sb = &node->s.scroll_bar;
 	percent = (sb->value - sb->min) / (sb->max - sb->min);
 	switch (sb->orientation)
@@ -156,7 +156,7 @@ static void de_gui_scroll_bar_indicator_mouse_move(de_gui_node_t* node, de_gui_r
 /*=======================================================================================*/
 static void de_gui_scroll_bar_deinit(de_gui_node_t* n)
 {
-	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_SCROLL_BAR);
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_SCROLL_BAR);
 
 	DE_UNUSED(n);
 }
@@ -232,7 +232,7 @@ void de_gui_scroll_bar_set_direction(de_gui_node_t* node, de_gui_scroll_bar_orie
 {
 	de_gui_scroll_bar_t* sb;
 
-	DE_ASSERT_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
 
 	sb = &node->s.scroll_bar;
 	sb->orientation = orientation;
@@ -289,7 +289,7 @@ void de_gui_scroll_bar_set_direction(de_gui_node_t* node, de_gui_scroll_bar_orie
 void de_gui_scroll_bar_set_min_value(de_gui_node_t* node, float min)
 {
 	de_gui_scroll_bar_t* sb;
-	DE_ASSERT_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
 	sb = &node->s.scroll_bar;
 	sb->min = min;
 	de_gui_scroll_bar_update_indicator(node);
@@ -299,7 +299,7 @@ void de_gui_scroll_bar_set_min_value(de_gui_node_t* node, float min)
 void de_gui_scroll_bar_set_max_value(de_gui_node_t* node, float max)
 {
 	de_gui_scroll_bar_t* sb;
-	DE_ASSERT_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
 	sb = &node->s.scroll_bar;
 	sb->max = max;
 	de_gui_scroll_bar_update_indicator(node);
@@ -309,7 +309,7 @@ void de_gui_scroll_bar_set_max_value(de_gui_node_t* node, float max)
 void de_gui_scroll_bar_set_value_changed(de_gui_node_t* node, de_scroll_bar_value_changed_event_t evt)
 {
 	de_gui_scroll_bar_t* sb;
-	DE_ASSERT_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
 	sb = &node->s.scroll_bar;
 	sb->value_changed = evt;
 }

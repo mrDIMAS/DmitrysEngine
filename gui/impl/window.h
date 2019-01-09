@@ -4,7 +4,7 @@ static void de_gui_window_header_mouse_down(de_gui_node_t* node, de_gui_routed_e
 	de_gui_node_t* window_node;
 	de_gui_window_t* wnd;
 
-	DE_ASSERT_NODE_TYPE(node, DE_GUI_NODE_BORDER);
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BORDER);
 
 	window_node = de_gui_node_find_parent_of_type(node, DE_GUI_NODE_WINDOW);
 
@@ -25,7 +25,7 @@ static void de_gui_window_header_mouse_up(de_gui_node_t* n, de_gui_routed_event_
 	de_gui_node_t* window_node;
 	de_gui_window_t* wnd;
 
-	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_BORDER);
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_BORDER);
 
 	window_node = de_gui_node_find_parent_of_type(n, DE_GUI_NODE_WINDOW);
 
@@ -44,7 +44,7 @@ static void de_gui_window_header_mouse_move(de_gui_node_t* n, de_gui_routed_even
 	de_gui_node_t* window_node;
 	de_gui_window_t* wnd;
 
-	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_BORDER);
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_BORDER);
 
 	window_node = de_gui_node_find_parent_of_type(n, DE_GUI_NODE_WINDOW);
 
@@ -69,7 +69,7 @@ static void de_gui_window_header_mouse_move(de_gui_node_t* n, de_gui_routed_even
 /*=======================================================================================*/
 static void de_gui_window_deinit(de_gui_node_t* n)
 {
-	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_WINDOW);
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_WINDOW);
 
 	DE_UNUSED(n);
 }
@@ -154,34 +154,34 @@ de_gui_node_t* de_gui_window_create(de_gui_t* gui)
 /*=======================================================================================*/
 de_gui_node_t * de_gui_window_get_title(de_gui_node_t * window)
 {
-	DE_ASSERT_NODE_TYPE(window, DE_GUI_NODE_WINDOW);
+	DE_ASSERT_GUI_NODE_TYPE(window, DE_GUI_NODE_WINDOW);
 	return window->s.window.title;
 }
 
 /*=======================================================================================*/
 void de_gui_window_set_content(de_gui_node_t * window, de_gui_node_t * content)
 {
-	DE_ASSERT_NODE_TYPE(window, DE_GUI_NODE_WINDOW);
+	DE_ASSERT_GUI_NODE_TYPE(window, DE_GUI_NODE_WINDOW);
 	de_gui_scroll_viewer_set_content(window->s.window.scroll_viewer, content);
 }
 
 /*=======================================================================================*/
 de_gui_node_t * de_gui_window_get_content(de_gui_node_t * window)
 {
-	DE_ASSERT_NODE_TYPE(window, DE_GUI_NODE_WINDOW);
+	DE_ASSERT_GUI_NODE_TYPE(window, DE_GUI_NODE_WINDOW);
 	return window->s.window.scroll_viewer->s.scroll_viewer.content;
 }
 
 /*=======================================================================================*/
 void de_gui_window_set_flags(de_gui_node_t* window, uint32_t flags)
 {
-	DE_ASSERT_NODE_TYPE(window, DE_GUI_NODE_WINDOW);
+	DE_ASSERT_GUI_NODE_TYPE(window, DE_GUI_NODE_WINDOW);
 	window->s.window.flags |= flags;
 }
 
 /*=======================================================================================*/
 de_bool_t de_gui_window_is_flags_set(de_gui_node_t* window, uint32_t flags)
 {
-	DE_ASSERT_NODE_TYPE(window, DE_GUI_NODE_WINDOW);
+	DE_ASSERT_GUI_NODE_TYPE(window, DE_GUI_NODE_WINDOW);
 	return (window->s.window.flags & flags) == flags;
 }

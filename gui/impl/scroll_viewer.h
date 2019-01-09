@@ -24,7 +24,7 @@ static void de_gui_scroll_viewer_ver_scroll_changed(de_gui_node_t* sv_node)
 {
 	de_gui_node_t* scroll_viewer_node;
 	de_gui_scroll_viewer_t* sv;
-	DE_ASSERT_NODE_TYPE(sv_node, DE_GUI_NODE_SCROLL_BAR);
+	DE_ASSERT_GUI_NODE_TYPE(sv_node, DE_GUI_NODE_SCROLL_BAR);
 	scroll_viewer_node = de_gui_node_find_parent_of_type(sv_node, DE_GUI_NODE_SCROLL_VIEWER);
 	sv = &scroll_viewer_node->s.scroll_viewer;
 	de_gui_scroll_content_presenter_set_v_scroll(sv->scroll_content_presenter, sv->ver_scroll_bar->s.scroll_bar.value);
@@ -35,7 +35,7 @@ static void de_gui_scroll_viewer_hor_scroll_changed(de_gui_node_t* sv_node)
 {
 	de_gui_node_t* scroll_viewer_node;
 	de_gui_scroll_viewer_t* sv;
-	DE_ASSERT_NODE_TYPE(sv_node, DE_GUI_NODE_SCROLL_BAR);
+	DE_ASSERT_GUI_NODE_TYPE(sv_node, DE_GUI_NODE_SCROLL_BAR);
 	scroll_viewer_node = de_gui_node_find_parent_of_type(sv_node, DE_GUI_NODE_SCROLL_VIEWER);
 	sv = &scroll_viewer_node->s.scroll_viewer;
 	de_gui_scroll_content_presenter_set_h_scroll(sv->scroll_content_presenter, sv->hor_scroll_bar->s.scroll_bar.value);
@@ -44,7 +44,7 @@ static void de_gui_scroll_viewer_hor_scroll_changed(de_gui_node_t* sv_node)
 /*=======================================================================================*/
 static void de_gui_scroll_viewer_deinit(de_gui_node_t* n)
 {
-	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_SCROLL_VIEWER);
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_SCROLL_VIEWER);
 
 	DE_UNUSED(n);
 }
@@ -55,7 +55,7 @@ void de_gui_scroll_viewer_update(de_gui_node_t* n)
 	de_gui_scroll_viewer_t* sv = &n->s.scroll_viewer;
 	de_gui_node_visibility_t vis;
 
-	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_SCROLL_VIEWER);
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_SCROLL_VIEWER);
 
 	/* hide/show horizontal scroll bar */
 	if (sv->content)
@@ -171,7 +171,7 @@ void de_gui_scroll_viewer_set_content(de_gui_node_t* n, de_gui_node_t* content)
 {
 	de_gui_scroll_viewer_t* sv = &n->s.scroll_viewer;
 
-	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_SCROLL_VIEWER);
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_SCROLL_VIEWER);
 
 	if (sv->content)
 	{

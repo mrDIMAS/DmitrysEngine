@@ -23,7 +23,7 @@
 static void de_button_border_mouse_down(de_gui_node_t* border, de_gui_routed_event_args_t* args)
 {
 	de_gui_button_t* btn;
-	DE_ASSERT_NODE_TYPE(border, DE_GUI_NODE_BORDER);
+	DE_ASSERT_GUI_NODE_TYPE(border, DE_GUI_NODE_BORDER);
 	btn = &border->parent->s.button;
 	border->color = btn->pressed_color;
 	btn->was_pressed = DE_TRUE;
@@ -34,7 +34,7 @@ static void de_button_border_mouse_down(de_gui_node_t* border, de_gui_routed_eve
 static void de_button_border_mouse_enter(de_gui_node_t* border, de_gui_routed_event_args_t* args)
 {
 	de_gui_button_t* btn;
-	DE_ASSERT_NODE_TYPE(border, DE_GUI_NODE_BORDER);
+	DE_ASSERT_GUI_NODE_TYPE(border, DE_GUI_NODE_BORDER);
 	btn = &border->parent->s.button;
 	border->color = btn->hover_color;
 	args->handled = DE_TRUE;
@@ -44,7 +44,7 @@ static void de_button_border_mouse_enter(de_gui_node_t* border, de_gui_routed_ev
 static void de_button_border_mouse_leave(de_gui_node_t* border, de_gui_routed_event_args_t* args)
 {
 	de_gui_button_t* btn;
-	DE_ASSERT_NODE_TYPE(border, DE_GUI_NODE_BORDER);
+	DE_ASSERT_GUI_NODE_TYPE(border, DE_GUI_NODE_BORDER);
 	btn = &border->parent->s.button;
 	border->color = btn->normal_color;
 	args->handled = DE_TRUE;
@@ -54,7 +54,7 @@ static void de_button_border_mouse_leave(de_gui_node_t* border, de_gui_routed_ev
 static void de_button_border_mouse_up(de_gui_node_t* border, de_gui_routed_event_args_t* args)
 {
 	de_gui_button_t* btn;
-	DE_ASSERT_NODE_TYPE(border, DE_GUI_NODE_BORDER);
+	DE_ASSERT_GUI_NODE_TYPE(border, DE_GUI_NODE_BORDER);
 	btn = &border->parent->s.button;
 	if (border->is_mouse_over)
 	{
@@ -74,7 +74,7 @@ static void de_button_border_mouse_up(de_gui_node_t* border, de_gui_routed_event
 /*=======================================================================================*/
 static void de_gui_button_deinit(de_gui_node_t* n)
 {
-	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_BUTTON);
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_BUTTON);
 
 	DE_UNUSED(n);
 }
@@ -139,7 +139,7 @@ de_gui_node_t* de_gui_button_create(de_gui_t* gui)
 /*=======================================================================================*/
 void de_gui_button_set_click(de_gui_node_t* node, de_gui_callback_func_t click, void* user_data)
 {
-	DE_ASSERT_NODE_TYPE(node, DE_GUI_NODE_BUTTON);
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BUTTON);
 
 	node->s.button.click.func = click;
 	node->s.button.click.user_data = user_data;
@@ -148,7 +148,7 @@ void de_gui_button_set_click(de_gui_node_t* node, de_gui_callback_func_t click, 
 /*=======================================================================================*/
 de_gui_node_t* de_gui_button_get_text(de_gui_node_t* node)
 {
-	DE_ASSERT_NODE_TYPE(node, DE_GUI_NODE_BUTTON);
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BUTTON);
 
 	return node->s.button.text;
 }
@@ -156,7 +156,7 @@ de_gui_node_t* de_gui_button_get_text(de_gui_node_t* node)
 /*=======================================================================================*/
 de_gui_node_t* de_gui_button_get_border(de_gui_node_t* node)
 {
-	DE_ASSERT_NODE_TYPE(node, DE_GUI_NODE_BUTTON);
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BUTTON);
 
 	return node->s.button.text;
 }

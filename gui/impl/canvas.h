@@ -1,7 +1,7 @@
 /*=======================================================================================*/
 static void de_gui_canvas_perform_layout(de_gui_node_t* n)
 {
-	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_CANVAS);
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_CANVAS);
 
 	DE_UNUSED(n);
 }
@@ -9,7 +9,7 @@ static void de_gui_canvas_perform_layout(de_gui_node_t* n)
 /*=======================================================================================*/
 static void de_gui_canvas_deinit(de_gui_node_t* n)
 {
-	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_CANVAS);
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_CANVAS);
 
 	DE_UNUSED(n);
 }

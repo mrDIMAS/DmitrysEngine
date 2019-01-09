@@ -1,6 +1,6 @@
 static void de_gui_text_box_deinit(de_gui_node_t* n)
 {
-	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_TEXT_BOX);
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_TEXT_BOX);
 
 	DE_UNUSED(n);
 }

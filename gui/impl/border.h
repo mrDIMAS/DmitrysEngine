@@ -1,7 +1,7 @@
 /*=======================================================================================*/
 static void de_gui_border_deinit(de_gui_node_t* n)
 {
-	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_BORDER);
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_BORDER);
 
 	DE_UNUSED(n);
 }
@@ -18,7 +18,7 @@ static void de_gui_border_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8
 		{ 0, 1 }
 	};
 
-	DE_ASSERT_NODE_TYPE(n, DE_GUI_NODE_BORDER);
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_BORDER);
 
 	DE_UNUSED(nesting);
 
@@ -134,14 +134,14 @@ de_gui_node_t* de_gui_border_create(de_gui_t* gui)
 /*=======================================================================================*/
 void de_gui_border_set_stroke_color(de_gui_node_t* node, const de_color_t* color)
 {
-	DE_ASSERT_NODE_TYPE(node, DE_GUI_NODE_BORDER);
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BORDER);
 	node->s.border.stroke_color = *color;
 }
 
 /*=======================================================================================*/
 void de_gui_border_set_stroke_color_rgba(de_gui_node_t* node, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
-	DE_ASSERT_NODE_TYPE(node, DE_GUI_NODE_BORDER);
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BORDER);
 	node->s.border.stroke_color.r = r;
 	node->s.border.stroke_color.g = g;
 	node->s.border.stroke_color.b = b;
@@ -151,14 +151,14 @@ void de_gui_border_set_stroke_color_rgba(de_gui_node_t* node, uint8_t r, uint8_t
 /*=======================================================================================*/
 void de_gui_border_set_thickness_uniform(de_gui_node_t* node, float thickness)
 {
-	DE_ASSERT_NODE_TYPE(node, DE_GUI_NODE_BORDER);
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BORDER);
 	node->s.border.thickness.left = node->s.border.thickness.top = node->s.border.thickness.right = node->s.border.thickness.bottom = (float)fabs(thickness);
 }
 
 /*=======================================================================================*/
 void de_gui_border_set_thickness(de_gui_node_t* node, float left, float top, float right, float bottom)
 {
-	DE_ASSERT_NODE_TYPE(node, DE_GUI_NODE_BORDER);
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BORDER);
 	node->s.border.thickness.left = (float)fabs(left);
 	node->s.border.thickness.top = (float)fabs(top);
 	node->s.border.thickness.right = (float)fabs(right);

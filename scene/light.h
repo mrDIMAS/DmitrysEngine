@@ -22,7 +22,7 @@
 /**
 * @brief Possible light types
 */
-typedef enum de_light_type_e
+typedef enum de_light_type_t
 {
 	DE_LIGHT_TYPE_POINT,
 	DE_LIGHT_TYPE_DIRECTIONAL,
@@ -40,17 +40,31 @@ struct de_light_t
 	de_light_type_t type; /**< Actual type of light */
 	float radius;         /**< Radius of point light */
 	de_color_t color;     /**< Color of light */
+	float cone_angle;     /**< Angle at cone vertex in radians. Do not set directly! Use de_light_set_cone_angle.*/
+	float cone_angle_cos; /**< Precomputed cosine of angle at cone vertex. */
 };
 
 /**
-* @brief
-*/
+ * @brief Specializes node as light. By default it is point light of white color and 2m emit radius.
+ */
 void de_light_init(de_light_t* light);
 
 /**
-* @brief
-* @param ref
-*/
+ * @brief 
+ */
 void de_light_deinit(de_light_t* light);
 
+/**
+ * @brief 
+ */
 void de_light_set_radius(de_node_t* node, float radius);
+
+/**
+ * @brief Sets angle in radians at cone vertex of a spot light.  
+ */
+void de_light_set_cone_angle(de_node_t* node, float angle);
+
+/**
+ * @brief Returns angle in radians at cone vertex of a spot light.
+ */
+float de_light_get_cone_angle(de_node_t* node);

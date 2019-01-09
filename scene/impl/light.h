@@ -19,21 +19,41 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+/*=======================================================================================*/
 void de_light_init(de_light_t* light)
 {
 	de_color_set(&light->color, 255, 255, 255, 255);
 	light->radius = 2.0f;
-	light->type = DE_LIGHT_TYPE_POINT;
+	light->type = DE_LIGHT_TYPE_POINT;	
+	light->cone_angle = M_PI;
+	light->cone_angle_cos = -1.0f;
 }
 
+/*=======================================================================================*/
 void de_light_deinit(de_light_t* light)
 {
 	DE_UNUSED(light);
 }
 
+/*=======================================================================================*/
 void de_light_set_radius(de_node_t * node, float radius)
 {
-	assert(node->type == DE_NODE_TYPE_LIGHT);
+	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_LIGHT);
 	node->s.light.radius = de_maxf(FLT_EPSILON, radius);
 }
 
+/*=======================================================================================*/
+void de_light_set_cone_angle(de_node_t* node, float angle)
+{
+	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_LIGHT);
+	de_light_t* light = &node->s.light;
+	light->cone_angle = angle;
+	light->cone_angle_cos = cos(angle);
+}
+
+/*=======================================================================================*/
+float de_light_get_cone_angle(de_node_t* node)
+{
+	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_LIGHT);
+	return node->s.light.cone_angle;
+}

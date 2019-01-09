@@ -27,6 +27,9 @@ typedef enum de_node_type_t
 	DE_NODE_TYPE_CAMERA
 } de_node_type_t;
 
+#define DE_ASSERT_SCENE_NODE_TYPE(node, expected_type) \
+	if(node->type != expected_type) de_error("Scene node must be " #expected_type " type!")
+
 /**
  * @class de_node_t
  * @brief Common scene node. Typed union.

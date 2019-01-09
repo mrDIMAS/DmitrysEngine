@@ -21,6 +21,20 @@
 
 /**
  * ASCII + Binary FBX Loader
+ * 
+ * -------------------
+ * | IMPORTANT STUFF |
+ * vvvvvvvvvvvvvvvvvvv 
+ * 
+ * What is NOT supported:
+ * - Animated geometric transform (scale, translation, rotation), basically there is only 
+ *   translation, rotation, scale is supported as animated properties. Poke me if you need 
+ *   support of other properties to be animated.
+ * - Cameras 
+ * - Area and Volume lights
+ * - Some of vertex components mappings. Engine will shoot error if will see unsupported 
+ *   mapping. This stuff is still in progress.
+ * - Maybe some other stuff, about which I don't know. 
  **/
 
 #define DE_FBX_VERBOSE 0
@@ -128,10 +142,21 @@ typedef struct de_fbx_geom_t
 	DE_ARRAY_DECLARE(de_fbx_deformer_t*, deformers);
 } de_fbx_geom_t;
 
+typedef enum de_fbx_light_type_t
+{
+	DE_FBX_LIGHT_TYPE_POINT,
+	DE_FBX_LIGHT_TYPE_DIRECTIONAL,
+	DE_FBX_LIGHT_TYPE_SPOT,
+	DE_FBX_LIGHT_TYPE_AREA, /* not supported */
+	DE_FBX_LIGHT_TYPE_VOLUME, /* not supported */
+} de_fbx_light_type_t;
+
 typedef struct de_fbx_light_t
 {
+	de_fbx_light_type_t type;
 	de_color_t color;
 	float radius;
+	float cone_angle;
 } de_fbx_light_t;
 
 struct de_fbx_model_t
@@ -150,7 +175,7 @@ struct de_fbx_model_t
 	de_vec3_t geometric_translation;
 	de_vec3_t geometric_rotation;
 	de_vec3_t geometric_scale;
-	
+
 	/* sub-deformer (cluster) will set this to correct value */
 	de_mat4_t inv_bind_transform;
 
@@ -652,6 +677,14 @@ static de_fbx_component_t* de_fbx_read_light(de_fbx_node_t* light_node)
 				light->color.a = 255;
 			}
 		}
+		else if (strcmp(prop_name, "HotSpot") == 0)
+		{
+			light->cone_angle = de_deg_to_rad(de_fbx_get_double(child, 4));
+		}
+		else if (strcmp(prop_name, "LightType") == 0)
+		{
+			light->type = (de_fbx_light_type_t)de_fbx_get_int(child, 4);
+		}
 	}
 
 	return comp;
@@ -973,7 +1006,7 @@ static de_fbx_t* de_fbx_read(de_fbx_node_t* root)
 		{
 			de_fbx_model_t* mdl = &child_comp->s.model;
 			de_fbx_sub_deformer_t* sub_deformer = &parent_comp->s.sub_deformer;
-			sub_deformer->model = mdl;					
+			sub_deformer->model = mdl;
 			mdl->inv_bind_transform = sub_deformer->transform;
 		}
 		else if (child_comp->type == DE_FBX_COMPONENT_LIGHT && parent_comp->type == DE_FBX_COMPONENT_MODEL)
@@ -1247,7 +1280,7 @@ static void de_fbx_eval_keyframe(de_node_t* node,
 	{
 		out_key->rotation = node->rotation;
 	}
-	
+
 	if (s_node)
 	{
 		de_fbx_eval_float3_curve_node(time, s_node, &out_key->scale);
@@ -1483,7 +1516,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 		de_fbx_quat_from_euler(&node->pre_rotation, &mdl->pre_rotation);
 		de_fbx_quat_from_euler(&node->rotation, &mdl->rotation);
 		de_fbx_quat_from_euler(&node->post_rotation, &mdl->post_rotation);
-		node->inv_bind_pose_matrix = mdl->inv_bind_transform ;
+		node->inv_bind_pose_matrix = mdl->inv_bind_transform;
 
 		/* Build geometric transform matrix to bake it into vertex buffer
 		 * TODO: not sure if this is right, but according to FBX manual
@@ -1507,12 +1540,26 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 
 		if (mdl->light)
 		{
+			de_fbx_light_t* fbx_light = mdl->light;
 			de_light_t* light = &node->s.light;
-			light->color = mdl->light->color;
-			light->radius = mdl->light->radius;
+			light->color = fbx_light->color;
+			light->radius = fbx_light->radius;
 
-			/* FIXME: Add light type support */
-			light->type = DE_LIGHT_TYPE_POINT;
+			switch (fbx_light->type)
+			{
+			case DE_FBX_LIGHT_TYPE_POINT:
+				light->type = DE_LIGHT_TYPE_POINT;
+				break;
+			case DE_FBX_LIGHT_TYPE_DIRECTIONAL:
+				light->type = DE_LIGHT_TYPE_DIRECTIONAL;
+				break;
+			case DE_FBX_LIGHT_TYPE_SPOT:
+				light->type = DE_LIGHT_TYPE_SPOT;
+				de_light_set_cone_angle(node, fbx_light->cone_angle);
+				break;
+			default:
+				de_log("FBX: light type is not supported %d.", fbx_light->type);
+			}
 		}
 
 		for (k = 0; k < mdl->geoms.size; ++k)
@@ -1748,13 +1795,13 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 	{
 		de_node_t* node = created_nodes.data[i];
 		de_fbx_model_t* fbx_model = (de_fbx_model_t*)node->user_data;
-		
+
 		for (k = 0; k < fbx_model->children.size; ++k)
 		{
 			de_node_t* child = fbx_model->children.data[k]->engine_node;
 
 			de_node_attach(child, node);
-		}		
+		}
 	}
 
 	for (i = 0; i < created_nodes.size; ++i)
@@ -1781,14 +1828,14 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 				for (k = 0; k < surface->vertex_weights.size; ++k)
 				{
 					de_vertex_weight_group_t* bone_group = surface->vertex_weights.data + k;
-					
+
 					for (n = 0; n < (int)bone_group->weight_count; ++n)
 					{
-						de_vertex_weight_t* vertex_weight = bone_group->bones + n;	
+						de_vertex_weight_t* vertex_weight = bone_group->bones + n;
 						de_fbx_model_t* fbx_model = (de_fbx_model_t*)vertex_weight->node;
-						de_node_t* bone_node = fbx_model->engine_node;						
+						de_node_t* bone_node = fbx_model->engine_node;
 						vertex_weight->node = bone_node;
-						bone_node->is_bone = DE_TRUE;						
+						bone_node->is_bone = DE_TRUE;
 						de_surface_add_bone(surface, bone_node);
 					}
 				}
@@ -1813,7 +1860,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 			}
 		}
 	}
-	
+
 	DE_ARRAY_FREE(created_nodes);
 
 	de_animation_clamp_length(anim);

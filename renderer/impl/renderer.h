@@ -1002,7 +1002,7 @@ void de_renderer_render(de_renderer_t* r)
 		{
 			if (node->type == DE_NODE_TYPE_LIGHT)
 			{
-				de_vec3_t pos;
+				de_vec3_t pos, dir;
 				de_light_t* light;
 				float clr[4];
 
@@ -1015,12 +1015,15 @@ void de_renderer_render(de_renderer_t* r)
 				clr[2] = light->color.b / 255.0f;
 				clr[3] = 1.0f;
 
+				de_node_get_up_vector(node, &dir);
+				de_vec3_normalize(&dir, &dir);
+
 				DE_GL_CALL(glUniform3f(r->lighting_shader.light_position, pos.x, pos.y, pos.z));
 				DE_GL_CALL(glUniform1f(r->lighting_shader.light_radius, light->radius));
 				DE_GL_CALL(glUniformMatrix4fv(r->lighting_shader.inv_view_proj_matrix, 1, GL_FALSE, camera->inv_view_proj.f));
 				DE_GL_CALL(glUniform4f(r->lighting_shader.light_color, clr[0], clr[1], clr[2], clr[3]));
-				DE_GL_CALL(glUniform1f(r->lighting_shader.light_cone_angle_cos, -1));
-				DE_GL_CALL(glUniform3f(r->lighting_shader.light_direction, 0, 0, 1));
+				DE_GL_CALL(glUniform1f(r->lighting_shader.light_cone_angle_cos, light->cone_angle_cos));
+				DE_GL_CALL(glUniform3f(r->lighting_shader.light_direction, dir.x, dir.y, dir.z));
 
 				de_render_fullscreen_quad(r);
 			}

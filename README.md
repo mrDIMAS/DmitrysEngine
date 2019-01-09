@@ -10,7 +10,7 @@ Please note, that this engine is at very early development stage and some featur
 - Header only - no need to build as separate library, just `#include "de_main.h"` so extremely fast compilation.
 - C89 - full compatibility with C++.
 - FBX support - both ASCII and binary
-- Modern rendering techniques (still lacking, currently contains only deferred shading)
+- Modern rendering techniques, renderer based on OpenGL 3.3 Core.
 - TTF fonts support (compound characters support is not implemented yet)
 - GUI (inspired by WPF)
 - TGA image loading
@@ -25,6 +25,7 @@ Please note, that this engine is at very early development stage and some featur
 - Sound 
 - Particle systems
 - Support more 3D formats (3ds for example)
+- Compound character support in fonts.
 
 ## Dependencies (header only)
 - miniz_tinfl - to decompress FBX compressed data.

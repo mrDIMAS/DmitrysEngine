@@ -35,3 +35,6 @@ Please note, that this engine is at very early development stage and some featur
 - ~16000 lines of code
 - Pure C89
 - Header-only
+
+## Why engine called in that way?
+At very beginning engine was called Dark Engine, but then I found that there is already one engine with that name (Thief game series using it). Then I started to looking at some fancy adjectives that could fit into `de` prefix that I was already using for my functions, and I haven't found anything suitable. And then I said - "fuck it, let it be like Dmitry's Engine, I'm too tired of fancy names".

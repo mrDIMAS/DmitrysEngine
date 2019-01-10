@@ -43,8 +43,12 @@ typedef struct de_gui_callback_t
 	de_gui_callback_func_t func;
 } de_gui_callback_t;
 
-#define DE_ASSERT_GUI_NODE_TYPE(node, expected_type) \
-	if(node->type != expected_type) de_error("Node must be " #expected_type " type!")
+#if DE_DISABLE_ASSERTS
+#  define DE_ASSERT_GUI_NODE_TYPE(node, expected_type) 
+#else
+#  define DE_ASSERT_GUI_NODE_TYPE(node, expected_type) \
+	if(node->type != expected_type) de_fatal_error("Node must be " #expected_type " type!")
+#endif
 
 #include "gui/draw.h"
 #include "gui/button.h"

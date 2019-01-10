@@ -43,6 +43,15 @@ typedef struct de_mat3_t
 } de_mat3_t;
 
 /**
+ * 2D float vector
+ */
+typedef struct de_vec2_s
+{
+	float x; /**< X coordinate of the vector */
+	float y; /**< Y coordinate of the vector */
+} de_vec2_t;
+
+/**
  * 3D float vector
  */
 typedef struct de_vec3_s
@@ -53,13 +62,15 @@ typedef struct de_vec3_s
 } de_vec3_t;
 
 /**
- * 2D float vector
+ * 4D float vector
  */
-typedef struct de_vec2_s
+typedef struct de_vec4_t
 {
 	float x; /**< X coordinate of the vector */
 	float y; /**< Y coordinate of the vector */
-} de_vec2_t;
+	float z; /**< Z coordinate of the vector */
+	float w; /**< W coordinate of the vector */
+} de_vec4_t;
 
 /**
  * 3D float ray

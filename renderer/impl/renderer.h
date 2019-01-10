@@ -58,17 +58,22 @@ static const  char* de_gbuffer_fs =
 "layout(location = 1) out vec4 outColor;"
 "layout(location = 2) out vec3 outNormal;"
 "uniform sampler2D diffuseTexture;"
+"uniform sampler2D normalTexture;"
 "uniform vec4 diffuseColor;"
 "uniform float selfEmittance;"
 "in vec4 position;"
 "in vec3 normal;"
 "in vec2 texCoord;"
+"in vec3 tangent;"
+"in vec3 binormal;"
 "void main()"
 "{"
 "	outDepth = position.z / position.w;"
 "	outColor = texture2D(diffuseTexture, texCoord);"
 "	outColor.a = 1;"
-"	outNormal = normalize(normal) * 0.5 + 0.5;"
+"   vec4 n = normalize(texture2D(normalTexture, texCoord) * 2.0 - 1.0);"
+"   mat3 tangentSpace = mat3(tangent, binormal, normal);"
+"	outNormal = normalize(tangentSpace * n.xyz) * 0.5 + 0.5;"
 "}";
 
 static const char de_gbuffer_vs[] =
@@ -76,40 +81,60 @@ static const char de_gbuffer_vs[] =
 "layout(location = 0) in vec3 vertexPosition;"
 "layout(location = 1) in vec2 vertexTexCoord;"
 "layout(location = 2) in vec3 vertexNormal;"
-"layout(location = 3) in vec4 boneWeights;"
-"layout(location = 4) in vec4 boneIndices;"
+"layout(location = 3) in vec4 vertexTangent;"
+"layout(location = 4) in vec4 boneWeights;"
+"layout(location = 5) in vec4 boneIndices;"
+
 "uniform mat4 worldMatrix;"
 "uniform mat4 worldViewProjection;"
 "uniform bool useSkeletalAnimation;"
 "uniform mat4 boneMatrices[" DE_STRINGIZE(DE_RENDERER_MAX_SKINNING_MATRICES) "];"
+
 "out vec4 position;"
 "out vec3 normal;"
 "out vec2 texCoord;"
+"out vec3 tangent;"
+"out vec3 binormal;"
+
 "void main()"
 "{"
 "   vec4 localPosition = vec4(0);"
 "   vec3 localNormal = vec3(0);"
+"   vec3 localTangent = vec3(0);"
 "   if(useSkeletalAnimation)"
 "   {"
 "       vec4 vertex = vec4(vertexPosition, 1.0);"
 
-"       localPosition += boneMatrices[int(boneIndices.x)] * vertex * boneWeights.x;"
-"       localPosition += boneMatrices[int(boneIndices.y)] * vertex * boneWeights.y;"
-"       localPosition += boneMatrices[int(boneIndices.z)] * vertex * boneWeights.z;"
-"       localPosition += boneMatrices[int(boneIndices.w)] * vertex * boneWeights.w;"
+"       int i0 = int(boneIndices.x);"
+"       int i1 = int(boneIndices.y);"
+"       int i2 = int(boneIndices.z);"
+"       int i3 = int(boneIndices.w);"
 
-"       localNormal += mat3(boneMatrices[int(boneIndices.x)]) * vertexNormal * boneWeights.x;"
-"       localNormal += mat3(boneMatrices[int(boneIndices.y)]) * vertexNormal * boneWeights.y;"
-"       localNormal += mat3(boneMatrices[int(boneIndices.z)]) * vertexNormal * boneWeights.z;"
-"       localNormal += mat3(boneMatrices[int(boneIndices.w)]) * vertexNormal * boneWeights.w;"
+"       localPosition += boneMatrices[i0] * vertex * boneWeights.x;"
+"       localPosition += boneMatrices[i1] * vertex * boneWeights.y;"
+"       localPosition += boneMatrices[i2] * vertex * boneWeights.z;"
+"       localPosition += boneMatrices[i3] * vertex * boneWeights.w;"
+
+"       localNormal += mat3(boneMatrices[i0]) * vertexNormal * boneWeights.x;"
+"       localNormal += mat3(boneMatrices[i1]) * vertexNormal * boneWeights.y;"
+"       localNormal += mat3(boneMatrices[i2]) * vertexNormal * boneWeights.z;"
+"       localNormal += mat3(boneMatrices[i3]) * vertexNormal * boneWeights.w;"
+
+"       localTangent += mat3(boneMatrices[i0]) * vertexTangent.xyz * boneWeights.x;"
+"       localTangent += mat3(boneMatrices[i1]) * vertexTangent.xyz * boneWeights.y;"
+"       localTangent += mat3(boneMatrices[i2]) * vertexTangent.xyz * boneWeights.z;"
+"       localTangent += mat3(boneMatrices[i3]) * vertexTangent.xyz * boneWeights.w;"
 "   }"
 "   else"
 "   {"
 "       localPosition = vec4(vertexPosition, 1.0);"
 "       localNormal = vertexNormal;"
+"       localTangent = vertexTangent.xyz;"
 "   }"
 "	gl_Position = worldViewProjection * localPosition;"
-"   normal = mat3(worldMatrix) * localNormal;"
+"   normal = normalize(mat3(worldMatrix) * localNormal);"
+"   tangent = normalize(mat3(worldMatrix) * localTangent);"
+"   binormal = normalize(vertexTangent.w * cross(tangent, normal));"
 "	texCoord = vertexTexCoord;"
 "	position = gl_Position;"
 "}";
@@ -195,7 +220,7 @@ void de_check_opengl_error(const char* func, const char* file, int line)
 			errorDesc = "GL_OUT_OF_MEMORY";
 			break;
 		}
-		de_error("OpenGL error \"%s\" occured at function:\n%s\nat line %d in file %s", errorDesc, func, line, file);
+		de_fatal_error("OpenGL error \"%s\" occured at function:\n%s\nat line %d in file %s", errorDesc, func, line, file);
 	}
 }
 
@@ -206,7 +231,7 @@ static void de_renderer_upload_surface(de_surface_t* s);
 static void de_renderer_load_extensions()
 {
 #define GET_GL_EXT(type, func) func = (type)de_engine_platform_get_proc_address(#func); \
-								   if(!func) de_error("Unable to load "#func" function pointer");
+								   if(!func) de_fatal_error("Unable to load "#func" function pointer");
 
 	GET_GL_EXT(PFNGLCREATESHADERPROC, glCreateShader);
 	GET_GL_EXT(PFNGLDELETESHADERPROC, glDeleteShader);
@@ -319,7 +344,7 @@ static void de_create_gbuffer(de_renderer_t* r, int width, int height)
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
-		de_error("Unable to construct G-Buffer FBO.");
+		de_fatal_error("Unable to construct G-Buffer FBO.");
 	}
 
 	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
@@ -340,7 +365,7 @@ static void de_create_gbuffer(de_renderer_t* r, int width, int height)
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
-		de_error("Unable to initialize Stencil FBO.");
+		de_fatal_error("Unable to initialize Stencil FBO.");
 	}
 
 	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
@@ -378,6 +403,7 @@ static void de_create_builtin_shaders(de_renderer_t* r)
 		s->bone_matrices = glGetUniformLocation(s->program, "boneMatrices");
 
 		s->diffuse_texture = glGetUniformLocation(s->program, "diffuseTexture");
+		s->normal_texture = glGetUniformLocation(s->program, "normalTexture");
 		s->diffuse_color = glGetUniformLocation(s->program, "diffuseColor");
 		s->self_emittance = glGetUniformLocation(s->program, "selfEmittance");
 	}
@@ -468,11 +494,24 @@ de_renderer_t* de_renderer_init(de_core_t* core)
 	glGenBuffers(1, &r->gui_render_buffers.ebo);
 
 	r->test_surface = de_renderer_create_surface(r);
+
+	/* white dummy texture for surfaces without texture */
 	{
 		de_rgba8_t* pixel;
 		r->white_dummy = de_renderer_create_texture(r, 1, 1, 4);
 		pixel = (de_rgba8_t*)r->white_dummy->pixels;
 		pixel->r = pixel->g = pixel->b = pixel->a = 255;
+	}
+
+	/* dummy normal map with (0,0,1) vector */
+	{
+		de_rgba8_t* pixel;
+		r->normal_map_dummy = de_renderer_create_texture(r, 1, 1, 4);
+		pixel = (de_rgba8_t*)r->normal_map_dummy->pixels;
+		pixel->r = 128;
+		pixel->g = 128;
+		pixel->b = 255;
+		pixel->a = 255;
 	}
 
 	r->render_normals = DE_FALSE;
@@ -580,7 +619,7 @@ GLuint de_renderer_create_shader(GLenum type, const char* source)
 	{
 		static char buffer[2048];
 		DE_GL_CALL(glGetShaderInfoLog(shader, 2048, NULL, buffer));
-		de_error(buffer);
+		de_fatal_error(buffer);
 	}
 
 	return shader;
@@ -610,7 +649,7 @@ GLuint de_renderer_create_gpu_program(const char* vertexSource, const char* frag
 	{
 		static char buffer[2048];
 		DE_GL_CALL(glGetProgramInfoLog(program, 2048, NULL, buffer));
-		de_error(buffer);
+		de_fatal_error(buffer);
 	}
 
 	return program;
@@ -636,11 +675,14 @@ static void de_renderer_upload_surface(de_surface_t* s)
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, normal));
 	glEnableVertexAttribArray(2);
 
-	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, bone_weights));
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, tangent));
 	glEnableVertexAttribArray(3);
 
-	glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, bone_indices));
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, bone_weights));
 	glEnableVertexAttribArray(4);
+
+	glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, bone_indices));
+	glEnableVertexAttribArray(5);
 
 	glBindVertexArray(0);
 
@@ -786,7 +828,7 @@ static void de_upload_texture(de_texture_t* texture)
 		format = GL_RGBA;
 		break;
 	default:
-		de_error("Unknown texture byte per pixel: %d", texture->byte_per_pixel);
+		de_fatal_error("Unknown texture byte per pixel: %d", texture->byte_per_pixel);
 		return;
 	}
 
@@ -839,6 +881,7 @@ static void de_render_mesh(de_renderer_t* r, de_mesh_t* mesh)
 			de_renderer_upload_surface(surf);
 		}
 
+		/* bind diffuse map */
 		DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
 		if (surf->texture)
 		{
@@ -849,6 +892,10 @@ static void de_render_mesh(de_renderer_t* r, de_mesh_t* mesh)
 			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->white_dummy->id));
 		}
 
+		/* bind normal map */
+		DE_GL_CALL(glActiveTexture(GL_TEXTURE1));
+		DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->normal_map_dummy->id));
+		
 		DE_GL_CALL(glUniform1i(r->gbuffer_shader.use_skeletal_animation, is_skinned));
 		if (is_skinned)
 		{
@@ -936,6 +983,7 @@ void de_renderer_render(de_renderer_t* r)
 
 	DE_GL_CALL(glUseProgram(r->gbuffer_shader.program));
 	DE_GL_CALL(glUniform1i(r->gbuffer_shader.diffuse_texture, 0));
+	DE_GL_CALL(glUniform1i(r->gbuffer_shader.normal_texture, 1));	
 	DE_GL_CALL(glEnable(GL_CULL_FACE));
 
 	/* render each scene */

@@ -19,12 +19,22 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+/* 
+ * Important notes:
+ * - Engine uses right-handed coordinate system which means Z axis points towards
+ *   screen, Y axis points up, and X axis points right.
+ * - Vectors are single-column matrices. 
+ **/
+
 #ifndef DE_DENGINE_H
 #define DE_DENGINE_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* Set this to 1 to disable asserts, could be useful for release builds to increase performance a bit. */
+#define DE_DISABLE_ASSERTS 0
 
 /* Suppress compiler-specific warnings */
 #ifdef _MSC_VER

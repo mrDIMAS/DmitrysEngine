@@ -75,23 +75,15 @@ de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type)
 	{
 	case DE_NODE_TYPE_BASE:
 		break;
-	case DE_NODE_TYPE_MESH:
-	{
-		de_mesh_init(node, &node->s.mesh);
+	case DE_NODE_TYPE_MESH:	
+		de_mesh_init(node);
+		break;	
+	case DE_NODE_TYPE_CAMERA:	
+		de_camera_init(node);
+		break;	
+	case DE_NODE_TYPE_LIGHT:		
+		de_light_init(node);
 		break;
-	}
-	case DE_NODE_TYPE_CAMERA:
-	{
-		de_camera_init(node, &node->s.camera);
-		break;
-	}
-	case DE_NODE_TYPE_LIGHT:
-	{
-		de_light_t* light = &node->s.light;
-		de_light_init(light);
-		light->parent_node = node;
-		break;
-	}
 	}
 
 	return node;
@@ -158,6 +150,8 @@ de_mat4_t* de_node_calculate_transforms(de_node_t* node)
 	 * So to exclude weird transformations behaviour when using FBX, I just decided
 	 * to use all these matrices. This is not optimized at all, for example 70% of
 	 * these multiplications and matrices creation can be done only once on load.
+	 * 
+	 * TODO: OPTIMIZE THIS ASAP!
 	 */
 
 	de_mat4_rotation(&pre_rotation, &node->pre_rotation);
@@ -345,4 +339,25 @@ de_node_t* de_node_find(de_node_t* node, const char* name)
 	}
 
 	return result;
+}
+
+/*=======================================================================================*/
+de_mesh_t* de_node_to_mesh(de_node_t* node)
+{
+	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_MESH);
+	return &node->s.mesh;
+}
+
+/*=======================================================================================*/
+de_light_t* de_node_to_light(de_node_t* node)
+{
+	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_LIGHT);
+	return &node->s.light;
+}
+
+/*=======================================================================================*/
+de_camera_t* de_node_to_camera(de_node_t* node)
+{
+	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_CAMERA);
+	return &node->s.camera;
 }

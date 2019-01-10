@@ -29,7 +29,7 @@ void* de_malloc(size_t size)
 
 	if (!mem)
 	{
-		de_error("Failed to allocate %d bytes of memory!", size);
+		de_fatal_error("Failed to allocate %d bytes of memory!", size);
 	}
 
 	++de_alloc_count;
@@ -45,7 +45,7 @@ void* de_calloc(size_t count, size_t size)
 
 	if (!mem)
 	{
-		de_error("Failed to allocate %d bytes of clean memory!", count * size);
+		de_fatal_error("Failed to allocate %d bytes of clean memory!", count * size);
 	}
 
 	++de_alloc_count;
@@ -68,7 +68,7 @@ void* de_realloc(void* ptr, size_t size)
 	{
 		if (!mem)
 		{
-			de_error("Failed to reallocate %d bytes of memory!", size);
+			de_fatal_error("Failed to reallocate %d bytes of memory!", size);
 		}
 	}
 	else

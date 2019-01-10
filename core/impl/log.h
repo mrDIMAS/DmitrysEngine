@@ -63,7 +63,7 @@ void de_log(const char* message, ...)
 	de_write_log(format_buffer, DE_FALSE);
 }
 
-void de_error(const char* message, ...)
+void de_fatal_error(const char* message, ...)
 {
 	static char format_buffer[32768];
 	va_list argument_list;

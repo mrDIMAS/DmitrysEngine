@@ -279,7 +279,7 @@ void de_gui_scroll_bar_set_direction(de_gui_node_t* node, de_gui_scroll_bar_orie
 	}
 	default:
 	{
-		de_error("invalid scroll bar orientation!");
+		de_fatal_error("invalid scroll bar orientation!");
 		break;
 	}
 	}

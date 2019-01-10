@@ -34,6 +34,7 @@
  * - Area and Volume lights
  * - Some of vertex components mappings. Engine will shoot error if will see unsupported 
  *   mapping. This stuff is still in progress.
+ * - Embedded media
  * - Maybe some other stuff, about which I don't know. 
  **/
 
@@ -716,7 +717,7 @@ static de_fbx_component_t* de_fbx_read_animation_curve(de_fbx_node_t* anim_curve
 
 	if (key_value == NULL || key_time == NULL)
 	{
-		de_error("FBX: KeyTime or KeyValueFloat is missing");
+		de_fatal_error("FBX: KeyTime or KeyValueFloat is missing");
 	}
 
 	key_time_array = de_fbx_node_find_child(key_time, "a");
@@ -724,7 +725,7 @@ static de_fbx_component_t* de_fbx_read_animation_curve(de_fbx_node_t* anim_curve
 
 	if (key_time_array->attributes.size != key_value_array->attributes.size)
 	{
-		de_error("FBX: Animation curve contains wrong key data!");
+		de_fatal_error("FBX: Animation curve contains wrong key data!");
 	}
 
 	for (i = 0; i < key_time_array->attributes.size; ++i)
@@ -805,11 +806,11 @@ static de_fbx_component_t* de_fbx_read_sub_deformer(de_fbx_node_t* sub_deformer_
 
 	if (transform->attributes.size != 16)
 	{
-		de_error("FBX: Wrong transform size! Expect 16, got %d", transform->attributes.size);
+		de_fatal_error("FBX: Wrong transform size! Expect 16, got %d", transform->attributes.size);
 	}
 	if (transform_link->attributes.size != 16)
 	{
-		de_error("FBX: Wrong transform link size! Expect 16, got %d", transform_link->attributes.size);
+		de_fatal_error("FBX: Wrong transform link size! Expect 16, got %d", transform_link->attributes.size);
 	}
 
 	for (i = 0; i < indices->attributes.size; ++i)
@@ -1618,6 +1619,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 					de_vertex_t v = { 0 };
 					int index = temp_indices[m];
 					int surface_index = 0;
+					de_vec3_t* tangent;
 
 					v.position = geom->vertices[index];
 					de_vec3_transform(&v.position, &v.position, &geometric_transform);
@@ -1632,7 +1634,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 						v.normal = geom->normals[index];
 						break;
 					default:
-						de_error("FBX: Normal mapping is not supported");
+						de_fatal_error("FBX: Normal mapping is not supported");
 					}
 					de_vec3_transform_normal(&v.normal, &v.normal, &geometric_transform);
 
@@ -1640,18 +1642,29 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 					switch (geom->tangent_mapping)
 					{
 					case DE_FBX_MAPPING_BY_POLYGON_VERTEX:
-						v.tangent = geom->tangents[origin + relative_indices[m]];
+						tangent = &geom->tangents[origin + relative_indices[m]];
+						v.tangent.x = tangent->x;
+						v.tangent.y = tangent->y;
+						v.tangent.z = tangent->z;
+						/* TODO: handedness, maybe wrong. Here we should use fbx bitangents to compute handedness! */
+						v.tangent.w = 1.0f; 
 						break;
 					case DE_FBX_MAPPING_BY_VERTEX:
-						v.tangent = geom->tangents[index];
+						tangent = &geom->tangents[index];
+						v.tangent.x = tangent->x;
+						v.tangent.y = tangent->y;
+						v.tangent.z = tangent->z;
+						/* TODO: handedness, maybe wrong. Here we should use fbx bitangents to compute handedness! */
+						v.tangent.w = 1.0f;
 						break;
 					case DE_FBX_MAPPING_UNKNOWN:
 						/* means that there is no tangents and we'll have to generate them */
 						break;
 					default:
-						de_error("FBX: Tangent mapping is not supported");
+						de_fatal_error("FBX: Tangent mapping is not supported");
 					}
-					de_vec3_transform_normal(&v.tangent, &v.tangent, &geometric_transform);
+					/* transform only xyz of tangent, keep w untouched */
+					de_vec3_transform_normal((de_vec3_t*)&v.tangent, (de_vec3_t*)&v.tangent, &geometric_transform);
 
 					/* Extract texture coordinates */
 					switch (geom->uv_mapping)
@@ -1670,7 +1683,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 						/* means that there is no uvs */
 						break;
 					default:
-						de_error("FBX: UV mapping is not supported");
+						de_fatal_error("FBX: UV mapping is not supported");
 					}
 
 					/* Flip texture upside-down */
@@ -1688,7 +1701,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 							surface_index = geom->materials[material_index];
 							break;
 						default:
-							de_error("FBX: Material mapping is not supported");
+							de_fatal_error("FBX: Material mapping is not supported");
 						}
 					}
 
@@ -1704,6 +1717,15 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 			}
 
 			de_free(bone_vertices);
+
+			/* if we do not have precomputed tangets, calculate our own */
+			if (geom->tangent_mapping == DE_FBX_MAPPING_UNKNOWN)
+			{
+				for (m = 0; m < mesh->surfaces.size; ++m)
+				{
+					de_surface_calculate_tangents(mesh->surfaces.data[m]);
+				}
+			}
 		}
 
 		/**

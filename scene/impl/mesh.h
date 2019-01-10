@@ -20,8 +20,10 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 /*=======================================================================================*/
-void de_mesh_init(de_node_t* node, de_mesh_t* mesh)
+void de_mesh_init(de_node_t* node)
 {
+	de_mesh_t* mesh = &node->s.mesh;
+
 	DE_ARRAY_INIT(mesh->surfaces);
 
 	mesh->parent_node = node;

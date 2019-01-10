@@ -24,18 +24,13 @@
 */
 typedef struct de_color_s
 {
-	unsigned char r; /**< Red component */
-	unsigned char g; /**< Green component */
-	unsigned char b; /**< Blue component */
-	unsigned char a; /**< Alpha (opacity) component */
+	uint8_t r; /**< Red component */
+	uint8_t g; /**< Green component */
+	uint8_t b; /**< Blue component */
+	uint8_t a; /**< Alpha (opacity) component */
 } de_color_t;
 
 /**
-* @brief
-* @param color
-* @param r
-* @param g
-* @param b
-* @param a
-*/
-void de_color_set(de_color_t* color, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+ * @brief Initializes RGBA color.
+ */
+void de_color_set(de_color_t* color, uint8_t r, uint8_t g, uint8_t b, uint8_t a);

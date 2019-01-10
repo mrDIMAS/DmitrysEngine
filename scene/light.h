@@ -47,7 +47,7 @@ struct de_light_t
 /**
  * @brief Specializes node as light. By default it is point light of white color and 2m emit radius.
  */
-void de_light_init(de_light_t* light);
+void de_light_init(de_node_t* node);
 
 /**
  * @brief 

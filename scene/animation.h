@@ -65,13 +65,18 @@ struct de_animation_t
 	DE_LINKED_LIST_ITEM(struct de_animation_t);
 	de_scene_t* scene;
 	DE_ARRAY_DECLARE(de_animation_track_t*, tracks);  /**< Array of pointers to animation tracks */
-	int flags; /**< Bitset of flags (de_animation_flags_t) */
+	int flags;                  /**< Bitset of flags (de_animation_flags_t) */
 	float speed;                /**< Animation playback speed */
 	float length;               /**< Total animation length */
 	float time_position;        /**< Current time of animation (playback position) */
 	float weight;               /**< Weight of animation [0; 1]. Used for animation blending */
 	float fade_step;            /**< Speed of weight fading. Used for animation blending */
 };
+
+/**
+ * @brief Creates new empty animation and attaches it to scene
+ */
+de_animation_t* de_animation_create(de_scene_t* s);
 
 /**
 * @brief Writes out intepolated keyframe from animation track at specified time
@@ -107,27 +112,27 @@ void de_animation_track_add_keyframe(de_animation_track_t* track, const de_keyfr
 void de_animation_free(de_animation_t* anim);
 
 /**
- * @brief
+ * @brief Updates animation. No need to call directly!
  */
 void de_animation_update(de_animation_t* anim, float dt);
 
 /**
- * @brief
+ * @brief Sets current time position of animation.
  */
 void de_animation_set_time_position(de_animation_t* anim, float time);
 
 /**
- * @brief
+ * @brief Returns true if all specified flags are set.
  */
 de_bool_t de_animation_is_flags_set(de_animation_t* anim, int flags);
 
 /**
- * @brief
+ * @brief Sets given animation flags.
  */
 void de_animation_set_flags(de_animation_t* anim, int flags);
 
 /**
- * @brief
+ * @brief Resets given animation flags.
  */
 void de_animation_reset_flags(de_animation_t* anim, int flags);
 
@@ -135,3 +140,12 @@ void de_animation_reset_flags(de_animation_t* anim, int flags);
  * @brief Clamps length of animation to longest track.
  */
 void de_animation_clamp_length(de_animation_t* anim);
+
+/**
+ * @brief Creates new animation from other using specified time span.
+ * 
+ * This function is useful when you have single timeline and you want to 
+ * extract animations from it, to control them separately and perform blending
+ * between them.
+ */
+de_animation_t* de_animation_extract(de_animation_t* anim, float from, float to);

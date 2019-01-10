@@ -19,6 +19,22 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+/*=======================================================================================*/
+de_animation_t* de_animation_create(de_scene_t* s)
+{
+	de_animation_t* animation;
+
+	animation = DE_NEW(de_animation_t);
+
+	animation->scene = s;
+	animation->weight = 1.0f;
+	animation->speed = 1.0f;
+	animation->flags = (de_animation_flags_t)(DE_ANIMATION_FLAG_ENABLED | DE_ANIMATION_FLAG_LOOPED);
+
+	DE_LINKED_LIST_APPEND(s->animations, animation);
+
+	return animation;
+}
 
 /*=======================================================================================*/
 de_animation_track_t* de_animation_track_create(de_animation_t* anim)
@@ -251,5 +267,28 @@ void de_animation_clamp_length(de_animation_t* anim)
 		{
 			anim->length = track->max_time;
 		}
+	}
+}
+
+/*=======================================================================================*/
+de_animation_t* de_animation_extract(de_animation_t* anim, float from, float to)
+{
+	size_t i;
+		
+	from = fabs(from);
+	to = fabs(to);
+
+	if (from > to)
+	{
+		float temp = from;
+		from = to;
+		to = temp;
+	}
+
+	de_animation_t* new_anim = de_animation_create(anim->scene);
+
+	for (i = 0; i < anim->tracks.size; ++i)
+	{
+
 	}
 }

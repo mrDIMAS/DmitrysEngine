@@ -31,9 +31,9 @@ struct de_mesh_t
 };
 
 /**
-* @brief Creates new empty mesh (without any surface)
+* @brief Specializes node as empty mesh (without any surface)
 */
-void de_mesh_init(de_node_t* node, de_mesh_t* mesh);
+void de_mesh_init(de_node_t* node);
 
 /**
 * @brief Frees mesh resources

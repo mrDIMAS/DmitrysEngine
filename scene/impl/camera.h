@@ -20,8 +20,9 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 /*=======================================================================================*/
-void de_camera_init(de_node_t* node, de_camera_t* c)
+void de_camera_init(de_node_t* node)
 {
+	de_camera_t* c = &node->s.camera;
 	de_rectf_t viewport = { 0, 0, 1, 1 };
 	de_camera_set_viewport(c, &viewport);
 	c->parent_node = node;

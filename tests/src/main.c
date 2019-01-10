@@ -334,7 +334,7 @@ level_t* level_create_test(game_t* game)
 		assert(polygon->type == DE_NODE_TYPE_MESH);
 		map_collider = de_scene_create_static_geometry(level->scene);
 		de_node_calculate_transforms(polygon);
-		de_static_geometry_fill(map_collider, &polygon->s.mesh, polygon->global_matrix);
+		de_static_geometry_fill(map_collider, de_node_to_mesh(polygon), polygon->global_matrix);
 	}
 
 	level->player = player_create(level);

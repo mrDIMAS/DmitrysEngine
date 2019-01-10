@@ -37,10 +37,9 @@ typedef struct de_camera_t
 } de_camera_t;
 
 /**
-* @brief
-* @param
-*/
-void de_camera_init(de_node_t* node, de_camera_t* c);
+ * @brief Specializes node as camera.
+ */
+void de_camera_init(de_node_t* node);
 
 /**
  * @brief
@@ -63,3 +62,8 @@ void de_camera_update(de_camera_t* c);
 * @param h
 */
 void de_camera_set_viewport(de_camera_t* camera, const de_rectf_t* viewport);
+
+void de_camera_set_fov(de_camera_t* camera, float fov)
+{
+	camera->fov = fov;
+}

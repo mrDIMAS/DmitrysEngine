@@ -77,10 +77,7 @@ void de_scene_add_node(de_scene_t* s, de_node_t* node);
  */
 void de_scene_remove_node(de_scene_t* s, de_node_t* node);
 
-/**
- * @brief Creates new empty animation and attaches it to scene
- */
-de_animation_t* de_animation_create(de_scene_t* s);
+
 
 /**
  * @brief Tries to find a node with specified name. Performs linear search O(n).

@@ -222,7 +222,7 @@ static void de_win32_load_wgl_extensions(de_core_t* core)
 
 	if (!core->platform.dummy_window)
 	{
-		de_error("Win32: Failed to create dummy window!");
+		de_fatal_error("Win32: Failed to create dummy window!");
 	}
 
 	core->platform.dummy_dc = GetDC(core->platform.dummy_window);
@@ -243,18 +243,18 @@ static void de_win32_load_wgl_extensions(de_core_t* core)
 	core->platform.dummy_context = wglCreateContext(core->platform.dummy_dc);
 	if (!core->platform.dummy_context)
 	{
-		de_error("Win32: Failed to create dummy OpenGL context!");
+		de_fatal_error("Win32: Failed to create dummy OpenGL context!");
 	}
 
 	if (!wglMakeCurrent(core->platform.dummy_dc, core->platform.dummy_context))
 	{
-		de_error("Win32: Failed to make dummy OpenGL context current!");
+		de_fatal_error("Win32: Failed to make dummy OpenGL context current!");
 	}
 
 #define DE_GET_WGL_PROC_ADDRESS(type, func)                    \
 	func = (type)wglGetProcAddress(#func);                     \
 	if(!func) {                                                \
-		de_error("Unable to load %s function pointer", #func); \
+		de_fatal_error("Unable to load %s function pointer", #func); \
 	} else {                                                   \
 		de_log("Function %s is loaded!", #func);               \
 	}
@@ -330,7 +330,7 @@ void de_engine_platform_init(de_core_t* core)
 
 	if (!core->platform.window)
 	{
-		de_error("Failed to create window");
+		de_fatal_error("Failed to create window");
 	}
 	core->platform.device_context = GetDC(core->platform.window);
 	ShowWindow(core->platform.window, SW_SHOW);
@@ -358,11 +358,11 @@ void de_engine_platform_init(de_core_t* core)
 	core->platform.gl_context = wglCreateContextAttribsARB(core->platform.device_context, NULL, attributes);
 	if (!core->platform.gl_context)
 	{
-		de_error("Win32: Failed to create OpenGL context!");
+		de_fatal_error("Win32: Failed to create OpenGL context!");
 	}
 	if (!wglMakeCurrent(core->platform.device_context, core->platform.gl_context))
 	{
-		de_error("Win32: Failed to make OpenGL context current!");
+		de_fatal_error("Win32: Failed to make OpenGL context current!");
 	}
 }
 

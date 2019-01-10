@@ -104,7 +104,7 @@ static void de_gui_node_default_layout(de_gui_node_t* n)
 
 	if (!parent)
 	{
-		de_error("node must have parent here!");
+		de_fatal_error("node must have parent here!");
 	}
 
 	/* apply vertical alignment */
@@ -185,8 +185,8 @@ de_gui_t* de_gui_init(de_core_t* core)
 		{
 			char_set[i] = i;
 		}
-
 		gui->default_font = de_font_load_ttf_from_memory(core, (void*)de_builtin_font_inconsolata, 18, char_set, CHAR_COUNT);
+	#undef CHAR_COUNT
 	}
 
 	return gui;
@@ -220,7 +220,7 @@ void de_gui_node_update_transform(de_gui_node_t* node)
 	size_t i;
 	if (!node)
 	{
-		de_error("node cannot be null here");
+		de_fatal_error("node cannot be null here");
 	}
 	if (node->parent)
 	{
@@ -769,7 +769,7 @@ void de_gui_node_release_mouse_capture(de_gui_node_t* node)
 	}
 	else
 	{
-		de_error("mismatch pair capture/release mouse!");
+		de_fatal_error("mismatch pair capture/release mouse!");
 	}
 }
 

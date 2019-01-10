@@ -20,13 +20,15 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 /*=======================================================================================*/
-void de_light_init(de_light_t* light)
+void de_light_init(de_node_t* node)
 {
+	de_light_t* light = &node->s.light;
 	de_color_set(&light->color, 255, 255, 255, 255);
 	light->radius = 2.0f;
 	light->type = DE_LIGHT_TYPE_POINT;	
 	light->cone_angle = M_PI;
 	light->cone_angle_cos = -1.0f;
+	light->parent_node = node;
 }
 
 /*=======================================================================================*/

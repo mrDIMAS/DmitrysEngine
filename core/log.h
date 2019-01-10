@@ -34,7 +34,7 @@ void de_log(const char * message, ...);
  * @brief Prints error to log and terminates program execution
  * @param message Any valid format string
  */
-void de_error(const char * message, ...);
+void de_fatal_error(const char * message, ...);
 
 /**
  * @brief Closes current log file.

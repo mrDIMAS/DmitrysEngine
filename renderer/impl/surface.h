@@ -178,3 +178,97 @@ de_bool_t de_surface_is_skinned(de_surface_t* surf)
 {
 	return surf->vertex_weights.size > 0;
 }
+
+/*=======================================================================================*/
+void de_surface_calculate_tangents(de_surface_t* surf)
+{
+	size_t i;
+	de_vec3_t *tan1 = de_calloc(surf->vertices.size * 2, sizeof(de_vec3_t));
+	de_vec3_t *tan2 = tan1 + surf->vertices.size;
+
+	for (i = 0; i < surf->indices.size; i += 3)
+	{
+		de_vec3_t sdir, tdir;
+
+		int i1 = surf->indices.data[i + 0];
+		int i2 = surf->indices.data[i + 1];
+		int i3 = surf->indices.data[i + 2];
+
+		const de_vec3_t* v1 = &surf->vertices.data[i1].position;
+		const de_vec3_t* v2 = &surf->vertices.data[i2].position;
+		const de_vec3_t* v3 = &surf->vertices.data[i3].position;
+
+		const de_vec3_t* w1 = &surf->vertices.data[i1].tex_coord;
+		const de_vec3_t* w2 = &surf->vertices.data[i2].tex_coord;
+		const de_vec3_t* w3 = &surf->vertices.data[i3].tex_coord;
+
+		float x1 = v2->x - v1->x;
+		float x2 = v3->x - v1->x;
+		float y1 = v2->y - v1->y;
+		float y2 = v3->y - v1->y;
+		float z1 = v2->z - v1->z;
+		float z2 = v3->z - v1->z;
+
+		float s1 = w2->x - w1->x;
+		float s2 = w3->x - w1->x;
+		float t1 = w2->y - w1->y;
+		float t2 = w3->y - w1->y;
+
+		float r = 1.0F / (s1 * t2 - s2 * t1);
+
+		sdir.x = (t2 * x1 - t1 * x2) * r;
+		sdir.y = (t2 * y1 - t1 * y2) * r;
+		sdir.z = (t2 * z1 - t1 * z2) * r;
+
+		tdir.x = (s1 * x2 - s2 * x1) * r;
+		tdir.y = (s1 * y2 - s2 * y1) * r;
+		tdir.z = (s1 * z2 - s2 * z1) * r;
+
+		tan1[i1].x += sdir.x;
+		tan1[i1].y += sdir.y;
+		tan1[i1].z += sdir.z;
+
+		tan1[i2].x += sdir.x;
+		tan1[i2].y += sdir.y;
+		tan1[i2].z += sdir.z;
+
+		tan1[i3].x += sdir.x;
+		tan1[i3].y += sdir.y;
+		tan1[i3].z += sdir.z;
+
+		tan2[i1].x += tdir.x;
+		tan2[i1].y += tdir.y;
+		tan2[i1].z += tdir.z;
+
+		tan2[i2].x += tdir.x;
+		tan2[i2].y += tdir.y;
+		tan2[i2].z += tdir.z;
+
+		tan2[i3].x += tdir.x;
+		tan2[i3].y += tdir.y;
+		tan2[i3].z += tdir.z;
+	}
+
+	for (i = 0; i < surf->vertices.size; ++i)
+	{
+		de_vertex_t* v = surf->vertices.data + i;
+		const de_vec3_t* n = &v->normal;
+		const de_vec3_t* t = tan1 + i;
+		de_vec3_t tangent, temp;
+
+		/* Gram-Schmidt orthogonalize */
+		de_vec3_scale(&temp, n, de_vec3_dot(n, t));
+		de_vec3_sub(&tangent, t, &temp);
+		de_vec3_normalize(&tangent, &tangent);
+	
+		v->tangent.x = tangent.x;
+		v->tangent.y = tangent.y;
+		v->tangent.z = tangent.z;
+		
+		/* Calculate handedness */
+		de_vec3_cross(&temp, n, t);
+		v->tangent.w = (de_vec3_dot(&temp, &tan2[i]) < 0.0F) ? -1.0F : 1.0F;
+	}
+
+	de_free(tan1);
+}

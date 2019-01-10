@@ -27,14 +27,22 @@ typedef enum de_node_type_t
 	DE_NODE_TYPE_CAMERA
 } de_node_type_t;
 
-#define DE_ASSERT_SCENE_NODE_TYPE(node, expected_type) \
-	if(node->type != expected_type) de_error("Scene node must be " #expected_type " type!")
+#if DE_DISABLE_ASSERTS
+#  define DE_ASSERT_SCENE_NODE_TYPE(node, expected_type)
+#else
+#  define DE_ASSERT_SCENE_NODE_TYPE(node, expected_type) \
+	if(node->type != expected_type) de_fatal_error("Scene node must be " #expected_type " type!")
+#endif
 
 /**
  * @class de_node_t
  * @brief Common scene node. Typed union.
  *
  * Actual behaviour of scene node defined by its actual type.
+ * 
+ * Important note: please consider using special functions for nodes, intead of
+ * directly accessing fields of structure. Suddenly internals could be changed
+ * and your game will not be compiling!
  */
 struct de_node_t
 {
@@ -72,7 +80,7 @@ struct de_node_t
 	/* Physics */
 	de_body_t* body;
 
-	/* Specialization */
+	/* Specialization. Avoid accessing these directly, use de_node_to_xxx instead. */
 	union
 	{
 		de_mesh_t mesh;
@@ -178,15 +186,31 @@ void de_node_set_local_scale(de_node_t* node, de_vec3_t* scl);
 void de_node_move(de_node_t* node, de_vec3_t* offset);
 
 /**
-* @brief
+* @brief Sets current physical body for node.
 * @param node
 */
 void de_node_set_body(de_node_t* node, de_body_t* body);
 
 /**
 * @brief Performs recursive search on tree to find a specified node.
-* @param root
-* @param name
+* @param root Pointer to node from which you want to start searching.
+* @param name Name of node you looking for.
 * @return
 */
 de_node_t* de_node_find(de_node_t* node, const char* name);
+
+/**
+ * @brief Tries to get mesh component out of the node, will throw an error if node is not a mesh!
+ */
+de_mesh_t* de_node_to_mesh(de_node_t* node);
+
+/**
+ * @brief Tries to get light component out of the node, will throw an error if node is not a light!
+ */
+de_light_t* de_node_to_light(de_node_t* node);
+
+/**
+ * @brief Tries to get camera component out of the node, will throw an error if node is not a camera!
+ */
+de_camera_t* de_node_to_camera(de_node_t* node);
+

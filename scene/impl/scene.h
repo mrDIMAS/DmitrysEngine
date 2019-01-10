@@ -153,22 +153,7 @@ void de_scene_remove_node(de_scene_t* s, de_node_t* node)
 	DE_LINKED_LIST_REMOVE(s->nodes, node);
 }
 
-/*=======================================================================================*/
-de_animation_t* de_animation_create(de_scene_t* s)
-{
-	de_animation_t* animation;
 
-	animation = DE_NEW(de_animation_t);
-
-	animation->scene = s;
-	animation->weight = 1.0f;
-	animation->speed = 1.0f;
-	animation->flags = (de_animation_flags_t)(DE_ANIMATION_FLAG_ENABLED | DE_ANIMATION_FLAG_LOOPED);
-
-	DE_LINKED_LIST_APPEND(s->animations, animation);
-
-	return animation;
-}
 
 /*=======================================================================================*/
 de_node_t* de_scene_find_node(const de_scene_t* s, const char* name)

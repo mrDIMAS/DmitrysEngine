@@ -364,7 +364,7 @@ void de_gui_draw_list_revert_clip_geom(de_gui_draw_list_t* draw_list)
 	int i;
 	if (draw_list->clip_cmd_stack.size == 0)
 	{
-		de_error("mismatch push/pop clipping commands!");
+		de_fatal_error("mismatch push/pop clipping commands!");
 	}
 	else
 	{

@@ -28,7 +28,7 @@ typedef struct de_vertex_s
 	de_vec3_t normal;           /**< Normal vector of vertex */
 	de_vec2_t tex_coord;        /**< Texture coordinates of vertex */
 	de_vec2_t second_tex_coord; /**< Texture coordinates of vertex */
-	de_vec3_t tangent;          /**< Tangent vector of vertex */
+	de_vec4_t tangent;          /**< Tangent vector of vertex, where w - handedness */
 	float bone_weights[4];      /**< Array of four bone weights */
 	uint8_t bone_indices[4];           /**< Indices of corresponding bone matrix */
 } de_vertex_t;

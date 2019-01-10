@@ -50,7 +50,7 @@ void* de_fbx_buffer_alloc(de_fbx_buffer_t* buf, size_t size)
 
 	if (buf->ptr >= buf->end)
 	{
-		de_error("buffer overflow");
+		de_fatal_error("buffer overflow");
 	}
 
 	return ptr;

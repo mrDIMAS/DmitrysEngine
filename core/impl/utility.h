@@ -30,7 +30,7 @@ char * de_load_file_into_memory(const char * path, size_t* out_size)
 	file = fopen(path, "rb");
 	if (!file)
 	{
-		de_error("unable to read file: %s", path);
+		de_fatal_error("unable to read file: %s", path);
 	}
 
 	/* get file size */
@@ -43,7 +43,7 @@ char * de_load_file_into_memory(const char * path, size_t* out_size)
 	content = (char*)de_malloc(content_size);
 	if (fread(content, sizeof(char), file_size, file) != file_size)
 	{
-		de_error("file %s is corrupted", path);
+		de_fatal_error("file %s is corrupted", path);
 	}
 
 	if (out_size)

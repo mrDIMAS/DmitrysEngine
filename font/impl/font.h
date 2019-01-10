@@ -670,7 +670,7 @@ static int de_font_pack(de_renderer_t* r, de_font_t * font)
 
 		if (!node)
 		{
-			de_error("not enough space in font atlas");
+			de_fatal_error("not enough space in font atlas");
 		}
 
 		w = node->w / (float)atlas_size;

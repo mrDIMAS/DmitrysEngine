@@ -30,8 +30,8 @@ typedef struct de_vertex_weight_t
 } de_vertex_weight_t;
 
 typedef struct de_vertex_weight_group_t
-{	
-	de_vertex_weight_t bones[4];	
+{
+	de_vertex_weight_t bones[4];
 	size_t weight_count; /**< Actual count of bones in group */
 } de_vertex_weight_group_t;
 
@@ -85,14 +85,14 @@ void de_surface_upload(de_surface_t* surf);
 /**
  * @brief Calculates normals
  * @param surf pointer to surface
- * 
- * Note: Dumb, per-face normals generation. 
+ *
+ * Note: Dumb, per-face normals generation.
  */
 void de_surface_calculate_normals(de_surface_t * surf);
 
 /**
- * @brief Prepares surface's vertices for skinning. 
- * 
+ * @brief Prepares surface's vertices for skinning.
+ *
  * Calculates correct indices of matrices for each vertex in the surface.
  */
 de_bool_t de_surface_prepare_vertices_for_skinning(de_surface_t* surf);
@@ -100,22 +100,34 @@ de_bool_t de_surface_prepare_vertices_for_skinning(de_surface_t* surf);
 /**
  * @brief Adds new surface affecting node.
  * @return Returns DE_TRUE if bone was added, DE_FALSE - if vertex already added.
- * 
+ *
  * Notes: amortized O(n)
  */
 de_bool_t de_surface_add_bone(de_surface_t* surf, de_node_t* bone);
 
 /**
  * @brief Returns bone index in array of surface's bones. If no bone was found, returns -1.
- * 
+ *
  * Notes: O(n)
  */
 int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone);
 
 /**
- * @brief Fills matrices for each bone. Matrices array will be filled so each vertex will 
+ * @brief Fills matrices for each bone. Matrices array will be filled so each vertex will
  * have correct index of matrix.
  */
 void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* mesh_local_transform, de_mat4_t* out_matrices, size_t max_matrices);
 
+/**
+ * @brief Returns true if surface is skinned.
+ */
 de_bool_t de_surface_is_skinned(de_surface_t* surf);
+
+/**
+ * @brief Computes tangents for surface vertices.
+ * 
+ * Based on Lengyel, Eric.
+ * "Computing Tangent Space Basis Vectors for an Arbitrary Mesh".
+ * Terathon Software, 2001. http://terathon.com/code/tangent.html
+ */
+void de_surface_calculate_tangents(de_surface_t* surf);

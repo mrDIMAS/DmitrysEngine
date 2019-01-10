@@ -101,6 +101,7 @@ typedef struct de_gbuffer_shader_t
 	GLuint bone_matrices;
 
 	GLint diffuse_texture; /**< Diffuse texture uniform location */
+	GLuint normal_texture;
 	GLuint diffuse_color;
 	GLuint self_emittance;
 } de_gbuffer_shader_t;
@@ -156,6 +157,7 @@ struct de_renderer_t
 
 	de_surface_t * test_surface;	
 	de_texture_t* white_dummy;
+	de_texture_t* normal_map_dummy;
 
 	/* Debugging switches */
 	de_bool_t render_normals;

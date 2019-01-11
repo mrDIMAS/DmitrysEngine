@@ -275,8 +275,8 @@ de_animation_t* de_animation_extract(de_animation_t* anim, float from, float to)
 {
 	size_t i;
 		
-	from = fabs(from);
-	to = fabs(to);
+	from = (float)fabs(from);
+	to = (float)fabs(to);
 
 	if (from > to)
 	{
@@ -289,6 +289,8 @@ de_animation_t* de_animation_extract(de_animation_t* anim, float from, float to)
 
 	for (i = 0; i < anim->tracks.size; ++i)
 	{
-
+		/* TODO */
 	}
+
+	return new_anim;
 }

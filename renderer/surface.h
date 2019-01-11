@@ -124,7 +124,7 @@ int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone);
  * @brief Fills matrices for each bone. Matrices array will be filled so each vertex will
  * have correct index of matrix.
  */
-void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* mesh_local_transform, de_mat4_t* out_matrices, size_t max_matrices);
+void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* out_matrices, size_t max_matrices);
 
 /**
  * @brief Returns true if surface is skinned.

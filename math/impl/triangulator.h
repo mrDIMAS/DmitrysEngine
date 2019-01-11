@@ -163,7 +163,7 @@ int de_triangulate(de_vec3_t* polygon, size_t vertex_count, int* out_indices, in
  */
 void de_triangulator_tests(void)
 {
-	size_t i;
+	int i;
 	int index_count;
 	int indices[1024];
 	

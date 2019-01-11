@@ -184,7 +184,7 @@ int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone)
 }
 
 /*=======================================================================================*/
-void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* mesh_local_transform, de_mat4_t* out_matrices, size_t max_matrices)
+void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* out_matrices, size_t max_matrices)
 {
 	size_t i;
 
@@ -221,9 +221,9 @@ void de_surface_calculate_tangents(de_surface_t* surf)
 		const de_vec3_t* v2 = &surf->vertices.data[i2].position;
 		const de_vec3_t* v3 = &surf->vertices.data[i3].position;
 
-		const de_vec3_t* w1 = &surf->vertices.data[i1].tex_coord;
-		const de_vec3_t* w2 = &surf->vertices.data[i2].tex_coord;
-		const de_vec3_t* w3 = &surf->vertices.data[i3].tex_coord;
+		const de_vec2_t* w1 = &surf->vertices.data[i1].tex_coord;
+		const de_vec2_t* w2 = &surf->vertices.data[i2].tex_coord;
+		const de_vec2_t* w3 = &surf->vertices.data[i3].tex_coord;
 
 		float x1 = v2->x - v1->x;
 		float x2 = v3->x - v1->x;

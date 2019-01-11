@@ -93,7 +93,7 @@ void weapon_free(weapon_t* wpn)
 /*=======================================================================================*/
 void weapon_update(weapon_t* wpn)
 {
-
+	DE_UNUSED(wpn);
 }
 
 /*=======================================================================================*/
@@ -132,7 +132,7 @@ player_t* player_create(level_t* level)
 	p->weapon_pivot = de_node_create(level->scene, DE_NODE_TYPE_BASE);
 	de_scene_add_node(level->scene, p->weapon_pivot);
 	de_node_attach(p->weapon_pivot, p->camera);
-	de_node_set_local_position_xyz(p->weapon_pivot, 0.03, -0.052, -0.02);
+	de_node_set_local_position_xyz(p->weapon_pivot, 0.03f, -0.052f, -0.02f);
 
 #if 0
 	{
@@ -163,7 +163,7 @@ void player_free(player_t* p)
 /*=======================================================================================*/
 void player_update(player_t* p)
 {
-	int k;
+	size_t k;
 	de_core_t* core = p->parent_level->scene->core;
 	de_node_t *pivot, *camera;
 	de_vec3_t right_axis = { 1, 0, 0 };
@@ -255,8 +255,8 @@ void player_update(player_t* p)
 	/* apply camera wobbling */
 	if (is_moving && de_body_get_contact_count(p->body) > 0)
 	{
-		p->camera_dest_offset.x = 0.05f * cos(p->camera_wobble * 0.5f);
-		p->camera_dest_offset.y = 0.1f * sin(p->camera_wobble);
+		p->camera_dest_offset.x = 0.05f * (float)cos(p->camera_wobble * 0.5f);
+		p->camera_dest_offset.y = 0.1f * (float)sin(p->camera_wobble);
 		
 		p->camera_wobble += 0.25f;
 	}

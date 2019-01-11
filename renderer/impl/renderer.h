@@ -939,7 +939,7 @@ static void de_render_mesh(de_renderer_t* r, de_mesh_t* mesh)
 		if (is_skinned)
 		{
 			de_mat4_t matrices[DE_RENDERER_MAX_SKINNING_MATRICES] = { 0 };
-			de_surface_get_skinning_matrices(surf, &mesh->parent_node->local_matrix, matrices, DE_RENDERER_MAX_SKINNING_MATRICES);
+			de_surface_get_skinning_matrices(surf, matrices, DE_RENDERER_MAX_SKINNING_MATRICES);
 
 			glUniformMatrix4fv(r->gbuffer_shader.bone_matrices, DE_RENDERER_MAX_SKINNING_MATRICES, GL_FALSE, (const float*)&matrices[0]);
 		}

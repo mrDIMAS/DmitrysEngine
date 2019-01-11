@@ -48,7 +48,7 @@ typedef struct de_octree_t
  * @param index_count Count of indices 
  * @param 
  */
-de_octree_t * de_octree_build(const void* vertices, int stride, int* indices, size_t index_count, int max_triangles_per_node);
+de_octree_t * de_octree_build(const void* vertices, int stride, int* indices, size_t index_count, size_t max_triangles_per_node);
 
 /**
  * @brief 

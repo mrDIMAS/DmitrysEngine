@@ -96,7 +96,8 @@ void de_file_extract_name(const char* path, char* buffer, size_t buffer_size)
 {
 	size_t i;
 	size_t size_limit = buffer_size - 1;
-	char* dot_pos, *slash_pos, *c;
+	const char* dot_pos, *slash_pos;
+	const char *c;
 
 	if (!path || !buffer || buffer_size == 0)
 	{

@@ -643,7 +643,7 @@ static de_fbx_component_t* de_fbx_read_light(de_fbx_node_t* light_node)
 		prop_name = child->attributes.data[0];
 		if (strcmp(prop_name, "DecayStart") == 0)
 		{
-			light->radius = de_fbx_get_double(child, 4);
+			light->radius = (float)de_fbx_get_double(child, 4);
 		}
 		else if (strcmp(prop_name, "Color") == 0)
 		{
@@ -651,9 +651,9 @@ static de_fbx_component_t* de_fbx_read_light(de_fbx_node_t* light_node)
 
 			if (child->attributes.size > 5)
 			{
-				r = de_fbx_get_double(child, 4);
-				g = de_fbx_get_double(child, 5);
-				b = de_fbx_get_double(child, 6);
+				r = (float)de_fbx_get_double(child, 4);
+				g = (float)de_fbx_get_double(child, 5);
+				b = (float)de_fbx_get_double(child, 6);
 
 				light->color.r = (unsigned char)(255 * r);
 				light->color.g = (unsigned char)(255 * g);
@@ -663,7 +663,7 @@ static de_fbx_component_t* de_fbx_read_light(de_fbx_node_t* light_node)
 		}
 		else if (strcmp(prop_name, "HotSpot") == 0)
 		{
-			light->cone_angle = de_deg_to_rad(de_fbx_get_double(child, 4));
+			light->cone_angle = de_deg_to_rad((float)de_fbx_get_double(child, 4));
 		}
 		else if (strcmp(prop_name, "LightType") == 0)
 		{
@@ -804,17 +804,17 @@ static de_fbx_component_t* de_fbx_read_sub_deformer(de_fbx_node_t* sub_deformer_
 
 	for (i = 0; i < weights->attributes.size; ++i)
 	{
-		float weight = de_fbx_get_double(weights, i);
+		float weight = (float)de_fbx_get_double(weights, i);
 		DE_ARRAY_APPEND(sub_deformer->weights, weight);
 	}
 
 	for (i = 0; i < 16; ++i)
 	{
-		sub_deformer->transform.f[i] = de_fbx_get_double(transform, i);
+		sub_deformer->transform.f[i] = (float)de_fbx_get_double(transform, i);
 	}
 	for (i = 0; i < 16; ++i)
 	{
-		sub_deformer->transform_link.f[i] = de_fbx_get_double(transform_link, i);
+		sub_deformer->transform_link.f[i] = (float)de_fbx_get_double(transform_link, i);
 	}
 
 	return comp;
@@ -1712,7 +1712,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 			/* if we do not have precomputed tangets, calculate our own */
 			if (geom->tangent_mapping == DE_FBX_MAPPING_UNKNOWN)
 			{
-				for (m = 0; m < mesh->surfaces.size; ++m)
+				for (m = 0; m < (int)mesh->surfaces.size; ++m)
 				{
 					de_surface_calculate_tangents(mesh->surfaces.data[m]);
 				}

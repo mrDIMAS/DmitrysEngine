@@ -101,7 +101,7 @@ static void de_octree_build_recursive_internal(
 	de_octree_node_t* node,
 	int* indices,
 	size_t index_count,
-	int max_triangles_per_node,
+	size_t max_triangles_per_node,
 	de_face_aabb_t* faces_aabbs)
 {
 	size_t i, k;
@@ -156,7 +156,7 @@ static void de_octree_build_recursive_internal(
 }
 
 /*=======================================================================================*/
-de_octree_t* de_octree_build(const void* vertices, int stride, int* indices, size_t index_count, int max_triangles_per_node)
+de_octree_t* de_octree_build(const void* vertices, int stride, int* indices, size_t index_count, size_t max_triangles_per_node)
 {
 	size_t i, k;
 	de_face_aabb_t* face_aabbs;

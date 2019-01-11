@@ -89,16 +89,16 @@ double de_fbx_get_double(de_fbx_node_t* node, int index)
 /*=======================================================================================*/
 void de_fbx_get_vec3(de_fbx_node_t* node, int index, de_vec3_t* out)
 {
-	out->x = de_fbx_get_double(node, index);
-	out->y = de_fbx_get_double(node, index + 1);
-	out->z = de_fbx_get_double(node, index + 2);
+	out->x = (float)de_fbx_get_double(node, index);
+	out->y = (float)de_fbx_get_double(node, index + 1);
+	out->z = (float)de_fbx_get_double(node, index + 2);
 }
 
 /*=======================================================================================*/
 void de_fbx_get_vec2(de_fbx_node_t* node, int index, de_vec2_t* out)
 {
-	out->x = de_fbx_get_double(node, index);
-	out->y = de_fbx_get_double(node, index + 1);
+	out->x = (float)de_fbx_get_double(node, index);
+	out->y = (float)de_fbx_get_double(node, index + 1);
 }
 
 /*=======================================================================================*/

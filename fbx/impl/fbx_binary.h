@@ -307,11 +307,11 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 
 	null_record_position = end_offset - 13;
 
-	if (ftell(f) < end_offset)
+	if ((uint32_t)ftell(f) < end_offset)
 	{
 		de_bool_t null_record_correct = DE_TRUE;
 
-		while (ftell(f) < null_record_position)
+		while ((uint32_t)ftell(f) < null_record_position)
 		{
 			de_fbx_node_t* child = de_fbx_binary_read_node(data_buf, f);
 			if (child == NULL)
@@ -380,7 +380,7 @@ de_fbx_node_t* de_fbx_binary_load_file(const char* filename, de_fbx_buffer_t* da
 
 	root = de_fbx_create_node("__ROOT__");
 
-	while (ftell(file) < total_length)
+	while ((uint32_t)ftell(file) < total_length)
 	{
 		de_fbx_node_t* root_child;
 

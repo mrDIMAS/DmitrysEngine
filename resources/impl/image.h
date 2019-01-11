@@ -104,11 +104,11 @@ void de_image_flip_y(de_image_t* img)
 	int x, y_src, y_dest, k;
 	char* new_data = de_malloc(img->byte_per_pixel * img->width * img->height);
 
-	for (y_src = img->height - 1, y_dest = 0; y_src >= 0; --y_src, ++y_dest)
+	for (y_src = (int)img->height - 1, y_dest = 0; y_src >= 0; --y_src, ++y_dest)
 	{		
-		for (x = 0; x < img->width; ++x)
+		for (x = 0; x < (int)img->width; ++x)
 		{
-			for (k = 0; k < img->byte_per_pixel; ++k)
+			for (k = 0; k < (int)img->byte_per_pixel; ++k)
 			{
 				size_t src_index = (y_src * img->width + x) * img->byte_per_pixel + k;
 				size_t dst_index = (y_dest * img->width + x) * img->byte_per_pixel + k;

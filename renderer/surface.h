@@ -44,7 +44,8 @@ typedef struct de_vertex_weight_group_t
 struct de_surface_t
 {
 	de_renderer_t* renderer;
-	de_texture_t* texture; /**< Pointer to texture */
+	de_texture_t* diffuse_map; /**< Pointer to texture */
+	de_texture_t* normal_map;
 	DE_ARRAY_DECLARE(de_vertex_t, vertices);   /**< Array of vertices, will be directly uploaded to GPU */
 	DE_ARRAY_DECLARE(int, indices);    /**< Array of faces */
 	GLuint vbo;      /**< Vertex buffer object id */
@@ -68,11 +69,18 @@ void de_mesh_set_texture(de_mesh_t* mesh, de_texture_t* texture);
 void de_surface_load_data(de_surface_t* surf, de_vertex_t* vertices, size_t vertex_count, int* indices, size_t index_count);
 
 /**
-* @brief Applies texture to surface. Increases ref counter of texture
-* @param surf pointer to surface
-* @param tex pointer to texture
-*/
-void de_surface_set_texture(de_surface_t* surf, de_texture_t* tex);
+ * @brief Applies diffuse texture to surface. Increases ref counter of texture
+ * @param surf pointer to surface
+ * @param tex pointer to texture
+ */
+void de_surface_set_diffuse_texture(de_surface_t* surf, de_texture_t* tex);
+
+/**
+ * @brief Applies normal texture to surface. Increases ref counter of texture
+ * @param surf pointer to surface
+ * @param tex pointer to texture
+ */
+void de_surface_set_normal_texture(de_surface_t* surf, de_texture_t* tex);
 
 /**
 * @brief Uploads buffers to GPU

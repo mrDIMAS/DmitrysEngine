@@ -121,6 +121,7 @@ typedef struct de_gbuffer_light_shader_t
 	GLuint light_direction;
 	GLuint light_cone_angle_cos;
 	GLuint inv_view_proj_matrix;
+	GLuint camera_position;
 } de_gbuffer_light_shader_t;
 
 /**

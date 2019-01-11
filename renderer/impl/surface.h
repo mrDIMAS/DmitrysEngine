@@ -45,16 +45,39 @@ void de_surface_upload(de_surface_t* surf)
 }
 
 /*=======================================================================================*/
-void de_surface_set_texture(de_surface_t * surf, de_texture_t *tex)
+void de_surface_set_diffuse_texture(de_surface_t * surf, de_texture_t *tex)
 {
 	if (!surf || !tex)
 	{
 		return;
 	}
 
+	if (surf->diffuse_map)
+	{
+		de_texture_release(surf->diffuse_map);
+	}
+
 	de_texture_add_ref(tex);
 
-	surf->texture = tex;
+	surf->diffuse_map = tex;
+}
+
+/*=======================================================================================*/
+void de_surface_set_normal_texture(de_surface_t * surf, de_texture_t *tex)
+{
+	if (!surf || !tex)
+	{
+		return;
+	}
+
+	if (surf->normal_map)
+	{
+		de_texture_release(surf->normal_map);
+	}
+
+	de_texture_add_ref(tex);
+
+	surf->normal_map = tex;
 }
 
 /*=======================================================================================*/

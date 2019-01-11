@@ -39,3 +39,22 @@ char* de_load_file_into_memory(const char * path, size_t* out_size);
  * you need to store some resource as data in your executable file.
  */
 void de_convert_to_c_array(const char* source, const char* dest);
+
+/**
+ * @brief Extracts only name from file path without extension.
+ * 
+ * Example: "baz/bar/foo.bar" path will result in "foo" string.
+ */
+void de_file_extract_name(const char* path, char* buffer, size_t buffer_size);
+
+/**
+ * @brief Extracts extension from file path with dot.
+ * 
+ * Example: "baz/bar/foo.bar" will result in ".bar" string.
+ */
+void de_file_extract_extension(const char* path, char* buffer, size_t buffer_size);
+
+/**
+ * @brief Tests for file system utilities.
+ */
+void de_file_tests(void);

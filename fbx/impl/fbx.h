@@ -19,24 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/**
- * ASCII + Binary FBX Loader
- * 
- * -------------------
- * | IMPORTANT STUFF |
- * vvvvvvvvvvvvvvvvvvv 
- * 
- * What is NOT supported:
- * - Animated geometric transform (scale, translation, rotation), basically there is only 
- *   translation, rotation, scale is supported as animated properties. Poke me if you need 
- *   support of other properties to be animated.
- * - Cameras 
- * - Area and Volume lights
- * - Some of vertex components mappings. Engine will shoot error if will see unsupported 
- *   mapping. This stuff is still in progress.
- * - Embedded media
- * - Maybe some other stuff, about which I don't know. 
- **/
+
 
 #define DE_FBX_VERBOSE 0
 
@@ -1592,9 +1575,20 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 					de_fbx_material_t* mat = mdl->materials.data[k];
 					if (mat->diffuse_tex)
 					{
-						char* filename = de_str_format("data/textures/%s", mat->diffuse_tex->filename);
-						de_texture_t* texture = de_renderer_request_texture(renderer, filename);
-						de_surface_set_texture(surf, texture);
+						char diffuse_tex_filename[256];
+						char normal_tex_filename[256];
+						char diffuse_tex_name[256];
+						char diffuse_tex_extension[32];
+						de_texture_t* diffuse_texture;
+						de_texture_t* normal_texture;
+						de_file_extract_name(mat->diffuse_tex->filename, diffuse_tex_name, sizeof(diffuse_tex_name));
+						de_file_extract_extension(mat->diffuse_tex->filename, diffuse_tex_extension, sizeof(diffuse_tex_extension));
+						snprintf(diffuse_tex_filename, sizeof(diffuse_tex_filename), "data/textures/%s", mat->diffuse_tex->filename);
+						snprintf(normal_tex_filename, sizeof(normal_tex_filename), "data/textures/%s_normal%s", diffuse_tex_name, diffuse_tex_extension);
+						diffuse_texture = de_renderer_request_texture(renderer, diffuse_tex_filename);
+						de_surface_set_diffuse_texture(surf, diffuse_texture);
+					    normal_texture = de_renderer_request_texture(renderer, normal_tex_filename);
+						de_surface_set_normal_texture(surf, normal_texture);
 					}
 					de_mesh_add_surface(mesh, surf);
 				}
@@ -1685,9 +1679,6 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 					default:
 						de_fatal_error("FBX: UV mapping is not supported");
 					}
-
-					/* Flip texture upside-down */
-					v.tex_coord.y = -v.tex_coord.y;
 
 					/* Extract material index. It's used as index of surface in the mesh */
 					if (geom->materials)

@@ -19,6 +19,37 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+/**
+ * ASCII + Binary FBX Loader
+ * 
+ * -------------------
+ * | IMPORTANT STUFF |
+ * vvvvvvvvvvvvvvvvvvv 
+ * 
+ * What is NOT supported:
+ * - Animated geometric transform (scale, translation, rotation), basically there is only 
+ *   translation, rotation, scale is supported as animated properties. Poke me if you need 
+ *   support of other properties to be animated.
+ * - Cameras 
+ * - Area and Volume lights
+ * - Some of vertex components mappings. Engine will shoot error if will see unsupported 
+ *   mapping. This stuff is still in progress.
+ * - Embedded media
+ * - Maybe some other stuff, about which I don't know. 
+ * 
+ * Important conventions:
+ * 
+ * To make life easier, here is some convetions for textures that you can use in
+ * development.
+ * 
+ * - For normal maps you should add suffix "_normal" to your normal map, so engine 
+ *   can correctly assign it to surface. So if you using diffuse texture called "foo.tga"
+ *   you should create a normap map texture called "foo_normal.tga", and engine will
+ *   automatically link them together.
+ * - For height maps suffix is "_height"
+ *  
+ **/
+
 /* Supported versions */
 #define DE_FBX_VERSION_MIN 7000
 #define DE_FBX_VERSION_MAX 7400

@@ -166,6 +166,6 @@ void de_mesh_set_texture(de_mesh_t* mesh, de_texture_t* texture)
 
 	for (i = 0; i < mesh->surfaces.size; ++i)
 	{
-		de_surface_set_texture(mesh->surfaces.data[i], texture);
+		de_surface_set_diffuse_texture(mesh->surfaces.data[i], texture);
 	}
 }

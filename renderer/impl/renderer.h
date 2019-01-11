@@ -5,9 +5,12 @@
 /* Built-in shaders */
 static const  char* de_flat_fs =
 "#version 330 core\n"
+
 "uniform sampler2D diffuseTexture;"
+
 "out vec4 FragColor;"
 "in vec2 texCoord;"
+
 "void main()"
 "{"
 "	FragColor = texture(diffuseTexture, texCoord);"
@@ -15,11 +18,15 @@ static const  char* de_flat_fs =
 
 static const  char* de_flat_vs =
 "#version 330 core\n"
+
 "layout(location = 0) in vec3 vertexPosition;"
 "layout(location = 1) in vec2 vertexTexCoord;"
 "layout(location = 2) in vec4 vertexColor;"
+
 "uniform mat4 worldViewProjection;"
+
 "out vec2 texCoord;"
+
 "void main()"
 "{"
 "	texCoord = vertexTexCoord;"
@@ -28,10 +35,13 @@ static const  char* de_flat_vs =
 
 static const char* de_gui_fs =
 "#version 330 core\n"
+
 "uniform sampler2D diffuseTexture;"
+
 "out vec4 FragColor;"
 "in vec2 texCoord;"
 "in vec4 color;"
+
 "void main()"
 "{"
 "	FragColor = color * texture(diffuseTexture, texCoord);"
@@ -39,12 +49,16 @@ static const char* de_gui_fs =
 
 static const  char* de_gui_vs =
 "#version 330 core\n"
+
 "layout(location = 0) in vec3 vertexPosition;"
 "layout(location = 1) in vec2 vertexTexCoord;"
 "layout(location = 2) in vec4 vertexColor;"
+
 "uniform mat4 worldViewProjection;"
+
 "out vec2 texCoord;"
 "out vec4 color;"
+
 "void main()"
 "{"
 "	texCoord = vertexTexCoord;"
@@ -54,30 +68,35 @@ static const  char* de_gui_vs =
 
 static const  char* de_gbuffer_fs =
 "#version 330 core\n"
+
 "layout(location = 0) out float outDepth;"
 "layout(location = 1) out vec4 outColor;"
 "layout(location = 2) out vec3 outNormal;"
+
 "uniform sampler2D diffuseTexture;"
 "uniform sampler2D normalTexture;"
 "uniform vec4 diffuseColor;"
 "uniform float selfEmittance;"
+
 "in vec4 position;"
 "in vec3 normal;"
 "in vec2 texCoord;"
 "in vec3 tangent;"
 "in vec3 binormal;"
+
 "void main()"
 "{"
 "	outDepth = position.z / position.w;"
 "	outColor = texture2D(diffuseTexture, texCoord);"
 "	outColor.a = 1;"
-"   vec4 n = normalize(texture2D(normalTexture, texCoord) * 2.0 - 1.0);"
+"   vec4 n = normalize(texture2D(normalTexture, vec2(texCoord.x,-texCoord.y)) * 2.0 - 1.0);"
 "   mat3 tangentSpace = mat3(tangent, binormal, normal);"
 "	outNormal = normalize(tangentSpace * n.xyz) * 0.5 + 0.5;"
 "}";
 
 static const char de_gbuffer_vs[] =
 "#version 330 core\n"
+
 "layout(location = 0) in vec3 vertexPosition;"
 "layout(location = 1) in vec2 vertexTexCoord;"
 "layout(location = 2) in vec3 vertexNormal;"
@@ -144,17 +163,21 @@ static const char* const de_light_fs =
 "uniform sampler2D depthTexture;"
 "uniform sampler2D colorTexture;"
 "uniform sampler2D normalTexture;"
+
 "uniform vec3 lightPos;"
 "uniform float lightRadius;"
 "uniform vec4 lightColor;"
 "uniform vec3 lightDirection;"
 "uniform float coneAngleCos;"
 "uniform mat4 invViewProj;"
+"uniform vec3 cameraPosition;"
+
 "in vec2 texCoord;"
 "out vec4 FragColor;"
+
 "void main()"
 "{"
-"	vec3 normal = texture2D(normalTexture, texCoord).xyz * 2.0 - 1.0;"
+"	vec3 normal = normalize(texture2D(normalTexture, texCoord).xyz * 2.0 - 1.0);"
 "	vec4 screenPosition;"
 "	screenPosition.x = texCoord.x * 2.0 - 1.0;"
 "	screenPosition.y = texCoord.y * 2.0 - 1.0;"
@@ -165,6 +188,8 @@ static const char* const de_light_fs =
 "	vec3 lightVector = lightPos - worldPosition.xyz;"
 "	float d = min(length(lightVector), lightRadius);"
 "	vec3 normLightVector = lightVector / d;"
+"   vec3 h = normalize(lightVector + (cameraPosition - worldPosition.xyz));"
+"   vec3 specular = vec3(0.4 * pow(clamp(dot(normal, h), 0.0, 1.0), 80));"
 "	float y = dot(lightDirection, normLightVector);"
 "	float k = max(dot(normal, normLightVector), 0);"
 "	float attenuation = 1.0 + cos((d / lightRadius) * 3.14159);"
@@ -172,15 +197,21 @@ static const char* const de_light_fs =
 "	{"
 "		attenuation *= smoothstep(coneAngleCos - 0.1, coneAngleCos, y);"
 "	}"
-"	FragColor = k * attenuation * texture2D(colorTexture, texCoord) * lightColor;"
+"   FragColor = texture2D(colorTexture, texCoord);"
+"   FragColor.xyz += specular;"
+"	FragColor *= k * attenuation * lightColor;"
 "}";
 
 static const  char* de_light_vs =
 "#version 330 core\n"
+
 "layout(location = 0) in vec3 vertexPosition;"
 "layout(location = 1) in vec2 vertexTexCoord;"
+
 "uniform mat4 worldViewProjection;"
+
 "out vec2 texCoord;"
+
 "void main()"
 "{"
 "	gl_Position = worldViewProjection * vec4(vertexPosition, 1.0);"
@@ -426,6 +457,7 @@ static void de_create_builtin_shaders(de_renderer_t* r)
 		s->light_direction = glGetUniformLocation(s->program, "lightDirection");
 		s->light_cone_angle_cos = glGetUniformLocation(s->program, "coneAngleCos");
 		s->inv_view_proj_matrix = glGetUniformLocation(s->program, "invViewProj");
+		s->camera_position = glGetUniformLocation(s->program, "cameraPosition");		
 	}
 }
 
@@ -587,13 +619,13 @@ static void de_renderer_draw_surface_bones(de_renderer_t* r, de_surface_t* surfa
 			}
 			de_node_get_global_position(bone, &begin.position);
 			de_node_get_global_position(next_bone, &end.position);
-			
+
 			DE_ARRAY_APPEND(r->test_surface->vertices, begin);
 			DE_ARRAY_APPEND(r->test_surface->vertices, end);
 
 			DE_ARRAY_APPEND(r->test_surface->indices, index++);
 			DE_ARRAY_APPEND(r->test_surface->indices, index++);
-		}		
+		}
 	}
 
 	de_renderer_upload_surface(r->test_surface);
@@ -709,7 +741,7 @@ de_surface_t* de_renderer_create_surface(de_renderer_t* r)
 void de_renderer_free_surface(de_surface_t* surf)
 {
 	/* Unref texture */
-	de_texture_release(surf->texture);
+	de_texture_release(surf->diffuse_map);
 
 	/* Delete gpu buffers */
 	glDeleteBuffers(1, &surf->vbo);
@@ -883,9 +915,9 @@ static void de_render_mesh(de_renderer_t* r, de_mesh_t* mesh)
 
 		/* bind diffuse map */
 		DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
-		if (surf->texture)
+		if (surf->diffuse_map)
 		{
-			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, surf->texture->id));
+			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, surf->diffuse_map->id));
 		}
 		else
 		{
@@ -894,14 +926,21 @@ static void de_render_mesh(de_renderer_t* r, de_mesh_t* mesh)
 
 		/* bind normal map */
 		DE_GL_CALL(glActiveTexture(GL_TEXTURE1));
-		DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->normal_map_dummy->id));
-		
+		if (surf->normal_map)
+		{
+			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, surf->normal_map->id));
+		}
+		else
+		{
+			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->normal_map_dummy->id));
+		}
+
 		DE_GL_CALL(glUniform1i(r->gbuffer_shader.use_skeletal_animation, is_skinned));
 		if (is_skinned)
 		{
 			de_mat4_t matrices[DE_RENDERER_MAX_SKINNING_MATRICES] = { 0 };
 			de_surface_get_skinning_matrices(surf, &mesh->parent_node->local_matrix, matrices, DE_RENDERER_MAX_SKINNING_MATRICES);
-			
+
 			glUniformMatrix4fv(r->gbuffer_shader.bone_matrices, DE_RENDERER_MAX_SKINNING_MATRICES, GL_FALSE, (const float*)&matrices[0]);
 		}
 
@@ -983,7 +1022,7 @@ void de_renderer_render(de_renderer_t* r)
 
 	DE_GL_CALL(glUseProgram(r->gbuffer_shader.program));
 	DE_GL_CALL(glUniform1i(r->gbuffer_shader.diffuse_texture, 0));
-	DE_GL_CALL(glUniform1i(r->gbuffer_shader.normal_texture, 1));	
+	DE_GL_CALL(glUniform1i(r->gbuffer_shader.normal_texture, 1));
 	DE_GL_CALL(glEnable(GL_CULL_FACE));
 
 	/* render each scene */
@@ -991,8 +1030,11 @@ void de_renderer_render(de_renderer_t* r)
 	{
 		de_node_t* node;
 		de_camera_t* camera;
+		de_vec3_t camera_position;
 
 		camera = &scene->active_camera->s.camera;
+
+		de_node_get_global_position(camera->parent_node, &camera_position);
 
 		de_camera_update(camera);
 
@@ -1010,7 +1052,7 @@ void de_renderer_render(de_renderer_t* r)
 				mesh = &node->s.mesh;
 
 				is_skinned = de_mesh_is_skinned(mesh);
-								
+
 				de_mat4_mul(&wvp_matrix, &camera->view_projection_matrix, is_skinned ? &identity : &node->global_matrix);
 
 				DE_GL_CALL(glUniformMatrix4fv(r->gbuffer_shader.wvp_matrix, 1, GL_FALSE, wvp_matrix.f));
@@ -1030,7 +1072,8 @@ void de_renderer_render(de_renderer_t* r)
 
 		de_mat4_ortho(&y_flip_ortho, 0, w, 0, h, -1, 1);
 		DE_GL_CALL(glUniformMatrix4fv(r->lighting_shader.wvp_matrix, 1, GL_FALSE, y_flip_ortho.f));
-
+		DE_GL_CALL(glUniform3f(r->lighting_shader.camera_position, camera_position.x, camera_position.y, camera_position.z));
+		
 		DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
 		DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.depth_texture));
 		DE_GL_CALL(glUniform1i(r->lighting_shader.depth_sampler, 0));

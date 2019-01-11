@@ -122,17 +122,25 @@ typedef struct de_gbuffer_light_shader_t
 	GLuint light_cone_angle_cos;
 	GLuint inv_view_proj_matrix;
 	GLuint camera_position;
-} de_gbuffer_light_shader_t;
+} de_deferred_light_shader_t;
 
 /**
 * Simple shader with texturing and without lighting
 */
-typedef struct de_flag_shader_t
+typedef struct de_flat_shader_t
 {
-	GLuint program;        /**< Shader program */
-	GLint wvp_matrix;      /**< World view projection matrix uniform location */
-	GLint diffuse_texture; /**< Diffuse texture uniform location */
-} de_flag_shader_t;
+	GLuint program;
+	GLint wvp_matrix;
+	GLint diffuse_texture;
+} de_flat_shader_t;
+
+typedef struct de_ambient_shader_t
+{
+	GLuint program;
+	GLint wvp_matrix;
+	GLint diffuse_texture;
+	GLint ambient_color;
+} de_ambient_shader_t;
 
 typedef struct de_gui_shader_t
 {
@@ -147,16 +155,17 @@ struct de_renderer_t
 
 	size_t frame_rate_limit;     /**< Maximum frames per seconds for renderer. 0 - unlimited */
 
-	de_flag_shader_t flat_shader;
+	de_flat_shader_t flat_shader;
 	de_gui_shader_t gui_shader;
+	de_ambient_shader_t ambient_shader;
 
 	de_gbuffer_t gbuffer;
 	de_gbuffer_shader_t gbuffer_shader;
-	de_gbuffer_light_shader_t lighting_shader;
+	de_deferred_light_shader_t lighting_shader;
 
 	de_surface_t* quad;
 
-	de_surface_t * test_surface;	
+	de_surface_t * test_surface;
 	de_texture_t* white_dummy;
 	de_texture_t* normal_map_dummy;
 
@@ -174,7 +183,7 @@ struct de_renderer_t
 	DE_LINKED_LIST_DECLARE(de_texture_t, textures);
 
 	/* statistics (time in milliseconds) */
-	float frame_time; 
+	float frame_time;
 	size_t frames_per_second;
 };
 

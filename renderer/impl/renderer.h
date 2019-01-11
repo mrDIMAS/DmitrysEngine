@@ -1,223 +1,6 @@
 #define DE_RENDERER_MAX_SKINNING_MATRICES 60
 #define DE_STRINGIZE_(x) #x
 #define DE_STRINGIZE(x) DE_STRINGIZE_(x)
-
-/* Built-in shaders */
-static const  char* de_flat_fs =
-"#version 330 core\n"
-
-"uniform sampler2D diffuseTexture;"
-
-"out vec4 FragColor;"
-"in vec2 texCoord;"
-
-"void main()"
-"{"
-"	FragColor = texture(diffuseTexture, texCoord);"
-"}";
-
-static const  char* de_flat_vs =
-"#version 330 core\n"
-
-"layout(location = 0) in vec3 vertexPosition;"
-"layout(location = 1) in vec2 vertexTexCoord;"
-"layout(location = 2) in vec4 vertexColor;"
-
-"uniform mat4 worldViewProjection;"
-
-"out vec2 texCoord;"
-
-"void main()"
-"{"
-"	texCoord = vertexTexCoord;"
-"	gl_Position = worldViewProjection * vec4(vertexPosition, 1.0);"
-"}";
-
-static const char* de_gui_fs =
-"#version 330 core\n"
-
-"uniform sampler2D diffuseTexture;"
-
-"out vec4 FragColor;"
-"in vec2 texCoord;"
-"in vec4 color;"
-
-"void main()"
-"{"
-"	FragColor = color * texture(diffuseTexture, texCoord);"
-"}";
-
-static const  char* de_gui_vs =
-"#version 330 core\n"
-
-"layout(location = 0) in vec3 vertexPosition;"
-"layout(location = 1) in vec2 vertexTexCoord;"
-"layout(location = 2) in vec4 vertexColor;"
-
-"uniform mat4 worldViewProjection;"
-
-"out vec2 texCoord;"
-"out vec4 color;"
-
-"void main()"
-"{"
-"	texCoord = vertexTexCoord;"
-"   color = vertexColor;"
-"	gl_Position = worldViewProjection * vec4(vertexPosition, 1.0);"
-"}";
-
-static const  char* de_gbuffer_fs =
-"#version 330 core\n"
-
-"layout(location = 0) out float outDepth;"
-"layout(location = 1) out vec4 outColor;"
-"layout(location = 2) out vec3 outNormal;"
-
-"uniform sampler2D diffuseTexture;"
-"uniform sampler2D normalTexture;"
-"uniform vec4 diffuseColor;"
-"uniform float selfEmittance;"
-
-"in vec4 position;"
-"in vec3 normal;"
-"in vec2 texCoord;"
-"in vec3 tangent;"
-"in vec3 binormal;"
-
-"void main()"
-"{"
-"	outDepth = position.z / position.w;"
-"	outColor = texture2D(diffuseTexture, texCoord);"
-"	outColor.a = 1;"
-"   vec4 n = normalize(texture2D(normalTexture, vec2(texCoord.x,-texCoord.y)) * 2.0 - 1.0);"
-"   mat3 tangentSpace = mat3(tangent, binormal, normal);"
-"	outNormal = normalize(tangentSpace * n.xyz) * 0.5 + 0.5;"
-"}";
-
-static const char de_gbuffer_vs[] =
-"#version 330 core\n"
-
-"layout(location = 0) in vec3 vertexPosition;"
-"layout(location = 1) in vec2 vertexTexCoord;"
-"layout(location = 2) in vec3 vertexNormal;"
-"layout(location = 3) in vec4 vertexTangent;"
-"layout(location = 4) in vec4 boneWeights;"
-"layout(location = 5) in vec4 boneIndices;"
-
-"uniform mat4 worldMatrix;"
-"uniform mat4 worldViewProjection;"
-"uniform bool useSkeletalAnimation;"
-"uniform mat4 boneMatrices[" DE_STRINGIZE(DE_RENDERER_MAX_SKINNING_MATRICES) "];"
-
-"out vec4 position;"
-"out vec3 normal;"
-"out vec2 texCoord;"
-"out vec3 tangent;"
-"out vec3 binormal;"
-
-"void main()"
-"{"
-"   vec4 localPosition = vec4(0);"
-"   vec3 localNormal = vec3(0);"
-"   vec3 localTangent = vec3(0);"
-"   if(useSkeletalAnimation)"
-"   {"
-"       vec4 vertex = vec4(vertexPosition, 1.0);"
-
-"       int i0 = int(boneIndices.x);"
-"       int i1 = int(boneIndices.y);"
-"       int i2 = int(boneIndices.z);"
-"       int i3 = int(boneIndices.w);"
-
-"       localPosition += boneMatrices[i0] * vertex * boneWeights.x;"
-"       localPosition += boneMatrices[i1] * vertex * boneWeights.y;"
-"       localPosition += boneMatrices[i2] * vertex * boneWeights.z;"
-"       localPosition += boneMatrices[i3] * vertex * boneWeights.w;"
-
-"       localNormal += mat3(boneMatrices[i0]) * vertexNormal * boneWeights.x;"
-"       localNormal += mat3(boneMatrices[i1]) * vertexNormal * boneWeights.y;"
-"       localNormal += mat3(boneMatrices[i2]) * vertexNormal * boneWeights.z;"
-"       localNormal += mat3(boneMatrices[i3]) * vertexNormal * boneWeights.w;"
-
-"       localTangent += mat3(boneMatrices[i0]) * vertexTangent.xyz * boneWeights.x;"
-"       localTangent += mat3(boneMatrices[i1]) * vertexTangent.xyz * boneWeights.y;"
-"       localTangent += mat3(boneMatrices[i2]) * vertexTangent.xyz * boneWeights.z;"
-"       localTangent += mat3(boneMatrices[i3]) * vertexTangent.xyz * boneWeights.w;"
-"   }"
-"   else"
-"   {"
-"       localPosition = vec4(vertexPosition, 1.0);"
-"       localNormal = vertexNormal;"
-"       localTangent = vertexTangent.xyz;"
-"   }"
-"	gl_Position = worldViewProjection * localPosition;"
-"   normal = normalize(mat3(worldMatrix) * localNormal);"
-"   tangent = normalize(mat3(worldMatrix) * localTangent);"
-"   binormal = normalize(vertexTangent.w * cross(tangent, normal));"
-"	texCoord = vertexTexCoord;"
-"	position = gl_Position;"
-"}";
-
-static const char* const de_light_fs =
-"#version 330 core\n"
-"uniform sampler2D depthTexture;"
-"uniform sampler2D colorTexture;"
-"uniform sampler2D normalTexture;"
-
-"uniform vec3 lightPos;"
-"uniform float lightRadius;"
-"uniform vec4 lightColor;"
-"uniform vec3 lightDirection;"
-"uniform float coneAngleCos;"
-"uniform mat4 invViewProj;"
-"uniform vec3 cameraPosition;"
-
-"in vec2 texCoord;"
-"out vec4 FragColor;"
-
-"void main()"
-"{"
-"	vec3 normal = normalize(texture2D(normalTexture, texCoord).xyz * 2.0 - 1.0);"
-"	vec4 screenPosition;"
-"	screenPosition.x = texCoord.x * 2.0 - 1.0;"
-"	screenPosition.y = texCoord.y * 2.0 - 1.0;"
-"	screenPosition.z = texture2D(depthTexture, texCoord).r;"
-"	screenPosition.w = 1.0;"
-"	vec4 worldPosition = invViewProj * screenPosition;"
-"	worldPosition.xyz /= worldPosition.w;"
-"	vec3 lightVector = lightPos - worldPosition.xyz;"
-"	float d = min(length(lightVector), lightRadius);"
-"	vec3 normLightVector = lightVector / d;"
-"   vec3 h = normalize(lightVector + (cameraPosition - worldPosition.xyz));"
-"   vec3 specular = vec3(0.4 * pow(clamp(dot(normal, h), 0.0, 1.0), 80));"
-"	float y = dot(lightDirection, normLightVector);"
-"	float k = max(dot(normal, normLightVector), 0);"
-"	float attenuation = 1.0 + cos((d / lightRadius) * 3.14159);"
-"	if (y < coneAngleCos)"
-"	{"
-"		attenuation *= smoothstep(coneAngleCos - 0.1, coneAngleCos, y);"
-"	}"
-"   FragColor = texture2D(colorTexture, texCoord);"
-"   FragColor.xyz += specular;"
-"	FragColor *= k * attenuation * lightColor;"
-"}";
-
-static const  char* de_light_vs =
-"#version 330 core\n"
-
-"layout(location = 0) in vec3 vertexPosition;"
-"layout(location = 1) in vec2 vertexTexCoord;"
-
-"uniform mat4 worldViewProjection;"
-
-"out vec2 texCoord;"
-
-"void main()"
-"{"
-"	gl_Position = worldViewProjection * vec4(vertexPosition, 1.0);"
-"	texCoord = vertexTexCoord;"
-"}";
-
 #define DE_GL_CALL(func) func; de_check_opengl_error(#func, __FILE__, __LINE__)
 
 /*=======================================================================================*/
@@ -405,16 +188,287 @@ static void de_create_gbuffer(de_renderer_t* r, int width, int height)
 /*=======================================================================================*/
 static void de_create_builtin_shaders(de_renderer_t* r)
 {
-	/* Flat shader */
+	/* Built-in shaders */
+
+	/**
+	 * Flat (no lighting) shader.
+	 **/
+	static const char* de_flat_fs =
+		"#version 330 core\n"
+
+		"uniform sampler2D diffuseTexture;"
+
+		"out vec4 FragColor;"
+		"in vec2 texCoord;"
+
+		"void main()"
+		"{"
+		"	FragColor = texture(diffuseTexture, texCoord);"
+		"}";
+
+	static const char* de_flat_vs =
+		"#version 330 core\n"
+
+		"layout(location = 0) in vec3 vertexPosition;"
+		"layout(location = 1) in vec2 vertexTexCoord;"
+
+		"uniform mat4 worldViewProjection;"
+
+		"out vec2 texCoord;"
+
+		"void main()"
+		"{"
+		"	texCoord = vertexTexCoord;"
+		"	gl_Position = worldViewProjection * vec4(vertexPosition, 1.0);"
+		"}";
+
+	/**
+	 * Ambient lighting shader
+	 **/
+	static const char* de_ambient_fs =
+		"#version 330 core\n"
+
+		"uniform sampler2D diffuseTexture;"
+		"uniform vec4 ambientColor;"
+
+		"out vec4 FragColor;"
+		"in vec2 texCoord;"
+
+		"void main()"
+		"{"
+		"	FragColor = ambientColor * texture(diffuseTexture, texCoord);"
+		"}";
+
+	static const char* de_ambient_vs =
+		"#version 330 core\n"
+
+		"layout(location = 0) in vec3 vertexPosition;"
+		"layout(location = 1) in vec2 vertexTexCoord;"
+
+		"uniform mat4 worldViewProjection;"
+
+		"out vec2 texCoord;"
+
+		"void main()"
+		"{"
+		"	texCoord = vertexTexCoord;"
+		"	gl_Position = worldViewProjection * vec4(vertexPosition, 1.0);"
+		"}";
+
+	/**
+	 * Gui shader.
+	 **/
+	static const char* de_gui_fs =
+		"#version 330 core\n"
+
+		"uniform sampler2D diffuseTexture;"
+
+		"out vec4 FragColor;"
+		"in vec2 texCoord;"
+		"in vec4 color;"
+
+		"void main()"
+		"{"
+		"	FragColor = color * texture(diffuseTexture, texCoord);"
+		"}";
+
+	static const char* de_gui_vs =
+		"#version 330 core\n"
+
+		"layout(location = 0) in vec3 vertexPosition;"
+		"layout(location = 1) in vec2 vertexTexCoord;"
+		"layout(location = 2) in vec4 vertexColor;"
+
+		"uniform mat4 worldViewProjection;"
+
+		"out vec2 texCoord;"
+		"out vec4 color;"
+
+		"void main()"
+		"{"
+		"	texCoord = vertexTexCoord;"
+		"   color = vertexColor;"
+		"	gl_Position = worldViewProjection * vec4(vertexPosition, 1.0);"
+		"}";
+
+	/**
+	 * G-Buffer filling shader
+	 **/
+	static const  char* de_gbuffer_fs =
+		"#version 330 core\n"
+
+		"layout(location = 0) out float outDepth;"
+		"layout(location = 1) out vec4 outColor;"
+		"layout(location = 2) out vec3 outNormal;"
+
+		"uniform sampler2D diffuseTexture;"
+		"uniform sampler2D normalTexture;"
+		"uniform vec4 diffuseColor;"
+		"uniform float selfEmittance;"
+
+		"in vec4 position;"
+		"in vec3 normal;"
+		"in vec2 texCoord;"
+		"in vec3 tangent;"
+		"in vec3 binormal;"
+
+		"void main()"
+		"{"
+		"	outDepth = position.z / position.w;"
+		"	outColor = texture2D(diffuseTexture, texCoord);"
+		"	outColor.a = 1;"
+		"   vec4 n = normalize(texture2D(normalTexture, vec2(texCoord.x,-texCoord.y)) * 2.0 - 1.0);"
+		"   mat3 tangentSpace = mat3(tangent, binormal, normal);"
+		"	outNormal = normalize(tangentSpace * n.xyz) * 0.5 + 0.5;"
+		"}";
+
+	static const char de_gbuffer_vs[] =
+		"#version 330 core\n"
+
+		"layout(location = 0) in vec3 vertexPosition;"
+		"layout(location = 1) in vec2 vertexTexCoord;"
+		"layout(location = 2) in vec3 vertexNormal;"
+		"layout(location = 3) in vec4 vertexTangent;"
+		"layout(location = 4) in vec4 boneWeights;"
+		"layout(location = 5) in vec4 boneIndices;"
+
+		"uniform mat4 worldMatrix;"
+		"uniform mat4 worldViewProjection;"
+		"uniform bool useSkeletalAnimation;"
+		"uniform mat4 boneMatrices[" DE_STRINGIZE(DE_RENDERER_MAX_SKINNING_MATRICES) "];"
+
+		"out vec4 position;"
+		"out vec3 normal;"
+		"out vec2 texCoord;"
+		"out vec3 tangent;"
+		"out vec3 binormal;"
+
+		"void main()"
+		"{"
+		"   vec4 localPosition = vec4(0);"
+		"   vec3 localNormal = vec3(0);"
+		"   vec3 localTangent = vec3(0);"
+		"   if(useSkeletalAnimation)"
+		"   {"
+		"       vec4 vertex = vec4(vertexPosition, 1.0);"
+
+		"       int i0 = int(boneIndices.x);"
+		"       int i1 = int(boneIndices.y);"
+		"       int i2 = int(boneIndices.z);"
+		"       int i3 = int(boneIndices.w);"
+
+		"       localPosition += boneMatrices[i0] * vertex * boneWeights.x;"
+		"       localPosition += boneMatrices[i1] * vertex * boneWeights.y;"
+		"       localPosition += boneMatrices[i2] * vertex * boneWeights.z;"
+		"       localPosition += boneMatrices[i3] * vertex * boneWeights.w;"
+
+		"       localNormal += mat3(boneMatrices[i0]) * vertexNormal * boneWeights.x;"
+		"       localNormal += mat3(boneMatrices[i1]) * vertexNormal * boneWeights.y;"
+		"       localNormal += mat3(boneMatrices[i2]) * vertexNormal * boneWeights.z;"
+		"       localNormal += mat3(boneMatrices[i3]) * vertexNormal * boneWeights.w;"
+
+		"       localTangent += mat3(boneMatrices[i0]) * vertexTangent.xyz * boneWeights.x;"
+		"       localTangent += mat3(boneMatrices[i1]) * vertexTangent.xyz * boneWeights.y;"
+		"       localTangent += mat3(boneMatrices[i2]) * vertexTangent.xyz * boneWeights.z;"
+		"       localTangent += mat3(boneMatrices[i3]) * vertexTangent.xyz * boneWeights.w;"
+		"   }"
+		"   else"
+		"   {"
+		"       localPosition = vec4(vertexPosition, 1.0);"
+		"       localNormal = vertexNormal;"
+		"       localTangent = vertexTangent.xyz;"
+		"   }"
+		"	gl_Position = worldViewProjection * localPosition;"
+		"   normal = normalize(mat3(worldMatrix) * localNormal);"
+		"   tangent = normalize(mat3(worldMatrix) * localTangent);"
+		"   binormal = normalize(vertexTangent.w * cross(tangent, normal));"
+		"	texCoord = vertexTexCoord;"
+		"	position = gl_Position;"
+		"}";
+
+	/**
+	 * Deferred lighting shader
+	 **/
+	static const char* const de_light_fs =
+		"#version 330 core\n"
+		"uniform sampler2D depthTexture;"
+		"uniform sampler2D colorTexture;"
+		"uniform sampler2D normalTexture;"
+
+		"uniform vec3 lightPos;"
+		"uniform float lightRadius;"
+		"uniform vec4 lightColor;"
+		"uniform vec3 lightDirection;"
+		"uniform float coneAngleCos;"
+		"uniform mat4 invViewProj;"
+		"uniform vec3 cameraPosition;"
+
+		"in vec2 texCoord;"
+		"out vec4 FragColor;"
+
+		"void main()"
+		"{"
+		"	vec3 normal = normalize(texture2D(normalTexture, texCoord).xyz * 2.0 - 1.0);"
+		"	vec4 screenPosition;"
+		"	screenPosition.x = texCoord.x * 2.0 - 1.0;"
+		"	screenPosition.y = texCoord.y * 2.0 - 1.0;"
+		"	screenPosition.z = texture2D(depthTexture, texCoord).r;"
+		"	screenPosition.w = 1.0;"
+		"	vec4 worldPosition = invViewProj * screenPosition;"
+		"	worldPosition.xyz /= worldPosition.w;"
+		"	vec3 lightVector = lightPos - worldPosition.xyz;"
+		"	float d = min(length(lightVector), lightRadius);"
+		"	vec3 normLightVector = lightVector / d;"
+		"   vec3 h = normalize(lightVector + (cameraPosition - worldPosition.xyz));"
+		"   vec3 specular = vec3(0.4 * pow(clamp(dot(normal, h), 0.0, 1.0), 80));"
+		"	float y = dot(lightDirection, normLightVector);"
+		"	float k = max(dot(normal, normLightVector), 0);"
+		"	float attenuation = 1.0 + cos((d / lightRadius) * 3.14159);"
+		"	if (y < coneAngleCos)"
+		"	{"
+		"		attenuation *= smoothstep(coneAngleCos - 0.1, coneAngleCos, y);"
+		"	}"
+		"   FragColor = texture2D(colorTexture, texCoord);"
+		"   FragColor.xyz += specular;"
+		"	FragColor *= k * attenuation * lightColor;"
+		"}";
+
+	static const  char* de_light_vs =
+		"#version 330 core\n"
+
+		"layout(location = 0) in vec3 vertexPosition;"
+		"layout(location = 1) in vec2 vertexTexCoord;"
+
+		"uniform mat4 worldViewProjection;"
+
+		"out vec2 texCoord;"
+
+		"void main()"
+		"{"
+		"	gl_Position = worldViewProjection * vec4(vertexPosition, 1.0);"
+		"	texCoord = vertexTexCoord;"
+		"}";
+
+	/* Build flat shader */
 	{
-		de_flag_shader_t* s = &r->flat_shader;
+		de_flat_shader_t* s = &r->flat_shader;
 
 		s->program = de_renderer_create_gpu_program(de_flat_vs, de_flat_fs);
 		s->wvp_matrix = glGetUniformLocation(s->program, "worldViewProjection");
 		s->diffuse_texture = glGetUniformLocation(s->program, "diffuseTexture");
 	}
 
-	/* gui shader */
+	/* Build ambient */
+	{
+		de_ambient_shader_t* s = &r->ambient_shader;
+
+		s->program = de_renderer_create_gpu_program(de_ambient_vs, de_ambient_fs);
+		s->wvp_matrix = glGetUniformLocation(s->program, "worldViewProjection");
+		s->diffuse_texture = glGetUniformLocation(s->program, "diffuseTexture");
+		s->ambient_color = glGetUniformLocation(s->program, "ambientColor");
+	}
+
+	/* Build gui shader */
 	{
 		de_gui_shader_t* s = &r->gui_shader;
 
@@ -423,7 +477,7 @@ static void de_create_builtin_shaders(de_renderer_t* r)
 		s->diffuse_texture = glGetUniformLocation(s->program, "diffuseTexture");
 	}
 
-	/* GBuffer shader */
+	/* Build GBuffer shader */
 	{
 		de_gbuffer_shader_t* s = &r->gbuffer_shader;
 
@@ -439,9 +493,9 @@ static void de_create_builtin_shaders(de_renderer_t* r)
 		s->self_emittance = glGetUniformLocation(s->program, "selfEmittance");
 	}
 
-	/* Lighting Shader */
+	/* Build deferred lighting Shader */
 	{
-		de_gbuffer_light_shader_t* s = &r->lighting_shader;
+		de_deferred_light_shader_t* s = &r->lighting_shader;
 
 		s->program = de_renderer_create_gpu_program(de_light_vs, de_light_fs);
 
@@ -457,7 +511,7 @@ static void de_create_builtin_shaders(de_renderer_t* r)
 		s->light_direction = glGetUniformLocation(s->program, "lightDirection");
 		s->light_cone_angle_cos = glGetUniformLocation(s->program, "coneAngleCos");
 		s->inv_view_proj_matrix = glGetUniformLocation(s->program, "invViewProj");
-		s->camera_position = glGetUniformLocation(s->program, "cameraPosition");		
+		s->camera_position = glGetUniformLocation(s->program, "cameraPosition");
 	}
 }
 
@@ -843,7 +897,7 @@ static void de_renderer_remove_texture(de_renderer_t* r, de_texture_t* tex)
 }
 
 /*=======================================================================================*/
-static void de_upload_texture(de_texture_t* texture)
+static void de_renderer_upload_texture(de_texture_t* texture)
 {
 	GLint internalFormat;
 	GLint format;
@@ -882,7 +936,7 @@ static void de_upload_texture(de_texture_t* texture)
 }
 
 /*=======================================================================================*/
-static void de_render_fullscreen_quad(de_renderer_t* r)
+static void de_renderer_draw_fullscreen_quad(de_renderer_t* r)
 {
 	DE_GL_CALL(glBindVertexArray(r->quad->vao));
 	DE_GL_CALL(glDrawElements(GL_TRIANGLES, r->quad->indices.size, GL_UNSIGNED_INT, NULL));
@@ -899,7 +953,7 @@ static void de_renderer_draw_mesh_bones(de_renderer_t* r, de_mesh_t* mesh)
 }
 
 /*=======================================================================================*/
-static void de_render_mesh(de_renderer_t* r, de_mesh_t* mesh)
+static void de_renderer_draw_mesh(de_renderer_t* r, de_mesh_t* mesh)
 {
 	size_t i;
 
@@ -950,7 +1004,7 @@ static void de_render_mesh(de_renderer_t* r, de_mesh_t* mesh)
 }
 
 /*=======================================================================================*/
-static void de_render_mesh_normals(de_renderer_t* r, de_mesh_t* mesh)
+static void de_renderer_draw_mesh_normals(de_renderer_t* r, de_mesh_t* mesh)
 {
 	size_t i;
 	for (i = 0; i < mesh->surfaces.size; ++i)
@@ -960,7 +1014,7 @@ static void de_render_mesh_normals(de_renderer_t* r, de_mesh_t* mesh)
 }
 
 /*=======================================================================================*/
-static void de_set_viewport(const de_rectf_t* viewport, unsigned int window_width, unsigned int window_height)
+static void de_renderer_set_viewport(const de_rectf_t* viewport, unsigned int window_width, unsigned int window_height)
 {
 	int viewport_x = (int)(viewport->x * window_width);
 	int viewport_y = (int)(viewport->y * window_height);
@@ -971,7 +1025,7 @@ static void de_set_viewport(const de_rectf_t* viewport, unsigned int window_widt
 }
 
 /*=======================================================================================*/
-static void de_upload_textures(de_renderer_t* r)
+static void de_renderer_upload_textures(de_renderer_t* r)
 {
 	de_texture_t* texture;
 
@@ -979,7 +1033,7 @@ static void de_upload_textures(de_renderer_t* r)
 	{
 		if (texture->need_upload)
 		{
-			de_upload_texture(texture);
+			de_renderer_upload_texture(texture);
 		}
 	}
 }
@@ -1002,7 +1056,7 @@ void de_renderer_render(de_renderer_t* r)
 	float frame_start_time = de_time_get_seconds();
 
 	/* Upload textures first */
-	de_upload_textures(r);
+	de_renderer_upload_textures(r);
 
 	de_mat4_identity(&identity);
 
@@ -1038,7 +1092,7 @@ void de_renderer_render(de_renderer_t* r)
 
 		de_camera_update(camera);
 
-		de_set_viewport(&camera->viewport, core->params.width, core->params.height);
+		de_renderer_set_viewport(&camera->viewport, core->params.width, core->params.height);
 
 		/* Render each node */
 		DE_LINKED_LIST_FOR_EACH(scene->nodes, node)
@@ -1058,22 +1112,38 @@ void de_renderer_render(de_renderer_t* r)
 				DE_GL_CALL(glUniformMatrix4fv(r->gbuffer_shader.wvp_matrix, 1, GL_FALSE, wvp_matrix.f));
 				DE_GL_CALL(glUniformMatrix4fv(r->gbuffer_shader.world_matrix, 1, GL_FALSE, is_skinned ? identity.f : node->global_matrix.f));
 
-				de_render_mesh(r, mesh);
+				de_renderer_draw_mesh(r, mesh);
 			}
 		}
 
 		DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 		DE_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
-		DE_GL_CALL(glUseProgram(r->lighting_shader.program));
+		de_mat4_ortho(&y_flip_ortho, 0, w, 0, h, -1, 1);
 
+		DE_GL_CALL(glEnable(GL_BLEND));
+		DE_GL_CALL(glBlendFunc(GL_ONE, GL_ONE));
 		DE_GL_CALL(glDisable(GL_CULL_FACE));
 		DE_GL_CALL(glDisable(GL_DEPTH_TEST));
+				
+		/* add ambient lighting */
+		DE_GL_CALL(glUseProgram(r->ambient_shader.program));
 
-		de_mat4_ortho(&y_flip_ortho, 0, w, 0, h, -1, 1);
+		DE_GL_CALL(glUniformMatrix4fv(r->ambient_shader.wvp_matrix, 1, GL_FALSE, y_flip_ortho.f));
+		
+		DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
+		DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.color_texture));
+		DE_GL_CALL(glUniform1i(r->ambient_shader.diffuse_texture, 0));
+		DE_GL_CALL(glUniform4f(r->ambient_shader.ambient_color, 0.2f, 0.2f, 0.2f, 1.0f));
+
+		de_renderer_draw_fullscreen_quad(r);
+
+		/* add lighting */
+		DE_GL_CALL(glUseProgram(r->lighting_shader.program));
+		
 		DE_GL_CALL(glUniformMatrix4fv(r->lighting_shader.wvp_matrix, 1, GL_FALSE, y_flip_ortho.f));
 		DE_GL_CALL(glUniform3f(r->lighting_shader.camera_position, camera_position.x, camera_position.y, camera_position.z));
-		
+
 		DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
 		DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.depth_texture));
 		DE_GL_CALL(glUniform1i(r->lighting_shader.depth_sampler, 0));
@@ -1085,9 +1155,6 @@ void de_renderer_render(de_renderer_t* r)
 		DE_GL_CALL(glActiveTexture(GL_TEXTURE2));
 		DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.normal_texture));
 		DE_GL_CALL(glUniform1i(r->lighting_shader.normal_sampler, 2));
-
-		DE_GL_CALL(glEnable(GL_BLEND));
-		DE_GL_CALL(glBlendFunc(GL_ONE, GL_ONE));
 
 		DE_LINKED_LIST_FOR_EACH(scene->nodes, node)
 		{
@@ -1116,7 +1183,7 @@ void de_renderer_render(de_renderer_t* r)
 				DE_GL_CALL(glUniform1f(r->lighting_shader.light_cone_angle_cos, light->cone_angle_cos));
 				DE_GL_CALL(glUniform3f(r->lighting_shader.light_direction, dir.x, dir.y, dir.z));
 
-				de_render_fullscreen_quad(r);
+				de_renderer_draw_fullscreen_quad(r);
 			}
 		}
 
@@ -1127,7 +1194,7 @@ void de_renderer_render(de_renderer_t* r)
 		{
 			DE_GL_CALL(glUseProgram(r->flat_shader.program));
 
-			de_set_viewport(&camera->viewport, core->params.width, core->params.height);
+			de_renderer_set_viewport(&camera->viewport, core->params.width, core->params.height);
 
 			/* Render each node */
 			DE_LINKED_LIST_FOR_EACH(scene->nodes, node)
@@ -1139,7 +1206,7 @@ void de_renderer_render(de_renderer_t* r)
 
 				if (node->type == DE_NODE_TYPE_MESH)
 				{
-					de_render_mesh_normals(r, &node->s.mesh);
+					de_renderer_draw_mesh_normals(r, &node->s.mesh);
 				}
 			}
 		}
@@ -1148,7 +1215,7 @@ void de_renderer_render(de_renderer_t* r)
 		{
 			DE_GL_CALL(glUseProgram(r->flat_shader.program));
 
-			de_set_viewport(&camera->viewport, core->params.width, core->params.height);
+			de_renderer_set_viewport(&camera->viewport, core->params.width, core->params.height);
 
 			/* Render each node */
 			DE_LINKED_LIST_FOR_EACH(scene->nodes, node)
@@ -1174,7 +1241,7 @@ void de_renderer_render(de_renderer_t* r)
 	DE_GL_CALL(glActiveTexture(GL_TEXTURE2));
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 
-	de_set_viewport(&gui_viewport, core->params.width, core->params.height);
+	de_renderer_set_viewport(&gui_viewport, core->params.width, core->params.height);
 
 	DE_GL_CALL(glDisable(GL_DEPTH_TEST));
 	DE_GL_CALL(glEnable(GL_BLEND));

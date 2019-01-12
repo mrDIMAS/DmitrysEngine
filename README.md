@@ -19,7 +19,6 @@ Please note, that this engine is at very early development stage and some featur
 - Documentation - almost every function of the engine has description in Doxygen format.
 
 ## Planned features (by priorities)
-- Fix compatibility with C++ (now it not compiles)
 - Materials (probably PBR)
 - More GUI widgets (there are still no text input nodes)
 - Stability

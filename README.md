@@ -1,6 +1,6 @@
 # Dmitry's Engine
 
-Experimental C89 cross-platform header-only 3D game engine with absolute minimum of external dependencies.
+Experimental C99 cross-platform header-only 3D game engine with absolute minimum of external dependencies.
 
 ![Why](pics/why.png?raw=true "Why")
 
@@ -8,7 +8,7 @@ Please note, that this engine is at very early development stage and some featur
 
 ## Features
 - Header only - no need to build as separate library, just `#include "de_main.h"` so extremely fast compilation.
-- C89 - full compatibility with C++.
+- C99 with full compatibility with C++.
 - FBX support - both ASCII and binary
 - Modern rendering techniques, renderer based on OpenGL 3.3 Core.
 - TTF fonts support (compound characters support is not implemented yet)
@@ -33,7 +33,7 @@ Please note, that this engine is at very early development stage and some featur
 
 ## Code statistics
 - ~16000 lines of code
-- Pure C89
+- Pure C99
 - Header-only
 
 ## Why engine called in that way?

@@ -612,6 +612,7 @@ void de_renderer_free(de_renderer_t* r)
 	de_renderer_free_surface(r->quad);
 	de_renderer_free_surface(r->test_surface);
 	de_texture_release(r->white_dummy);
+	de_texture_release(r->normal_map_dummy);
 
 	de_free(r);
 }

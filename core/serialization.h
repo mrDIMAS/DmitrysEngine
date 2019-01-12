@@ -284,7 +284,7 @@ bool de_object_visitor_visit_pointer_array_ex(de_object_visitor_t* visitor, cons
  * @brief Useful macro for visiting engine array of pointers.
  */
 #define DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, name, array, callback) \
-	de_object_visitor_visit_pointer_array_ex(visitor, name, (void**)&(array).data, &(array).size, sizeof(*(array).data), &(array)._capacity, (de_visit_callback_t) callback)
+	de_object_visitor_visit_pointer_array_ex(visitor, name, (void**)&(array).data, &(array).size, sizeof(**(array).data), &(array)._capacity, (de_visit_callback_t) callback)
 
 /**
  * @brief Serializes intrusive double linked list.

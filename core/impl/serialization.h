@@ -47,6 +47,7 @@ static void de_object_visitor_node_free(de_object_visitor_node_t* node)
 	DE_ARRAY_FREE(node->fields);
 
 	de_free(node->name);
+	de_free(node);
 }
 
 /*=======================================================================================*/
@@ -410,6 +411,7 @@ void de_object_visitor_free(de_object_visitor_t* visitor)
 {
 	de_object_visitor_node_free(visitor->root);
 	de_free(visitor->data);
+	DE_ARRAY_FREE(visitor->pointerPairs);
 }
 
 /*=======================================================================================*/
@@ -612,21 +614,25 @@ bool de_object_visitor_visit_pointer_array(de_object_visitor_t* visitor, const c
 
 	if (visitor->is_reading)
 	{
+		if (length == 0)
+		{
+			de_object_visitor_leave_node(visitor);
+			return true;
+		}
+
 		*item_count = length;
+		*array = de_calloc(length, sizeof(void*));
 	}
 
-	if (visitor->is_reading)
-	{
-		*array = de_malloc(sizeof(void*) * length);
-	}
 	void** pointers = (void**)*array;
 	for (size_t i = 0; i < *item_count; ++i)
 	{
 		char item_name[128];
+		void** ptr_ptr = &pointers[i];
 
 		snprintf(item_name, sizeof(item_name), "Item%d", i);
 
-		de_object_visitor_visit_pointer(visitor, item_name, &pointers[i], pointee_size, callback);
+		de_object_visitor_visit_pointer(visitor, item_name, ptr_ptr, pointee_size, callback);
 	}
 
 	de_object_visitor_leave_node(visitor);

@@ -651,6 +651,8 @@ void test_visitor(game_t* game)
 		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Scene", &scene, de_scene_visit);
 		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Node", &node, de_node_visit);
 		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Node2", &node2, de_node_visit);
+
+		de_object_visitor_free(&visitor);
 	}
 #endif
 }

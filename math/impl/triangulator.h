@@ -19,7 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-static de_bool_t de_is_ear(
+static bool de_is_ear(
 	const de_triangulator_polygon_t* polygon,
 	const de_triangulator_vertex_t* vprev,
 	const de_triangulator_vertex_t* vear,
@@ -37,13 +37,13 @@ static de_bool_t de_is_ear(
 	/* not an ear tip, so not an ear triangle */
 	if (angle > M_PI)
 	{
-		return DE_FALSE;
+		return false;
 	}
 
 	/* step 2: check winding of a triangle (assume CCW order)*/
 	if (de_get_signed_triangle_area(&vprev->position, &vear->position, &vnext->position) >= 0)
 	{
-		return DE_FALSE;
+		return false;
 	}
 
 	/* step 3: check if other points are inside of triangle */
@@ -57,11 +57,11 @@ static de_bool_t de_is_ear(
 		/* some other point lies in triangle, so current triangle is not an ear */
 		if (de_is_point_inside_triangle_2D(&v->position, &vprev->position, &vear->position, &vnext->position))
 		{
-			return DE_FALSE;
+			return false;
 		}
 	}
 
-	return DE_TRUE;
+	return true;
 }
 
 int de_triangulate_get_approx_index_count(size_t vertex_count)

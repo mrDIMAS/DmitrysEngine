@@ -77,8 +77,6 @@ void de_scene_add_node(de_scene_t* s, de_node_t* node);
  */
 void de_scene_remove_node(de_scene_t* s, de_node_t* node);
 
-
-
 /**
  * @brief Tries to find a node with specified name. Performs linear search O(n).
  */
@@ -88,3 +86,5 @@ de_node_t* de_scene_find_node(const de_scene_t* s, const char* name);
  * @brief Update scene components (i.e. animations)
  */
 void de_scene_update(de_scene_t* s, float dt);
+
+bool de_scene_visit(de_object_visitor_t* visitor, de_scene_t* scene);

@@ -43,4 +43,4 @@ typedef struct de_recti_t
 	int h; /**< Height */
 } de_recti_t;
 
-de_bool_t de_rect_contains(const de_rectf_t* rect, const de_vec2_t* point);
+bool de_rect_contains(const de_rectf_t* rect, const de_vec2_t* point);

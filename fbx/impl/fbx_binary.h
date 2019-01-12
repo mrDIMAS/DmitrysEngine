@@ -27,7 +27,7 @@ static void de_fignore(FILE* f, size_t num)
 /**
  * @brief Small helper method to ensure that we have read all requested data.
  */
-static de_bool_t de_fbx_fread(void* buffer, size_t size, FILE* f)
+static bool de_fbx_fread(void* buffer, size_t size, FILE* f)
 {
 	return fread(buffer, 1, size, f) == size;
 }
@@ -65,7 +65,7 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 
 	node = DE_NEW(de_fbx_node_t);
 
-	node->is_binary = DE_TRUE;
+	node->is_binary = true;
 
 	if (!de_fbx_fread(&num_attrib, sizeof(num_attrib), f))
 	{
@@ -247,7 +247,7 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 					de_fbx_node_t* a_node = DE_NEW(de_fbx_node_t);
 					a_node->name = de_str_copy("a");
 					a_node->parent = node;
-					a_node->is_binary = DE_TRUE;
+					a_node->is_binary = true;
 					for (k = 0, n = 0; k < length; ++k, n += size)
 					{
 						void* item = de_fbx_buffer_alloc(data_buf, size);
@@ -309,7 +309,7 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 
 	if ((uint32_t)ftell(f) < end_offset)
 	{
-		de_bool_t null_record_correct = DE_TRUE;
+		bool null_record_correct = true;
 
 		while ((uint32_t)ftell(f) < null_record_position)
 		{
@@ -328,7 +328,7 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 		{
 			if (null_record[i] != 0)
 			{
-				null_record_correct = DE_FALSE;
+				null_record_correct = false;
 				break;
 			}
 		}

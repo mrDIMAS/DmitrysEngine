@@ -24,7 +24,7 @@ void de_fbx_rdbuf_init(de_fbx_rdbuf_t* rdbuf)
 {
 	rdbuf->chunk_read_cursor = 0;
 	rdbuf->chunk_size = 0;
-	rdbuf->eof = DE_FALSE;
+	rdbuf->eof = false;
 }
 
 /*=======================================================================================*/
@@ -44,13 +44,13 @@ char de_fbx_rdbuf_next_symbol(FILE* file, de_fbx_rdbuf_t* rdbuf)
 }
 
 /*=======================================================================================*/
-de_bool_t de_fbx_rdbuf_is_eof(de_fbx_rdbuf_t* rdbuf)
+bool de_fbx_rdbuf_is_eof(de_fbx_rdbuf_t* rdbuf)
 {
 	return rdbuf->eof && rdbuf->chunk_read_cursor >= rdbuf->chunk_size;
 }
 
 /*=======================================================================================*/
-de_bool_t de_fbx_is_space(char c)
+bool de_fbx_is_space(char c)
 {
 	return c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v';
 }
@@ -69,8 +69,8 @@ de_fbx_node_t* de_fbx_ascii_load_file(const char* filename, de_fbx_buffer_t* dat
 	de_fbx_node_t* root;
 	de_fbx_node_t* node = NULL;
 	de_fbx_node_t* parent;
-	de_bool_t read_all;
-	de_bool_t read_value;
+	bool read_all;
+	bool read_value;
 	int i;
 
 	file = fopen(filename, "rb");
@@ -94,7 +94,7 @@ de_fbx_node_t* de_fbx_ascii_load_file(const char* filename, de_fbx_buffer_t* dat
 	{
 		/* Read line, trim spaces (but leave spaces in quotes) */
 		line_size = 0;
-		read_all = DE_FALSE;
+		read_all = false;
 		for (;;)
 		{
 			char symbol = de_fbx_rdbuf_next_symbol(file, &rdbuf);
@@ -134,7 +134,7 @@ de_fbx_node_t* de_fbx_ascii_load_file(const char* filename, de_fbx_buffer_t* dat
 		}
 
 		/* Parse string */
-		read_value = DE_FALSE;
+		read_value = false;
 		name_length = 0;
 		for (i = 0; i < line_size; ++i)
 		{
@@ -143,12 +143,12 @@ de_fbx_node_t* de_fbx_ascii_load_file(const char* filename, de_fbx_buffer_t* dat
 			{
 				if (symbol == '-' || isdigit(symbol))
 				{
-					read_value = DE_TRUE;
+					read_value = true;
 				}
 			}
 			if (symbol == ':' && !read_value)
 			{
-				read_value = DE_TRUE;
+				read_value = true;
 				name[name_length] = '\0';
 				node = de_fbx_create_node(name);
 				name_length = 0;
@@ -202,7 +202,7 @@ de_fbx_node_t* de_fbx_ascii_load_file(const char* filename, de_fbx_buffer_t* dat
 			}
 		}
 
-		read_value = DE_FALSE;
+		read_value = false;
 	}
 
 #if DE_FBX_VERBOSE

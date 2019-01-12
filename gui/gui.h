@@ -104,7 +104,7 @@ typedef enum de_gui_routed_event_type_t
 typedef struct de_gui_routed_event_args_t
 {
 	de_gui_routed_event_type_t type;
-	de_bool_t handled;
+	bool handled;
 	de_gui_node_t* source;
 	union
 	{
@@ -199,7 +199,7 @@ typedef void(*de_got_focus_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*)
 	if (strcmp(field_name__, passed_name__) == 0) { \
 		if (data_size == DE_MEMBER_SIZE(type__, field__)) { \
 			memcpy(value__, &object__->field__, data_size__); \
-      return DE_TRUE; \
+      return true; \
 		} \
 	}
 
@@ -210,9 +210,9 @@ typedef struct de_gui_dispatch_table_t
 	void(*layout_children)(de_gui_node_t* n);
 	void(*update)(de_gui_node_t* n);
 	void(*render)(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting);
-	de_bool_t(*get_property)(de_gui_node_t* n, const char* name, void* value, size_t data_size);
-	de_bool_t(*set_property)(de_gui_node_t* n, const char* name, const void* value, size_t data_size);
-	de_bool_t(*parse_property)(de_gui_node_t* n, const char* name, const char* value);
+	bool(*get_property)(de_gui_node_t* n, const char* name, void* value, size_t data_size);
+	bool(*set_property)(de_gui_node_t* n, const char* name, const void* value, size_t data_size);
+	bool(*parse_property)(de_gui_node_t* n, const char* name, const char* value);
 } de_gui_dispatch_table_t;
 
 /**
@@ -240,7 +240,7 @@ struct de_gui_node_t
 	struct de_gui_node_t* parent;                       /**< Pointer to parent node */
 	DE_ARRAY_DECLARE(struct de_gui_node_t*, children);  /**< Array of children nodes */
 	DE_ARRAY_DECLARE(int, geometry);                    /**< Array of indices to draw command in draw list */
-	de_bool_t is_hit_test_visible;                      /**< Will this control participate in hit-test */
+	bool is_hit_test_visible;                      /**< Will this control participate in hit-test */
 
 	/* Specialization (type-specific data) */
 	union
@@ -266,9 +266,9 @@ struct de_gui_node_t
 	de_mouse_leave_event_t mouse_leave;
 	de_lost_focus_event_t lost_focus;
 	de_got_focus_event_t got_focus;
-	de_bool_t is_focused;
-	de_bool_t is_mouse_over;
-	de_bool_t is_mouse_down; /**< Indicates that mouse button was pressed while mouse pointer was inside */
+	bool is_focused;
+	bool is_mouse_over;
+	bool is_mouse_down; /**< Indicates that mouse button was pressed while mouse pointer was inside */
 
 	/* intrusive linked list */
 	DE_LINKED_LIST_ITEM(struct de_gui_node_t);
@@ -330,13 +330,13 @@ void de_gui_node_set_desired_local_position(de_gui_node_t* node, float x, float 
  */
 void de_gui_node_set_desired_size(de_gui_node_t* node, float w, float h);
 
-de_bool_t de_gui_node_set_property(de_gui_node_t* n, const char* name, const void* value, size_t data_size);
+bool de_gui_node_set_property(de_gui_node_t* n, const char* name, const void* value, size_t data_size);
 
-de_bool_t de_gui_node_parse_property(de_gui_node_t* n, const char* name, const char* value);
+bool de_gui_node_parse_property(de_gui_node_t* n, const char* name, const char* value);
 
-de_bool_t de_gui_node_get_property(de_gui_node_t* n, const char* name, void* value, size_t data_size);
+bool de_gui_node_get_property(de_gui_node_t* n, const char* name, void* value, size_t data_size);
 
-void de_gui_node_set_hit_test_visible(de_gui_node_t* n, de_bool_t visibility);
+void de_gui_node_set_hit_test_visible(de_gui_node_t* n, bool visibility);
 
 /**
  * @brief
@@ -361,7 +361,7 @@ void de_gui_node_set_color_rgba(de_gui_node_t* node, uint8_t r, uint8_t g, uint8
  * @param parent
  * @return
  */
-de_bool_t de_gui_node_attach(de_gui_node_t* node, de_gui_node_t* parent);
+bool de_gui_node_attach(de_gui_node_t* node, de_gui_node_t* parent);
 
 /**
  * @brief

@@ -93,7 +93,7 @@ static void de_octree_split_node(de_octree_node_t* node)
 	de_vec3_set(&node->children[7]->min, center.x, center.y, center.z);
 	de_vec3_set(&node->children[7]->max, node->max.x, node->max.y, node->max.z);
 
-	node->split = DE_TRUE;
+	node->split = true;
 }
 
 /*=======================================================================================*/
@@ -252,7 +252,7 @@ void de_octree_trace_ray(de_octree_t* octree, const de_ray_t* ray)
 }
 
 /*=======================================================================================*/
-static de_bool_t de_octree_node_is_intersect_sphere(const de_octree_node_t* node, const de_vec3_t* position, float radius)
+static bool de_octree_node_is_intersect_sphere(const de_octree_node_t* node, const de_vec3_t* position, float radius)
 {
 	float r2 = radius* radius;
 	float dmin = 0;
@@ -284,7 +284,7 @@ static de_bool_t de_octree_node_is_intersect_sphere(const de_octree_node_t* node
 		dmin += de_sqr(position->z - node->max.z);
 	}
 
-	de_bool_t sphereInside = (position->x >= node->min.x) && (position->x <= node->max.x) &&
+	bool sphereInside = (position->x >= node->min.x) && (position->x <= node->max.x) &&
 		(position->y >= node->min.y) && (position->y <= node->max.y) &&
 		(position->z >= node->min.z) && (position->z <= node->max.z);
 
@@ -311,7 +311,7 @@ static void de_octree_trace_sphere_recursive(de_octree_t* octree, de_octree_node
 }
 
 /*=======================================================================================*/
-static de_bool_t de_octree_node_is_point_inside(de_octree_node_t* node, const de_vec3_t* point)
+bool de_octree_node_is_point_inside(de_octree_node_t* node, const de_vec3_t* point)
 {
 	return point->x >= node->min.x && point->x <= node->max.x &&
 		point->y >= node->min.y && point->y <= node->max.y &&

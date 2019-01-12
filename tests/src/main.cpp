@@ -18,7 +18,7 @@ struct game_t
 struct main_menu_t
 {
 	de_gui_node_t* window;
-	de_bool_t visible;
+	bool visible;
 };
 
 struct level_t
@@ -98,7 +98,7 @@ void weapon_update(weapon_t* wpn)
 
 /*=======================================================================================*/
 player_t* player_create(level_t* level)
-{	
+{
 	player_t* p;
 
 	p = DE_NEW(player_t);
@@ -172,7 +172,7 @@ void player_update(player_t* p)
 	de_quat_t pitch_rot, yaw_rot;
 	de_vec2_t mouse_vel;
 	float speed_multiplier = 1.0f;
-	de_bool_t is_moving = DE_FALSE;
+	bool is_moving = false;
 
 	pivot = p->pivot;
 	camera = p->camera;
@@ -185,28 +185,28 @@ void player_update(player_t* p)
 
 	/* movement */
 	if (de_is_key_pressed(core, DE_KEY_W))
-	{		
+	{
 		de_vec3_sub(&offset, &offset, &look);
-		
-		is_moving = DE_TRUE;
+
+		is_moving = true;
 	}
 	if (de_is_key_pressed(core, DE_KEY_S))
-	{		
+	{
 		de_vec3_add(&offset, &offset, &look);
 
-		is_moving = DE_TRUE;
+		is_moving = true;
 	}
 	if (de_is_key_pressed(core, DE_KEY_A))
 	{
 		de_vec3_sub(&offset, &offset, &side);
 
-		is_moving = DE_TRUE;
+		is_moving = true;
 	}
 	if (de_is_key_pressed(core, DE_KEY_D))
 	{
 		de_vec3_add(&offset, &offset, &side);
 
-		is_moving = DE_TRUE;
+		is_moving = true;
 	}
 
 	/* jump */
@@ -246,7 +246,7 @@ void player_update(player_t* p)
 		{
 			radius = p->stand_body_radius;
 		}
-		de_body_set_radius(p->body, radius);		
+		de_body_set_radius(p->body, radius);
 	}
 
 	/* make sure that camera will be always at the top of the body */
@@ -257,7 +257,7 @@ void player_update(player_t* p)
 	{
 		p->camera_dest_offset.x = 0.05f * (float)cos(p->camera_wobble * 0.5f);
 		p->camera_dest_offset.y = 0.1f * (float)sin(p->camera_wobble);
-		
+
 		p->camera_wobble += 0.25f;
 	}
 	else
@@ -265,12 +265,12 @@ void player_update(player_t* p)
 		p->camera_dest_offset.x = 0;
 		p->camera_dest_offset.y = 0;
 	}
-	
+
 	/* camera offset will follow destination offset -> smooth movements */
 	p->camera_offset.x += (p->camera_dest_offset.x - p->camera_offset.x) * 0.1f;
 	p->camera_offset.y += (p->camera_dest_offset.y - p->camera_offset.y) * 0.1f;
 	p->camera_offset.z += (p->camera_dest_offset.z - p->camera_offset.z) * 0.1f;
-	
+
 	/* set actual camera position */
 	{
 		de_vec3_t combined_position;
@@ -301,7 +301,7 @@ void player_update(player_t* p)
 
 	p->yaw += (p->desired_yaw - p->yaw) * 0.22f;
 	p->pitch += (p->desired_pitch - p->pitch) * 0.22f;
-		
+
 	de_body_set_x_velocity(p->body, 0);
 	de_body_set_z_velocity(p->body, 0);
 
@@ -377,7 +377,7 @@ void quit_on_click(de_gui_node_t* node, void* user_data)
 }
 
 /*=======================================================================================*/
-void main_menu_set_visible(main_menu_t* menu, de_bool_t visibility)
+void main_menu_set_visible(main_menu_t* menu, bool visibility)
 {
 	de_gui_node_set_visibility(menu->window, visibility ? DE_GUI_NODE_VISIBILITY_VISIBLE : DE_GUI_NODE_VISIBILITY_COLLAPSED);
 	menu->visible = visibility;
@@ -395,7 +395,7 @@ void main_menu_on_new_game_click(de_gui_node_t* node, void* user_data)
 		game->level = level_create_test(game);
 	}
 
-	main_menu_set_visible(game->main_menu, DE_FALSE);
+	main_menu_set_visible(game->main_menu, false);
 }
 
 /*=======================================================================================*/
@@ -441,7 +441,7 @@ main_menu_t* main_menu_create(game_t* game)
 		/* new game */
 		{
 			de_gui_node_t* new_game = de_gui_button_create(gui);
-			de_gui_text_set_text(de_gui_button_get_text(new_game), "New Game");			
+			de_gui_text_set_text(de_gui_button_get_text(new_game), "New Game");
 			de_gui_node_set_row(new_game, 1);
 			de_gui_node_attach(new_game, grid);
 			de_gui_node_set_margin_uniform(new_game, 10);
@@ -451,7 +451,7 @@ main_menu_t* main_menu_create(game_t* game)
 		/* save game */
 		{
 			de_gui_node_t* save = de_gui_button_create(gui);
-			de_gui_text_set_text(de_gui_button_get_text(save), "Save Game");			
+			de_gui_text_set_text(de_gui_button_get_text(save), "Save Game");
 			de_gui_node_set_row(save, 2);
 			de_gui_node_attach(save, grid);
 			de_gui_node_set_margin_uniform(save, 10);
@@ -460,7 +460,7 @@ main_menu_t* main_menu_create(game_t* game)
 		/* load game */
 		{
 			de_gui_node_t* load = de_gui_button_create(gui);
-			de_gui_text_set_text(de_gui_button_get_text(load), "Load Game");			
+			de_gui_text_set_text(de_gui_button_get_text(load), "Load Game");
 			de_gui_node_set_row(load, 3);
 			de_gui_node_attach(load, grid);
 			de_gui_node_set_margin_uniform(load, 10);
@@ -469,7 +469,7 @@ main_menu_t* main_menu_create(game_t* game)
 		/* settings */
 		{
 			de_gui_node_t* settings = de_gui_button_create(gui);
-			de_gui_text_set_text(de_gui_button_get_text(settings), "Settings");			
+			de_gui_text_set_text(de_gui_button_get_text(settings), "Settings");
 			de_gui_node_set_row(settings, 4);
 			de_gui_node_attach(settings, grid);
 			de_gui_node_set_margin_uniform(settings, 10);
@@ -478,7 +478,7 @@ main_menu_t* main_menu_create(game_t* game)
 		/* quit */
 		{
 			de_gui_node_t* quit = de_gui_button_create(gui);
-			de_gui_text_set_text(de_gui_button_get_text(quit), "Quit");			
+			de_gui_text_set_text(de_gui_button_get_text(quit), "Quit");
 			de_gui_node_set_row(quit, 5);
 			de_gui_node_attach(quit, grid);
 			de_gui_node_set_margin_uniform(quit, 10);
@@ -521,7 +521,7 @@ game_t* game_create(void)
 
 	/* Create overlay */
 	{
-		game->fps_text = de_gui_text_create(game->core->gui);		
+		game->fps_text = de_gui_text_create(game->core->gui);
 	}
 
 	//game->level = level_create_test(game);
@@ -537,17 +537,17 @@ void game_main_loop(game_t* game)
 	float fixed_timestep;
 	float dt;
 	de_renderer_t* renderer;
-	
+
 	renderer = de_core_get_renderer(game->core);
 
 	fixed_fps = 60.0;
 	fixed_timestep = 1.0f / fixed_fps;
-	game_clock = de_time_get_seconds();	
+	game_clock = de_time_get_seconds();
 	while (de_core_is_running(game->core))
 	{
 		if (de_is_key_pressed(game->core, DE_KEY_ESC))
 		{
-			main_menu_set_visible(game->main_menu, DE_TRUE);
+			main_menu_set_visible(game->main_menu, true);
 		}
 
 		dt = de_time_get_seconds() - game_clock;
@@ -581,7 +581,10 @@ void game_main_loop(game_t* game)
 			frame_time = de_render_get_frame_time(renderer);
 			fps = de_renderer_get_fps(renderer);
 
-			snprintf(buffer, sizeof(buffer), "Frame time: %.2f ms\nFPS: %d", frame_time, fps);
+			snprintf(buffer, sizeof(buffer), "Frame time: %.2f ms\nFPS: %d\nAllocations: %d",
+				frame_time,
+				fps,
+				de_get_alloc_count());
 			de_gui_text_set_text(game->fps_text, buffer);
 		}
 	}
@@ -602,15 +605,65 @@ void game_close(game_t* game)
 	de_free(game);
 }
 
+void test_visitor(game_t* game)
+{
+	DE_UNUSED(game);
+
+#if 0
+	{
+		de_object_visitor_t visitor;
+		de_object_visitor_init(&visitor);
+
+		de_scene_t* scene = de_scene_create(game->core);
+
+		de_node_t* node = de_node_create(scene, DE_NODE_TYPE_BASE);
+		de_scene_add_node(scene, node);
+		de_node_set_name(node, "FooNode");
+
+		de_node_t* node2 = de_node_create(scene, DE_NODE_TYPE_BASE);
+		de_scene_add_node(scene, node2);
+		de_node_set_name(node2, "Node");
+		de_node_attach(node2, node);
+
+		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Scene", &scene, de_scene_visit);
+		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Node", &node, de_node_visit);
+		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Node2", &node2, de_node_visit);
+				
+		FILE* temp = fopen("save.txt", "w");
+		de_object_visitor_print_tree(&visitor, temp);
+		fclose(temp);
+
+		de_object_visitor_save_binary(&visitor, "save.bin");
+
+		de_object_visitor_free(&visitor);
+	}
+#endif
+
+#if 1
+	{
+		de_object_visitor_t visitor;
+		de_object_visitor_load_binary(&visitor, "save.bin");
+
+		de_scene_t* scene;
+		de_node_t* node;
+		de_node_t* node2;
+		
+		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Scene", &scene, de_scene_visit);
+		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Node", &node, de_node_visit);
+		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Node2", &node2, de_node_visit);
+	}
+#endif
+}
+
 /*=======================================================================================*/
 int main(int argc, char** argv)
 {
-	game_t* game;
-
 	DE_UNUSED(argc);
 	DE_UNUSED(argv);
 
-	game = game_create();
+	game_t* game = game_create();
+
+	test_visitor(game);
 
 	game_main_loop(game);
 

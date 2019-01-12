@@ -94,9 +94,9 @@ static void de_gui_scroll_bar_indicator_mouse_down(de_gui_node_t* node, de_gui_r
 	de_gui_node_capture_mouse(node);
 	scroll_bar_node = de_gui_node_find_parent_of_type(node, DE_GUI_NODE_SCROLL_BAR);
 	sb = &scroll_bar_node->s.scroll_bar;
-	sb->is_dragging = DE_TRUE;
+	sb->is_dragging = true;
 	de_vec2_sub(&sb->offset, &sb->indicator->screen_position, &args->s.mouse_down.pos);
-	args->handled = DE_TRUE;
+	args->handled = true;
 }
 
 /*=======================================================================================*/
@@ -107,8 +107,8 @@ static void de_gui_scroll_bar_indicator_mouse_up(de_gui_node_t* node, de_gui_rou
 	de_gui_node_release_mouse_capture(node);
 	scroll_bar_node = de_gui_node_find_parent_of_type(node, DE_GUI_NODE_SCROLL_BAR);
 	sb = &scroll_bar_node->s.scroll_bar;
-	sb->is_dragging = DE_FALSE;
-	args->handled = DE_TRUE;
+	sb->is_dragging = false;
+	args->handled = true;
 }
 
 /*=======================================================================================*/
@@ -149,7 +149,7 @@ static void de_gui_scroll_bar_indicator_mouse_move(de_gui_node_t* node, de_gui_r
 			sb->value_changed(scroll_bar_node);
 		}
 		de_gui_scroll_bar_update_indicator(scroll_bar_node);
-		args->handled = DE_TRUE;
+		args->handled = true;
 	}
 }
 
@@ -169,13 +169,13 @@ de_gui_node_t* de_gui_scroll_bar_create(de_gui_t* gui)
 
 	static de_gui_dispatch_table_t dispatch_table;
 	{
-		static de_bool_t init = DE_FALSE;
+		static bool init = false;
 
 		if (!init)
 		{
 			dispatch_table.deinit = de_gui_scroll_bar_deinit;
 
-			init = DE_TRUE;
+			init = true;
 		}
 	}
 
@@ -195,7 +195,7 @@ de_gui_node_t* de_gui_scroll_bar_create(de_gui_t* gui)
 
 	sb->grid = de_gui_grid_create(gui);
 	de_gui_node_attach(sb->grid, sb->border);
-	de_gui_grid_enable_draw_borders(sb->grid, DE_FALSE);
+	de_gui_grid_enable_draw_borders(sb->grid, false);
 
 	sb->canvas = de_gui_canvas_create(gui);
 	de_gui_node_attach(sb->canvas, sb->grid);

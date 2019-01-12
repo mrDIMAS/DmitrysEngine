@@ -48,10 +48,10 @@ struct de_core_t
 	} platform;
 
 	de_engine_params_t params;   /**< Initialization parameters */
-	de_bool_t running;              /**< DE_TRUE if engine is running */
-	de_bool_t keyboard_focus;             /**< DE_TRUE if rendering window is in focus */
-	de_bool_t keys[DE_KEY_Count];   /**< State of keyboard keys: DE_TRUE or DE_FALSE */
-	de_bool_t mouse_buttons[5];     /**< State of mouse buttons: DE_TRUE or DE_FALSE */
+	bool running;              /**< true if engine is running */
+	bool keyboard_focus;             /**< true if rendering window is in focus */
+	bool keys[DE_KEY_Count];   /**< State of keyboard keys: true or false */
+	bool mouse_buttons[5];     /**< State of mouse buttons: true or false */
 	int mouse_wheel;             /**< Mouse wheel speed */
 	de_vec2_t mouse_pos;         /**< Mouse position in window coordinates */
 	de_vec2_t mouse_vel;         /**< Mouse velocity vector */
@@ -77,9 +77,9 @@ de_core_t* de_core_init(const de_engine_params_t* params);
 void de_core_shutdown(de_core_t* core);
 
 /**
-* @brief Returns DE_TRUE if engine is running
+* @brief Returns true if engine is running
 */
-de_bool_t de_core_is_running(de_core_t* core);
+bool de_core_is_running(de_core_t* core);
 
 /**
  * @brief Stops engine.

@@ -19,6 +19,14 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+#define DE_MAKE_VERTEX( surf, cx, cy, cz, tx, ty )	\
+	v = surf->AddVertex();						\
+	v->position.x = cx;							\
+	v->position.y = cy;							\
+	v->position.z = cz;							\
+	v->texCoord.x = tx;							\
+	v->texCoord.y = ty;							\
+
 /*=======================================================================================*/
 void de_surface_load_data(de_surface_t* surf, de_vertex_t* vertices, size_t vertex_count, int* indices, size_t index_count)
 {
@@ -36,12 +44,14 @@ void de_surface_load_data(de_surface_t* surf, de_vertex_t* vertices, size_t vert
 	{
 		DE_ARRAY_APPEND(surf->vertices, vertices[i]);
 	}
+
+	surf->need_upload = true;
 }
 
 /*=======================================================================================*/
 void de_surface_upload(de_surface_t* surf)
 {
-	surf->need_upload = DE_TRUE;
+	surf->need_upload = true;
 }
 
 /*=======================================================================================*/
@@ -113,14 +123,14 @@ void de_surface_calculate_normals(de_surface_t * surf)
 }
 
 /*=======================================================================================*/
-de_bool_t de_surface_prepare_vertices_for_skinning(de_surface_t* surf)
+bool de_surface_prepare_vertices_for_skinning(de_surface_t* surf)
 {
 	size_t i, k;
 
 	/* ensure that surface can be skinned */
 	if (surf->vertex_weights.size != surf->vertices.size)
 	{
-		return DE_FALSE;
+		return false;
 	}
 
 	/* problem: gpu knows only index of matrix for each vertex that it should apply to vertex 
@@ -144,11 +154,11 @@ de_bool_t de_surface_prepare_vertices_for_skinning(de_surface_t* surf)
 		}
 	}
 
-	return DE_TRUE;
+	return true;
 }
 
 /*=======================================================================================*/
-de_bool_t de_surface_add_bone(de_surface_t* surf, de_node_t* bone)
+bool de_surface_add_bone(de_surface_t* surf, de_node_t* bone)
 {
 	size_t i;
 
@@ -156,13 +166,13 @@ de_bool_t de_surface_add_bone(de_surface_t* surf, de_node_t* bone)
 	{
 		if (surf->weights.data[i] == bone)
 		{
-			return DE_FALSE;
+			return false;
 		}
 	}
 
 	DE_ARRAY_APPEND(surf->weights, bone);
 
-	return DE_TRUE;
+	return true;
 }
 
 /*=======================================================================================*/
@@ -197,7 +207,7 @@ void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* out_matrice
 }
 
 /*=======================================================================================*/
-de_bool_t de_surface_is_skinned(de_surface_t* surf)
+bool de_surface_is_skinned(de_surface_t* surf)
 {
 	return surf->vertex_weights.size > 0;
 }
@@ -206,7 +216,7 @@ de_bool_t de_surface_is_skinned(de_surface_t* surf)
 void de_surface_calculate_tangents(de_surface_t* surf)
 {
 	size_t i;
-	de_vec3_t *tan1 = de_calloc(surf->vertices.size * 2, sizeof(de_vec3_t));
+	de_vec3_t *tan1 = (de_vec3_t *)  de_calloc(surf->vertices.size * 2, sizeof(de_vec3_t));
 	de_vec3_t *tan2 = tan1 + surf->vertices.size;
 
 	for (i = 0; i < surf->indices.size; i += 3)
@@ -295,3 +305,126 @@ void de_surface_calculate_tangents(de_surface_t* surf)
 
 	de_free(tan1);
 }
+
+/*=======================================================================================*/
+void de_surface_make_cube(de_surface_t* surf)
+{
+	static de_vertex_t vertices[] = {
+		/* front */
+		{ { -0.5, -0.5, 0.5 }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+		{ { -0.5, 0.5, 0.5 }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+		{ { 0.5, 0.5, 0.5 }, { 0.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+		{ { 0.5, -0.5, 0.5 }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+
+		/* back */
+		{ { -0.5, -0.5, -0.5 }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+		{ { -0.5, 0.5, -0.5 }, { 0.0f, 0.0f, -1.0f }, { 0.0f, 1.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+		{ { 0.5, 0.5, -0.5 }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+		{ { 0.5, -0.5, -0.5 }, { 0.0f, 0.0f, -1.0f }, { 1.0f, 0.0f }, { 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+
+		/* left */
+		{ { -0.5f, -0.5f, -0.5f }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+		{ { -0.5f, 0.5f, -0.5f }, { -1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+		{ { -0.5f, 0.5f, 0.5f }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+		{ { -0.5f, -0.5f, 0.5f }, { -1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+
+		/* right */
+		{ { 0.5f, -0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+		{ { 0.5f, 0.5f, -0.5f }, { 1.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+		{ { 0.5f, 0.5f, 0.5f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+		{ { 0.5f, -0.5f, 0.5f }, { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+
+		/* top */
+		{ { -0.5f, 0.5f, 0.5f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+		{ { -0.5f, 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+		{ { 0.5f, 0.5f, -0.5f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+		{ { 0.5f, 0.5f, 0.5f }, { 0.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+
+		/* bottom */
+		{ { -0.5f, -0.5f, 0.5f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+		{ { -0.5f, -0.5f, -0.5f }, { 0.0f, -1.0f, 0.0f }, { 0.0f, 1.0f }, { 0.0f, 1.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+		{ { 0.5f, -0.5f, -0.5f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 1.0f }, { 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
+		{ { 0.5f, -0.5f, 0.5f }, { 0.0f, -1.0f, 0.0f }, { 1.0f, 0.0f }, { 1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } }
+	};
+
+	static int faces[] = {
+		2, 1, 0,
+		3, 2, 0,
+
+		4, 5, 6,
+		4, 6, 7,
+
+		10, 9, 8,
+		11, 10, 8,
+
+		12, 13, 14,
+		12, 14, 15,
+
+		18, 17, 16,
+		19, 18, 16,
+
+		20, 21, 22,
+		20, 22, 23
+	};
+
+	de_surface_load_data(surf, vertices, DE_ARRAY_SIZE(vertices), faces, DE_ARRAY_SIZE(faces));
+	de_surface_calculate_normals(surf);
+	de_surface_calculate_tangents(surf);
+}
+
+/*=======================================================================================*/
+void de_surface_make_sphere(de_surface_t* surf, int slices, int stacks, float r)
+{
+#if 0
+	int i, j;
+
+	float d_theta = M_PI / slices;
+	float d_phi = 2.0f * M_PI / stacks;
+	float d_tc_y = 1.0f / stacks;
+	float d_tc_x = 1.0f / slices;
+	de_vertex_t* v;
+
+	for (i = 0; i < stacks; ++i)
+	{
+		for (j = 0; j < slices; ++j)
+		{
+			int nj = j + 1;
+			int ni = i + 1;
+
+			float k0 = r * sin(d_theta * i);
+			float k1 = cos(d_phi * j);
+			float k2 = sin(d_phi * j);
+			float k3 = r * cos(d_theta * i);
+
+			float k4 = r * sin(d_theta * ni);
+			float k5 = cos(d_phi * nj);
+			float k6 = sin(d_phi * nj);
+			float k7 = r * cos(d_theta * ni);
+
+			if (i != (stacks - 1))
+			{
+				DE_MAKE_VERTEX(surf, k0 * k1, k0 * k2, k3, d_tc_x * j, d_tc_y * i);
+				DE_MAKE_VERTEX(surf, k4 * k1, k4 * k2, k7, d_tc_x * j, d_tc_y * ni);
+				DE_MAKE_VERTEX(surf, k4 * k5, k4 * k6, k7, d_tc_x * nj, d_tc_y * ni);
+			}
+
+			if (i != 0)
+			{
+				DE_MAKE_VERTEX(surf, k4 * k5, k4 * k6, k7, d_tc_x * nj, d_tc_y * ni);
+				DE_MAKE_VERTEX(surf, k0 * k5, k0 * k6, k3, d_tc_x * nj, d_tc_y * i);
+				DE_MAKE_VERTEX(surf, k0 * k1, k0 * k2, k3, d_tc_x * j, d_tc_y * i);
+			}
+		}
+	}
+
+	de_surface_calculate_normals(surf);
+	de_surface_calculate_tangents(surf);
+#endif 
+	DE_UNUSED(surf);
+	DE_UNUSED(slices);
+
+	DE_UNUSED(stacks);
+	DE_UNUSED(r);
+}
+
+#undef DE_MAKE_VERTEX

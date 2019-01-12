@@ -131,7 +131,7 @@ void de_pool_clear(de_pool_t* pool)
 }
 
 /*=======================================================================================*/
-de_bool_t de_pool_is_valid_ref(de_pool_t* pool, de_ref_t ref)
+bool de_pool_is_valid_ref(de_pool_t* pool, de_ref_t ref)
 {
 	return (unsigned)ref.index < pool->capacity && de_pool_internal_get_stamp(pool, ref.index) == ref.stamp;
 }

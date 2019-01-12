@@ -170,8 +170,8 @@ struct de_renderer_t
 	de_texture_t* normal_map_dummy;
 
 	/* Debugging switches */
-	de_bool_t render_normals;
-	de_bool_t render_bones;
+	bool render_normals;
+	bool render_bones;
 
 	struct
 	{

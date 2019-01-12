@@ -62,6 +62,7 @@ extern "C" {
 #include <float.h>
 #include <assert.h>
 #include <ctype.h>
+#include <inttypes.h>
 
 /* Platform-specific */
 #ifdef _WIN32

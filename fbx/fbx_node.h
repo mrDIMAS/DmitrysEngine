@@ -69,7 +69,7 @@ typedef struct de_fbx_node_s
 	char* name;
 
 	/* Means that each attribute is binary so no conversion needed on fetch */
-	de_bool_t is_binary;
+	bool is_binary;
 
 	/* Array of attributes */
 	DE_ARRAY_DECLARE(char*, attributes);

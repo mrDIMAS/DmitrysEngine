@@ -141,7 +141,7 @@ enum de_mouse_button
 };
 
 /**
-* @brief Returns DE_TRUE if specified key is pressed
+* @brief Returns true if specified key is pressed
 */
 int de_is_key_pressed(de_core_t* core, enum de_key key);
 
@@ -152,7 +152,7 @@ int de_is_key_pressed(de_core_t* core, enum de_key key);
 void de_get_mouse_velocity(de_core_t* core, de_vec2_t* vel);
 
 /**
-* @brief Returns DE_TRUE if specified key is released
+* @brief Returns true if specified key is released
 */
 int de_is_key_released(de_core_t* core, enum de_key key);
 

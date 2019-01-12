@@ -1058,9 +1058,9 @@ void de_get_polygon_normal(const de_vec3_t* points, size_t count, de_vec3_t* nor
 /**
  * @brief Checks if a point lies inside of a triangle.
  */
-de_bool_t de_is_point_inside_triangle(const de_vec3_t* point, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c);
+bool de_is_point_inside_triangle(const de_vec3_t* point, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c);
 
-de_bool_t de_is_point_inside_triangle_2D(const de_vec2_t* point, const de_vec2_t* a, const de_vec2_t* b, const de_vec2_t* c);
+bool de_is_point_inside_triangle_2D(const de_vec2_t* point, const de_vec2_t* a, const de_vec2_t* b, const de_vec2_t* c);
 
 /**
  * @brief Returns signed area of a 2D triangle.
@@ -1070,7 +1070,7 @@ double de_get_signed_triangle_area(const de_vec2_t* v1, const de_vec2_t* v2, con
 /**
  * @brief Checks intersection between two lines.
  */
-de_bool_t de_line_line_intersection(const de_vec3_t* a_begin, const de_vec3_t* a_end, const de_vec3_t* b_begin, const de_vec3_t* b_end, de_vec3_t *out);
+bool de_line_line_intersection(const de_vec3_t* a_begin, const de_vec3_t* a_end, const de_vec3_t* b_begin, const de_vec3_t* b_end, de_vec3_t *out);
 
 /**
  * @brief Returns closest class of plane by its normal. 

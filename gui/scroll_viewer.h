@@ -30,8 +30,8 @@ typedef struct de_gui_scroll_viewer_t
 	de_gui_node_t* ver_scroll_bar;           /**< Vertical scroll bar */
 	de_gui_node_t* hor_scroll_bar;           /**< Horizontal scroll bar */
 	de_gui_node_t* content;
-	de_bool_t auto_hide_ver_scroll_bar;
-	de_bool_t auto_hide_hor_scroll_bar;
+	bool auto_hide_ver_scroll_bar;
+	bool auto_hide_hor_scroll_bar;
 } de_gui_scroll_viewer_t;
 
 de_gui_node_t* de_gui_scroll_viewer_create(de_gui_t* gui);

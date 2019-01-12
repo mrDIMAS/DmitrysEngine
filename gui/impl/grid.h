@@ -338,20 +338,20 @@ de_gui_node_t* de_gui_grid_create(de_gui_t* gui)
 
 	static de_gui_dispatch_table_t dispatch_table;
 	{
-		static de_bool_t init = DE_FALSE;
+		static bool init = false;
 		if (!init)
 		{
 			dispatch_table.deinit = de_gui_grid_deinit;
 			dispatch_table.layout_children = de_gui_grid_perform_layout;
 			dispatch_table.render = de_gui_grid_render;
-			init = DE_TRUE;
+			init = true;
 		}
 	}
 
 	n = de_gui_node_alloc(gui, DE_GUI_NODE_GRID, &dispatch_table);
 
 	grid = &n->s.grid;
-	grid->draw_borders = DE_FALSE;
+	grid->draw_borders = false;
 
 	return n;
 }
@@ -389,7 +389,7 @@ size_t de_gui_grid_find_child_on_row(de_gui_node_t* grid, size_t prev_child, siz
 }
 
 /*=======================================================================================*/
-void de_gui_grid_enable_draw_borders(de_gui_node_t* grid, de_bool_t state)
+void de_gui_grid_enable_draw_borders(de_gui_node_t* grid, bool state)
 {
 	DE_ASSERT_GUI_NODE_TYPE(grid, DE_GUI_NODE_GRID);
 

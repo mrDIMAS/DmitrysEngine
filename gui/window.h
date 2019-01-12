@@ -37,7 +37,7 @@ typedef struct de_gui_window_t
 	de_gui_node_t* scroll_viewer;
 	de_gui_node_t* close_button;
 	de_gui_node_t* collapse_button;
-	de_bool_t is_dragging;
+	bool is_dragging;
 	de_vec2_t mouse_click_pos;
 	de_vec2_t init_pos;
 	uint32_t flags;
@@ -53,4 +53,4 @@ de_gui_node_t* de_gui_window_get_content(de_gui_node_t* window);
 
 void de_gui_window_set_flags(de_gui_node_t* window, uint32_t flags);
 
-de_bool_t de_gui_window_is_flags_set(de_gui_node_t* window, uint32_t flags);
+bool de_gui_window_is_flags_set(de_gui_node_t* window, uint32_t flags);

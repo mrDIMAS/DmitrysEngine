@@ -600,8 +600,8 @@ de_renderer_t* de_renderer_init(de_core_t* core)
 		pixel->a = 255;
 	}
 
-	r->render_normals = DE_FALSE;
-	r->render_bones = DE_TRUE;
+	r->render_normals = false;
+	r->render_bones = true;
 
 	return r;
 }
@@ -772,7 +772,7 @@ static void de_renderer_upload_surface(de_surface_t* s)
 
 	glBindVertexArray(0);
 
-	s->need_upload = DE_FALSE;
+	s->need_upload = false;
 }
 
 /*=======================================================================================*/
@@ -781,7 +781,7 @@ de_surface_t* de_renderer_create_surface(de_renderer_t* r)
 	de_surface_t* surf = DE_NEW(de_surface_t);
 
 	surf->renderer = r;
-	surf->need_upload = DE_TRUE;
+	surf->need_upload = true;
 
 	/* Create gpu-side buffers */
 	glGenVertexArrays(1, &surf->vao);
@@ -932,7 +932,7 @@ static void de_renderer_upload_texture(de_texture_t* texture)
 	DE_GL_CALL(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy));
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 
-	texture->need_upload = DE_FALSE;
+	texture->need_upload = false;
 }
 
 /*=======================================================================================*/
@@ -960,7 +960,7 @@ static void de_renderer_draw_mesh(de_renderer_t* r, de_mesh_t* mesh)
 	for (i = 0; i < mesh->surfaces.size; ++i)
 	{
 		de_surface_t* surf = mesh->surfaces.data[i];
-		de_bool_t is_skinned = de_surface_is_skinned(surf);
+		bool is_skinned = de_surface_is_skinned(surf);
 
 		if (surf->need_upload)
 		{
@@ -1086,6 +1086,11 @@ void de_renderer_render(de_renderer_t* r)
 		de_camera_t* camera;
 		de_vec3_t camera_position;
 
+		if (!scene->active_camera)
+		{
+			continue;
+		}
+
 		camera = &scene->active_camera->s.camera;
 
 		de_node_get_global_position(camera->parent_node, &camera_position);
@@ -1100,7 +1105,7 @@ void de_renderer_render(de_renderer_t* r)
 			if (node->type == DE_NODE_TYPE_MESH)
 			{
 				de_mat4_t wvp_matrix;
-				de_bool_t is_skinned;
+				bool is_skinned;
 				de_mesh_t* mesh;
 
 				mesh = &node->s.mesh;
@@ -1287,7 +1292,7 @@ void de_renderer_render(de_renderer_t* r)
 			size_t index_count = cmd->triangle_count * 3;
 			if (cmd->type == DE_GUI_DRAW_COMMAND_TYPE_CLIP)
 			{
-				de_bool_t is_root_nesting = cmd->nesting == 1;
+				bool is_root_nesting = cmd->nesting == 1;
 				if (is_root_nesting)
 				{
 					DE_GL_CALL(glClear(GL_STENCIL_BUFFER_BIT));

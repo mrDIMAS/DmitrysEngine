@@ -361,3 +361,35 @@ de_camera_t* de_node_to_camera(de_node_t* node)
 	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_CAMERA);
 	return &node->s.camera;
 }
+
+/*=======================================================================================*/
+bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node)
+{
+	bool result = true;
+	result &= de_object_visitor_visit_heap_string(visitor, "Name", &node->name);
+	result &= de_object_visitor_visit_mat4(visitor, "LocalTransform", &node->local_matrix);
+	result &= de_object_visitor_visit_mat4(visitor, "GlobalTransform", &node->global_matrix);
+	result &= de_object_visitor_visit_mat4(visitor, "InvBindPoseTransform", &node->inv_bind_pose_matrix);
+	result &= de_object_visitor_visit_vec3(visitor, "LocalPosition", &node->position);
+	result &= de_object_visitor_visit_vec3(visitor, "LocalScale", &node->scale);
+	result &= de_object_visitor_visit_quat(visitor, "LocalRotation", &node->rotation);
+	result &= de_object_visitor_visit_quat(visitor, "PreRotation", &node->pre_rotation);
+	result &= de_object_visitor_visit_quat(visitor, "PostRotation", &node->post_rotation);
+	result &= de_object_visitor_visit_vec3(visitor, "RotationOffset", &node->rotation_offset);
+	result &= de_object_visitor_visit_vec3(visitor, "RotationPivot", &node->rotation_pivot);
+	result &= de_object_visitor_visit_vec3(visitor, "RotationPivot", &node->rotation_pivot);
+	result &= de_object_visitor_visit_vec3(visitor, "ScalingOffset", &node->scaling_offset);
+	result &= de_object_visitor_visit_vec3(visitor, "ScalingPivot", &node->scaling_pivot);
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Scene", &node->scene, de_scene_visit);
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Parent", &node->parent, de_node_visit);
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Children", node->children, de_node_visit);
+
+	return result;
+}
+
+/*=======================================================================================*/
+void de_node_set_name(de_node_t* node, const char* name)
+{
+	de_free(node->name);
+	node->name = de_str_copy(name);
+}

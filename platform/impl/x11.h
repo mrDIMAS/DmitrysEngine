@@ -377,7 +377,7 @@ void de_engine_platform_message_queue(void)
 		{
 		case DestroyNotify:
 		{
-			de_engine->running = DE_FALSE;
+			de_engine->running = false;
 			break;
 		}
 

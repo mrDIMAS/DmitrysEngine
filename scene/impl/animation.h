@@ -237,7 +237,7 @@ void de_animation_set_time_position(de_animation_t* anim, float time)
 }
 
 /*=======================================================================================*/
-de_bool_t de_animation_is_flags_set(de_animation_t* anim, int flags)
+bool de_animation_is_flags_set(de_animation_t* anim, int flags)
 {
 	return (anim->flags & flags) == flags;
 }

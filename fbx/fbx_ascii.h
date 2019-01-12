@@ -25,17 +25,17 @@ typedef struct de_fbx_rdbuf_t
 	char chunk[32768];
 	size_t chunk_size;
 	size_t chunk_read_cursor;
-	de_bool_t eof;
+	bool eof;
 } de_fbx_rdbuf_t;
 
 void de_fbx_rdbuf_init(de_fbx_rdbuf_t* rdbuf);
 
 char de_fbx_rdbuf_next_symbol(FILE* file, de_fbx_rdbuf_t* rdbuf);
 
-de_bool_t de_fbx_rdbuf_is_eof(de_fbx_rdbuf_t* rdbuf);
+bool de_fbx_rdbuf_is_eof(de_fbx_rdbuf_t* rdbuf);
 
 /* custom isspace function, because standard implementation uses locale which is slow */
-de_bool_t de_fbx_is_space(char c);
+bool de_fbx_is_space(char c);
 
 /**
  * @brief Reads ASCII FBX into node hierarchy and initializes data buffer.

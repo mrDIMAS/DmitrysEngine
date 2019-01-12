@@ -62,7 +62,7 @@ typedef struct de_gui_grid_t
 {
 	DE_ARRAY_DECLARE(de_gui_grid_column_t, columns);
 	DE_ARRAY_DECLARE(de_gui_grid_row_t, rows);
-	de_bool_t draw_borders;
+	bool draw_borders;
 } de_gui_grid_t;
 
 de_gui_node_t* de_gui_grid_create(de_gui_t* gui);
@@ -106,7 +106,7 @@ size_t de_gui_grid_find_child_on_row(de_gui_node_t* grid, size_t prev_child, siz
 * @param grid
 * @param state
 */
-void de_gui_grid_enable_draw_borders(de_gui_node_t* grid, de_bool_t state);
+void de_gui_grid_enable_draw_borders(de_gui_node_t* grid, bool state);
 
 /**
 * @brief

@@ -1071,7 +1071,7 @@ static void de_fbx_free(de_fbx_t* fbx)
 static void de_fbx_add_vertex_to_surface(de_surface_t* surf, de_vertex_t* new_vertex, de_vertex_weight_group_t* vertex_weights)
 {
 	int i;
-	de_bool_t found_identic = DE_FALSE;
+	bool found_identic = false;
 
 	/* reverse search is much faster, because it most likely that we'll find indentic vertex nearby current in the list */
 	for (i = (int)surf->vertices.size - 1; i >= 0; --i)
@@ -1081,7 +1081,7 @@ static void de_fbx_add_vertex_to_surface(de_surface_t* surf, de_vertex_t* new_ve
 			de_vec3_equals(&other_vertex->normal, &new_vertex->normal) &&
 			de_vec2_equals(&other_vertex->tex_coord, &new_vertex->tex_coord))
 		{
-			found_identic = DE_TRUE;
+			found_identic = true;
 			break;
 		}
 	}
@@ -1098,7 +1098,7 @@ static void de_fbx_add_vertex_to_surface(de_surface_t* surf, de_vertex_t* new_ve
 
 	DE_ARRAY_APPEND(surf->indices, i);
 
-	surf->need_upload = DE_TRUE;
+	surf->need_upload = true;
 }
 
 
@@ -1558,7 +1558,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 			if (geom->deformers.size)
 			{
 				/* if we have skinning, we should prepare deformer then */
-				bone_vertices = de_calloc(geom->vertex_count, sizeof(*bone_vertices));
+				bone_vertices = (de_vertex_weight_group_t*)de_calloc(geom->vertex_count, sizeof(*bone_vertices));
 				de_fbx_prepare_deformer(geom, bone_vertices);
 			}
 
@@ -1587,7 +1587,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 						snprintf(normal_tex_filename, sizeof(normal_tex_filename), "data/textures/%s_normal%s", diffuse_tex_name, diffuse_tex_extension);
 						diffuse_texture = de_renderer_request_texture(renderer, diffuse_tex_filename);
 						de_surface_set_diffuse_texture(surf, diffuse_texture);
-					    normal_texture = de_renderer_request_texture(renderer, normal_tex_filename);
+						normal_texture = de_renderer_request_texture(renderer, normal_tex_filename);
 						de_surface_set_normal_texture(surf, normal_texture);
 					}
 					de_mesh_add_surface(mesh, surf);
@@ -1641,7 +1641,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 						v.tangent.y = tangent->y;
 						v.tangent.z = tangent->z;
 						/* TODO: handedness, maybe wrong. Here we should use fbx bitangents to compute handedness! */
-						v.tangent.w = 1.0f; 
+						v.tangent.w = 1.0f;
 						break;
 					case DE_FBX_MAPPING_BY_VERTEX:
 						tangent = &geom->tangents[index];
@@ -1848,7 +1848,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 						de_fbx_model_t* fbx_model = (de_fbx_model_t*)vertex_weight->node;
 						de_node_t* bone_node = fbx_model->engine_node;
 						vertex_weight->node = bone_node;
-						bone_node->is_bone = DE_TRUE;
+						bone_node->is_bone = true;
 						de_surface_add_bone(surface, bone_node);
 					}
 				}
@@ -1928,16 +1928,16 @@ de_node_t* de_fbx_load_to_scene(de_scene_t* scene, const char* file)
 	return root_node;
 }
 
-de_bool_t de_fbx_is_binary(const char* filename)
+bool de_fbx_is_binary(const char* filename)
 {
 	char magic[18];
-	de_bool_t result;
+	bool result;
 
 	FILE* file = fopen(filename, "rb");
 
 	if (!file)
 	{
-		return DE_FALSE;
+		return false;
 	}
 
 	fread(magic, sizeof(char), 18, file);

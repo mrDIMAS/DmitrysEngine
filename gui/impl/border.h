@@ -111,14 +111,14 @@ de_gui_node_t* de_gui_border_create(de_gui_t* gui)
 
 	static de_gui_dispatch_table_t dispatch_table;
 	{
-		static de_bool_t init = DE_FALSE;
+		static bool init = false;
 
 		if (!init)
 		{
 			dispatch_table.deinit = de_gui_border_deinit;
 			dispatch_table.render = de_gui_border_render;
 			dispatch_table.layout_children = de_gui_border_layout_children;
-			init = DE_TRUE;
+			init = true;
 		}
 	}
 

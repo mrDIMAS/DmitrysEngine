@@ -46,7 +46,7 @@ typedef struct de_gui_scroll_bar_t
 	float min;                                   /**< Maximum scroll value */
 	float max;                                   /**< Minimum scroll value */
 	float step;                                  /**< Increment/decrement step for value. Used when user clicks on arrows */
-	de_bool_t is_dragging;                       /**< Indicates that indicator is being dragging */
+	bool is_dragging;                       /**< Indicates that indicator is being dragging */
 	de_vec2_t offset;                            /**< Offset from left top corner of indicator to mouse position */
 	de_scroll_bar_value_changed_event_t value_changed;
 } de_gui_scroll_bar_t;

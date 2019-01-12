@@ -155,7 +155,7 @@ void de_file_extract_name(const char* path, char* buffer, size_t buffer_size)
  */
 void de_file_extract_extension(const char* path, char* buffer, size_t buffer_size)
 {
-	char* dot_pos;
+	const char* dot_pos;
 
 	dot_pos = strrchr(path, '.');
 

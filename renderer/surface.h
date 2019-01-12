@@ -51,7 +51,7 @@ struct de_surface_t
 	GLuint vbo;      /**< Vertex buffer object id */
 	GLuint vao;      /**< Vertex array object id */
 	GLuint ebo;      /**< Element buffer object id */
-	de_bool_t need_upload;    /**< Indicates that surface needs to be uploaded to GPU */
+	bool need_upload;    /**< Indicates that surface needs to be uploaded to GPU */
 	DE_ARRAY_DECLARE(de_vertex_weight_group_t, vertex_weights); /**< Additional skinning data */
 	DE_ARRAY_DECLARE(de_node_t*, weights); /**< List of bones that affects this surface */
 };
@@ -103,15 +103,15 @@ void de_surface_calculate_normals(de_surface_t * surf);
  *
  * Calculates correct indices of matrices for each vertex in the surface.
  */
-de_bool_t de_surface_prepare_vertices_for_skinning(de_surface_t* surf);
+bool de_surface_prepare_vertices_for_skinning(de_surface_t* surf);
 
 /**
  * @brief Adds new surface affecting node.
- * @return Returns DE_TRUE if bone was added, DE_FALSE - if vertex already added.
+ * @return Returns true if bone was added, false - if vertex already added.
  *
  * Notes: amortized O(n)
  */
-de_bool_t de_surface_add_bone(de_surface_t* surf, de_node_t* bone);
+bool de_surface_add_bone(de_surface_t* surf, de_node_t* bone);
 
 /**
  * @brief Returns bone index in array of surface's bones. If no bone was found, returns -1.
@@ -129,7 +129,7 @@ void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* out_matrice
 /**
  * @brief Returns true if surface is skinned.
  */
-de_bool_t de_surface_is_skinned(de_surface_t* surf);
+bool de_surface_is_skinned(de_surface_t* surf);
 
 /**
  * @brief Computes tangents for surface vertices.
@@ -139,3 +139,7 @@ de_bool_t de_surface_is_skinned(de_surface_t* surf);
  * Terathon Software, 2001. http://terathon.com/code/tangent.html
  */
 void de_surface_calculate_tangents(de_surface_t* surf);
+
+void de_surface_make_cube(de_surface_t* surf);
+
+void de_surface_make_sphere(de_surface_t* surf, int slices, int stacks, float r);

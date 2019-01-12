@@ -69,13 +69,13 @@ struct de_node_t
 	de_vec3_t scaling_offset;
 	de_vec3_t scaling_pivot;
 
-	de_bool_t need_update; /**< Indicates that node's transform needs to be updated */
+	bool need_update; /**< Indicates that node's transform needs to be updated */
 	de_node_t* parent; /**< Pool reference to parent node */
 	DE_ARRAY_DECLARE(de_node_t*, children); /**< Array of pool references to child nodes */
-	de_bool_t visible; /**< Local visibility. Actual visibility defined by hierarchy. So if parent node is invisible, then child node will be too */
+	bool visible; /**< Local visibility. Actual visibility defined by hierarchy. So if parent node is invisible, then child node will be too */
 
-	void* user_data;
-	de_bool_t is_bone;
+	void* user_data; /**< Non-serializable. */
+	bool is_bone;
 
 	/* Physics */
 	de_body_t* body;
@@ -214,3 +214,9 @@ de_light_t* de_node_to_light(de_node_t* node);
  */
 de_camera_t* de_node_to_camera(de_node_t* node);
 
+/**
+ * @brief Serializes scene node.
+ */
+bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node);
+
+void de_node_set_name(de_node_t* node, const char* name);

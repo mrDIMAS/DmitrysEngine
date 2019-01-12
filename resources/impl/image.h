@@ -36,7 +36,7 @@ typedef struct de_tga_header_t
 } de_tga_header_t;
 
 /*=======================================================================================*/
-de_bool_t de_image_load_tga(const char* filename, de_image_t* img)
+bool de_image_load_tga(const char* filename, de_image_t* img)
 {
 	FILE* file;
 	size_t i, byte_count;
@@ -48,7 +48,7 @@ de_bool_t de_image_load_tga(const char* filename, de_image_t* img)
 	if (!file)
 	{
 		de_log("TGA Loader: Unable to open file %s", filename);
-		return DE_FALSE;
+		return false;
 	}
 
 #define READ_VAR(var) fread(&var, sizeof(var), 1, file)
@@ -80,7 +80,7 @@ de_bool_t de_image_load_tga(const char* filename, de_image_t* img)
 		de_log("TGA Loader: File %s is corrupted", filename);
 		de_free(img->data);
 		fclose(file);
-		return DE_FALSE;
+		return false;
 	}
 
 	fclose(file);
@@ -95,14 +95,14 @@ de_bool_t de_image_load_tga(const char* filename, de_image_t* img)
 
 	de_image_flip_y(img);
 
-	return DE_TRUE;
+	return true;
 }
 
 /*=======================================================================================*/
 void de_image_flip_y(de_image_t* img)
 {
 	int x, y_src, y_dest, k;
-	char* new_data = de_malloc(img->byte_per_pixel * img->width * img->height);
+	char* new_data = (char*) de_malloc(img->byte_per_pixel * img->width * img->height);
 
 	for (y_src = (int)img->height - 1, y_dest = 0; y_src >= 0; --y_src, ++y_dest)
 	{		

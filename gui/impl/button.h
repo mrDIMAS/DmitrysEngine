@@ -26,8 +26,8 @@ static void de_button_border_mouse_down(de_gui_node_t* border, de_gui_routed_eve
 	DE_ASSERT_GUI_NODE_TYPE(border, DE_GUI_NODE_BORDER);
 	btn = &border->parent->s.button;
 	border->color = btn->pressed_color;
-	btn->was_pressed = DE_TRUE;
-	args->handled = DE_TRUE;
+	btn->was_pressed = true;
+	args->handled = true;
 }
 
 /*=======================================================================================*/
@@ -37,7 +37,7 @@ static void de_button_border_mouse_enter(de_gui_node_t* border, de_gui_routed_ev
 	DE_ASSERT_GUI_NODE_TYPE(border, DE_GUI_NODE_BORDER);
 	btn = &border->parent->s.button;
 	border->color = btn->hover_color;
-	args->handled = DE_TRUE;
+	args->handled = true;
 }
 
 /*=======================================================================================*/
@@ -47,7 +47,7 @@ static void de_button_border_mouse_leave(de_gui_node_t* border, de_gui_routed_ev
 	DE_ASSERT_GUI_NODE_TYPE(border, DE_GUI_NODE_BORDER);
 	btn = &border->parent->s.button;
 	border->color = btn->normal_color;
-	args->handled = DE_TRUE;
+	args->handled = true;
 }
 
 /*=======================================================================================*/
@@ -68,7 +68,7 @@ static void de_button_border_mouse_up(de_gui_node_t* border, de_gui_routed_event
 	{
 		btn->click.func(border, btn->click.user_data);
 	}
-	args->handled = DE_TRUE;
+	args->handled = true;
 }
 
 /*=======================================================================================*/
@@ -80,21 +80,21 @@ static void de_gui_button_deinit(de_gui_node_t* n)
 }
 
 /*=======================================================================================*/
-static de_bool_t de_gui_button_set_property(de_gui_node_t* n, const char* name, const void* value, size_t data_size)
+static bool de_gui_button_set_property(de_gui_node_t* n, const char* name, const void* value, size_t data_size)
 {
 	DE_DECLARE_PROPERTY_SETTER(de_gui_node_t, s.button.pressed_color, name, DE_GUI_BUTTON_PRESSED_COLOR_PROPERTY, value, data_size, n);
 	DE_DECLARE_PROPERTY_SETTER(de_gui_node_t, s.button.hover_color, name, DE_GUI_BUTTON_HOVERED_COLOR_PROPERTY, value, data_size, n);
 	DE_DECLARE_PROPERTY_SETTER(de_gui_node_t, s.button.normal_color, name, DE_GUI_BUTTON_NORMAL_COLOR_PROPERTY, value, data_size, n);
-	return DE_FALSE;
+	return false;
 }
 
 /*=======================================================================================*/
-static de_bool_t de_gui_button_get_property(de_gui_node_t* n, const char* name, void* value, size_t data_size)
+static bool de_gui_button_get_property(de_gui_node_t* n, const char* name, void* value, size_t data_size)
 {
 	DE_DECLARE_PROPERTY_GETTER(de_gui_node_t, s.button.pressed_color, name, DE_GUI_BUTTON_PRESSED_COLOR_PROPERTY, value, data_size, n);
 	DE_DECLARE_PROPERTY_GETTER(de_gui_node_t, s.button.hover_color, name, DE_GUI_BUTTON_HOVERED_COLOR_PROPERTY, value, data_size, n);
 	DE_DECLARE_PROPERTY_GETTER(de_gui_node_t, s.button.normal_color, name, DE_GUI_BUTTON_NORMAL_COLOR_PROPERTY, value, data_size, n);
-	return DE_FALSE;
+	return false;
 }
 
 /*=======================================================================================*/
@@ -105,13 +105,13 @@ de_gui_node_t* de_gui_button_create(de_gui_t* gui)
 
 	static de_gui_dispatch_table_t dispatch_table;
 	{
-		static de_bool_t init = DE_FALSE;
+		static bool init = false;
 		if (!init)
 		{
 			dispatch_table.deinit = de_gui_button_deinit;
 			dispatch_table.set_property = de_gui_button_set_property;
 			dispatch_table.get_property = de_gui_button_get_property;
-			init = DE_TRUE;
+			init = true;
 		}
 	}
 
@@ -128,7 +128,7 @@ de_gui_node_t* de_gui_button_create(de_gui_t* gui)
 	b->border->mouse_leave = de_button_border_mouse_leave;
 	b->text = de_gui_text_create(gui);
 	de_gui_text_set_alignment(b->text, DE_GUI_TA_CENTER);
-	de_gui_node_set_hit_test_visible(b->text, DE_FALSE);
+	de_gui_node_set_hit_test_visible(b->text, false);
 	de_gui_node_set_color_rgba(b->text, 220, 220, 220, 255);
 	de_gui_border_set_stroke_color_rgba(b->border, 80, 80, 80, 255);
 	de_gui_node_attach(b->border, n);

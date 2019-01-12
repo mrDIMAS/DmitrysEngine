@@ -939,7 +939,7 @@ int de_ray_plane_intersection(const de_ray_t* ray, const de_plane_t* plane, de_v
 	return 1;
 }
 
-de_bool_t de_is_point_inside_triangle(const de_vec3_t* point, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c)
+bool de_is_point_inside_triangle(const de_vec3_t* point, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c)
 {
 	float baDotba, caDotba, caDotca, invDenom, dot02, dot12, u, v;
 	de_vec3_t vp, ca, ba;
@@ -965,7 +965,7 @@ de_bool_t de_is_point_inside_triangle(const de_vec3_t* point, const de_vec3_t* a
 	return (u >= 0.0f) && (v >= 0.0f) && (u + v < 1.0f);
 }
 
-de_bool_t de_is_point_inside_triangle_2D(const de_vec2_t* point, const de_vec2_t* a, const de_vec2_t* b, const de_vec2_t* c)
+bool de_is_point_inside_triangle_2D(const de_vec2_t* point, const de_vec2_t* a, const de_vec2_t* b, const de_vec2_t* c)
 {
 	float baDotba, caDotba, caDotca, invDenom, dot02, dot12, u, v;
 	de_vec2_t vp, ca, ba;
@@ -1550,7 +1550,7 @@ double de_get_signed_triangle_area(const de_vec2_t* v1, const de_vec2_t* v2, con
 }
 
 /*=======================================================================================*/
-de_bool_t de_line_line_intersection(const de_vec3_t* a_begin, const de_vec3_t* a_end, const de_vec3_t* b_begin, const de_vec3_t* b_end, de_vec3_t *out)
+bool de_line_line_intersection(const de_vec3_t* a_begin, const de_vec3_t* a_end, const de_vec3_t* b_begin, const de_vec3_t* b_end, de_vec3_t *out)
 {
 	float s1x = a_end->x - a_begin->x;
 	float s1y = a_end->y - a_begin->y;
@@ -1565,10 +1565,10 @@ de_bool_t de_line_line_intersection(const de_vec3_t* a_begin, const de_vec3_t* a
 			out->x = a_begin->x + (t * s1x);
 			out->y = a_begin->y + (t * s1y);
 		}
-		return DE_TRUE;
+		return true;
 	}
 
-	return DE_FALSE;
+	return false;
 }
 
 /*=======================================================================================*/

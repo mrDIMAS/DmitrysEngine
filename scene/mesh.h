@@ -42,11 +42,6 @@ void de_mesh_init(de_node_t* node);
 void de_mesh_deinit(de_mesh_t* mesh);
 
 /**
-* @brief Creates new cube mesh
-*/
-void de_mesh_make_cube(de_mesh_t* mesh);
-
-/**
  * @brief Calculates normals of each surface. Normals are per-face and not smooth.
  */
 void de_mesh_calculate_normals(de_mesh_t * mesh);
@@ -60,4 +55,4 @@ void de_mesh_calculate_normals(de_mesh_t * mesh);
 */
 void de_mesh_add_surface(de_mesh_t* mesh, de_surface_t* surf);
 
-de_bool_t de_mesh_is_skinned(de_mesh_t* mesh);
+bool de_mesh_is_skinned(de_mesh_t* mesh);

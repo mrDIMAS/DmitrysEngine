@@ -12,10 +12,10 @@ static void de_gui_window_header_mouse_down(de_gui_node_t* node, de_gui_routed_e
 	{
 		de_gui_node_capture_mouse(node);
 		wnd = &window_node->s.window;
-		wnd->is_dragging = DE_TRUE;
+		wnd->is_dragging = true;
 		de_vec2_set(&wnd->mouse_click_pos, args->s.mouse_down.pos.x, args->s.mouse_down.pos.y);
 		de_vec2_set(&wnd->init_pos, window_node->actual_local_position.x, window_node->actual_local_position.y);
-		args->handled = DE_TRUE;
+		args->handled = true;
 	}
 }
 
@@ -33,8 +33,8 @@ static void de_gui_window_header_mouse_up(de_gui_node_t* n, de_gui_routed_event_
 	{
 		de_gui_node_release_mouse_capture(n);
 		wnd = &window_node->s.window;
-		wnd->is_dragging = DE_FALSE;
-		args->handled = DE_TRUE;
+		wnd->is_dragging = false;
+		args->handled = true;
 	}
 }
 
@@ -61,7 +61,7 @@ static void de_gui_window_header_mouse_move(de_gui_node_t* n, de_gui_routed_even
 			window_node->desired_local_position.x = wnd->init_pos.x + delta.x;
 			window_node->desired_local_position.y = wnd->init_pos.y + delta.y;
 
-			args->handled = DE_TRUE;
+			args->handled = true;
 		}
 	}
 }
@@ -83,12 +83,12 @@ de_gui_node_t* de_gui_window_create(de_gui_t* gui)
 
 	static de_gui_dispatch_table_t dispatch_table;
 	{
-		static de_bool_t init = DE_FALSE;
+		static bool init = false;
 		if (!init)
 		{
 			dispatch_table.deinit = de_gui_window_deinit;
 
-			init = DE_TRUE;
+			init = true;
 		}
 	}
 
@@ -180,7 +180,7 @@ void de_gui_window_set_flags(de_gui_node_t* window, uint32_t flags)
 }
 
 /*=======================================================================================*/
-de_bool_t de_gui_window_is_flags_set(de_gui_node_t* window, uint32_t flags)
+bool de_gui_window_is_flags_set(de_gui_node_t* window, uint32_t flags)
 {
 	DE_ASSERT_GUI_NODE_TYPE(window, DE_GUI_NODE_WINDOW);
 	return (window->s.window.flags & flags) == flags;

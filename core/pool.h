@@ -69,6 +69,6 @@ void de_pool_return(de_pool_t* pool, de_ref_t ref);
 
 void de_pool_clear(de_pool_t* pool);
 
-de_bool_t de_pool_is_valid_ref(de_pool_t* pool, de_ref_t ref);
+bool de_pool_is_valid_ref(de_pool_t* pool, de_ref_t ref);
 
 void* de_pool_get_ptr(de_pool_t* pool, de_ref_t ref);

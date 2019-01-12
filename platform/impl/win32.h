@@ -147,13 +147,13 @@ static LRESULT CALLBACK de_window_proc(HWND wnd, UINT msg, WPARAM wParam, LPARAM
 	{
 	case WM_CLOSE:
 	case WM_DESTROY:
-		core->running = DE_FALSE;
+		core->running = false;
 		break;
 	case WM_KEYDOWN:
-		core->keys[de_remap_key(wParam, lParam)] = DE_TRUE;
+		core->keys[de_remap_key(wParam, lParam)] = true;
 		break;
 	case WM_KEYUP:
-		core->keys[de_remap_key(wParam, lParam)] = DE_FALSE;
+		core->keys[de_remap_key(wParam, lParam)] = false;
 		break;
 	case WM_MOUSEMOVE:
 	{
@@ -168,22 +168,22 @@ static LRESULT CALLBACK de_window_proc(HWND wnd, UINT msg, WPARAM wParam, LPARAM
 		break;
 	}
 	case WM_LBUTTONDOWN:
-		core->mouse_buttons[DE_BUTTON_LEFT] = DE_TRUE;
+		core->mouse_buttons[DE_BUTTON_LEFT] = true;
 		break;
 	case WM_LBUTTONUP:
-		core->mouse_buttons[DE_BUTTON_LEFT] = DE_FALSE;
+		core->mouse_buttons[DE_BUTTON_LEFT] = false;
 		break;
 	case WM_RBUTTONDOWN:
-		core->mouse_buttons[DE_BUTTON_RIGHT] = DE_TRUE;
+		core->mouse_buttons[DE_BUTTON_RIGHT] = true;
 		break;
 	case WM_RBUTTONUP:
-		core->mouse_buttons[DE_BUTTON_RIGHT] = DE_FALSE;
+		core->mouse_buttons[DE_BUTTON_RIGHT] = false;
 		break;
 	case WM_MBUTTONDOWN:
-		core->mouse_buttons[DE_BUTTON_MIDDLE] = DE_TRUE;
+		core->mouse_buttons[DE_BUTTON_MIDDLE] = true;
 		break;
 	case WM_MBUTTONUP:
-		core->mouse_buttons[DE_BUTTON_MIDDLE] = DE_FALSE;
+		core->mouse_buttons[DE_BUTTON_MIDDLE] = false;
 		break;
 	case WM_MOUSEWHEEL:
 		core->mouse_wheel = ((short)HIWORD(wParam)) / WHEEL_DELTA;
@@ -195,10 +195,10 @@ static LRESULT CALLBACK de_window_proc(HWND wnd, UINT msg, WPARAM wParam, LPARAM
 		core->mouse_vel.y = 0;
 		break;
 	case WM_KILLFOCUS:
-		core->keyboard_focus = DE_FALSE;
+		core->keyboard_focus = false;
 		break;
 	case WM_SETFOCUS:
-		core->keyboard_focus = DE_TRUE;
+		core->keyboard_focus = true;
 		break;
 	}
 	return DefWindowProc(wnd, msg, wParam, lParam);

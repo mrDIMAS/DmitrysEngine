@@ -115,14 +115,14 @@ de_gui_node_t* de_gui_scroll_viewer_create(de_gui_t* gui)
 
 	static de_gui_dispatch_table_t dispatch_table;
 	{
-		static de_bool_t init = DE_FALSE;
+		static bool init = false;
 
 		if (!init)
 		{
 			dispatch_table.deinit = de_gui_scroll_viewer_deinit;
 			dispatch_table.update = de_gui_scroll_viewer_update;
 
-			init = DE_TRUE;
+			init = true;
 		}
 	}
 
@@ -140,7 +140,7 @@ de_gui_node_t* de_gui_scroll_viewer_create(de_gui_t* gui)
 	de_gui_grid_add_row(sv->grid, 0, DE_GUI_SIZE_MODE_AUTO);
 	de_gui_grid_add_column(sv->grid, 0, DE_GUI_SIZE_MODE_STRETCH);
 	de_gui_grid_add_column(sv->grid, 0, DE_GUI_SIZE_MODE_AUTO);
-	de_gui_grid_enable_draw_borders(sv->grid, DE_FALSE);
+	de_gui_grid_enable_draw_borders(sv->grid, false);
 
 	sv->scroll_content_presenter = de_gui_scroll_content_presenter_create(gui);
 	de_gui_node_attach(sv->scroll_content_presenter, sv->grid);

@@ -43,7 +43,7 @@ struct de_animation_track_t
 {
 	de_animation_t* parent_animation;
 	DE_ARRAY_DECLARE(de_keyframe_t, keyframes); /**< Array of keyframes */
-	de_bool_t enabled;       /**< Is track enabled? */
+	bool enabled;       /**< Is track enabled? */
 	float max_time;       /**< Private. Length of animation. */
 	de_node_t* node;
 };
@@ -124,7 +124,7 @@ void de_animation_set_time_position(de_animation_t* anim, float time);
 /**
  * @brief Returns true if all specified flags are set.
  */
-de_bool_t de_animation_is_flags_set(de_animation_t* anim, int flags);
+bool de_animation_is_flags_set(de_animation_t* anim, int flags);
 
 /**
  * @brief Sets given animation flags.

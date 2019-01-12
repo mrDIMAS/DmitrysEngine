@@ -31,7 +31,7 @@ de_core_t* de_core_init(const de_engine_params_t* params)
 	de_log("Dmitry's Engine - Logging Started");
 
 	core->params = *params;
-	core->running = DE_TRUE;
+	core->running = true;
 
 	/* Call platform-specific initialization routine */
 	de_engine_platform_init(core);
@@ -63,7 +63,7 @@ static void de_core_poll_messages(de_core_t* core)
 }
 
 /*=======================================================================================*/
-de_bool_t de_core_is_running(de_core_t* core)
+bool de_core_is_running(de_core_t* core)
 {
 	return core->running;
 }
@@ -71,7 +71,7 @@ de_bool_t de_core_is_running(de_core_t* core)
 /*=======================================================================================*/
 void de_core_stop(de_core_t* core)
 {
-	core->running = DE_FALSE;
+	core->running = false;
 }
 
 /*=======================================================================================*/

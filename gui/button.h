@@ -30,7 +30,7 @@ typedef struct de_gui_button_t
 	struct de_gui_node_t* border;
 	struct de_gui_node_t* text;
 	de_gui_callback_t click;	
-	de_bool_t was_pressed;
+	bool was_pressed;
 } de_gui_button_t;
 
 de_gui_node_t* de_gui_button_create(de_gui_t* gui);

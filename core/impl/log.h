@@ -29,7 +29,7 @@ void de_log_open(const char* filename)
 	}
 }
 
-static void de_write_log(const char* message, de_bool_t error)
+static void de_write_log(const char* message, bool error)
 {
 	time_t rawtime;
 	struct tm* timeinfo;
@@ -60,7 +60,7 @@ void de_log(const char* message, ...)
 	va_start(argument_list, message);
 	vsprintf(format_buffer, message, argument_list);
 	va_end(argument_list);
-	de_write_log(format_buffer, DE_FALSE);
+	de_write_log(format_buffer, false);
 }
 
 void de_fatal_error(const char* message, ...)
@@ -70,7 +70,7 @@ void de_fatal_error(const char* message, ...)
 	va_start(argument_list, message);
 	vsprintf(format_buffer, message, argument_list);
 	va_end(argument_list);
-	de_write_log(format_buffer, DE_TRUE);
+	de_write_log(format_buffer, true);
 	de_engine_platform_message_box(format_buffer);
 #ifdef _MSC_VER
 	__debugbreak();

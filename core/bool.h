@@ -22,10 +22,3 @@
 /**
 * @brief Boolean values
 */
-enum
-{
-	DE_FALSE = 0,
-	DE_TRUE = 1
-};
-
-typedef char de_bool_t;

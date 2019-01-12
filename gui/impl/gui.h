@@ -21,7 +21,7 @@
 
 /* Forward declarations for controls */
 static void de_gui_node_default_layout(de_gui_node_t* n);
-static de_bool_t de_gui_node_contains_point(de_gui_node_t* node, const de_vec2_t* point);
+static bool de_gui_node_contains_point(de_gui_node_t* node, const de_vec2_t* point);
 
 /* Insert logic of all controls */
 #include "gui/impl/draw.h"
@@ -275,7 +275,7 @@ static de_gui_node_t* de_gui_node_pick(de_gui_node_t* n, const de_vec2_t* mouse_
 }
 
 /*=======================================================================================*/
-static de_bool_t de_gui_draw_command_contains_point(const de_gui_draw_list_t* draw_list, const de_gui_draw_command_t* cmd, const de_vec2_t* pos)
+static bool de_gui_draw_command_contains_point(const de_gui_draw_list_t* draw_list, const de_gui_draw_command_t* cmd, const de_vec2_t* pos)
 {
 	size_t j;
 	int* indices = draw_list->index_buffer.data;
@@ -313,7 +313,7 @@ static de_bool_t de_gui_draw_command_contains_point(const de_gui_draw_list_t* dr
 			if (denom <= FLT_EPSILON)
 			{
 				/* we don't want floating-point exceptions */
-				return DE_FALSE;
+				return false;
 			}
 
 			invDenom = 1.0f / denom;
@@ -322,20 +322,20 @@ static de_bool_t de_gui_draw_command_contains_point(const de_gui_draw_list_t* dr
 
 			if ((u >= 0) && (v >= 0) && (u + v < 1))
 			{
-				return DE_TRUE;
+				return true;
 			}
 		}
 	}
 
-	return DE_FALSE;
+	return false;
 }
 
 /*=======================================================================================*/
-static de_bool_t de_gui_node_is_clipped(de_gui_node_t* node, const de_vec2_t* point)
+static bool de_gui_node_is_clipped(de_gui_node_t* node, const de_vec2_t* point)
 {
 	size_t i;
 	de_gui_draw_list_t* draw_list = &node->gui->draw_list;
-	de_bool_t clipped = DE_TRUE;
+	bool clipped = true;
 
 	for (i = 0; i < node->geometry.size; ++i)
 	{
@@ -345,7 +345,7 @@ static de_bool_t de_gui_node_is_clipped(de_gui_node_t* node, const de_vec2_t* po
 		{
 			if (de_gui_draw_command_contains_point(draw_list, cmd, point))
 			{
-				clipped = DE_FALSE;
+				clipped = false;
 
 				break;
 			}
@@ -365,7 +365,7 @@ static de_bool_t de_gui_node_is_clipped(de_gui_node_t* node, const de_vec2_t* po
 }
 
 /*=======================================================================================*/
-static de_bool_t de_gui_node_contains_point(de_gui_node_t* node, const de_vec2_t* point)
+static bool de_gui_node_contains_point(de_gui_node_t* node, const de_vec2_t* point)
 {
 	size_t i;
 	de_gui_draw_list_t* draw_list = &node->gui->draw_list;
@@ -380,13 +380,13 @@ static de_bool_t de_gui_node_contains_point(de_gui_node_t* node, const de_vec2_t
 			{
 				if (de_gui_draw_command_contains_point(draw_list, cmd, point))
 				{
-					return DE_TRUE;
+					return true;
 				}
 			}
 		}
 	}
 
-	return DE_FALSE;
+	return false;
 }
 
 /*=======================================================================================*/
@@ -462,7 +462,7 @@ static void de_gui_node_handle_mouse_input(de_gui_node_t* n, const de_vec2_t* mo
 	/* Handle MouseEnter */
 	if (!n->is_mouse_over)
 	{
-		n->is_mouse_over = DE_TRUE;
+		n->is_mouse_over = true;
 		de_gui_node_fire_mouse_enter_event(n);
 	}
 
@@ -472,26 +472,26 @@ static void de_gui_node_handle_mouse_input(de_gui_node_t* n, const de_vec2_t* mo
 	/* Handle MouseUp */
 	if (n->is_mouse_down && !de_is_mouse_pressed(gui->core, DE_BUTTON_LEFT))
 	{
-		n->is_mouse_down = DE_FALSE;
+		n->is_mouse_down = false;
 		de_gui_node_fire_mouse_up_event(n, mouse_pos);
 	}
 	/* Handle MouseDown */
 	else if (!n->is_mouse_down && de_is_mouse_pressed(gui->core, DE_BUTTON_LEFT))
 	{
-		n->is_mouse_down = DE_TRUE;
+		n->is_mouse_down = true;
 
 		if (!n->is_focused)
 		{
 			if (gui->keyboard_focus && gui->keyboard_focus != n)
 			{
-				gui->keyboard_focus->is_focused = DE_FALSE;
+				gui->keyboard_focus->is_focused = false;
 
 				de_gui_node_fire_lost_focus_event(gui->keyboard_focus);
 			}
 
 			gui->keyboard_focus = n;
 
-			n->is_focused = DE_TRUE;
+			n->is_focused = true;
 			de_gui_node_fire_got_focus_event(n);
 		}
 
@@ -587,8 +587,8 @@ void de_gui_update(de_gui_t* gui)
 				de_gui_routed_event_args_t evt;
 				de_zero(&evt, sizeof(evt));
 
-				gui->prev_picked_node->is_mouse_over = DE_FALSE;
-				gui->prev_picked_node->is_mouse_down = DE_FALSE;
+				gui->prev_picked_node->is_mouse_over = false;
+				gui->prev_picked_node->is_mouse_down = false;
 
 				evt.type = DE_GUI_ROUTED_EVENT_MOUSE_LEAVE;
 				de_gui_node_route_mouse_leave(gui->prev_picked_node, &evt);
@@ -620,7 +620,7 @@ de_gui_node_t* de_gui_node_alloc(de_gui_t* gui, de_gui_node_type_t type, de_gui_
 	de_color_set(&n->color, 255, 255, 255, 255);
 
 	n->visibility = DE_GUI_NODE_VISIBILITY_VISIBLE;
-	n->is_hit_test_visible = DE_TRUE;
+	n->is_hit_test_visible = true;
 
 	/* alignment */
 	n->vertical_alignment = DE_GUI_VERTICAL_ALIGNMENT_STRETCH;
@@ -826,25 +826,25 @@ void de_gui_node_set_desired_size(de_gui_node_t* node, float w, float h)
 }
 
 /*=======================================================================================*/
-de_bool_t de_gui_node_set_property(de_gui_node_t* n, const char* name, const void* value, size_t data_size)
+bool de_gui_node_set_property(de_gui_node_t* n, const char* name, const void* value, size_t data_size)
 {
 	/* handle type-specific properties */
 	if (n->dispatch_table->set_property)
 	{
 		if (n->dispatch_table->set_property(n, name, value, data_size))
 		{
-			return DE_TRUE;
+			return true;
 		}
 	}
 
 	/* standard properties */
 	DE_DECLARE_PROPERTY_SETTER(de_gui_node_t, desired_local_position, name, DE_GUI_NODE_DESIRED_POSITION_PROPERTY, value, data_size, n);
 
-	return DE_FALSE;
+	return false;
 }
 
 /*=======================================================================================*/
-de_bool_t de_gui_node_parse_property(de_gui_node_t* n, const char* name, const char* value)
+bool de_gui_node_parse_property(de_gui_node_t* n, const char* name, const char* value)
 {
 	static de_string_array_t tokens;
 
@@ -852,7 +852,7 @@ de_bool_t de_gui_node_parse_property(de_gui_node_t* n, const char* name, const c
 	{
 		if (n->dispatch_table->parse_property(n, name, value))
 		{
-			return DE_TRUE;
+			return true;
 		}
 	}
 
@@ -864,22 +864,22 @@ de_bool_t de_gui_node_parse_property(de_gui_node_t* n, const char* name, const c
 		{
 			n->desired_local_position.x = (float)atof(tokens.data[0]);
 			n->desired_local_position.y = (float)atof(tokens.data[1]);
-			return DE_TRUE;
+			return true;
 		}
 	}
 
-	return DE_FALSE;
+	return false;
 }
 
 /*=======================================================================================*/
-de_bool_t de_gui_node_get_property(de_gui_node_t* n, const char* name, void* value, size_t data_size)
+bool de_gui_node_get_property(de_gui_node_t* n, const char* name, void* value, size_t data_size)
 {
 	/* handle type-specific properties */
 	if (n->dispatch_table->get_property)
 	{
 		if (n->dispatch_table->get_property(n, name, value, data_size))
 		{
-			return DE_TRUE;
+			return true;
 		}
 	}
 
@@ -888,11 +888,11 @@ de_bool_t de_gui_node_get_property(de_gui_node_t* n, const char* name, void* val
 	DE_DECLARE_PROPERTY_SETTER(de_gui_node_t, actual_local_position, name, DE_GUI_NODE_ACTUAL_POSITION_PROPERTY, value, data_size, n);
 	DE_DECLARE_PROPERTY_SETTER(de_gui_node_t, screen_position, name, DE_GUI_NODE_SCREEN_POSITION_PROPERTY, value, data_size, n);
 
-	return DE_FALSE;
+	return false;
 }
 
 /*=======================================================================================*/
-void de_gui_node_set_hit_test_visible(de_gui_node_t* n, de_bool_t visibility)
+void de_gui_node_set_hit_test_visible(de_gui_node_t* n, bool visibility)
 {
 	n->is_hit_test_visible = visibility;
 }
@@ -913,11 +913,11 @@ void de_gui_node_set_color_rgba(de_gui_node_t* node, uint8_t r, uint8_t g, uint8
 }
 
 /*=======================================================================================*/
-de_bool_t de_gui_node_attach(de_gui_node_t* node, de_gui_node_t* parent)
+bool de_gui_node_attach(de_gui_node_t* node, de_gui_node_t* parent)
 {
 	DE_ARRAY_APPEND(parent->children, node);
 	node->parent = parent;
-	return DE_TRUE;
+	return true;
 }
 
 /*=======================================================================================*/
@@ -958,14 +958,14 @@ void de_gui_node_set_row(de_gui_node_t* node, uint16_t row)
 }
 
 /*=======================================================================================*/
-static de_bool_t de_gui_node_needs_rendering(const de_gui_node_t* n)
+static bool de_gui_node_needs_rendering(const de_gui_node_t* n)
 {
-	de_bool_t result;
+	bool result;
 
 	/* no need to render "nothing" */
 	if (n->actual_size.x == 0 && n->actual_size.y == 0)
 	{
-		return DE_FALSE;
+		return false;
 	}
 
 	result = n->visibility == DE_GUI_NODE_VISIBILITY_VISIBLE;

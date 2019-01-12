@@ -99,7 +99,7 @@ void de_static_geometry_fill(de_static_geometry_t* geom, const de_mesh_t* mesh, 
 }
 
 /*=======================================================================================*/
-static de_bool_t de_static_triangle_contains_point(const de_static_triangle_t* triangle, const de_vec3_t* point)
+static bool de_static_triangle_contains_point(const de_static_triangle_t* triangle, const de_vec3_t* point)
 {
 	de_vec3_t vp;
 	float dot02, dot12, u, v;
@@ -113,7 +113,7 @@ static de_bool_t de_static_triangle_contains_point(const de_static_triangle_t* t
 }
 
 /*=======================================================================================*/
-static de_bool_t de_is_point_on_line_segment(const de_vec3_t* point, const de_vec3_t* a, const de_vec3_t* b)
+static bool de_is_point_on_line_segment(const de_vec3_t* point, const de_vec3_t* a, const de_vec3_t* b)
 {
 	/* simply check, if point lies in bounding box (a,b), means that point is on line  */
 	de_vec3_t min = *a;
@@ -142,13 +142,13 @@ static de_bool_t de_is_point_on_line_segment(const de_vec3_t* point, const de_ve
 
 	if ((point->x > max.x) || (point->y > max.y) || (point->z > max.z))
 	{
-		return DE_FALSE;
+		return false;
 	}
 	if ((point->x < min.x) || (point->y < min.y) || (point->z < min.z))
 	{
-		return DE_FALSE;
+		return false;
 	}
-	return DE_TRUE;
+	return true;
 }
 
 /*=======================================================================================*/
@@ -170,7 +170,7 @@ static void de_project_point_on_line(const de_vec3_t* point, const de_ray_t* ray
 }
 
 /*=======================================================================================*/
-static de_bool_t de_body_sphere_intersection(const de_ray_t* edgeRay, const de_vec3_t* sphere_pos, float sphere_radius, de_vec3_t* intersection_pt)
+static bool de_body_sphere_intersection(const de_ray_t* edgeRay, const de_vec3_t* sphere_pos, float sphere_radius, de_vec3_t* intersection_pt)
 {
 	de_vec3_t ray_end_pt;
 	if (de_ray_sphere_intersection(edgeRay, sphere_pos, sphere_radius, NULL, NULL))
@@ -179,25 +179,25 @@ static de_bool_t de_body_sphere_intersection(const de_ray_t* edgeRay, const de_v
 		de_vec3_add(&ray_end_pt, &edgeRay->origin, &edgeRay->dir);
 		if (de_is_point_on_line_segment(intersection_pt, &edgeRay->origin, &ray_end_pt))
 		{
-			return DE_TRUE;
+			return true;
 		}
 	}
-	return DE_FALSE;
+	return false;
 }
 
 /*=======================================================================================*/
-static de_bool_t de_body_point_intersection(const de_vec3_t* point, const de_vec3_t* sphere_pos, float sphere_radius, de_vec3_t* intersection_pt)
+static bool de_body_point_intersection(const de_vec3_t* point, const de_vec3_t* sphere_pos, float sphere_radius, de_vec3_t* intersection_pt)
 {
 	if (de_vec3_sqr_distance(point, sphere_pos) < sphere_radius * sphere_radius)
 	{
 		*intersection_pt = *point;
-		return DE_TRUE;
+		return true;
 	}
-	return DE_FALSE;
+	return false;
 }
 
 /*=======================================================================================*/
-static de_bool_t de_sphere_triangle_intersection(const de_vec3_t* sphere_pos, float sphere_radius, const de_static_triangle_t* triangle, de_vec3_t* intersection_pt)
+static bool de_sphere_triangle_intersection(const de_vec3_t* sphere_pos, float sphere_radius, const de_static_triangle_t* triangle, de_vec3_t* intersection_pt)
 {
 	de_plane_t plane;
 	float distance;
@@ -218,7 +218,7 @@ static de_bool_t de_sphere_triangle_intersection(const de_vec3_t* sphere_pos, fl
 			de_body_point_intersection(&triangle->b, sphere_pos, sphere_radius, intersection_pt) ||
 			de_body_point_intersection(&triangle->c, sphere_pos, sphere_radius, intersection_pt);
 	}
-	return DE_FALSE;
+	return false;
 }
 
 /*=======================================================================================*/

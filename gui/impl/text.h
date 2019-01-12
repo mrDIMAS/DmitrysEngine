@@ -37,7 +37,7 @@ static void de_gui_text_break_on_lines(de_gui_node_t* node)
 		new_width = line.width + glyph->advance;
 		if (new_width > node->actual_size.x || code == '\n')
 		{
-			de_bool_t control_char = code == '\n' || code == '\r';
+			bool control_char = code == '\n' || code == '\r';
 			/* commit line */
 			DE_ARRAY_APPEND(txt->lines, line);
 			/* start new line */
@@ -105,12 +105,12 @@ de_gui_node_t* de_gui_text_create(de_gui_t* gui)
 
 	static de_gui_dispatch_table_t dispatch_table;
 	{
-		static de_bool_t init = DE_FALSE;
+		static bool init = false;
 		if (!init)
 		{
 			dispatch_table.deinit = de_gui_text_deinit;
 			dispatch_table.render = de_gui_text_render;
-			init = DE_TRUE;
+			init = true;
 		}
 	}
 

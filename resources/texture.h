@@ -45,7 +45,7 @@ struct de_texture_t
 	char* pixels;           /**< Texture pixels */
 	int byte_per_pixel;     /**< Count of bytes per pixel */
 	de_texture_type_t type; /**< Type of texture */
-	de_bool_t need_upload;     /**< Indicates that texture needs to be uploaded to GPU */
+	bool need_upload;     /**< Indicates that texture needs to be uploaded to GPU */
 };
 
 /**

@@ -45,7 +45,7 @@ typedef struct de_image_t
 /**
  * @brief Loads image from tga file. Compressed images not supported yet!
  */
-de_bool_t de_image_load_tga(const char* filename, de_image_t* img);
+bool de_image_load_tga(const char* filename, de_image_t* img);
 
 /**
  * @brief Flips image upside down.

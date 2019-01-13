@@ -39,8 +39,8 @@ Please note, that this engine is at very early development stage and some featur
 ## Supported compilers
 ### Compiling as C
 If compiling as C, you will need C99-compatible compiler:
-- Windows:  Visual Studio 2013+, mingw 4.8.1+
-- Linux: GCC 4.5+
+- Windows:  Visual Studio 2013 or higher, mingw 4.8.1 or higher
+- Linux: GCC 4.5 or higher
 If you using lower version of Visual Studio, then you should compile engine as C++, because lower versions supports only C89.
 ### Compiling as C++
 If compling as C++, you will need C++98 or higher compiler.

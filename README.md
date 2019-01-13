@@ -16,6 +16,7 @@ Please note, that this engine is at very early development stage and some featur
 - TGA image loading
 - Position-based physics
 - Skeletal animation
+- Built-in save/load functionality via object visitor.
 - Documentation - almost every function of the engine has description in Doxygen format.
 
 ## Planned features (by priorities)

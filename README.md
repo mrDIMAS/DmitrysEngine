@@ -2,8 +2,6 @@
 
 Experimental C99 cross-platform header-only 3D game engine with absolute minimum of external dependencies.
 
-![Why](pics/why.png?raw=true "Why")
-
 Please note, that this engine is at very early development stage and some features maybe very brittle. In the `./test` folder you can find the game that I writing using this engine.
 
 ## Features
@@ -48,3 +46,6 @@ If compling as C++, you will need C++98 or higher compiler.
 
 ## Why engine called in that way?
 At very beginning engine was called Dark Engine, but then I found that there is already one engine with that name (Thief game series using it). Then I started to looking at some fancy adjectives that could fit into `de` prefix that I was already using for my functions, and I haven't found anything suitable. And then I said - "fuck it, let it be like Dmitry's Engine, I'm too tired of fancy names".
+
+## Why C?
+![Why](pics/why.png?raw=true "Why")

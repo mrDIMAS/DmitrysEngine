@@ -9,6 +9,8 @@ Please note, that this engine is at very early development stage and some featur
 - C99 with full compatibility with C++.
 - FBX support - both ASCII and binary
 - Modern rendering techniques, renderer based on OpenGL 3.3 Core.
+-- Deferred shading
+-- Normal mapping
 - TTF fonts support (compound characters support is not implemented yet)
 - GUI (inspired by WPF)
 - TGA image loading

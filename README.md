@@ -5,19 +5,19 @@ Experimental C99 cross-platform header-only 3D game engine with absolute minimum
 Please note, that this engine is at very early development stage and some features maybe very brittle. In the `./test` folder you can find the game that I writing using this engine.
 
 ## Features
-- Header only - no need to build as separate library, just `#include "de_main.h"` so extremely fast compilation.
-- C99 with full compatibility with C++.
-- FBX support - both ASCII and binary
-- Modern rendering techniques, renderer based on OpenGL 3.3 Core.
--- Deferred shading
--- Normal mapping
-- TTF fonts support (compound characters support is not implemented yet)
-- GUI (inspired by WPF)
-- TGA image loading
-- Position-based physics
-- Skeletal animation
-- Built-in save/load functionality via object visitor.
-- Documentation - almost every function of the engine has description in Doxygen format.
+* Header only - no need to build as separate library, just `#include "de_main.h"` so extremely fast compilation.
+* C99 with full compatibility with C++.
+* FBX support - both ASCII and binary
+* Modern rendering techniques, renderer based on OpenGL 3.3 Core.
+    * Deferred shading
+    * Normal mapping
+* TTF fonts support (compound characters support is not implemented yet)
+* GUI (inspired by WPF)
+* TGA image loading
+* Position-based physics
+* Skeletal animation
+* Built-in save/load functionality via object visitor.
+* Documentation - almost every function of the engine has description in Doxygen format.
 
 ## Planned features (by priorities)
 - Materials (probably PBR)

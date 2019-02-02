@@ -1,8 +1,7 @@
 /**
 * @brief
 */
-typedef struct de_gui_line_point_t
-{
+typedef struct de_gui_line_point_t {
 	de_vec2_t pos;
 	de_color_t color;
 } de_gui_line_point_t;
@@ -10,8 +9,7 @@ typedef struct de_gui_line_point_t
 /**
 * @brief
 */
-typedef struct de_gui_polyline_t
-{
+typedef struct de_gui_polyline_t {
 	DE_ARRAY_DECLARE(de_gui_line_point_t, points);
 	float thickness;
 } de_gui_polyline_t;
@@ -19,8 +17,7 @@ typedef struct de_gui_polyline_t
 /**
 * @brief
 */
-typedef enum de_gui_draw_command_type_t
-{
+typedef enum de_gui_draw_command_type_t {
 	DE_GUI_DRAW_COMMAND_TYPE_GEOMETRY, /**< Command describes geometry of UI element */
 	DE_GUI_DRAW_COMMAND_TYPE_CLIP      /**< Command describes clipping geometry */
 } de_gui_draw_command_type_t;
@@ -28,8 +25,7 @@ typedef enum de_gui_draw_command_type_t
 /**
 * @brief
 */
-typedef struct de_gui_draw_command_t
-{
+typedef struct de_gui_draw_command_t {
 	de_gui_draw_command_type_t type;
 	GLuint texture;
 	size_t index_offset;
@@ -40,8 +36,7 @@ typedef struct de_gui_draw_command_t
 /**
 * @brief
 */
-typedef struct de_gui_vertex_t
-{
+typedef struct de_gui_vertex_t {
 	de_vec2_t pos;
 	de_vec2_t tex_coord;
 	de_color_t color;
@@ -54,8 +49,7 @@ typedef DE_ARRAY_DECLARE(de_gui_draw_command_t, de_gui_command_buffer_t);
 /**
 * @brief
 */
-struct de_gui_draw_list_t
-{
+struct de_gui_draw_list_t {
 	de_gui_vertex_buffer_t vertex_buffer;
 	de_gui_index_buffer_t index_buffer;
 	de_gui_command_buffer_t commands;

@@ -22,8 +22,7 @@
 /**
 * @brief
 */
-typedef struct de_gui_scroll_viewer_t
-{
+typedef struct de_gui_scroll_viewer_t {
 	de_gui_node_t* border;                   /**< Background */
 	de_gui_node_t* grid;                     /**< Main layout panel */
 	de_gui_node_t* scroll_content_presenter; /**< Panel for content */

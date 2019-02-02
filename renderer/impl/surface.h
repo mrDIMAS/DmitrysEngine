@@ -27,43 +27,36 @@
 	v->texCoord.x = tx;							\
 	v->texCoord.y = ty;							\
 
-/*=======================================================================================*/
-void de_surface_load_data(de_surface_t* surf, de_vertex_t* vertices, size_t vertex_count, int* indices, size_t index_count)
-{
+
+void de_surface_load_data(de_surface_t* surf, de_vertex_t* vertices, size_t vertex_count, int* indices, size_t index_count) {
 	size_t i;
 
 	DE_ARRAY_FREE(surf->indices);
 	DE_ARRAY_FREE(surf->vertices);
 
-	for (i = 0; i < index_count; ++i)
-	{
+	for (i = 0; i < index_count; ++i) {
 		DE_ARRAY_APPEND(surf->indices, indices[i]);
 	}
 
-	for (i = 0; i < vertex_count; ++i)
-	{
+	for (i = 0; i < vertex_count; ++i) {
 		DE_ARRAY_APPEND(surf->vertices, vertices[i]);
 	}
 
 	surf->need_upload = true;
 }
 
-/*=======================================================================================*/
-void de_surface_upload(de_surface_t* surf)
-{
+
+void de_surface_upload(de_surface_t* surf) {
 	surf->need_upload = true;
 }
 
-/*=======================================================================================*/
-void de_surface_set_diffuse_texture(de_surface_t * surf, de_texture_t *tex)
-{
-	if (!surf || !tex)
-	{
+
+void de_surface_set_diffuse_texture(de_surface_t * surf, de_texture_t *tex) {
+	if (!surf || !tex) {
 		return;
 	}
 
-	if (surf->diffuse_map)
-	{
+	if (surf->diffuse_map) {
 		de_texture_release(surf->diffuse_map);
 	}
 
@@ -72,16 +65,13 @@ void de_surface_set_diffuse_texture(de_surface_t * surf, de_texture_t *tex)
 	surf->diffuse_map = tex;
 }
 
-/*=======================================================================================*/
-void de_surface_set_normal_texture(de_surface_t * surf, de_texture_t *tex)
-{
-	if (!surf || !tex)
-	{
+
+void de_surface_set_normal_texture(de_surface_t * surf, de_texture_t *tex) {
+	if (!surf || !tex) {
 		return;
 	}
 
-	if (surf->normal_map)
-	{
+	if (surf->normal_map) {
 		de_texture_release(surf->normal_map);
 	}
 
@@ -90,13 +80,11 @@ void de_surface_set_normal_texture(de_surface_t * surf, de_texture_t *tex)
 	surf->normal_map = tex;
 }
 
-/*=======================================================================================*/
-void de_surface_calculate_normals(de_surface_t * surf)
-{
+
+void de_surface_calculate_normals(de_surface_t * surf) {
 	size_t m;
 
-	for (m = 0; m < surf->indices.size; m += 3)
-	{
+	for (m = 0; m < surf->indices.size; m += 3) {
 		int ia, ib, ic;
 		de_vertex_t *a, *b, *c;
 		de_vec3_t ab, ac;
@@ -122,31 +110,27 @@ void de_surface_calculate_normals(de_surface_t * surf)
 	}
 }
 
-/*=======================================================================================*/
-bool de_surface_prepare_vertices_for_skinning(de_surface_t* surf)
-{
+
+bool de_surface_prepare_vertices_for_skinning(de_surface_t* surf) {
 	size_t i, k;
 
 	/* ensure that surface can be skinned */
-	if (surf->vertex_weights.size != surf->vertices.size)
-	{
+	if (surf->vertex_weights.size != surf->vertices.size) {
 		return false;
 	}
 
-	/* problem: gpu knows only index of matrix for each vertex that it should apply to vertex 
+	/* problem: gpu knows only index of matrix for each vertex that it should apply to vertex
 	 * to do skinning, but on engine side we want to be able to use scene nodes as bones,
-	 * so here we just calculating index of affecting bone of a vertex, so index will point 
+	 * so here we just calculating index of affecting bone of a vertex, so index will point
 	 * to matrix that gpu will use.
 	 * */
 
-	/* map bone nodes to bone indices */
-	for (i = 0; i < surf->vertices.size; ++i)
-	{
+	 /* map bone nodes to bone indices */
+	for (i = 0; i < surf->vertices.size; ++i) {
 		de_vertex_t* v = surf->vertices.data + i;
 		de_vertex_weight_group_t* weight_group = surf->vertex_weights.data + i;
 
-		for (k = 0; k < weight_group->weight_count; ++k)
-		{
+		for (k = 0; k < weight_group->weight_count; ++k) {
 			de_vertex_weight_t* vertex_weight = weight_group->bones + k;
 
 			v->bone_weights[k] = vertex_weight->weight;
@@ -157,15 +141,12 @@ bool de_surface_prepare_vertices_for_skinning(de_surface_t* surf)
 	return true;
 }
 
-/*=======================================================================================*/
-bool de_surface_add_bone(de_surface_t* surf, de_node_t* bone)
-{
+
+bool de_surface_add_bone(de_surface_t* surf, de_node_t* bone) {
 	size_t i;
 
-	for (i = 0; i < surf->weights.size; ++i)
-	{
-		if (surf->weights.data[i] == bone)
-		{
+	for (i = 0; i < surf->weights.size; ++i) {
+		if (surf->weights.data[i] == bone) {
 			return false;
 		}
 	}
@@ -175,15 +156,12 @@ bool de_surface_add_bone(de_surface_t* surf, de_node_t* bone)
 	return true;
 }
 
-/*=======================================================================================*/
-int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone)
-{
+
+int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone) {
 	size_t i;
 
-	for (i = 0; i < surf->weights.size; ++i)
-	{
-		if (surf->weights.data[i] == bone)
-		{
+	for (i = 0; i < surf->weights.size; ++i) {
+		if (surf->weights.data[i] == bone) {
 			return i;
 		}
 	}
@@ -193,34 +171,29 @@ int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone)
 	return -1;
 }
 
-/*=======================================================================================*/
-void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* out_matrices, size_t max_matrices)
-{
+
+void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* out_matrices, size_t max_matrices) {
 	size_t i;
 
-	for (i = 0; i < surf->weights.size && i < max_matrices; ++i)
-	{
-		de_node_t* bone_node = surf->weights.data[ i];
-		de_mat4_t* m = out_matrices + i;		
-		de_mat4_mul(m, &bone_node->global_matrix, &bone_node->inv_bind_pose_matrix);		
+	for (i = 0; i < surf->weights.size && i < max_matrices; ++i) {
+		de_node_t* bone_node = surf->weights.data[i];
+		de_mat4_t* m = out_matrices + i;
+		de_mat4_mul(m, &bone_node->global_matrix, &bone_node->inv_bind_pose_matrix);
 	}
 }
 
-/*=======================================================================================*/
-bool de_surface_is_skinned(de_surface_t* surf)
-{
+
+bool de_surface_is_skinned(de_surface_t* surf) {
 	return surf->vertex_weights.size > 0;
 }
 
-/*=======================================================================================*/
-void de_surface_calculate_tangents(de_surface_t* surf)
-{
+
+void de_surface_calculate_tangents(de_surface_t* surf) {
 	size_t i;
-	de_vec3_t *tan1 = (de_vec3_t *)  de_calloc(surf->vertices.size * 2, sizeof(de_vec3_t));
+	de_vec3_t *tan1 = (de_vec3_t *)de_calloc(surf->vertices.size * 2, sizeof(de_vec3_t));
 	de_vec3_t *tan2 = tan1 + surf->vertices.size;
 
-	for (i = 0; i < surf->indices.size; i += 3)
-	{
+	for (i = 0; i < surf->indices.size; i += 3) {
 		de_vec3_t sdir, tdir;
 
 		int i1 = surf->indices.data[i + 0];
@@ -282,8 +255,7 @@ void de_surface_calculate_tangents(de_surface_t* surf)
 		tan2[i3].z += tdir.z;
 	}
 
-	for (i = 0; i < surf->vertices.size; ++i)
-	{
+	for (i = 0; i < surf->vertices.size; ++i) {
 		de_vertex_t* v = surf->vertices.data + i;
 		const de_vec3_t* n = &v->normal;
 		const de_vec3_t* t = tan1 + i;
@@ -293,11 +265,11 @@ void de_surface_calculate_tangents(de_surface_t* surf)
 		de_vec3_scale(&temp, n, de_vec3_dot(n, t));
 		de_vec3_sub(&tangent, t, &temp);
 		de_vec3_normalize(&tangent, &tangent);
-	
+
 		v->tangent.x = tangent.x;
 		v->tangent.y = tangent.y;
 		v->tangent.z = tangent.z;
-		
+
 		/* Calculate handedness */
 		de_vec3_cross(&temp, n, t);
 		v->tangent.w = (de_vec3_dot(&temp, &tan2[i]) < 0.0F) ? -1.0F : 1.0F;
@@ -306,9 +278,8 @@ void de_surface_calculate_tangents(de_surface_t* surf)
 	de_free(tan1);
 }
 
-/*=======================================================================================*/
-void de_surface_make_cube(de_surface_t* surf)
-{
+
+void de_surface_make_cube(de_surface_t* surf) {
 	static de_vertex_t vertices[] = {
 		/* front */
 		{ { -0.5, -0.5, 0.5 }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f }, { 0 }, { 0 } },
@@ -372,9 +343,8 @@ void de_surface_make_cube(de_surface_t* surf)
 	de_surface_calculate_tangents(surf);
 }
 
-/*=======================================================================================*/
-void de_surface_make_sphere(de_surface_t* surf, int slices, int stacks, float r)
-{
+
+void de_surface_make_sphere(de_surface_t* surf, int slices, int stacks, float r) {
 #if 0
 	int i, j;
 
@@ -384,10 +354,8 @@ void de_surface_make_sphere(de_surface_t* surf, int slices, int stacks, float r)
 	float d_tc_x = 1.0f / slices;
 	de_vertex_t* v;
 
-	for (i = 0; i < stacks; ++i)
-	{
-		for (j = 0; j < slices; ++j)
-		{
+	for (i = 0; i < stacks; ++i) {
+		for (j = 0; j < slices; ++j) {
 			int nj = j + 1;
 			int ni = i + 1;
 
@@ -401,15 +369,13 @@ void de_surface_make_sphere(de_surface_t* surf, int slices, int stacks, float r)
 			float k6 = sin(d_phi * nj);
 			float k7 = r * cos(d_theta * ni);
 
-			if (i != (stacks - 1))
-			{
+			if (i != (stacks - 1)) {
 				DE_MAKE_VERTEX(surf, k0 * k1, k0 * k2, k3, d_tc_x * j, d_tc_y * i);
 				DE_MAKE_VERTEX(surf, k4 * k1, k4 * k2, k7, d_tc_x * j, d_tc_y * ni);
 				DE_MAKE_VERTEX(surf, k4 * k5, k4 * k6, k7, d_tc_x * nj, d_tc_y * ni);
 			}
 
-			if (i != 0)
-			{
+			if (i != 0) {
 				DE_MAKE_VERTEX(surf, k4 * k5, k4 * k6, k7, d_tc_x * nj, d_tc_y * ni);
 				DE_MAKE_VERTEX(surf, k0 * k5, k0 * k6, k3, d_tc_x * nj, d_tc_y * i);
 				DE_MAKE_VERTEX(surf, k0 * k1, k0 * k2, k3, d_tc_x * j, d_tc_y * i);

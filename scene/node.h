@@ -19,8 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef enum de_node_type_t
-{
+typedef enum de_node_type_t {
 	DE_NODE_TYPE_BASE,
 	DE_NODE_TYPE_LIGHT,
 	DE_NODE_TYPE_MESH,
@@ -39,13 +38,12 @@ typedef enum de_node_type_t
  * @brief Common scene node. Typed union.
  *
  * Actual behaviour of scene node defined by its actual type.
- * 
+ *
  * Important note: please consider using special functions for nodes, intead of
  * directly accessing fields of structure. Suddenly internals could be changed
  * and your game will not be compiling!
  */
-struct de_node_t
-{
+struct de_node_t {
 	/**
 	 * Standard properties
 	 */
@@ -81,8 +79,7 @@ struct de_node_t
 	de_body_t* body;
 
 	/* Specialization. Avoid accessing these directly, use de_node_to_xxx instead. */
-	union
-	{
+	union {
 		de_mesh_t mesh;
 		de_light_t light;
 		de_camera_t camera;

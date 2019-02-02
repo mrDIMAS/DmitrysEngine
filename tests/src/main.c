@@ -7,40 +7,40 @@ typedef struct level_t level_t;
 typedef struct player_t player_t;
 typedef struct weapon_t weapon_t;
 
-struct game_t
-{
+struct game_t {
 	de_core_t* core;
 	level_t* level;
 	main_menu_t* main_menu;
 	de_gui_node_t* fps_text;
 };
 
-struct main_menu_t
-{
+struct main_menu_t {
 	de_gui_node_t* window;
 	bool visible;
 };
 
-struct level_t
-{
+struct level_t {
 	de_scene_t* scene;
 	de_node_t* test_fbx;
 	player_t* player;
 };
 
-typedef enum weapon_type_t
-{
+typedef enum weapon_type_t {
 	WEAPON_TYPE_SHOTGUN,
 } weapon_type_t;
 
-struct weapon_t
-{
+struct weapon_t {
 	weapon_type_t type;
 	de_node_t* model;
 };
 
-struct player_t
-{
+typedef struct player_controller_t {
+	bool move_forward, move_backward;
+	bool strafe_left, strafe_right;
+	bool crouch, run, jumped;
+} player_controller_t;
+
+struct player_t {
 	level_t* parent_level;
 	de_node_t* pivot;
 	de_node_t* camera;
@@ -62,43 +62,119 @@ struct player_t
 	de_vec3_t camera_dest_offset;
 	de_vec3_t camera_position;
 	DE_ARRAY_DECLARE(weapon_t*, weapons);
+	player_controller_t controller;
 };
 
-/*=======================================================================================*/
-weapon_t* weapon_create(level_t* level, weapon_type_t type)
-{
+weapon_t* weapon_create(level_t* level, weapon_type_t type) {
 	weapon_t* wpn = DE_NEW(weapon_t);
 
 	wpn->type = type;
 
-	if (type == WEAPON_TYPE_SHOTGUN)
-	{
+	if (type == WEAPON_TYPE_SHOTGUN) {
 		wpn->model = de_fbx_load_to_scene(level->scene, "data/models/shotgun.fbx");
-	}
-	else
-	{
+	} else {
 		de_log("invalid weapon type");
 	}
 
 	return wpn;
 }
 
-/*=======================================================================================*/
-void weapon_free(weapon_t* wpn)
-{
+void weapon_free(weapon_t* wpn) {
 	de_node_free(wpn->model);
 	de_free(wpn);
 }
 
-/*=======================================================================================*/
-void weapon_update(weapon_t* wpn)
-{
+void weapon_update(weapon_t* wpn) {
 	DE_UNUSED(wpn);
 }
 
-/*=======================================================================================*/
-player_t* player_create(level_t* level)
-{
+bool player_process_event(player_t* p, const de_event_t* evt) {
+	bool processed = false;
+	switch (evt->type) {
+		case DE_EVENT_TYPE_MOUSE_MOVE:
+			p->desired_yaw -= evt->s.mouse_move.vx;
+			p->desired_pitch -= evt->s.mouse_move.vy;
+			if (p->desired_pitch > 90.0) {
+				p->desired_pitch = 90.0;
+			}
+			if (p->desired_pitch < -90.0) {
+				p->desired_pitch = -90.0;
+			}
+			break;
+		case DE_EVENT_TYPE_KEY_DOWN:
+			switch (evt->s.key_down.key) {
+				case DE_KEY_W:
+					p->controller.move_forward = true;
+					break;
+				case DE_KEY_S:
+					p->controller.move_backward = true;
+					break;
+				case DE_KEY_A:
+					p->controller.strafe_left = true;
+					break;
+				case DE_KEY_D:
+					p->controller.strafe_right = true;
+					break;
+				case DE_KEY_C:
+					p->controller.crouch = true;
+					break;
+				case DE_KEY_Space:
+					if (!p->controller.jumped) {
+						size_t k, contact_count;
+						contact_count = de_body_get_contact_count(p->body);
+						for (k = 0; k < contact_count; ++k) {
+							de_contact_t* contact = de_body_get_contact(p->body, k);
+							if (contact->normal.y > 0.7f) {
+								de_body_set_y_velocity(p->body, 0.075f);
+								break;
+							}
+						}
+						p->controller.jumped = true;
+					}
+					break;
+				case DE_KEY_LSHIFT:
+					p->controller.run = true;
+					break;
+				default:
+					break;
+			}
+			break;
+		case DE_EVENT_TYPE_KEY_UP:
+			switch (evt->s.key_up.key) {
+				case DE_KEY_W:
+					p->controller.move_forward = false;
+					break;
+				case DE_KEY_S:
+					p->controller.move_backward = false;
+					break;
+				case DE_KEY_A:
+					p->controller.strafe_left = false;
+					break;
+				case DE_KEY_D:
+					p->controller.strafe_right = false;
+					break;
+				case DE_KEY_C:
+					p->controller.crouch = false;
+					break;
+				case DE_KEY_Space:
+					p->controller.jumped = false;
+					break;
+				case DE_KEY_LSHIFT:
+					p->controller.run = false;
+					break;
+				default:
+					break;
+			}
+			break;
+		case DE_EVENT_TYPE_MOUSE_DOWN:
+			break;
+		default:
+			break;
+	}
+	return processed;
+}
+
+player_t* player_create(level_t* level) {
 	player_t* p;
 
 	p = DE_NEW(player_t);
@@ -145,13 +221,10 @@ player_t* player_create(level_t* level)
 	return p;
 }
 
-/*=======================================================================================*/
-void player_free(player_t* p)
-{
+void player_free(player_t* p) {
 	size_t i;
 
-	for (i = 0; i < p->weapons.size; ++i)
-	{
+	for (i = 0; i < p->weapons.size; ++i) {
 		weapon_free(p->weapons.data[i]);
 	}
 	DE_ARRAY_FREE(p->weapons);
@@ -160,90 +233,52 @@ void player_free(player_t* p)
 	de_free(p);
 }
 
-/*=======================================================================================*/
-void player_update(player_t* p)
-{
-	size_t k;
-	de_core_t* core = p->parent_level->scene->core;
+void player_update(player_t* p) {
 	de_node_t *pivot, *camera;
 	de_vec3_t right_axis = { 1, 0, 0 };
 	de_vec3_t up_axis = { 0, 1, 0 };
 	de_vec3_t look, side, offset;
 	de_quat_t pitch_rot, yaw_rot;
-	de_vec2_t mouse_vel;
 	float speed_multiplier = 1.0f;
 	bool is_moving = false;
 
 	pivot = p->pivot;
 	camera = p->camera;
 
-	de_get_mouse_velocity(core, &mouse_vel);
-
 	de_vec3_zero(&offset);
 	de_node_get_look_vector(pivot, &look);
 	de_node_get_side_vector(pivot, &side);
 
 	/* movement */
-	if (de_is_key_pressed(core, DE_KEY_W))
-	{
+	if (p->controller.move_forward) {
 		de_vec3_sub(&offset, &offset, &look);
-
 		is_moving = true;
 	}
-	if (de_is_key_pressed(core, DE_KEY_S))
-	{
+	if (p->controller.move_backward) {
 		de_vec3_add(&offset, &offset, &look);
-
 		is_moving = true;
 	}
-	if (de_is_key_pressed(core, DE_KEY_A))
-	{
+	if (p->controller.strafe_left) {
 		de_vec3_sub(&offset, &offset, &side);
-
 		is_moving = true;
 	}
-	if (de_is_key_pressed(core, DE_KEY_D))
-	{
+	if (p->controller.strafe_right) {
 		de_vec3_add(&offset, &offset, &side);
-
 		is_moving = true;
-	}
-
-	/* jump */
-	if (de_is_key_pressed(core, DE_KEY_Space))
-	{
-		size_t contact_count = de_body_get_contact_count(p->body);
-
-		for (k = 0; k < contact_count; ++k)
-		{
-			de_contact_t* contact = de_body_get_contact(p->body, k);
-
-			if (contact->normal.y > 0.7f)
-			{
-				de_body_set_y_velocity(p->body, 0.075f);
-
-				break;
-			}
-		}
 	}
 
 	/* crouch */
-	if (de_is_key_pressed(core, DE_KEY_C))
-	{
+	if (p->controller.crouch) {
 		float radius = de_body_get_radius(p->body);
 		radius -= p->sit_down_speed;
-		if (radius < p->crouch_body_radius)
-		{
+		if (radius < p->crouch_body_radius) {
 			radius = p->crouch_body_radius;
 		}
 		de_body_set_radius(p->body, radius);
-	}
-	else
-	{
+	} else {
 		float radius = de_body_get_radius(p->body);
 		radius += p->stand_up_speed;
-		if (radius > p->stand_body_radius)
-		{
+		if (radius > p->stand_body_radius) {
 			radius = p->stand_body_radius;
 		}
 		de_body_set_radius(p->body, radius);
@@ -253,15 +288,12 @@ void player_update(player_t* p)
 	p->camera_position.y = p->body->radius;
 
 	/* apply camera wobbling */
-	if (is_moving && de_body_get_contact_count(p->body) > 0)
-	{
+	if (is_moving && de_body_get_contact_count(p->body) > 0) {
 		p->camera_dest_offset.x = 0.05f * (float)cos(p->camera_wobble * 0.5f);
 		p->camera_dest_offset.y = 0.1f * (float)sin(p->camera_wobble);
 
 		p->camera_wobble += 0.25f;
-	}
-	else
-	{
+	} else {
 		p->camera_dest_offset.x = 0;
 		p->camera_dest_offset.y = 0;
 	}
@@ -279,25 +311,12 @@ void player_update(player_t* p)
 	}
 
 	/* run */
-	if (de_is_key_pressed(core, DE_KEY_LSHIFT))
-	{
+	if (p->controller.run) {
 		speed_multiplier = p->run_speed_multiplier;
 	}
 
 	de_vec3_normalize(&offset, &offset);
 	de_vec3_scale(&offset, &offset, speed_multiplier * p->move_speed);
-
-	p->desired_yaw -= mouse_vel.x;
-	p->desired_pitch -= mouse_vel.y;
-
-	if (p->desired_pitch > 90.0)
-	{
-		p->desired_pitch = 90.0;
-	}
-	if (p->desired_pitch < -90.0)
-	{
-		p->desired_pitch = -90.0;
-	}
 
 	p->yaw += (p->desired_yaw - p->yaw) * 0.22f;
 	p->pitch += (p->desired_pitch - p->pitch) * 0.22f;
@@ -311,9 +330,7 @@ void player_update(player_t* p)
 	de_node_set_local_rotation(camera, de_quat_from_axis_angle(&pitch_rot, &right_axis, de_deg_to_rad(p->pitch)));
 }
 
-/*=======================================================================================*/
-level_t* level_create_test(game_t* game)
-{
+level_t* level_create_test(game_t* game) {
 	level_t* level;
 	de_node_t* polygon;
 	de_vec3_t rp = { -1, 1, 1 };
@@ -328,8 +345,7 @@ level_t* level_create_test(game_t* game)
 	de_fbx_load_to_scene(level->scene, "data/models/map2_bin.fbx");
 	polygon = de_scene_find_node(level->scene, "Polygon");
 
-	if (polygon)
-	{
+	if (polygon) {
 		de_static_geometry_t* map_collider;
 		assert(polygon->type == DE_NODE_TYPE_MESH);
 		map_collider = de_scene_create_static_geometry(level->scene);
@@ -340,8 +356,7 @@ level_t* level_create_test(game_t* game)
 	level->player = player_create(level);
 	{
 		de_node_t* pp = de_scene_find_node(level->scene, "PlayerPosition");
-		if (pp)
-		{
+		if (pp) {
 			de_vec3_t pos;
 			de_node_get_global_position(pp, &pos);
 
@@ -352,23 +367,17 @@ level_t* level_create_test(game_t* game)
 	return level;
 }
 
-/*=======================================================================================*/
-void level_update(level_t* level)
-{
+void level_update(level_t* level) {
 	player_update(level->player);
 }
 
-/*=======================================================================================*/
-void level_free(level_t* level)
-{
+void level_free(level_t* level) {
 	player_free(level->player);
 	de_scene_free(level->scene);
 	de_free(level);
 }
 
-/*=======================================================================================*/
-void quit_on_click(de_gui_node_t* node, void* user_data)
-{
+void quit_on_click(de_gui_node_t* node, void* user_data) {
 	game_t* game = (game_t*)user_data;
 
 	DE_UNUSED(node);
@@ -376,31 +385,24 @@ void quit_on_click(de_gui_node_t* node, void* user_data)
 	de_core_stop(game->core);
 }
 
-/*=======================================================================================*/
-void main_menu_set_visible(main_menu_t* menu, bool visibility)
-{
+void main_menu_set_visible(main_menu_t* menu, bool visibility) {
 	de_gui_node_set_visibility(menu->window, visibility ? DE_GUI_NODE_VISIBILITY_VISIBLE : DE_GUI_NODE_VISIBILITY_COLLAPSED);
 	menu->visible = visibility;
 }
 
-/*=======================================================================================*/
-void main_menu_on_new_game_click(de_gui_node_t* node, void* user_data)
-{
+void main_menu_on_new_game_click(de_gui_node_t* node, void* user_data) {
 	game_t* game = (game_t*)user_data;
 
 	DE_UNUSED(node);
 
-	if (!game->level)
-	{
+	if (!game->level) {
 		game->level = level_create_test(game);
 	}
 
 	main_menu_set_visible(game->main_menu, false);
 }
 
-/*=======================================================================================*/
-main_menu_t* main_menu_create(game_t* game)
-{
+main_menu_t* main_menu_create(game_t* game) {
 	de_gui_t* gui = game->core->gui;
 	main_menu_t* menu = DE_NEW(main_menu_t);
 
@@ -488,28 +490,55 @@ main_menu_t* main_menu_create(game_t* game)
 		de_gui_window_set_content(menu->window, grid);
 	}
 
+	/* settings window */
+	{
+		de_gui_node_t* settings_window = de_gui_window_create(gui);
+		de_gui_node_set_desired_size(settings_window, 300, 400);	
+		
+		/* content */
+		{
+			de_gui_node_t* grid = de_gui_grid_create(gui);
+			de_gui_grid_add_column(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
+			de_gui_grid_add_row(grid, 30, DE_GUI_SIZE_MODE_STRICT);			
+
+			/* videomode */
+			{
+				de_gui_node_t* selector = de_gui_slide_selector_create(gui);
+				de_gui_node_set_row(selector, 0);
+				de_gui_node_attach(selector, grid);
+			}
+
+			de_gui_window_set_content(settings_window, grid);
+		}
+	}
+
 	return menu;
 }
 
-/*=======================================================================================*/
-void main_menu_free(main_menu_t* menu)
-{
+void main_menu_free(main_menu_t* menu) {
 	de_free(menu);
 }
 
-/*=======================================================================================*/
-game_t* game_create(void)
-{
+game_t* game_create(void) {
 	game_t* game;
 
 	game = DE_NEW(game_t);
-
+	de_log_open("dengine.log");
 	/* Init core */
 	{
+		int n = 0;
 		de_engine_params_t params;
-		params.width = 1200;
-		params.height = 1000;
+		de_video_mode_t video_mode;
+		while (de_enum_video_modes(&video_mode, n++)) {
+			de_log("video mode: %dx%d@%d", video_mode.width, video_mode.height, video_mode.bits_per_pixel);
+		}
 
+		//params.flags = DE_CORE_FLAGS_BORDERLESS;
+	//	de_get_desktop_video_mode(&params.video_mode);
+		params.video_mode.width = 1200;
+		params.video_mode.height = 1000;
+		params.video_mode.bits_per_pixel = 32;
+		params.video_mode.fullscreen = false;
 		game->core = de_core_init(&params);
 		de_renderer_set_framerate_limit(game->core->renderer, 0);
 	}
@@ -529,13 +558,11 @@ game_t* game_create(void)
 	return game;
 }
 
-/*=======================================================================================*/
-void game_main_loop(game_t* game)
-{
-	float game_clock;
-	float fixed_fps;
-	float fixed_timestep;
-	float dt;
+void game_main_loop(game_t* game) {
+	double game_clock;
+	double fixed_fps;
+	double fixed_timestep;
+	double dt;
 	de_renderer_t* renderer;
 
 	renderer = de_core_get_renderer(game->core);
@@ -543,18 +570,12 @@ void game_main_loop(game_t* game)
 	fixed_fps = 60.0;
 	fixed_timestep = 1.0f / fixed_fps;
 	game_clock = de_time_get_seconds();
-	while (de_core_is_running(game->core))
-	{
-		if (de_is_key_pressed(game->core, DE_KEY_ESC))
-		{
-			main_menu_set_visible(game->main_menu, true);
-		}
-
+	while (de_core_is_running(game->core)) {
 		dt = de_time_get_seconds() - game_clock;
-		while (dt >= fixed_timestep)
-		{
-			if (dt >= 4 * fixed_timestep)
-			{
+		while (dt >= fixed_timestep) {
+			de_scene_t* scene;
+			de_event_t evt;
+			if (dt >= 4 * fixed_timestep) {
 				game_clock = de_time_get_seconds();
 				break;
 			}
@@ -562,10 +583,34 @@ void game_main_loop(game_t* game)
 			dt -= fixed_timestep;
 			game_clock += fixed_timestep;
 
-			de_core_update(game->core, fixed_timestep);
+			while (de_core_poll_event(game->core, &evt)) {
+				bool processed = false;
+				switch (evt.type) {
+					case DE_EVENT_TYPE_KEY_DOWN:
+						if (evt.s.key_down.key == DE_KEY_ESC) {
+							main_menu_set_visible(game->main_menu, true);
+							processed = true;
+						}
+						break;
+					default:
+						break;
+				}
+				if (!processed) {
+					processed = de_gui_process_event(game->core->gui, &evt);
+				}
+				if (!processed) {
+					if (game->level) {
+						processed = player_process_event(game->level->player, &evt);
+					}
+				}
+			}
+			de_gui_update(game->core->gui);
+			de_physics_step(game->core, dt);
+			DE_LINKED_LIST_FOR_EACH(game->core->scenes, scene) {
+				de_scene_update(scene, dt);
+			}
 
-			if (game->level && !game->main_menu->visible)
-			{
+			if (game->level && !game->main_menu->visible) {
 				level_update(game->level);
 			}
 		}
@@ -575,7 +620,7 @@ void game_main_loop(game_t* game)
 		/* print statistics */
 		{
 			char buffer[256];
-			float frame_time;
+			double frame_time;
 			size_t fps;
 
 			frame_time = de_render_get_frame_time(renderer);
@@ -590,11 +635,8 @@ void game_main_loop(game_t* game)
 	}
 }
 
-/*=======================================================================================*/
-void game_close(game_t* game)
-{
-	if (game->level)
-	{
+void game_close(game_t* game) {
+	if (game->level) {
 		level_free(game->level);
 	}
 
@@ -605,8 +647,7 @@ void game_close(game_t* game)
 	de_free(game);
 }
 
-void test_visitor(game_t* game)
-{
+void test_visitor(game_t* game) {
 	DE_UNUSED(game);
 
 #if 0
@@ -628,7 +669,7 @@ void test_visitor(game_t* game)
 		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Scene", &scene, de_scene_visit);
 		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Node", &node, de_node_visit);
 		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Node2", &node2, de_node_visit);
-				
+
 		FILE* temp = fopen("save.txt", "w");
 		de_object_visitor_print_tree(&visitor, temp);
 		fclose(temp);
@@ -647,7 +688,7 @@ void test_visitor(game_t* game)
 		de_scene_t* scene;
 		de_node_t* node;
 		de_node_t* node2;
-		
+
 		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Scene", &scene, de_scene_visit);
 		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Node", &node, de_node_visit);
 		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Node2", &node2, de_node_visit);
@@ -657,9 +698,8 @@ void test_visitor(game_t* game)
 #endif
 }
 
-/*=======================================================================================*/
-int main(int argc, char** argv)
-{
+
+int main(int argc, char** argv) {
 	DE_UNUSED(argc);
 	DE_UNUSED(argv);
 

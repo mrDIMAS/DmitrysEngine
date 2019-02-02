@@ -19,8 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef struct de_glyph_t
-{
+typedef struct de_glyph_t {
 	float bitmap_top;
 	float bitmap_left;
 	int bitmap_width;
@@ -31,14 +30,12 @@ typedef struct de_glyph_t
 	de_vec2_t texCoords[4];
 } de_glyph_t;
 
-typedef struct de_font_charmap_entry_t
-{
+typedef struct de_font_charmap_entry_t {
 	uint32_t unicode;
 	uint32_t glyph_index;
 } de_font_charmap_entry_t;
 
-typedef struct de_font_t
-{
+typedef struct de_font_t {
 	de_core_t* core;
 	DE_LINKED_LIST_ITEM(struct de_font_t);
 	float size;

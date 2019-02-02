@@ -22,8 +22,7 @@
 /**
 * @brief
 */
-typedef enum de_gui_scroll_bar_orientation_t
-{
+typedef enum de_gui_scroll_bar_orientation_t {
 	DE_GUI_SCROLL_BAR_ORIENTATION_VERTICAL,
 	DE_GUI_SCROLL_BAR_ORIENTATION_HORIZONTAL
 } de_gui_scroll_bar_orientation_t;
@@ -33,8 +32,7 @@ typedef void(*de_scroll_bar_value_changed_event_t)(de_gui_node_t*);
 /**
 * @brief
 */
-typedef struct de_gui_scroll_bar_t
-{
+typedef struct de_gui_scroll_bar_t {
 	de_gui_node_t* border;                       /**< Background of scrollbar */
 	de_gui_node_t* grid;                         /**< Lives on border */
 	de_gui_node_t* canvas;                       /**< Lives on 2nd grid cell */

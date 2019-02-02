@@ -19,8 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef struct de_rectpack_node_t
-{
+typedef struct de_rectpack_node_t {
 	void* data;
 	char split;
 	int x;

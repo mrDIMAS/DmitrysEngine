@@ -22,8 +22,7 @@
 /**
 * @brief RGBA color
 */
-typedef struct de_color_s
-{
+typedef struct de_color_s {
 	uint8_t r; /**< Red component */
 	uint8_t g; /**< Green component */
 	uint8_t b; /**< Blue component */

@@ -24,8 +24,7 @@
 *
 * Described as set of surfaces
 */
-struct de_mesh_t
-{
+struct de_mesh_t {
 	de_node_t* parent_node;
 	DE_ARRAY_DECLARE(de_surface_t*, surfaces); /**< Array of pointer to surfaces */
 };

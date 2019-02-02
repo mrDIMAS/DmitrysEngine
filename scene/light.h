@@ -22,8 +22,7 @@
 /**
 * @brief Possible light types
 */
-typedef enum de_light_type_t
-{
+typedef enum de_light_type_t {
 	DE_LIGHT_TYPE_POINT,
 	DE_LIGHT_TYPE_DIRECTIONAL,
 	DE_LIGHT_TYPE_SPOT
@@ -34,8 +33,7 @@ typedef enum de_light_type_t
 *
 * Can be any possible light type (point, directional, spot)
 */
-struct de_light_t
-{
+struct de_light_t {
 	de_node_t* parent_node;
 	de_light_type_t type; /**< Actual type of light */
 	float radius;         /**< Radius of point light */
@@ -50,17 +48,17 @@ struct de_light_t
 void de_light_init(de_node_t* node);
 
 /**
- * @brief 
+ * @brief
  */
 void de_light_deinit(de_light_t* light);
 
 /**
- * @brief 
+ * @brief
  */
 void de_light_set_radius(de_node_t* node, float radius);
 
 /**
- * @brief Sets angle in radians at cone vertex of a spot light.  
+ * @brief Sets angle in radians at cone vertex of a spot light.
  */
 void de_light_set_cone_angle(de_node_t* node, float angle);
 

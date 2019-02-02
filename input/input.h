@@ -22,54 +22,53 @@
 /**
 * @brief Keyboard possible keys
 */
-enum de_key
-{
+enum de_key {
 	DE_KEY_UKNOWN = -1,
-	DE_KEY_A = 0,    /**< A key */
-	DE_KEY_B,        /**< B key */
-	DE_KEY_C,        /**< C key */
-	DE_KEY_D,        /**< D key */
-	DE_KEY_E,        /**< E key */
-	DE_KEY_F,        /**< F key */
-	DE_KEY_G,        /**< G key */
-	DE_KEY_H,        /**< H key */
-	DE_KEY_I,        /**< I key */
-	DE_KEY_J,        /**< J key */
-	DE_KEY_K,        /**< K key */
-	DE_KEY_L,        /**< L key */
-	DE_KEY_M,        /**< N key */
-	DE_KEY_N,        /**< A key */
-	DE_KEY_O,        /**< O key */
-	DE_KEY_P,        /**< P key */
-	DE_KEY_Q,        /**< Q key */
-	DE_KEY_R,        /**< R key */
-	DE_KEY_S,        /**< S key */
-	DE_KEY_T,        /**< T key */
-	DE_KEY_U,        /**< U key */
-	DE_KEY_V,        /**< V key */
-	DE_KEY_W,        /**< W key */
-	DE_KEY_X,        /**< X key */
-	DE_KEY_Y,        /**< Y key */
-	DE_KEY_Z,        /**< Z key */
-	DE_KEY_NUM0,     /**< Numpad 0 */
-	DE_KEY_NUM1,     /**< Numpad 1 */
-	DE_KEY_NUM2,     /**< Numpad 2 */
-	DE_KEY_NUM3,     /**< Numpad 3 */
-	DE_KEY_NUM4,     /**< Numpad 4 */
-	DE_KEY_NUM5,     /**< Numpad 5 */
-	DE_KEY_NUM6,     /**< Numpad 6 */
-	DE_KEY_NUM7,     /**< Numpad 7 */
-	DE_KEY_NUM8,     /**< Numpad 8 */
-	DE_KEY_NUM9,     /**< Numpad 9 */
-	DE_KEY_ESC,      /**< Escape */
-	DE_KEY_LCONTROL, /**< Left control */
-	DE_KEY_LSHIFT,   /**< Left shift */
-	DE_KEY_LAlt,     /**< Left alt */
-	DE_KEY_LSystem,  /**< Left system key */
-	DE_KEY_RControl, /**< Right control */
-	DE_KEY_RShift,   /**< Right shift */
-	DE_KEY_RAlt,     /**< Right alt */
-	DE_KEY_RSystem,  /**< Right system key */
+	DE_KEY_A = 0,
+	DE_KEY_B,
+	DE_KEY_C,
+	DE_KEY_D,
+	DE_KEY_E,
+	DE_KEY_F,
+	DE_KEY_G,
+	DE_KEY_H,
+	DE_KEY_I,
+	DE_KEY_J,
+	DE_KEY_K,
+	DE_KEY_L,
+	DE_KEY_M,
+	DE_KEY_N,
+	DE_KEY_O,
+	DE_KEY_P,
+	DE_KEY_Q,
+	DE_KEY_R,
+	DE_KEY_S,
+	DE_KEY_T,
+	DE_KEY_U,
+	DE_KEY_V,
+	DE_KEY_W,
+	DE_KEY_X,
+	DE_KEY_Y,
+	DE_KEY_Z,
+	DE_KEY_NUM0,
+	DE_KEY_NUM1,
+	DE_KEY_NUM2,
+	DE_KEY_NUM3,
+	DE_KEY_NUM4,
+	DE_KEY_NUM5,
+	DE_KEY_NUM6,
+	DE_KEY_NUM7,
+	DE_KEY_NUM8,
+	DE_KEY_NUM9,
+	DE_KEY_ESC,
+	DE_KEY_LCONTROL,
+	DE_KEY_LSHIFT,
+	DE_KEY_LAlt,
+	DE_KEY_LSystem,
+	DE_KEY_RControl,
+	DE_KEY_RShift,
+	DE_KEY_RAlt,
+	DE_KEY_RSystem,
 	DE_KEY_Menu,
 	DE_KEY_LBracket,
 	DE_KEY_RBracket,
@@ -100,16 +99,16 @@ enum de_key
 	DE_KEY_Right,
 	DE_KEY_Up,
 	DE_KEY_Down,
-	DE_KEY_Numpad0, /**< Numpad 0 key */
-	DE_KEY_Numpad1, /**< Numpad 1 key */
-	DE_KEY_Numpad2, /**< Numpad 2 key */
-	DE_KEY_Numpad3, /**< Numpad 3 key */
-	DE_KEY_Numpad4, /**< Numpad 4 key */
-	DE_KEY_Numpad5, /**< Numpad 5 key */
-	DE_KEY_Numpad6, /**< Numpad 6 key */
-	DE_KEY_Numpad7, /**< Numpad 7 key */
-	DE_KEY_Numpad8, /**< Numpad 8 key */
-	DE_KEY_Numpad9, /**< Numpad 9 key */
+	DE_KEY_NUMPAD0, /**< Numpad 0 key */
+	DE_KEY_NUMPAD1, /**< Numpad 1 key */
+	DE_KEY_NUMPAD2, /**< Numpad 2 key */
+	DE_KEY_NUMPAD3, /**< Numpad 3 key */
+	DE_KEY_NUMPAD4, /**< Numpad 4 key */
+	DE_KEY_NUMPAD5, /**< Numpad 5 key */
+	DE_KEY_NUMPAD6, /**< Numpad 6 key */
+	DE_KEY_NUMPAD7, /**< Numpad 7 key */
+	DE_KEY_NUMPAD8, /**< Numpad 8 key */
+	DE_KEY_NUMPAD9, /**< Numpad 9 key */
 	DE_KEY_F1,      /**< F1 key */
 	DE_KEY_F2,      /**< F2 key */
 	DE_KEY_F3,      /**< F3 key */
@@ -126,36 +125,13 @@ enum de_key
 	DE_KEY_F14,     /**< F14 key */
 	DE_KEY_F15,     /**< F15 key */
 	DE_KEY_Pause,   /**< Pause\break key */
-	DE_KEY_Count    /**< Total key count */
 };
 
 /**
 * @brief Possible mouse buttons codes
 */
-enum de_mouse_button
-{
+enum de_mouse_button {
 	DE_BUTTON_LEFT,   /**< Left mouse button */
 	DE_BUTTON_RIGHT,  /**< Right mouse button */
 	DE_BUTTON_MIDDLE, /**< Middle (wheel) mouse button */
-	DE_BUTTON_COUNT   /**< Total mouse button count */
 };
-
-/**
-* @brief Returns true if specified key is pressed
-*/
-int de_is_key_pressed(de_core_t* core, enum de_key key);
-
-/**
-* @brief Writes out mouse velocity
-* @param vel pointer to vector
-*/
-void de_get_mouse_velocity(de_core_t* core, de_vec2_t* vel);
-
-/**
-* @brief Returns true if specified key is released
-*/
-int de_is_key_released(de_core_t* core, enum de_key key);
-
-int de_is_mouse_pressed(de_core_t* core, enum de_mouse_button btn);
-
-void de_get_mouse_pos(de_core_t* core, de_vec2_t* pos);

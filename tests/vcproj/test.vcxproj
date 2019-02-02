@@ -159,6 +159,7 @@
     <ClInclude Include="..\..\core\byteorder.h" />
     <ClInclude Include="..\..\core\color.h" />
     <ClInclude Include="..\..\core\core.h" />
+    <ClInclude Include="..\..\core\impl\array.h" />
     <ClInclude Include="..\..\core\impl\base64.h" />
     <ClInclude Include="..\..\core\impl\byteorder.h" />
     <ClInclude Include="..\..\core\impl\color.h" />
@@ -211,12 +212,14 @@
     <ClInclude Include="..\..\gui\impl\scroll_bar.h" />
     <ClInclude Include="..\..\gui\impl\scroll_content_presenter.h" />
     <ClInclude Include="..\..\gui\impl\scroll_viewer.h" />
+    <ClInclude Include="..\..\gui\impl\slide_selector.h" />
     <ClInclude Include="..\..\gui\impl\text.h" />
     <ClInclude Include="..\..\gui\impl\text_box.h" />
     <ClInclude Include="..\..\gui\impl\window.h" />
     <ClInclude Include="..\..\gui\scroll_bar.h" />
     <ClInclude Include="..\..\gui\scroll_content_presenter.h" />
     <ClInclude Include="..\..\gui\scroll_viewer.h" />
+    <ClInclude Include="..\..\gui\slide_selector.h" />
     <ClInclude Include="..\..\gui\text.h" />
     <ClInclude Include="..\..\gui\text_box.h" />
     <ClInclude Include="..\..\gui\window.h" />
@@ -259,7 +262,7 @@
     <ClInclude Include="..\..\vg\vgraster.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\main.cpp" />
+    <ClCompile Include="..\src\main.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

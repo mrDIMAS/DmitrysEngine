@@ -686,8 +686,7 @@ extern "C" {
 #ifndef WGL_NV_gpu_affinity
 #define WGL_NV_gpu_affinity 1
 	DECLARE_HANDLE(HGPUNV);
-	struct _GPU_DEVICE
-	{
+	struct _GPU_DEVICE {
 		DWORD  cb;
 		CHAR   DeviceName[32];
 		CHAR   DeviceString[128];

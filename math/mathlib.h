@@ -22,8 +22,7 @@
 /**
  * Possible rotation orders
  */
-typedef enum de_euler_t
-{
+typedef enum de_euler_t {
 	DE_EULER_XYZ,
 	DE_EULER_XZY,
 	DE_EULER_YZX,
@@ -32,21 +31,18 @@ typedef enum de_euler_t
 	DE_EULER_ZYX
 } de_euler_t;
 
-typedef struct de_mat4_t
-{
+typedef struct de_mat4_t {
 	float f[16];
 } de_mat4_t;
 
-typedef struct de_mat3_t
-{
+typedef struct de_mat3_t {
 	float f[9];
 } de_mat3_t;
 
 /**
  * 2D float vector
  */
-typedef struct de_vec2_s
-{
+typedef struct de_vec2_s {
 	float x; /**< X coordinate of the vector */
 	float y; /**< Y coordinate of the vector */
 } de_vec2_t;
@@ -54,8 +50,7 @@ typedef struct de_vec2_s
 /**
  * 3D float vector
  */
-typedef struct de_vec3_s
-{
+typedef struct de_vec3_s {
 	float x; /**< X coordinate of the vector */
 	float y; /**< Y coordinate of the vector */
 	float z; /**< Z coordinate of the vector */
@@ -64,8 +59,7 @@ typedef struct de_vec3_s
 /**
  * 4D float vector
  */
-typedef struct de_vec4_t
-{
+typedef struct de_vec4_t {
 	float x; /**< X coordinate of the vector */
 	float y; /**< Y coordinate of the vector */
 	float z; /**< Z coordinate of the vector */
@@ -75,8 +69,7 @@ typedef struct de_vec4_t
 /**
  * 3D float ray
  */
-typedef struct de_ray_t
-{
+typedef struct de_ray_t {
 	de_vec3_t origin; /**< Origin of the ray */
 	de_vec3_t dir;    /**< Direction of the ray, length of this vector defines "length" of the ray */
 } de_ray_t;
@@ -84,8 +77,7 @@ typedef struct de_ray_t
 /**
  * Rotation quaternion
  */
-typedef struct de_quat_t
-{
+typedef struct de_quat_t {
 	float x; /**< X component */
 	float y; /**< Y component */
 	float z; /**< Z component */
@@ -95,8 +87,7 @@ typedef struct de_quat_t
 /**
  * Arbitrary plane
  */
-typedef struct de_plane_t
-{
+typedef struct de_plane_t {
 	de_vec3_t n; /**< Normal vector of the plane */
 	float d;     /**< Distance to the plane from the origin */
 } de_plane_t;
@@ -104,8 +95,7 @@ typedef struct de_plane_t
 /**
  * Fixed plane class.
  */
-typedef enum de_plane_class_t
-{
+typedef enum de_plane_class_t {
 	DE_PLANE_OXY = 1,
 	DE_PLANE_OXZ = 2,
 	DE_PLANE_OYZ = 3,
@@ -114,16 +104,14 @@ typedef enum de_plane_class_t
 /**
  * Culling frustum
  */
-typedef struct de_frustum_t
-{
+typedef struct de_frustum_t {
 	de_plane_t planes[6]; /**< Six planes that "cuts" frustum volume */
 } de_frustum_t;
 
 /**
  * Axis-aligned bounding box (AABB)
  */
-typedef struct de_aabb_t
-{
+typedef struct de_aabb_t {
 	de_vec3_t min;        /**< Corner with with set of minimal coordinates, describing the AABB */
 	de_vec3_t max;        /**< Corner with with set of maximal coordinates, describing the AABB */
 	de_vec3_t corners[8]; /**< Eight corners of the AABB */
@@ -1073,14 +1061,14 @@ double de_get_signed_triangle_area(const de_vec2_t* v1, const de_vec2_t* v2, con
 bool de_line_line_intersection(const de_vec3_t* a_begin, const de_vec3_t* a_end, const de_vec3_t* b_begin, const de_vec3_t* b_end, de_vec3_t *out);
 
 /**
- * @brief Returns closest class of plane by its normal. 
+ * @brief Returns closest class of plane by its normal.
  */
 de_plane_class_t de_plane_classify(const de_vec3_t * triangle_normal);
 
 /**
  * @brief Maps 3d point onto 2d plane of selected class.
- * 
- * Main purpose of this function is to make a quick projection of 3d point onto 
+ *
+ * Main purpose of this function is to make a quick projection of 3d point onto
  * 2D plane.
  */
 void de_vec3_to_vec2_by_plane(de_plane_class_t plane, const de_vec3_t* normal, const de_vec3_t * point, de_vec2_t * mapped);

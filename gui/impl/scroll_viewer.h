@@ -19,9 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/*=======================================================================================*/
-static void de_gui_scroll_viewer_ver_scroll_changed(de_gui_node_t* sv_node)
-{
+
+static void de_gui_scroll_viewer_ver_scroll_changed(de_gui_node_t* sv_node) {
 	de_gui_node_t* scroll_viewer_node;
 	de_gui_scroll_viewer_t* sv;
 	DE_ASSERT_GUI_NODE_TYPE(sv_node, DE_GUI_NODE_SCROLL_BAR);
@@ -30,9 +29,8 @@ static void de_gui_scroll_viewer_ver_scroll_changed(de_gui_node_t* sv_node)
 	de_gui_scroll_content_presenter_set_v_scroll(sv->scroll_content_presenter, sv->ver_scroll_bar->s.scroll_bar.value);
 }
 
-/*=======================================================================================*/
-static void de_gui_scroll_viewer_hor_scroll_changed(de_gui_node_t* sv_node)
-{
+
+static void de_gui_scroll_viewer_hor_scroll_changed(de_gui_node_t* sv_node) {
 	de_gui_node_t* scroll_viewer_node;
 	de_gui_scroll_viewer_t* sv;
 	DE_ASSERT_GUI_NODE_TYPE(sv_node, DE_GUI_NODE_SCROLL_BAR);
@@ -41,63 +39,48 @@ static void de_gui_scroll_viewer_hor_scroll_changed(de_gui_node_t* sv_node)
 	de_gui_scroll_content_presenter_set_h_scroll(sv->scroll_content_presenter, sv->hor_scroll_bar->s.scroll_bar.value);
 }
 
-/*=======================================================================================*/
-static void de_gui_scroll_viewer_deinit(de_gui_node_t* n)
-{
+
+static void de_gui_scroll_viewer_deinit(de_gui_node_t* n) {
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_SCROLL_VIEWER);
 
 	DE_UNUSED(n);
 }
 
-/*=======================================================================================*/
-void de_gui_scroll_viewer_update(de_gui_node_t* n)
-{
+
+void de_gui_scroll_viewer_update(de_gui_node_t* n) {
 	de_gui_scroll_viewer_t* sv = &n->s.scroll_viewer;
 	de_gui_node_visibility_t vis;
 
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_SCROLL_VIEWER);
 
 	/* hide/show horizontal scroll bar */
-	if (sv->content)
-	{
-		if (sv->content->actual_size.x <= sv->scroll_content_presenter->actual_size.x)
-		{
+	if (sv->content) {
+		if (sv->content->actual_size.x <= sv->scroll_content_presenter->actual_size.x) {
 			vis = DE_GUI_NODE_VISIBILITY_COLLAPSED;
-		}
-		else
-		{
+		} else {
 			vis = DE_GUI_NODE_VISIBILITY_VISIBLE;
 		}
-	}
-	else
-	{
+	} else {
 		vis = DE_GUI_NODE_VISIBILITY_COLLAPSED;
 	}
 
 	de_gui_node_set_visibility(sv->hor_scroll_bar, vis);
 
 	/* hide/show vertical scroll bar */
-	if (sv->content)
-	{
-		if (sv->content->actual_size.y <= sv->scroll_content_presenter->actual_size.y)
-		{
+	if (sv->content) {
+		if (sv->content->actual_size.y <= sv->scroll_content_presenter->actual_size.y) {
 			vis = DE_GUI_NODE_VISIBILITY_COLLAPSED;
-		}
-		else
-		{
+		} else {
 			vis = DE_GUI_NODE_VISIBILITY_VISIBLE;
 		}
-	}
-	else
-	{
+	} else {
 		vis = DE_GUI_NODE_VISIBILITY_COLLAPSED;
 	}
 
 	de_gui_node_set_visibility(sv->ver_scroll_bar, vis);
 
 	/* update scroll info */
-	if (sv->content)
-	{
+	if (sv->content) {
 		float max = de_maxf(0.0f, sv->content->actual_size.x - sv->scroll_content_presenter->actual_size.x);
 		de_gui_scroll_bar_set_max_value(sv->hor_scroll_bar, max);
 
@@ -107,9 +90,8 @@ void de_gui_scroll_viewer_update(de_gui_node_t* n)
 }
 
 
-/*=======================================================================================*/
-de_gui_node_t* de_gui_scroll_viewer_create(de_gui_t* gui)
-{
+
+de_gui_node_t* de_gui_scroll_viewer_create(de_gui_t* gui) {
 	de_gui_node_t* n;
 	de_gui_scroll_viewer_t* sv;
 
@@ -117,8 +99,7 @@ de_gui_node_t* de_gui_scroll_viewer_create(de_gui_t* gui)
 	{
 		static bool init = false;
 
-		if (!init)
-		{
+		if (!init) {
 			dispatch_table.deinit = de_gui_scroll_viewer_deinit;
 			dispatch_table.update = de_gui_scroll_viewer_update;
 
@@ -166,19 +147,16 @@ de_gui_node_t* de_gui_scroll_viewer_create(de_gui_t* gui)
 
 
 
-/*=======================================================================================*/
-void de_gui_scroll_viewer_set_content(de_gui_node_t* n, de_gui_node_t* content)
-{
+
+void de_gui_scroll_viewer_set_content(de_gui_node_t* n, de_gui_node_t* content) {
 	de_gui_scroll_viewer_t* sv = &n->s.scroll_viewer;
 
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_SCROLL_VIEWER);
 
-	if (sv->content)
-	{
+	if (sv->content) {
 		de_gui_node_detach(sv->content);
 	}
-	if (content)
-	{
+	if (content) {
 		de_gui_node_attach(content, sv->scroll_content_presenter);
 	}
 

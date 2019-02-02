@@ -19,15 +19,13 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef struct de_point_t
-{
+typedef struct de_point_t {
 	float x;
 	float y;
 	uint8_t flags;
 } de_point_t;
 
-typedef struct de_line2_t
-{
+typedef struct de_line2_t {
 	de_point_t begin;
 	de_point_t end;
 } de_line2_t;
@@ -35,15 +33,13 @@ typedef struct de_line2_t
 typedef DE_ARRAY_DECLARE(de_line2_t, line_array_t);
 typedef DE_ARRAY_DECLARE(de_point_t, point_array_t);
 
-typedef struct de_bitmap_t
-{
+typedef struct de_bitmap_t {
 	unsigned char* pixels;
 	int width;
 	int height;
 } de_bitmap_t;
 
-typedef struct de_polygon_t
-{
+typedef struct de_polygon_t {
 	DE_ARRAY_DECLARE(de_point_t, points);
 } de_polygon_t;
 

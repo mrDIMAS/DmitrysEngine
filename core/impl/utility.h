@@ -19,8 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-char * de_load_file_into_memory(const char * path, size_t* out_size)
-{
+char * de_load_file_into_memory(const char * path, size_t* out_size) {
 	size_t file_size;
 	size_t content_size;
 	char* content;
@@ -28,8 +27,7 @@ char * de_load_file_into_memory(const char * path, size_t* out_size)
 
 	/* try to open file */
 	file = fopen(path, "rb");
-	if (!file)
-	{
+	if (!file) {
 		de_fatal_error("unable to read file: %s", path);
 	}
 
@@ -41,13 +39,11 @@ char * de_load_file_into_memory(const char * path, size_t* out_size)
 
 	/* read file */
 	content = (char*)de_malloc(content_size);
-	if (fread(content, sizeof(char), file_size, file) != file_size)
-	{
+	if (fread(content, sizeof(char), file_size, file) != file_size) {
 		de_fatal_error("file %s is corrupted", path);
 	}
 
-	if (out_size)
-	{
+	if (out_size) {
 		*out_size = file_size;
 	}
 
@@ -59,8 +55,7 @@ char * de_load_file_into_memory(const char * path, size_t* out_size)
 }
 
 
-void de_convert_to_c_array(const char* source, const char* dest)
-{
+void de_convert_to_c_array(const char* source, const char* dest) {
 	size_t i;
 	size_t size;
 	FILE* out;
@@ -71,12 +66,10 @@ void de_convert_to_c_array(const char* source, const char* dest)
 	out = fopen(dest, "w");
 
 	fprintf(out, "static const unsigned char array[] = {\n");
-	for (i = 0; i < size; ++i)
-	{
+	for (i = 0; i < size; ++i) {
 		fprintf(out, "%u, ", data[i]);
 
-		if (i % 20 == 0)
-		{
+		if (i % 20 == 0) {
 			fprintf(out, "\n\t");
 		}
 	}
@@ -89,30 +82,26 @@ void de_convert_to_c_array(const char* source, const char* dest)
 
 /**
  * @brief Extracts only name from file path without extension.
- * 
+ *
  * Example: "baz/bar/foo.bar" path will result in "foo" string.
  */
-void de_file_extract_name(const char* path, char* buffer, size_t buffer_size)
-{
+void de_file_extract_name(const char* path, char* buffer, size_t buffer_size) {
 	size_t i;
 	size_t size_limit = buffer_size - 1;
 	const char* dot_pos, *slash_pos;
 	const char *c;
 
-	if (!path || !buffer || buffer_size == 0)
-	{
+	if (!path || !buffer || buffer_size == 0) {
 		return;
 	}
 
 	/* look for slash first */
 	slash_pos = strrchr(path, '/');
-	if (!slash_pos)
-	{
+	if (!slash_pos) {
 		/* look for windows-style slashes */
 		slash_pos = strrchr(path, '\\');
 
-		if (!slash_pos)
-		{
+		if (!slash_pos) {
 			/* no slashes, so only filename present */
 			slash_pos = path;
 		}
@@ -120,25 +109,20 @@ void de_file_extract_name(const char* path, char* buffer, size_t buffer_size)
 
 	/* look for dot */
 	dot_pos = strrchr(path, '.');
-	if (!dot_pos)
-	{
+	if (!dot_pos) {
 		/* no extension - just copy full name */
 		size_t count, length;
 
 		length = strlen(slash_pos);
 		count = length < buffer_size ? length : buffer_size;
-		
-		strncpy(buffer, slash_pos, count);	
-	}
-	else
-	{
+
+		strncpy(buffer, slash_pos, count);
+	} else {
 		/* copy everything between slash and dot */
 		c = path;
 		i = 0;
-		while (c < dot_pos)
-		{
-			if (i >= size_limit)
-			{
+		while (c < dot_pos) {
+			if (i >= size_limit) {
 				break;
 			}
 			buffer[i++] = *c;
@@ -150,17 +134,15 @@ void de_file_extract_name(const char* path, char* buffer, size_t buffer_size)
 
 /**
  * @brief Extracts extension from file path with dot.
- * 
+ *
  * Example: "baz/bar/foo.bar" will result in ".bar" string.
  */
-void de_file_extract_extension(const char* path, char* buffer, size_t buffer_size)
-{
+void de_file_extract_extension(const char* path, char* buffer, size_t buffer_size) {
 	const char* dot_pos;
 
 	dot_pos = strrchr(path, '.');
 
-	if (dot_pos)
-	{
+	if (dot_pos) {
 		size_t count, length;
 
 		length = strlen(dot_pos);
@@ -173,7 +155,6 @@ void de_file_extract_extension(const char* path, char* buffer, size_t buffer_siz
 /**
  * @brief Tests for file system utilities.
  */
-void de_file_tests(void)
-{
+void de_file_tests(void) {
 
 }

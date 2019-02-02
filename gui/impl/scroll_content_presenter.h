@@ -19,25 +19,22 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/*=======================================================================================*/
-static void de_gui_scroll_content_presenter_deinit(de_gui_node_t* n)
-{
+
+static void de_gui_scroll_content_presenter_deinit(de_gui_node_t* n) {
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_SCROLL_CONTENT_PRESENTER);
 
 	DE_UNUSED(n);
 }
 
-/*=======================================================================================*/
-static void de_gui_scroll_content_presenter_perform_layout(de_gui_node_t* n)
-{
+
+static void de_gui_scroll_content_presenter_perform_layout(de_gui_node_t* n) {
 	size_t i;
 
 	de_gui_scroll_content_presenter_t* scp = &n->s.scroll_content_presenter;
 
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_SCROLL_CONTENT_PRESENTER);
 
-	for (i = 0; i < n->children.size; ++i)
-	{
+	for (i = 0; i < n->children.size; ++i) {
 		de_gui_node_t* child = n->children.data[i];
 
 		/* apply standard alignment */
@@ -48,9 +45,8 @@ static void de_gui_scroll_content_presenter_perform_layout(de_gui_node_t* n)
 	}
 }
 
-/*=======================================================================================*/
-de_gui_node_t* de_gui_scroll_content_presenter_create(de_gui_t* gui)
-{
+
+de_gui_node_t* de_gui_scroll_content_presenter_create(de_gui_t* gui) {
 	de_gui_node_t* n;
 	de_gui_scroll_content_presenter_t* scp;
 
@@ -58,8 +54,7 @@ de_gui_node_t* de_gui_scroll_content_presenter_create(de_gui_t* gui)
 	{
 		static bool init = false;
 
-		if (!init)
-		{
+		if (!init) {
 			dispatch_table.deinit = de_gui_scroll_content_presenter_deinit;
 			dispatch_table.layout_children = de_gui_scroll_content_presenter_perform_layout;
 
@@ -76,17 +71,15 @@ de_gui_node_t* de_gui_scroll_content_presenter_create(de_gui_t* gui)
 	return n;
 }
 
-/*=======================================================================================*/
-void de_gui_scroll_content_presenter_set_v_scroll(de_gui_node_t* node, float val)
-{
+
+void de_gui_scroll_content_presenter_set_v_scroll(de_gui_node_t* node, float val) {
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_CONTENT_PRESENTER);
 
 	node->s.scroll_content_presenter.scroll.y = val;
 }
 
-/*=======================================================================================*/
-void de_gui_scroll_content_presenter_set_h_scroll(de_gui_node_t* node, float val)
-{
+
+void de_gui_scroll_content_presenter_set_h_scroll(de_gui_node_t* node, float val) {
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_CONTENT_PRESENTER);
 
 	node->s.scroll_content_presenter.scroll.x = val;

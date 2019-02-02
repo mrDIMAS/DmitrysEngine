@@ -1,8 +1,7 @@
 /**
 * @brief
 */
-typedef enum de_gui_text_alignment_t
-{
+typedef enum de_gui_text_alignment_t {
 	DE_GUI_TA_LEFT,
 	DE_GUI_TA_CENTER
 } de_gui_text_alignment_t;
@@ -10,8 +9,7 @@ typedef enum de_gui_text_alignment_t
 /**
 * @brief
 */
-typedef struct de_gui_text_line_t
-{
+typedef struct de_gui_text_line_t {
 	size_t begin;
 	size_t end;
 	float width;
@@ -21,8 +19,7 @@ typedef struct de_gui_text_line_t
 /**
 * @brief
 */
-typedef struct de_gui_text_t
-{
+typedef struct de_gui_text_t {
 	de_string32_t str;
 	de_font_t* font;
 	de_gui_text_alignment_t alignment;

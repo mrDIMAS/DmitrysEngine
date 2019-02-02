@@ -19,8 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef struct de_vertex_weight_t
-{
+typedef struct de_vertex_weight_t {
 	/* Pointer to real bone node (de_node_t) which affects vertex. It is multifunctional pointer.
 	 * For example in FBX loader at first step it contains pointer to fbx model (de_fbx_model_t)
 	 * after conversion it will contain pointer to bone node (de_node_t) */
@@ -29,8 +28,7 @@ typedef struct de_vertex_weight_t
 	float weight;
 } de_vertex_weight_t;
 
-typedef struct de_vertex_weight_group_t
-{
+typedef struct de_vertex_weight_group_t {
 	de_vertex_weight_t bones[4];
 	size_t weight_count; /**< Actual count of bones in group */
 } de_vertex_weight_group_t;
@@ -41,8 +39,7 @@ typedef struct de_vertex_weight_group_t
 * Described as set of vertices and faces, uses single texture.
 * Surface lives on GPU (both vertex and index buffer)
 */
-struct de_surface_t
-{
+struct de_surface_t {
 	de_renderer_t* renderer;
 	de_texture_t* diffuse_map; /**< Pointer to texture */
 	de_texture_t* normal_map;
@@ -133,7 +130,7 @@ bool de_surface_is_skinned(de_surface_t* surf);
 
 /**
  * @brief Computes tangents for surface vertices.
- * 
+ *
  * Based on Lengyel, Eric.
  * "Computing Tangent Space Basis Vectors for an Arbitrary Mesh".
  * Terathon Software, 2001. http://terathon.com/code/tangent.html

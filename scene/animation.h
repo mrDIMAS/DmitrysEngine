@@ -25,8 +25,7 @@ typedef struct de_animation_t de_animation_t;
 * @class de_keyframe_t
 * @brief Keyframe
 */
-typedef struct de_keyframe_t
-{
+typedef struct de_keyframe_t {
 	de_vec3_t position; /**< Position of keyframe */
 	de_vec3_t scale;    /**< Scale of keyframe */
 	de_quat_t rotation; /**< Rotation quaternion of keyframe */
@@ -39,8 +38,7 @@ typedef struct de_keyframe_t
  *
  * Set of keyframes and pointer to animated node. Defines animation of a node.
  */
-struct de_animation_track_t
-{
+struct de_animation_track_t {
 	de_animation_t* parent_animation;
 	DE_ARRAY_DECLARE(de_keyframe_t, keyframes); /**< Array of keyframes */
 	bool enabled;       /**< Is track enabled? */
@@ -48,8 +46,7 @@ struct de_animation_track_t
 	de_node_t* node;
 };
 
-typedef enum de_animation_flags_t
-{
+typedef enum de_animation_flags_t {
 	DE_ANIMATION_FLAG_ENABLED = DE_BIT(0), /**< Is animation enabled? */
 	DE_ANIMATION_FLAG_LOOPED = DE_BIT(1)  /**< Is animation looped */
 } de_animation_flags_t;
@@ -60,8 +57,7 @@ typedef enum de_animation_flags_t
 *
 * Set of animation tracks that controls various properties of scene nodes.
 */
-struct de_animation_t
-{
+struct de_animation_t {
 	DE_LINKED_LIST_ITEM(struct de_animation_t);
 	de_scene_t* scene;
 	DE_ARRAY_DECLARE(de_animation_track_t*, tracks);  /**< Array of pointers to animation tracks */
@@ -143,8 +139,8 @@ void de_animation_clamp_length(de_animation_t* anim);
 
 /**
  * @brief Creates new animation from other using specified time span.
- * 
- * This function is useful when you have single timeline and you want to 
+ *
+ * This function is useful when you have single timeline and you want to
  * extract animations from it, to control them separately and perform blending
  * between them.
  */

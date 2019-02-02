@@ -22,8 +22,7 @@
 /**
 * @brief Possible texture types
 */
-typedef enum de_texture_type_e
-{
+typedef enum de_texture_type_e {
 	DE_TEXTURE_TYPE_2D,
 	DE_TEXTURE_TYPE_VOLUME,
 	DE_TEXTURE_TYPE_CUBE
@@ -32,8 +31,7 @@ typedef enum de_texture_type_e
 /**
 * @brief Common texture. Can be 2D, volume or cube
 */
-struct de_texture_t
-{
+struct de_texture_t {
 	de_renderer_t* renderer;
 	DE_LINKED_LIST_ITEM(struct de_texture_t);
 	char* name;             /**< Name for procedural texture, or file name for textures loaded from file */

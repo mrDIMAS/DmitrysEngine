@@ -1,8 +1,7 @@
 /**
 * @brief
 */
-typedef struct de_gui_text_box_t
-{
+typedef struct de_gui_text_box_t {
 	de_gui_node_t* border;
 	bool multiline;
 	de_gui_node_t* text_block;

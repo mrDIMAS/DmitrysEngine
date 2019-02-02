@@ -21,16 +21,13 @@
 
 static FILE* de_log_file;
 
-void de_log_open(const char* filename)
-{
-	if (!de_log_file)
-	{
+void de_log_open(const char* filename) {
+	if (!de_log_file) {
 		de_log_file = fopen(filename, "w");
 	}
 }
 
-static void de_write_log(const char* message, bool error)
-{
+static void de_write_log(const char* message, bool error) {
 	time_t rawtime;
 	struct tm* timeinfo;
 
@@ -38,23 +35,21 @@ static void de_write_log(const char* message, bool error)
 	time(&rawtime);
 	timeinfo = localtime(&rawtime);
 
-	fprintf(de_log_file, "[%dh:%dm:%ds] %s\n", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, message);
-	fflush(de_log_file);
+	if (de_log_file) {
+		fprintf(de_log_file, "[%dh:%dm:%ds] %s\n", timeinfo->tm_hour, timeinfo->tm_min, timeinfo->tm_sec, message);
+		fflush(de_log_file);
+	}
 
 	/* Duplicate message into standard streams, but without time stamps */
-	if (error)
-	{
+	if (error) {
 		fprintf(stderr, "Error: %s\n", message);
-	}
-	else
-	{
+	} else {
 		fprintf(stdout, "%s\n", message);
 		fflush(stdout);
 	}
 }
 
-void de_log(const char* message, ...)
-{
+void de_log(const char* message, ...) {
 	static char format_buffer[32768];
 	va_list argument_list;
 	va_start(argument_list, message);
@@ -63,15 +58,13 @@ void de_log(const char* message, ...)
 	de_write_log(format_buffer, false);
 }
 
-void de_fatal_error(const char* message, ...)
-{
+void de_fatal_error(const char* message, ...) {
 	static char format_buffer[32768];
 	va_list argument_list;
 	va_start(argument_list, message);
 	vsprintf(format_buffer, message, argument_list);
 	va_end(argument_list);
 	de_write_log(format_buffer, true);
-	de_engine_platform_message_box(format_buffer);
 #ifdef _MSC_VER
 	__debugbreak();
 #else
@@ -80,7 +73,6 @@ void de_fatal_error(const char* message, ...)
 	exit(EXIT_FAILURE);
 }
 
-void de_log_close(void)
-{
+void de_log_close(void) {
 	fclose(de_log_file);
 }

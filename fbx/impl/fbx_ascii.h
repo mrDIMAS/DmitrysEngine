@@ -19,45 +19,38 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/*=======================================================================================*/
-void de_fbx_rdbuf_init(de_fbx_rdbuf_t* rdbuf)
-{
+
+void de_fbx_rdbuf_init(de_fbx_rdbuf_t* rdbuf) {
 	rdbuf->chunk_read_cursor = 0;
 	rdbuf->chunk_size = 0;
 	rdbuf->eof = false;
 }
 
-/*=======================================================================================*/
-char de_fbx_rdbuf_next_symbol(FILE* file, de_fbx_rdbuf_t* rdbuf)
-{
-	if (rdbuf->chunk_read_cursor >= rdbuf->chunk_size)
-	{
+
+char de_fbx_rdbuf_next_symbol(FILE* file, de_fbx_rdbuf_t* rdbuf) {
+	if (rdbuf->chunk_read_cursor >= rdbuf->chunk_size) {
 		rdbuf->chunk_size = fread(rdbuf->chunk, sizeof(char), sizeof(rdbuf->chunk), file);
 		rdbuf->chunk_read_cursor = 0;
 
-		if (rdbuf->chunk_size != sizeof(rdbuf->chunk))
-		{
+		if (rdbuf->chunk_size != sizeof(rdbuf->chunk)) {
 			rdbuf->eof = 1;
 		}
 	}
 	return rdbuf->chunk[rdbuf->chunk_read_cursor++];
 }
 
-/*=======================================================================================*/
-bool de_fbx_rdbuf_is_eof(de_fbx_rdbuf_t* rdbuf)
-{
+
+bool de_fbx_rdbuf_is_eof(de_fbx_rdbuf_t* rdbuf) {
 	return rdbuf->eof && rdbuf->chunk_read_cursor >= rdbuf->chunk_size;
 }
 
-/*=======================================================================================*/
-bool de_fbx_is_space(char c)
-{
+
+bool de_fbx_is_space(char c) {
 	return c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v';
 }
 
-/*=======================================================================================*/
-de_fbx_node_t* de_fbx_ascii_load_file(const char* filename, de_fbx_buffer_t* data_buf)
-{
+
+de_fbx_node_t* de_fbx_ascii_load_file(const char* filename, de_fbx_buffer_t* data_buf) {
 	int line_size = 0;
 	char buffer[32768];
 	de_fbx_rdbuf_t rdbuf;
@@ -75,8 +68,7 @@ de_fbx_node_t* de_fbx_ascii_load_file(const char* filename, de_fbx_buffer_t* dat
 
 	file = fopen(filename, "rb");
 
-	if (!file)
-	{
+	if (!file) {
 		return NULL;
 	}
 
@@ -90,32 +82,23 @@ de_fbx_node_t* de_fbx_ascii_load_file(const char* filename, de_fbx_buffer_t* dat
 	de_fbx_rdbuf_init(&rdbuf);
 
 	/* Read line by line */
-	while (!de_fbx_rdbuf_is_eof(&rdbuf))
-	{
+	while (!de_fbx_rdbuf_is_eof(&rdbuf)) {
 		/* Read line, trim spaces (but leave spaces in quotes) */
 		line_size = 0;
 		read_all = false;
-		for (;;)
-		{
+		for (;;) {
 			char symbol = de_fbx_rdbuf_next_symbol(file, &rdbuf);
 
-			if (de_fbx_rdbuf_is_eof(&rdbuf))
-			{
+			if (de_fbx_rdbuf_is_eof(&rdbuf)) {
 				break;
 			}
 
-			if (symbol == '\n')
-			{
+			if (symbol == '\n') {
 				break;
-			}
-			else if (symbol == '"')
-			{
+			} else if (symbol == '"') {
 				read_all = !read_all;
-			}
-			else
-			{
-				if (read_all || !de_fbx_is_space(symbol))
-				{
+			} else {
+				if (read_all || !de_fbx_is_space(symbol)) {
 					buffer[line_size++] = (char)symbol;
 				}
 			}
@@ -123,80 +106,60 @@ de_fbx_node_t* de_fbx_ascii_load_file(const char* filename, de_fbx_buffer_t* dat
 		buffer[line_size] = '\0';
 
 		/* Ignore comments */
-		if (buffer[0] == ';')
-		{
+		if (buffer[0] == ';') {
 			continue;
 		}
 
-		if (line_size == 0)
-		{
+		if (line_size == 0) {
 			continue;
 		}
 
 		/* Parse string */
 		read_value = false;
 		name_length = 0;
-		for (i = 0; i < line_size; ++i)
-		{
+		for (i = 0; i < line_size; ++i) {
 			char symbol = buffer[i];
-			if (i == 0)
-			{
-				if (symbol == '-' || isdigit(symbol))
-				{
+			if (i == 0) {
+				if (symbol == '-' || isdigit(symbol)) {
 					read_value = true;
 				}
 			}
-			if (symbol == ':' && !read_value)
-			{
+			if (symbol == ':' && !read_value) {
 				read_value = true;
 				name[name_length] = '\0';
 				node = de_fbx_create_node(name);
 				name_length = 0;
-				if (parent)
-				{
+				if (parent) {
 					node->parent = parent;
 					DE_ARRAY_APPEND(parent->children, node);
 				}
-			}
-			else if (symbol == '{')
-			{
+			} else if (symbol == '{') {
 				parent = node;
 
-				if (value_length)
-				{
+				if (value_length) {
 					char* attrib;
 					value[value_length] = '\0';
-					attrib = (char*) de_fbx_buffer_alloc(data_buf, value_length + 1);
+					attrib = (char*)de_fbx_buffer_alloc(data_buf, value_length + 1);
 					memcpy(attrib, value, value_length + 1);
 					DE_ARRAY_APPEND(node->attributes, attrib);
 					value_length = 0;
 				}
-			}
-			else if (symbol == '}')
-			{
+			} else if (symbol == '}') {
 				parent = parent->parent;
-			}
-			else if (symbol == ',' || (i == line_size - 1))
-			{
+			} else if (symbol == ',' || (i == line_size - 1)) {
 				char* attrib;
-				if (symbol != ',')
-				{
+				if (symbol != ',') {
 					value[value_length++] = symbol;
 				}
 				value[value_length] = '\0';
-				attrib = (char*) de_fbx_buffer_alloc(data_buf, value_length + 1);
+				attrib = (char*)de_fbx_buffer_alloc(data_buf, value_length + 1);
 				memcpy(attrib, value, value_length + 1);
 				DE_ARRAY_APPEND(node->attributes, attrib);
 				value_length = 0;
-			}
-			else
-			{
-				if (!read_value)
-				{
+			} else {
+				if (!read_value) {
 					name[name_length++] = symbol;
-				}
-				else
-				{
+				} else {
 					value[value_length++] = symbol;
 				}
 			}
@@ -213,15 +176,11 @@ de_fbx_node_t* de_fbx_ascii_load_file(const char* filename, de_fbx_buffer_t* dat
 }
 
 
-/*=======================================================================================*/
-de_fbx_reference_t de_fbx_get_reference(const char* str)
-{
-	if (strcmp(str, "Direct") == 0)
-	{
+
+de_fbx_reference_t de_fbx_get_reference(const char* str) {
+	if (strcmp(str, "Direct") == 0) {
 		return DE_FBX_REFERENCE_DIRECT;
-	}
-	else if (strcmp(str, "IndexToDirect") == 0 || strcmp(str, "Index") == 0)
-	{
+	} else if (strcmp(str, "IndexToDirect") == 0 || strcmp(str, "Index") == 0) {
 		return DE_FBX_REFERENCE_INDEX_TO_DIRECT;
 	}
 	return DE_FBX_REFERENCE_UNKNOWN;

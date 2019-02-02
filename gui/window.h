@@ -19,16 +19,14 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef enum de_gui_window_flags_t
-{
+typedef enum de_gui_window_flags_t {
 	DE_GUI_WINDOW_FLAGS_NO_MOVE = DE_BIT(0),
 } de_gui_window_flags_t;
 
 /**
 * @brief
 */
-typedef struct de_gui_window_t
-{
+typedef struct de_gui_window_t {
 	de_gui_node_t* border;
 	de_gui_node_t* grid;
 	de_gui_node_t* header;

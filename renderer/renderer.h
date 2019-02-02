@@ -70,8 +70,7 @@ PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer;
 
 PFNGLGETSTRINGIPROC glGetStringi;
 
-typedef struct de_gbuffer_t
-{
+typedef struct de_gbuffer_t {
 	GLuint fbo;
 
 	GLuint depth_rt;
@@ -91,8 +90,7 @@ typedef struct de_gbuffer_t
 /**
 * Shader for G-Buffer filling
 */
-typedef struct de_gbuffer_shader_t
-{
+typedef struct de_gbuffer_shader_t {
 	GLuint program;
 
 	GLuint world_matrix;
@@ -106,8 +104,7 @@ typedef struct de_gbuffer_shader_t
 	GLuint self_emittance;
 } de_gbuffer_shader_t;
 
-typedef struct de_gbuffer_light_shader_t
-{
+typedef struct de_gbuffer_light_shader_t {
 	GLuint program;
 
 	GLuint wvp_matrix;
@@ -127,30 +124,26 @@ typedef struct de_gbuffer_light_shader_t
 /**
 * Simple shader with texturing and without lighting
 */
-typedef struct de_flat_shader_t
-{
+typedef struct de_flat_shader_t {
 	GLuint program;
 	GLint wvp_matrix;
 	GLint diffuse_texture;
 } de_flat_shader_t;
 
-typedef struct de_ambient_shader_t
-{
+typedef struct de_ambient_shader_t {
 	GLuint program;
 	GLint wvp_matrix;
 	GLint diffuse_texture;
 	GLint ambient_color;
 } de_ambient_shader_t;
 
-typedef struct de_gui_shader_t
-{
+typedef struct de_gui_shader_t {
 	GLuint program;
 	GLint wvp_matrix;
 	GLint diffuse_texture;
 } de_gui_shader_t;
 
-struct de_renderer_t
-{
+struct de_renderer_t {
 	de_core_t* core;
 
 	size_t frame_rate_limit;     /**< Maximum frames per seconds for renderer. 0 - unlimited */
@@ -173,8 +166,7 @@ struct de_renderer_t
 	bool render_normals;
 	bool render_bones;
 
-	struct
-	{
+	struct {
 		GLuint vbo;      /**< Vertex buffer object id */
 		GLuint vao;      /**< Vertex array object id */
 		GLuint ebo;      /**< Element buffer object id */
@@ -183,7 +175,7 @@ struct de_renderer_t
 	DE_LINKED_LIST_DECLARE(de_texture_t, textures);
 
 	/* statistics (time in milliseconds) */
-	float frame_time;
+	double frame_time;
 	size_t frames_per_second;
 };
 
@@ -246,4 +238,4 @@ size_t de_renderer_get_fps(de_renderer_t* r);
 /**
  * @brief Returns time consumed by the renderer to draw one frame.
  */
-float de_render_get_frame_time(de_renderer_t* r);
+double de_render_get_frame_time(de_renderer_t* r);

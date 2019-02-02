@@ -19,76 +19,67 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/*=======================================================================================*/
-static void de_gui_scroll_bar_update_indicator(de_gui_node_t* node)
-{
+
+static void de_gui_scroll_bar_update_indicator(de_gui_node_t* node) {
 	de_gui_scroll_bar_t* sb;
 	float percent;
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
 	sb = &node->s.scroll_bar;
 	percent = (sb->value - sb->min) / (sb->max - sb->min);
-	switch (sb->orientation)
-	{
-	case DE_GUI_SCROLL_BAR_ORIENTATION_HORIZONTAL:
-	{
-		sb->indicator->desired_local_position.x = percent * de_maxf(0.0f, sb->indicator->parent->actual_size.x - sb->indicator->actual_size.x);
-		sb->indicator->desired_local_position.y = 0;
+	switch (sb->orientation) {
+		case DE_GUI_SCROLL_BAR_ORIENTATION_HORIZONTAL:
+		{
+			sb->indicator->desired_local_position.x = percent * de_maxf(0.0f, sb->indicator->parent->actual_size.x - sb->indicator->actual_size.x);
+			sb->indicator->desired_local_position.y = 0;
 
-		sb->indicator->desired_size.x = 20;
-		sb->indicator->desired_size.y = sb->indicator->parent->actual_size.y;
-		break;
-	}
-	case DE_GUI_SCROLL_BAR_ORIENTATION_VERTICAL:
-	{
-		sb->indicator->desired_local_position.x = 0;
-		sb->indicator->desired_local_position.y = percent * de_maxf(0.0f, sb->indicator->parent->actual_size.y - sb->indicator->actual_size.y);
+			sb->indicator->desired_size.x = 20;
+			sb->indicator->desired_size.y = sb->indicator->parent->actual_size.y;
+			break;
+		}
+		case DE_GUI_SCROLL_BAR_ORIENTATION_VERTICAL:
+		{
+			sb->indicator->desired_local_position.x = 0;
+			sb->indicator->desired_local_position.y = percent * de_maxf(0.0f, sb->indicator->parent->actual_size.y - sb->indicator->actual_size.y);
 
-		sb->indicator->desired_size.x = sb->indicator->parent->actual_size.x;
-		sb->indicator->desired_size.y = 20;
-		break;
-	}
+			sb->indicator->desired_size.x = sb->indicator->parent->actual_size.x;
+			sb->indicator->desired_size.y = 20;
+			break;
+		}
 	}
 }
 
-/*=======================================================================================*/
-static void de_gui_scroll_bar_on_up_click(de_gui_node_t* node, void* user_data)
-{
+
+static void de_gui_scroll_bar_on_up_click(de_gui_node_t* node, void* user_data) {
 	de_gui_node_t* scroll_bar_node = de_gui_node_find_parent_of_type(node, DE_GUI_NODE_SCROLL_BAR);
 	de_gui_scroll_bar_t* sb = &scroll_bar_node->s.scroll_bar;
 	DE_UNUSED(user_data);
 	sb->value -= sb->step;
-	if (sb->value < sb->min)
-	{
+	if (sb->value < sb->min) {
 		sb->value = sb->min;
 	}
-	if (sb->value_changed)
-	{
+	if (sb->value_changed) {
 		sb->value_changed(scroll_bar_node);
 	}
 	de_gui_scroll_bar_update_indicator(scroll_bar_node);
 }
 
-/*=======================================================================================*/
-static void de_gui_scroll_bar_on_down_click(de_gui_node_t* node, void* user_data)
-{
+
+static void de_gui_scroll_bar_on_down_click(de_gui_node_t* node, void* user_data) {
 	de_gui_node_t* scroll_bar_node = de_gui_node_find_parent_of_type(node, DE_GUI_NODE_SCROLL_BAR);
 	de_gui_scroll_bar_t* sb = &scroll_bar_node->s.scroll_bar;
 	DE_UNUSED(user_data);
 	sb->value += sb->step;
-	if (sb->value > sb->max)
-	{
+	if (sb->value > sb->max) {
 		sb->value = sb->max;
 	}
-	if (sb->value_changed)
-	{
+	if (sb->value_changed) {
 		sb->value_changed(scroll_bar_node);
 	}
 	de_gui_scroll_bar_update_indicator(scroll_bar_node);
 }
 
-/*=======================================================================================*/
-static void de_gui_scroll_bar_indicator_mouse_down(de_gui_node_t* node, de_gui_routed_event_args_t* args)
-{
+
+static void de_gui_scroll_bar_indicator_mouse_down(de_gui_node_t* node, de_gui_routed_event_args_t* args) {
 	de_gui_node_t* scroll_bar_node;
 	de_gui_scroll_bar_t* sb;
 	de_gui_node_capture_mouse(node);
@@ -99,9 +90,8 @@ static void de_gui_scroll_bar_indicator_mouse_down(de_gui_node_t* node, de_gui_r
 	args->handled = true;
 }
 
-/*=======================================================================================*/
-static void de_gui_scroll_bar_indicator_mouse_up(de_gui_node_t* node, de_gui_routed_event_args_t* args)
-{
+
+static void de_gui_scroll_bar_indicator_mouse_up(de_gui_node_t* node, de_gui_routed_event_args_t* args) {
 	de_gui_node_t* scroll_bar_node;
 	de_gui_scroll_bar_t* sb;
 	de_gui_node_release_mouse_capture(node);
@@ -111,41 +101,35 @@ static void de_gui_scroll_bar_indicator_mouse_up(de_gui_node_t* node, de_gui_rou
 	args->handled = true;
 }
 
-/*=======================================================================================*/
-static void de_gui_scroll_bar_indicator_mouse_move(de_gui_node_t* node, de_gui_routed_event_args_t* args)
-{
+
+static void de_gui_scroll_bar_indicator_mouse_move(de_gui_node_t* node, de_gui_routed_event_args_t* args) {
 	de_gui_node_t* scroll_bar_node = de_gui_node_find_parent_of_type(node, DE_GUI_NODE_SCROLL_BAR);
 	de_gui_scroll_bar_t* sb = &scroll_bar_node->s.scroll_bar;
-	if (sb->is_dragging)
-	{
+	if (sb->is_dragging) {
 		de_vec2_t* mouse_pos = &args->s.mouse_move.pos;
 		float percent = 0.0;
-		switch (sb->orientation)
-		{
-		case DE_GUI_SCROLL_BAR_ORIENTATION_HORIZONTAL:
-		{
-			float span = sb->canvas->actual_size.x - sb->indicator->actual_size.x;
-			float offset = mouse_pos->x - sb->canvas->screen_position.x + sb->offset.x;
-			if (span > 0)
+		switch (sb->orientation) {
+			case DE_GUI_SCROLL_BAR_ORIENTATION_HORIZONTAL:
 			{
-				percent = de_clamp(offset / span, 0.0, 1.0);
+				float span = sb->canvas->actual_size.x - sb->indicator->actual_size.x;
+				float offset = mouse_pos->x - sb->canvas->screen_position.x + sb->offset.x;
+				if (span > 0) {
+					percent = de_clamp(offset / span, 0.0, 1.0);
+				}
+				break;
 			}
-			break;
-		}
-		case DE_GUI_SCROLL_BAR_ORIENTATION_VERTICAL:
-		{
-			float span = sb->canvas->actual_size.y - sb->indicator->actual_size.y;
-			float offset = mouse_pos->y - sb->canvas->screen_position.y + sb->offset.y;
-			if (span > 0)
+			case DE_GUI_SCROLL_BAR_ORIENTATION_VERTICAL:
 			{
-				percent = de_clamp(offset / span, 0.0, 1.0);
+				float span = sb->canvas->actual_size.y - sb->indicator->actual_size.y;
+				float offset = mouse_pos->y - sb->canvas->screen_position.y + sb->offset.y;
+				if (span > 0) {
+					percent = de_clamp(offset / span, 0.0, 1.0);
+				}
+				break;
 			}
-			break;
-		}
 		}
 		sb->value = percent * (sb->max - sb->min);
-		if (sb->value_changed)
-		{
+		if (sb->value_changed) {
 			sb->value_changed(scroll_bar_node);
 		}
 		de_gui_scroll_bar_update_indicator(scroll_bar_node);
@@ -153,17 +137,15 @@ static void de_gui_scroll_bar_indicator_mouse_move(de_gui_node_t* node, de_gui_r
 	}
 }
 
-/*=======================================================================================*/
-static void de_gui_scroll_bar_deinit(de_gui_node_t* n)
-{
+
+static void de_gui_scroll_bar_deinit(de_gui_node_t* n) {
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_SCROLL_BAR);
 
 	DE_UNUSED(n);
 }
 
-/*=======================================================================================*/
-de_gui_node_t* de_gui_scroll_bar_create(de_gui_t* gui)
-{
+
+de_gui_node_t* de_gui_scroll_bar_create(de_gui_t* gui) {
 	de_gui_node_t* n;
 	de_gui_scroll_bar_t* sb;
 
@@ -171,8 +153,7 @@ de_gui_node_t* de_gui_scroll_bar_create(de_gui_t* gui)
 	{
 		static bool init = false;
 
-		if (!init)
-		{
+		if (!init) {
 			dispatch_table.deinit = de_gui_scroll_bar_deinit;
 
 			init = true;
@@ -227,9 +208,8 @@ de_gui_node_t* de_gui_scroll_bar_create(de_gui_t* gui)
 	return n;
 }
 
-/*=======================================================================================*/
-void de_gui_scroll_bar_set_direction(de_gui_node_t* node, de_gui_scroll_bar_orientation_t orientation)
-{
+
+void de_gui_scroll_bar_set_direction(de_gui_node_t* node, de_gui_scroll_bar_orientation_t orientation) {
 	de_gui_scroll_bar_t* sb;
 
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
@@ -240,54 +220,52 @@ void de_gui_scroll_bar_set_direction(de_gui_node_t* node, de_gui_scroll_bar_orie
 	de_gui_grid_clear_columns(sb->grid);
 	de_gui_grid_clear_rows(sb->grid);
 
-	switch (orientation)
-	{
-	case DE_GUI_SCROLL_BAR_ORIENTATION_VERTICAL:
-	{
-		de_gui_grid_add_column(sb->grid, 0, DE_GUI_SIZE_MODE_STRETCH);
-		de_gui_grid_add_row(sb->grid, 30, DE_GUI_SIZE_MODE_STRICT);
-		de_gui_grid_add_row(sb->grid, 0, DE_GUI_SIZE_MODE_STRETCH);
-		de_gui_grid_add_row(sb->grid, 30, DE_GUI_SIZE_MODE_STRICT);
+	switch (orientation) {
+		case DE_GUI_SCROLL_BAR_ORIENTATION_VERTICAL:
+		{
+			de_gui_grid_add_column(sb->grid, 0, DE_GUI_SIZE_MODE_STRETCH);
+			de_gui_grid_add_row(sb->grid, 30, DE_GUI_SIZE_MODE_STRICT);
+			de_gui_grid_add_row(sb->grid, 0, DE_GUI_SIZE_MODE_STRETCH);
+			de_gui_grid_add_row(sb->grid, 30, DE_GUI_SIZE_MODE_STRICT);
 
-		de_gui_node_set_row(sb->up_button, 0);
-		de_gui_node_set_row(sb->canvas, 1);
-		de_gui_node_set_row(sb->down_button, 2);
+			de_gui_node_set_row(sb->up_button, 0);
+			de_gui_node_set_row(sb->canvas, 1);
+			de_gui_node_set_row(sb->down_button, 2);
 
-		de_gui_text_set_text(de_gui_button_get_text(sb->up_button), "^");
-		de_gui_text_set_text(de_gui_button_get_text(sb->down_button), "v");
+			de_gui_text_set_text(de_gui_button_get_text(sb->up_button), "^");
+			de_gui_text_set_text(de_gui_button_get_text(sb->down_button), "v");
 
-		de_gui_border_set_thickness(de_gui_node_find_direct_child_of_type(sb->up_button, DE_GUI_NODE_BORDER), 0, 0, 0, 1);
-		de_gui_border_set_thickness(de_gui_node_find_direct_child_of_type(sb->down_button, DE_GUI_NODE_BORDER), 0, 1, 0, 0);
-		de_gui_border_set_thickness(sb->indicator, 0, 1, 0, 1);
-		break;
-	}
-	case DE_GUI_SCROLL_BAR_ORIENTATION_HORIZONTAL:
-	{
-		de_gui_grid_add_row(sb->grid, 0, DE_GUI_SIZE_MODE_STRETCH);
-		de_gui_grid_add_column(sb->grid, 30, DE_GUI_SIZE_MODE_STRICT);
-		de_gui_grid_add_column(sb->grid, 0, DE_GUI_SIZE_MODE_STRETCH);
-		de_gui_grid_add_column(sb->grid, 30, DE_GUI_SIZE_MODE_STRICT);
+			de_gui_border_set_thickness(de_gui_node_find_direct_child_of_type(sb->up_button, DE_GUI_NODE_BORDER), 0, 0, 0, 1);
+			de_gui_border_set_thickness(de_gui_node_find_direct_child_of_type(sb->down_button, DE_GUI_NODE_BORDER), 0, 1, 0, 0);
+			de_gui_border_set_thickness(sb->indicator, 0, 1, 0, 1);
+			break;
+		}
+		case DE_GUI_SCROLL_BAR_ORIENTATION_HORIZONTAL:
+		{
+			de_gui_grid_add_row(sb->grid, 0, DE_GUI_SIZE_MODE_STRETCH);
+			de_gui_grid_add_column(sb->grid, 30, DE_GUI_SIZE_MODE_STRICT);
+			de_gui_grid_add_column(sb->grid, 0, DE_GUI_SIZE_MODE_STRETCH);
+			de_gui_grid_add_column(sb->grid, 30, DE_GUI_SIZE_MODE_STRICT);
 
-		de_gui_node_set_column(sb->up_button, 0);
-		de_gui_node_set_column(sb->canvas, 1);
-		de_gui_node_set_column(sb->down_button, 2);
+			de_gui_node_set_column(sb->up_button, 0);
+			de_gui_node_set_column(sb->canvas, 1);
+			de_gui_node_set_column(sb->down_button, 2);
 
-		de_gui_border_set_thickness(de_gui_node_find_direct_child_of_type(sb->up_button, DE_GUI_NODE_BORDER), 0, 0, 1, 0);
-		de_gui_border_set_thickness(de_gui_node_find_direct_child_of_type(sb->down_button, DE_GUI_NODE_BORDER), 1, 0, 0, 0);
-		de_gui_border_set_thickness(sb->indicator, 1, 0, 1, 0);
-		break;
-	}
-	default:
-	{
-		de_fatal_error("invalid scroll bar orientation!");
-		break;
-	}
+			de_gui_border_set_thickness(de_gui_node_find_direct_child_of_type(sb->up_button, DE_GUI_NODE_BORDER), 0, 0, 1, 0);
+			de_gui_border_set_thickness(de_gui_node_find_direct_child_of_type(sb->down_button, DE_GUI_NODE_BORDER), 1, 0, 0, 0);
+			de_gui_border_set_thickness(sb->indicator, 1, 0, 1, 0);
+			break;
+		}
+		default:
+		{
+			de_fatal_error("invalid scroll bar orientation!");
+			break;
+		}
 	}
 }
 
-/*=======================================================================================*/
-void de_gui_scroll_bar_set_min_value(de_gui_node_t* node, float min)
-{
+
+void de_gui_scroll_bar_set_min_value(de_gui_node_t* node, float min) {
 	de_gui_scroll_bar_t* sb;
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
 	sb = &node->s.scroll_bar;
@@ -295,9 +273,8 @@ void de_gui_scroll_bar_set_min_value(de_gui_node_t* node, float min)
 	de_gui_scroll_bar_update_indicator(node);
 }
 
-/*=======================================================================================*/
-void de_gui_scroll_bar_set_max_value(de_gui_node_t* node, float max)
-{
+
+void de_gui_scroll_bar_set_max_value(de_gui_node_t* node, float max) {
 	de_gui_scroll_bar_t* sb;
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
 	sb = &node->s.scroll_bar;
@@ -305,9 +282,8 @@ void de_gui_scroll_bar_set_max_value(de_gui_node_t* node, float max)
 	de_gui_scroll_bar_update_indicator(node);
 }
 
-/*=======================================================================================*/
-void de_gui_scroll_bar_set_value_changed(de_gui_node_t* node, de_scroll_bar_value_changed_event_t evt)
-{
+
+void de_gui_scroll_bar_set_value_changed(de_gui_node_t* node, de_scroll_bar_value_changed_event_t evt) {
 	de_gui_scroll_bar_t* sb;
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
 	sb = &node->s.scroll_bar;

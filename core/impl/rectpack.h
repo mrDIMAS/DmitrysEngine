@@ -19,9 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/*=======================================================================================*/
-de_rectpack_node_t* de_rectpack_create_node(int x, int y, int w, int h)
-{
+
+de_rectpack_node_t* de_rectpack_create_node(int x, int y, int w, int h) {
 	de_rectpack_node_t* node = DE_NEW(de_rectpack_node_t);
 	node->x = x;
 	node->y = y;
@@ -30,34 +29,26 @@ de_rectpack_node_t* de_rectpack_create_node(int x, int y, int w, int h)
 	return node;
 }
 
-/*=======================================================================================*/
-de_rectpack_node_t* de_rectpack_get_free(de_rectpack_node_t* node, int w, int h, void* data)
-{
-	if (node->split)
-	{
+
+de_rectpack_node_t* de_rectpack_get_free(de_rectpack_node_t* node, int w, int h, void* data) {
+	if (node->split) {
 		de_rectpack_node_t* newNode = de_rectpack_get_free(node->children[0], w, h, data);
-		if (newNode)
-		{
+		if (newNode) {
 			return newNode;
 		}
 		return de_rectpack_get_free(node->children[1], w, h, data);
 	}
-	if (node->data || node->w < w || node->h < h)
-	{
+	if (node->data || node->w < w || node->h < h) {
 		return NULL;
 	}
-	if (node->w == w && node->h == h)
-	{
+	if (node->w == w && node->h == h) {
 		node->data = data;
 		return node;
 	}
-	if (node->w - w > node->h - h)
-	{
+	if (node->w - w > node->h - h) {
 		node->children[0] = de_rectpack_create_node(node->x, node->y, w, node->h);
 		node->children[1] = de_rectpack_create_node(node->x + w, node->y, node->w - w, node->h);
-	}
-	else
-	{
+	} else {
 		node->children[0] = de_rectpack_create_node(node->x, node->y, node->w, h);
 		node->children[1] = de_rectpack_create_node(node->x, node->y + h, node->w, node->h - h);
 	}
@@ -65,11 +56,9 @@ de_rectpack_node_t* de_rectpack_get_free(de_rectpack_node_t* node, int w, int h,
 	return de_rectpack_get_free(node->children[0], w, h, data);
 }
 
-/*=======================================================================================*/
-void de_rectpack_free(de_rectpack_node_t * node)
-{
-	if (node && node->split)
-	{
+
+void de_rectpack_free(de_rectpack_node_t * node) {
+	if (node && node->split) {
 		de_rectpack_free(node->children[0]);
 		de_rectpack_free(node->children[1]);
 	}

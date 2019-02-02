@@ -1,8 +1,7 @@
 /**
 * @brief
 */
-typedef struct de_gui_canvas_t
-{
+typedef struct de_gui_canvas_t {
 	int dummy;
 } de_gui_canvas_t;
 

@@ -19,8 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef struct de_triangulator_vertex_t
-{
+typedef struct de_triangulator_vertex_t {
 	de_vec2_t position;
 	size_t index;
 	DE_LINKED_LIST_ITEM(struct de_triangulator_vertex_t);
@@ -31,7 +30,7 @@ typedef DE_LINKED_LIST_DECLARE(de_triangulator_vertex_t, de_triangulator_polygon
 /**
  * @brief Performs ear-clipping triangulation of a simple polygon.
  * @return Returns count of indices that forms triangles.
- * 
+ *
  * TODO: add special case for quadrilaterals!
  */
 int de_triangulate(de_vec3_t* polygon, size_t vertex_count, int* out_indices, int buffer_size);

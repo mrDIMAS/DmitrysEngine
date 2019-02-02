@@ -1,21 +1,18 @@
-static void de_gui_text_box_deinit(de_gui_node_t* n)
-{
+static void de_gui_text_box_deinit(de_gui_node_t* n) {
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_TEXT_BOX);
 
 	DE_UNUSED(n);
 }
 
-/*=======================================================================================*/
-de_gui_node_t* de_gui_text_box_create(de_gui_t* gui)
-{
+
+de_gui_node_t* de_gui_text_box_create(de_gui_t* gui) {
 	de_gui_node_t* n;
 	de_gui_text_box_t* tb;
 
 	static de_gui_dispatch_table_t dispatch_table;
 	{
 		static bool init = false;
-		if (!init)
-		{
+		if (!init) {
 			dispatch_table.deinit = de_gui_text_box_deinit;
 			init = true;
 		}

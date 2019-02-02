@@ -19,26 +19,21 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/*=======================================================================================*/
-void de_texture_add_ref(de_texture_t* tex)
-{
-	if (!tex)
-	{
+
+void de_texture_add_ref(de_texture_t* tex) {
+	if (!tex) {
 		return;
 	}
 	++tex->ref_count;
 }
 
-/*=======================================================================================*/
-void de_texture_release(de_texture_t* tex)
-{
-	if (!tex)
-	{
+
+void de_texture_release(de_texture_t* tex) {
+	if (!tex) {
 		return;
 	}
 	--tex->ref_count;
-	if (tex->ref_count <= 0)
-	{
+	if (tex->ref_count <= 0) {
 		de_renderer_remove_texture(tex->renderer, tex);
 		/* Free resources */
 		de_free(tex->pixels);

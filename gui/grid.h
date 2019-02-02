@@ -22,8 +22,7 @@
 /**
 * @brief
 */
-typedef enum de_gui_size_mode_t
-{
+typedef enum de_gui_size_mode_t {
 	/* size of row/column is strictly defined by desired size */
 	DE_GUI_SIZE_MODE_STRICT,
 	/* grid row/column will take size of most large element */
@@ -36,8 +35,7 @@ typedef enum de_gui_size_mode_t
 /**
 * @brief
 */
-typedef struct de_gui_grid_column_t
-{
+typedef struct de_gui_grid_column_t {
 	de_gui_size_mode_t size_mode;
 	float desired_width;
 	float actual_width;
@@ -47,8 +45,7 @@ typedef struct de_gui_grid_column_t
 /**
 * @brief
 */
-typedef struct de_gui_grid_row_t
-{
+typedef struct de_gui_grid_row_t {
 	de_gui_size_mode_t size_mode;
 	float desired_height;
 	float actual_height;
@@ -58,8 +55,7 @@ typedef struct de_gui_grid_row_t
 /**
 * @brief
 */
-typedef struct de_gui_grid_t
-{
+typedef struct de_gui_grid_t {
 	DE_ARRAY_DECLARE(de_gui_grid_column_t, columns);
 	DE_ARRAY_DECLARE(de_gui_grid_row_t, rows);
 	bool draw_borders;

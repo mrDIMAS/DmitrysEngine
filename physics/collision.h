@@ -26,8 +26,7 @@
 * @class de_contact_s
 * @brief Physical contact
 */
-typedef struct de_contact_s
-{
+typedef struct de_contact_s {
 	de_body_t* body;                /**< Pointer to body with which contact is appeared */
 	de_vec3_t position;             /**< Position of contact */
 	de_vec3_t normal;               /**< Normal vector in contact point */
@@ -40,8 +39,7 @@ typedef struct de_contact_s
 *
 * Each body is a sphere (particle). But can represent capsule too.
 */
-struct de_body_t
-{
+struct de_body_t {
 	DE_LINKED_LIST_ITEM(struct de_body_t);
 	de_scene_t* scene;
 	de_vec3_t gravity;
@@ -59,8 +57,7 @@ struct de_body_t
 * @class de_static_triangle_t
 * @brief Static triangle for static collision geometry
 */
-struct de_static_triangle_t
-{
+struct de_static_triangle_t {
 	de_vec3_t normal; /**< Normal of triangle */
 	de_vec3_t a;      /**< Vertex of triangle */
 	de_vec3_t b;      /**< Vertex of triangle */
@@ -86,8 +83,7 @@ struct de_static_triangle_t
 * Actually geometry can be moved or transformed in any way user wants, but it is really expensive
 * operation. Geometry called "static", because such transformations should be rare.
 */
-struct de_static_geometry_t
-{
+struct de_static_geometry_t {
 	DE_LINKED_LIST_ITEM(struct de_static_geometry_t);
 	de_scene_t* scene;
 	DE_ARRAY_DECLARE(de_static_triangle_t, triangles); /**< Array of de_static_triangle_t. All geometry stored here */
@@ -147,7 +143,7 @@ void de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t
 /**
 * @brief Calculates physics for one frame
 */
-void de_physics_step(de_core_t* core, float dt);
+void de_physics_step(de_core_t* core, double dt);
 
 /**
  * @brief Sets gravity vector for a body.

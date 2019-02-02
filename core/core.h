@@ -19,27 +19,28 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/**
-* @brief Engine creation parameters
-*/
-typedef struct de_engine_params_s
-{
-	unsigned int width;  /**< Width of the client area of the window */
-	unsigned int height; /**< Height of the client area of the window */
+typedef struct de_video_mode_t {
+	unsigned int width;
+	unsigned int height;
+	unsigned int bits_per_pixel;
+	bool fullscreen;
+} de_video_mode_t;
+
+typedef enum de_core_flags_t {
+	DE_CORE_FLAGS_BORDERLESS = DE_BIT(0),
+} de_core_flags_t;
+
+typedef struct de_engine_params_t {
+	de_video_mode_t video_mode;
+	uint32_t flags;
 } de_engine_params_t;
 
-struct de_core_t
-{
-	struct
-	{
+struct de_core_t {
+	struct {
 	#ifdef _WIN32
 		HGLRC gl_context;
 		HWND window;
 		HDC device_context;
-
-		HWND dummy_window;
-		HGLRC dummy_context;
-		HDC dummy_dc;
 	#else
 		Display* display;
 		Window window;
@@ -47,23 +48,15 @@ struct de_core_t
 	#endif
 	} platform;
 
-	de_engine_params_t params;   /**< Initialization parameters */
-	bool running;              /**< true if engine is running */
-	bool keyboard_focus;             /**< true if rendering window is in focus */
-	bool keys[DE_KEY_Count];   /**< State of keyboard keys: true or false */
-	bool mouse_buttons[5];     /**< State of mouse buttons: true or false */
-	int mouse_wheel;             /**< Mouse wheel speed */
-	de_vec2_t mouse_pos;         /**< Mouse position in window coordinates */
-	de_vec2_t mouse_vel;         /**< Mouse velocity vector */
-
+	de_engine_params_t params; /**< Initialization parameters */
+	bool running; /**< true if engine is running */
+	bool keyboard_focus; /**< true if rendering window is in focus */
 	DE_LINKED_LIST_DECLARE(de_scene_t, scenes);
-
+	DE_LINKED_LIST_DECLARE(de_font_t, fonts);
 	de_renderer_t* renderer;
 	de_gui_t* gui;
-
 	size_t alloc_count;
-
-	DE_LINKED_LIST_DECLARE(de_font_t, fonts);
+	DE_ARRAY_DECLARE(de_event_t, events_queue);
 };
 
 /**
@@ -87,11 +80,6 @@ bool de_core_is_running(de_core_t* core);
 void de_core_stop(de_core_t* core);
 
 /**
- * @brief Performs one tick of update
- */
-void de_core_update(de_core_t* core, float dt);
-
-/**
  * @brief Returns current width of render window.
  */
 unsigned int de_core_get_window_width(de_core_t* core);
@@ -112,16 +100,83 @@ de_renderer_t* de_core_get_renderer(de_core_t* core);
 de_gui_t* de_core_get_gui(de_core_t* core);
 
 /**
-* Platform-specific function prototypes.
-* Each of below functions must be implemented for each platform.
-*/
+ * @brief Pushes new event into event queue. Can be used to inject custom input
+ * into message queue.
+ */
+void de_core_push_event(de_core_t* core, const de_event_t* evt);
 
-typedef void(*de_proc)(void);
+/**
+ * @brief Poll event from event events queue. Returns true if event was extracted.
+ *
+ * Typical usage:
+ *
+ * de_event_t evt;
+ * while(de_core_poll_event(core, &evt)) {
+ *    ..do stuff
+ * }
+ */
+bool de_core_poll_event(de_core_t* core, de_event_t* evt);
 
-void de_engine_platform_init(de_core_t* core);
-void de_engine_platform_shutdown(de_core_t* core);
-void de_engine_platform_message_queue(de_core_t* core);
-de_proc de_engine_platform_get_proc_address(const char *name);
-void de_engine_platform_swap_buffers(de_core_t* core);
-void de_engine_platform_message_box(const char * msg);
 
+/********************************************************************
+* Platform-specific function prototypes.                            *
+* Each of below functions must be implemented for each platform.    *
+********************************************************************/
+
+/**
+ * @brief Initializes platform specific stuff.
+ */
+void de_core_platform_init(de_core_t* core);
+
+/**
+ * @brief Doing platform specific shutdown routine.
+ */
+void de_core_platform_shutdown(de_core_t* core);
+
+/**
+ * @brief Polls platform events.
+ */
+void de_core_platform_poll_events(de_core_t* core);
+
+/**
+ * @brief Retrieves OpenGL extension function pointer.
+ */
+de_proc de_core_platform_get_proc_address(const char *name);
+
+/**
+ * @brief Swaps buffers: back and front.
+ */
+void de_core_platform_swap_buffers(de_core_t* core);
+
+/**
+ * @brief Shows message box.
+ */
+void de_core_platform_message_box(de_core_t* core, const char * msg, const char* title);
+
+/**
+ * @brief Sets title of rendering window.
+ */
+void de_core_platform_set_window_title(de_core_t* core, const char* title);
+
+/**
+ * @brief Sets new video mode.
+ */
+void de_core_set_video_mode(de_core_t* core, const de_video_mode_t* vm);
+
+/**
+ * @brief Gets current desktop video mode.
+ */
+void de_get_desktop_video_mode(de_video_mode_t* vm);
+
+/**
+ * @brief Enumerates available video modes.
+ * 
+ * Typical usage:
+ * 
+ * int n = 0;
+ * de_video_mode_t vm;
+ * while(de_enum_video_modes(&vm, n++)) {
+ *   ..do stuff
+ * }
+ */
+bool de_enum_video_modes(de_video_mode_t* vm, int n);

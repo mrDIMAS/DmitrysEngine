@@ -19,9 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/*=======================================================================================*/
-de_animation_t* de_animation_create(de_scene_t* s)
-{
+
+de_animation_t* de_animation_create(de_scene_t* s) {
 	de_animation_t* animation;
 
 	animation = DE_NEW(de_animation_t);
@@ -36,9 +35,8 @@ de_animation_t* de_animation_create(de_scene_t* s)
 	return animation;
 }
 
-/*=======================================================================================*/
-de_animation_track_t* de_animation_track_create(de_animation_t* anim)
-{
+
+de_animation_track_t* de_animation_track_create(de_animation_t* anim) {
 	de_animation_track_t* track;
 
 	track = DE_NEW(de_animation_track_t);
@@ -47,33 +45,26 @@ de_animation_track_t* de_animation_track_create(de_animation_t* anim)
 	return track;
 }
 
-/*=======================================================================================*/
-void de_animation_track_free(de_animation_track_t* track)
-{
+
+void de_animation_track_free(de_animation_track_t* track) {
 	DE_ARRAY_FREE(track->keyframes);
 
 	de_free(track);
 }
 
-/*=======================================================================================*/
-void de_animation_track_add_keyframe(de_animation_track_t* track, const de_keyframe_t* keyframe)
-{
+
+void de_animation_track_add_keyframe(de_animation_track_t* track, const de_keyframe_t* keyframe) {
 	size_t i;
 
-	if (keyframe->time > track->max_time)
-	{
+	if (keyframe->time > track->max_time) {
 		DE_ARRAY_APPEND(track->keyframes, *keyframe);
 
 		track->max_time = keyframe->time;
-	}
-	else
-	{
-		for (i = 0; i < track->keyframes.size; ++i)
-		{
+	} else {
+		for (i = 0; i < track->keyframes.size; ++i) {
 			de_keyframe_t* other_keyframe = DE_ARRAY_AT(&track->keyframes, i);
 
-			if (keyframe->time < other_keyframe->time)
-			{
+			if (keyframe->time < other_keyframe->time) {
 				break;
 			}
 		}
@@ -82,15 +73,13 @@ void de_animation_track_add_keyframe(de_animation_track_t* track, const de_keyfr
 	}
 }
 
-/*=======================================================================================*/
-void de_animation_free(de_animation_t* anim)
-{
+
+void de_animation_free(de_animation_t* anim) {
 	size_t i;
 
 	DE_LINKED_LIST_REMOVE(anim->scene->animations, anim);
 
-	for (i = 0; i < anim->tracks.size; ++i)
-	{
+	for (i = 0; i < anim->tracks.size; ++i) {
 		de_animation_track_free(anim->tracks.data[i]);
 	}
 	DE_ARRAY_FREE(anim->tracks);
@@ -98,9 +87,8 @@ void de_animation_free(de_animation_t* anim)
 	de_free(anim);
 }
 
-/*=======================================================================================*/
-void de_animation_track_get_keyframe(de_animation_track_t* track, float time, de_keyframe_t* out_keyframe)
-{
+
+void de_animation_track_get_keyframe(de_animation_track_t* track, float time, de_keyframe_t* out_keyframe) {
 	size_t i;
 	de_keyframe_t* left = NULL;
 	de_keyframe_t* right = NULL;
@@ -108,37 +96,29 @@ void de_animation_track_get_keyframe(de_animation_track_t* track, float time, de
 
 	time = de_clamp(time, 0.0f, track->max_time);
 
-	if (time >= track->max_time)
-	{
+	if (time >= track->max_time) {
 		left = &DE_ARRAY_LAST(track->keyframes);
 		right = left;
 
 		interpolator = 0.0f;
-	}
-	else
-	{
+	} else {
 		int right_index = -1;
 
-		for (i = 0; i < track->keyframes.size; ++i)
-		{
+		for (i = 0; i < track->keyframes.size; ++i) {
 			de_keyframe_t* keyframe = &DE_ARRAY_AT(track->keyframes, i);
 
-			if (keyframe->time >= time)
-			{
+			if (keyframe->time >= time) {
 				right_index = i;
 				break;
 			}
 		}
 
-		if (right_index == 0)
-		{
+		if (right_index == 0) {
 			left = &DE_ARRAY_FIRST(track->keyframes);
 			right = left;
 
 			interpolator = 0.0f;
-		}
-		else
-		{
+		} else {
 			left = &DE_ARRAY_AT(track->keyframes, right_index - 1);
 			right = &DE_ARRAY_AT(track->keyframes, right_index);
 
@@ -146,14 +126,10 @@ void de_animation_track_get_keyframe(de_animation_track_t* track, float time, de
 		}
 	}
 
-	if (left && right)
-	{
-		if (interpolator == 0.0f)
-		{
+	if (left && right) {
+		if (interpolator == 0.0f) {
 			*out_keyframe = *left;
-		}
-		else
-		{
+		} else {
 			out_keyframe->time = de_lerp(left->time, right->time, interpolator);
 			de_vec3_lerp(&out_keyframe->position, &left->position, &right->position, interpolator);
 			de_vec3_lerp(&out_keyframe->scale, &left->scale, &right->scale, interpolator);
@@ -162,28 +138,24 @@ void de_animation_track_get_keyframe(de_animation_track_t* track, float time, de
 	}
 }
 
-/*=======================================================================================*/
-void de_animation_add_track(de_animation_t* anim, de_animation_track_t* track)
-{
+
+void de_animation_add_track(de_animation_t* anim, de_animation_track_t* track) {
 	DE_ARRAY_APPEND(anim->tracks, track);
 }
 
-/*=======================================================================================*/
-void de_animation_update(de_animation_t* anim, float dt)
-{
+
+void de_animation_update(de_animation_t* anim, float dt) {
 	size_t i;
 	float nextTimePos = anim->time_position + dt * anim->speed;
 
-	for (i = 0; i < anim->tracks.size; ++i)
-	{
+	for (i = 0; i < anim->tracks.size; ++i) {
 		de_animation_track_t* track;
 		de_keyframe_t keyframe;
 		de_node_t* node;
 
 		track = anim->tracks.data[i];
 
-		if (!track->node)
-		{
+		if (!track->node) {
 			continue;
 		}
 
@@ -206,80 +178,64 @@ void de_animation_update(de_animation_t* anim, float dt)
 	de_animation_set_time_position(anim, nextTimePos);
 
 	/* Handle fading - part of animation blending */
-	if (anim->fade_step != 0.0f)
-	{
+	if (anim->fade_step != 0.0f) {
 		anim->weight += anim->fade_step * dt;
-		if (anim->fade_step < 0 && anim->weight <= 0)
-		{
+		if (anim->fade_step < 0 && anim->weight <= 0) {
 			anim->weight = 0;
 			de_animation_reset_flags(anim, DE_ANIMATION_FLAG_ENABLED);
 			anim->fade_step = 0;
-		}
-		else if (anim->fade_step > 0 && anim->weight >= 1)
-		{
+		} else if (anim->fade_step > 0 && anim->weight >= 1) {
 			anim->weight = 1;
 			anim->fade_step = 0;
 		}
 	}
 }
 
-/*=======================================================================================*/
-void de_animation_set_time_position(de_animation_t* anim, float time)
-{
-	if (anim->flags & DE_ANIMATION_FLAG_LOOPED)
-	{
+
+void de_animation_set_time_position(de_animation_t* anim, float time) {
+	if (anim->flags & DE_ANIMATION_FLAG_LOOPED) {
 		anim->time_position = de_fwrap(time, 0.0f, anim->length);
-	}
-	else
-	{
+	} else {
 		anim->time_position = de_clamp(time, 0.0f, anim->length);
 	}
 }
 
-/*=======================================================================================*/
-bool de_animation_is_flags_set(de_animation_t* anim, int flags)
-{
+
+bool de_animation_is_flags_set(de_animation_t* anim, int flags) {
 	return (anim->flags & flags) == flags;
 }
 
-/*=======================================================================================*/
-void de_animation_set_flags(de_animation_t* anim, int flags)
-{
+
+void de_animation_set_flags(de_animation_t* anim, int flags) {
 	anim->flags |= flags;
 }
 
-/*=======================================================================================*/
-void de_animation_reset_flags(de_animation_t* anim, int flags)
-{
+
+void de_animation_reset_flags(de_animation_t* anim, int flags) {
 	anim->flags &= ~flags;
 }
 
-/*=======================================================================================*/
-void de_animation_clamp_length(de_animation_t* anim)
-{
+
+void de_animation_clamp_length(de_animation_t* anim) {
 	size_t i;
 
-	for (i = 0; i < anim->tracks.size; ++i)
-	{
+	for (i = 0; i < anim->tracks.size; ++i) {
 		de_animation_track_t* track = anim->tracks.data[i];
 
-		if (track->max_time > anim->length)
-		{
+		if (track->max_time > anim->length) {
 			anim->length = track->max_time;
 		}
 	}
 }
 
-/*=======================================================================================*/
-de_animation_t* de_animation_extract(de_animation_t* anim, float from, float to)
-{
+
+de_animation_t* de_animation_extract(de_animation_t* anim, float from, float to) {
 	size_t i;
-		
+
 	from = (float)fabs(from);
 	to = (float)fabs(to);
 
-	if (from > to)
-	{
+	if (from > to) {
 		float temp = from;
 		from = to;
 		to = temp;
@@ -287,8 +243,7 @@ de_animation_t* de_animation_extract(de_animation_t* anim, float from, float to)
 
 	de_animation_t* new_anim = de_animation_create(anim->scene);
 
-	for (i = 0; i < anim->tracks.size; ++i)
-	{
+	for (i = 0; i < anim->tracks.size; ++i) {
 		/* TODO */
 	}
 

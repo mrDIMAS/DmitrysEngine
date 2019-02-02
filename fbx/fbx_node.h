@@ -19,17 +19,15 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef struct de_fbx_buffer_t
-{
+typedef struct de_fbx_buffer_t {
 	char* data;
 	char* ptr;
 	char* end;
 	size_t size;
 } de_fbx_buffer_t;
 
-void de_fbx_buffer_init(de_fbx_buffer_t* buf, size_t size)
-{
-	buf->data = (char*) de_malloc(size);
+void de_fbx_buffer_init(de_fbx_buffer_t* buf, size_t size) {
+	buf->data = (char*)de_malloc(size);
 	buf->ptr = buf->data;
 	buf->end = (char*)buf->data + size;
 	buf->size = size;
@@ -41,30 +39,26 @@ void de_fbx_buffer_init(de_fbx_buffer_t* buf, size_t size)
  * Main purpose of this method is to reduce memory thrashing when loading FBX
  * properties so every property will be placed in the single memory block.
  */
-void* de_fbx_buffer_alloc(de_fbx_buffer_t* buf, size_t size)
-{
+void* de_fbx_buffer_alloc(de_fbx_buffer_t* buf, size_t size) {
 	void* ptr;
 
 	ptr = buf->ptr;
 	buf->ptr += size;
 
-	if (buf->ptr >= buf->end)
-	{
+	if (buf->ptr >= buf->end) {
 		de_fatal_error("buffer overflow");
 	}
 
 	return ptr;
 }
 
-void de_fbx_buffer_free(de_fbx_buffer_t* buf)
-{
+void de_fbx_buffer_free(de_fbx_buffer_t* buf) {
 	de_free(buf->data);
 	buf->data = NULL;
 	buf->size = 0;
 }
 
-typedef struct de_fbx_node_s
-{
+typedef struct de_fbx_node_s {
 	/* Name of a node */
 	char* name;
 

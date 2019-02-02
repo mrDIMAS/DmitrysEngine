@@ -19,8 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef struct de_tga_header_t
-{
+typedef struct de_tga_header_t {
 	char idLength;
 	char colorMapType;
 	char dataTypeCode;
@@ -35,9 +34,8 @@ typedef struct de_tga_header_t
 	char imageDescriptor;
 } de_tga_header_t;
 
-/*=======================================================================================*/
-bool de_image_load_tga(const char* filename, de_image_t* img)
-{
+
+bool de_image_load_tga(const char* filename, de_image_t* img) {
 	FILE* file;
 	size_t i, byte_count;
 	unsigned char temp;
@@ -45,8 +43,7 @@ bool de_image_load_tga(const char* filename, de_image_t* img)
 
 	file = fopen(filename, "rb");
 
-	if (!file)
-	{
+	if (!file) {
 		de_log("TGA Loader: Unable to open file %s", filename);
 		return false;
 	}
@@ -75,8 +72,7 @@ bool de_image_load_tga(const char* filename, de_image_t* img)
 	/* Read pixels */
 	byte_count = header.width * header.height * img->byte_per_pixel;
 	img->data = (char*)de_malloc(byte_count);
-	if (fread(img->data, 1, byte_count, file) != byte_count)
-	{
+	if (fread(img->data, 1, byte_count, file) != byte_count) {
 		de_log("TGA Loader: File %s is corrupted", filename);
 		de_free(img->data);
 		fclose(file);
@@ -86,8 +82,7 @@ bool de_image_load_tga(const char* filename, de_image_t* img)
 	fclose(file);
 
 	/* Swap red and blue to get RGB/RGBA image from BGR/ABGR */
-	for (i = 0; i < byte_count; i += img->byte_per_pixel)
-	{
+	for (i = 0; i < byte_count; i += img->byte_per_pixel) {
 		temp = img->data[i];
 		img->data[i] = img->data[i + 2];
 		img->data[i + 2] = temp;
@@ -98,18 +93,14 @@ bool de_image_load_tga(const char* filename, de_image_t* img)
 	return true;
 }
 
-/*=======================================================================================*/
-void de_image_flip_y(de_image_t* img)
-{
-	int x, y_src, y_dest, k;
-	char* new_data = (char*) de_malloc(img->byte_per_pixel * img->width * img->height);
 
-	for (y_src = (int)img->height - 1, y_dest = 0; y_src >= 0; --y_src, ++y_dest)
-	{		
-		for (x = 0; x < (int)img->width; ++x)
-		{
-			for (k = 0; k < (int)img->byte_per_pixel; ++k)
-			{
+void de_image_flip_y(de_image_t* img) {
+	int x, y_src, y_dest, k;
+	char* new_data = (char*)de_malloc(img->byte_per_pixel * img->width * img->height);
+
+	for (y_src = (int)img->height - 1, y_dest = 0; y_src >= 0; --y_src, ++y_dest) {
+		for (x = 0; x < (int)img->width; ++x) {
+			for (k = 0; k < (int)img->byte_per_pixel; ++k) {
 				size_t src_index = (y_src * img->width + x) * img->byte_per_pixel + k;
 				size_t dst_index = (y_dest * img->width + x) * img->byte_per_pixel + k;
 				new_data[dst_index] = img->data[src_index];

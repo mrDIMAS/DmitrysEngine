@@ -22,8 +22,7 @@
 /**
 * @brief Camera component.
 */
-typedef struct de_camera_t
-{
+typedef struct de_camera_t {
 	de_node_t* parent_node;
 	float fov;                        /**< Field-of-view in degrees. Read-only. */
 	float aspect;                     /**< Aspect ratio of camera viewport. Read-only. */
@@ -63,7 +62,6 @@ void de_camera_update(de_camera_t* c);
 */
 void de_camera_set_viewport(de_camera_t* camera, const de_rectf_t* viewport);
 
-void de_camera_set_fov(de_camera_t* camera, float fov)
-{
+void de_camera_set_fov(de_camera_t* camera, float fov) {
 	camera->fov = fov;
 }

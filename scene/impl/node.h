@@ -19,12 +19,10 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/*=======================================================================================*/
-void de_node_free(de_node_t* node)
-{
+
+void de_node_free(de_node_t* node) {
 	/* Free children first */
-	while(node->children.size)
-	{
+	while (node->children.size) {
 		de_node_free(node->children.data[0]);
 	}
 	DE_ARRAY_FREE(node->children);
@@ -32,34 +30,31 @@ void de_node_free(de_node_t* node)
 	/* Free the node */
 	de_node_detach(node);
 
-	if (node->scene)
-	{
+	if (node->scene) {
 		de_scene_remove_node(node->scene, node);
 	}
 
 	de_free(node->name);
 
-	switch (node->type)
-	{
-	case DE_NODE_TYPE_BASE:
-		break;
-	case DE_NODE_TYPE_MESH:
-		de_mesh_deinit(&node->s.mesh);
-		break;
-	case DE_NODE_TYPE_CAMERA:
-		de_camera_deinit(&node->s.camera);
-		break;
-	case DE_NODE_TYPE_LIGHT:
-		de_light_deinit(&node->s.light);
-		break;
+	switch (node->type) {
+		case DE_NODE_TYPE_BASE:
+			break;
+		case DE_NODE_TYPE_MESH:
+			de_mesh_deinit(&node->s.mesh);
+			break;
+		case DE_NODE_TYPE_CAMERA:
+			de_camera_deinit(&node->s.camera);
+			break;
+		case DE_NODE_TYPE_LIGHT:
+			de_light_deinit(&node->s.light);
+			break;
 	}
-	
+
 	de_free(node);
 }
 
-/*=======================================================================================*/
-de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type)
-{
+
+de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type) {
 	de_node_t* node = DE_NEW(de_node_t);
 
 	node->type = type;
@@ -71,29 +66,26 @@ de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type)
 	de_quat_set(&node->pre_rotation, 0, 0, 0, 1);
 	de_quat_set(&node->post_rotation, 0, 0, 0, 1);
 
-	switch (type)
-	{
-	case DE_NODE_TYPE_BASE:
-		break;
-	case DE_NODE_TYPE_MESH:	
-		de_mesh_init(node);
-		break;	
-	case DE_NODE_TYPE_CAMERA:	
-		de_camera_init(node);
-		break;	
-	case DE_NODE_TYPE_LIGHT:		
-		de_light_init(node);
-		break;
+	switch (type) {
+		case DE_NODE_TYPE_BASE:
+			break;
+		case DE_NODE_TYPE_MESH:
+			de_mesh_init(node);
+			break;
+		case DE_NODE_TYPE_CAMERA:
+			de_camera_init(node);
+			break;
+		case DE_NODE_TYPE_LIGHT:
+			de_light_init(node);
+			break;
 	}
 
 	return node;
 }
 
-/*=======================================================================================*/
-void de_node_attach(de_node_t* node, de_node_t* parent)
-{
-	if (!node || !parent)
-	{
+
+void de_node_attach(de_node_t* node, de_node_t* parent) {
+	if (!node || !parent) {
 		return;
 	}
 
@@ -103,11 +95,9 @@ void de_node_attach(de_node_t* node, de_node_t* parent)
 	node->parent = parent;
 }
 
-/*=======================================================================================*/
-void de_node_detach(de_node_t* node)
-{
-	if (!node || !node->parent)
-	{
+
+void de_node_detach(de_node_t* node) {
+	if (!node || !node->parent) {
 		return;
 	}
 
@@ -115,9 +105,8 @@ void de_node_detach(de_node_t* node)
 	node->parent = NULL;
 }
 
-/*=======================================================================================*/
-de_mat4_t* de_node_calculate_transforms(de_node_t* node)
-{
+
+de_mat4_t* de_node_calculate_transforms(de_node_t* node) {
 	de_mat4_t pre_rotation;
 	de_mat4_t post_rotation;
 	de_mat4_t rotation;
@@ -130,13 +119,11 @@ de_mat4_t* de_node_calculate_transforms(de_node_t* node)
 	de_mat4_t scale_pivot;
 	de_mat4_t scale_pivot_inv;
 
-	if (!node)
-	{
+	if (!node) {
 		return NULL;
 	}
 
-	if (node->body)
-	{
+	if (node->body) {
 		node->position = node->body->position;
 	}
 
@@ -150,7 +137,7 @@ de_mat4_t* de_node_calculate_transforms(de_node_t* node)
 	 * So to exclude weird transformations behaviour when using FBX, I just decided
 	 * to use all these matrices. This is not optimized at all, for example 70% of
 	 * these multiplications and matrices creation can be done only once on load.
-	 * 
+	 *
 	 * TODO: OPTIMIZE THIS ASAP!
 	 */
 
@@ -182,56 +169,45 @@ de_mat4_t* de_node_calculate_transforms(de_node_t* node)
 	de_mat4_mul(&node->local_matrix, &node->local_matrix, &scale);
 	de_mat4_mul(&node->local_matrix, &node->local_matrix, &scale_pivot_inv);
 
-	if (node->parent)
-	{
+	if (node->parent) {
 		de_mat4_mul(&node->global_matrix, de_node_calculate_transforms(node->parent), &node->local_matrix);
-	}
-	else
-	{
+	} else {
 		node->global_matrix = node->local_matrix;
 	}
 
 	return &node->global_matrix;
 }
 
-/*=======================================================================================*/
-void de_node_get_look_vector(de_node_t* node, de_vec3_t* look)
-{
-	if (!node || !look)
-	{
+
+void de_node_get_look_vector(de_node_t* node, de_vec3_t* look) {
+	if (!node || !look) {
 		return;
 	}
 
 	de_mat4_look(&node->global_matrix, look);
 }
 
-/*=======================================================================================*/
-void de_node_get_up_vector(de_node_t* node, de_vec3_t* up)
-{
-	if (!node || !up)
-	{
+
+void de_node_get_up_vector(de_node_t* node, de_vec3_t* up) {
+	if (!node || !up) {
 		return;
 	}
 
 	de_mat4_up(&node->global_matrix, up);
 }
 
-/*=======================================================================================*/
-void de_node_get_side_vector(de_node_t* node, de_vec3_t* side)
-{
-	if (!node || !side)
-	{
+
+void de_node_get_side_vector(de_node_t* node, de_vec3_t* side) {
+	if (!node || !side) {
 		return;
 	}
 
 	de_mat4_side(&node->global_matrix, side);
 }
 
-/*=======================================================================================*/
-void de_node_get_global_position(de_node_t* node, de_vec3_t* pos)
-{
-	if (!node || !pos)
-	{
+
+void de_node_get_global_position(de_node_t* node, de_vec3_t* pos) {
+	if (!node || !pos) {
 		return;
 	}
 
@@ -240,27 +216,21 @@ void de_node_get_global_position(de_node_t* node, de_vec3_t* pos)
 	pos->z = node->global_matrix.f[14];
 }
 
-/*=======================================================================================*/
-void de_node_set_local_position(de_node_t* node, de_vec3_t* pos)
-{
-	if (!node || !pos)
-	{
+
+void de_node_set_local_position(de_node_t* node, de_vec3_t* pos) {
+	if (!node || !pos) {
 		return;
 	}
 
-	if (node->body)
-	{
+	if (node->body) {
 		de_body_set_position(node->body, pos);
-	}
-	else
-	{
+	} else {
 		node->position = *pos;
 	}
 }
 
-/*=======================================================================================*/
-void de_node_set_local_position_xyz(de_node_t* node, float x, float y, float z)
-{
+
+void de_node_set_local_position_xyz(de_node_t* node, float x, float y, float z) {
 	de_vec3_t p;
 
 	de_vec3_set(&p, x, y, z);
@@ -268,70 +238,55 @@ void de_node_set_local_position_xyz(de_node_t* node, float x, float y, float z)
 	de_node_set_local_position(node, &p);
 }
 
-/*=======================================================================================*/
-void de_node_move(de_node_t* node, de_vec3_t* offset)
-{
-	if (!node || !offset)
-	{
+
+void de_node_move(de_node_t* node, de_vec3_t* offset) {
+	if (!node || !offset) {
 		return;
 	}
 
 	de_vec3_add(&node->position, &node->position, offset);
 }
 
-/*=======================================================================================*/
-void de_node_set_local_rotation(de_node_t* node, de_quat_t* rot)
-{
-	if (!node || !rot)
-	{
+
+void de_node_set_local_rotation(de_node_t* node, de_quat_t* rot) {
+	if (!node || !rot) {
 		return;
 	}
 
 	node->rotation = *rot;
 }
 
-/*=======================================================================================*/
-void de_node_set_local_scale(de_node_t* node, de_vec3_t* scl)
-{
-	if (!node || !scl)
-	{
+
+void de_node_set_local_scale(de_node_t* node, de_vec3_t* scl) {
+	if (!node || !scl) {
 		return;
 	}
 
 	node->scale = *scl;
 }
 
-/*=======================================================================================*/
-void de_node_set_body(de_node_t* node, de_body_t* body)
-{
-	if (!node)
-	{
+
+void de_node_set_body(de_node_t* node, de_body_t* body) {
+	if (!node) {
 		return;
 	}
 
 	node->body = body;
 }
 
-/*=======================================================================================*/
-de_node_t* de_node_find(de_node_t* node, const char* name)
-{
+
+de_node_t* de_node_find(de_node_t* node, const char* name) {
 	de_node_t* result = NULL;
 	size_t i;
 
-	if (node)
-	{
-		if (node->name && strcmp(node->name, name) == 0)
-		{
+	if (node) {
+		if (node->name && strcmp(node->name, name) == 0) {
 			result = node;
-		}
-		else
-		{
-			for (i = 0; i < node->children.size; ++i)
-			{
+		} else {
+			for (i = 0; i < node->children.size; ++i) {
 				result = de_node_find(node->children.data[i], name);
 
-				if (result)
-				{
+				if (result) {
 					break;
 				}
 			}
@@ -341,30 +296,26 @@ de_node_t* de_node_find(de_node_t* node, const char* name)
 	return result;
 }
 
-/*=======================================================================================*/
-de_mesh_t* de_node_to_mesh(de_node_t* node)
-{
+
+de_mesh_t* de_node_to_mesh(de_node_t* node) {
 	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_MESH);
 	return &node->s.mesh;
 }
 
-/*=======================================================================================*/
-de_light_t* de_node_to_light(de_node_t* node)
-{
+
+de_light_t* de_node_to_light(de_node_t* node) {
 	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_LIGHT);
 	return &node->s.light;
 }
 
-/*=======================================================================================*/
-de_camera_t* de_node_to_camera(de_node_t* node)
-{
+
+de_camera_t* de_node_to_camera(de_node_t* node) {
 	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_CAMERA);
 	return &node->s.camera;
 }
 
-/*=======================================================================================*/
-bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node)
-{
+
+bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node) {
 	bool result = true;
 	result &= de_object_visitor_visit_heap_string(visitor, "Name", &node->name);
 	result &= de_object_visitor_visit_mat4(visitor, "LocalTransform", &node->local_matrix);
@@ -387,9 +338,8 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node)
 	return result;
 }
 
-/*=======================================================================================*/
-void de_node_set_name(de_node_t* node, const char* name)
-{
+
+void de_node_set_name(de_node_t* node, const char* name) {
 	de_free(node->name);
 	node->name = de_str_copy(name);
 }

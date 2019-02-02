@@ -19,9 +19,9 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/*=======================================================================================*/
-void de_camera_init(de_node_t* node)
-{
+
+void de_camera_init(de_node_t* node) {
+	de_core_t* core = node->scene->core;
 	de_camera_t* c = &node->s.camera;
 	de_rectf_t viewport = { 0, 0, 1, 1 };
 	de_camera_set_viewport(c, &viewport);
@@ -29,19 +29,17 @@ void de_camera_init(de_node_t* node)
 	c->fov = 75.0f;
 	c->z_far = 1024.0f;
 	c->z_near = 0.05f;
-	c->aspect = node->scene->core->params.width / (float)node->scene->core->params.height;
+	c->aspect = core->params.video_mode.width / (float)core->params.video_mode.height;
 }
 
-/*=======================================================================================*/
-void de_camera_deinit(de_camera_t* c)
-{
+
+void de_camera_deinit(de_camera_t* c) {
 	assert(c);
 	DE_UNUSED(c);
 }
 
-/*=======================================================================================*/
-void de_camera_update(de_camera_t* cam)
-{
+
+void de_camera_update(de_camera_t* cam) {
 	de_vec3_t eye, look, up;
 	de_node_t* node = cam->parent_node;
 
@@ -62,9 +60,8 @@ void de_camera_update(de_camera_t* cam)
 	de_mat4_inverse(&cam->inv_view_proj, &cam->view_projection_matrix);
 }
 
-/*=======================================================================================*/
-void de_camera_set_viewport(de_camera_t* c, const de_rectf_t* viewport)
-{
+
+void de_camera_set_viewport(de_camera_t* c, const de_rectf_t* viewport) {
 	assert(c);
 	assert(viewport);
 	c->viewport = *viewport;

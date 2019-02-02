@@ -19,8 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-char* de_base64_encode(const void* data, size_t size, size_t* out_size)
-{
+char* de_base64_encode(const void* data, size_t size, size_t* out_size) {
 	size_t i, k;
 	char* bytes;
 	char* buffer;
@@ -45,8 +44,7 @@ char* de_base64_encode(const void* data, size_t size, size_t* out_size)
 
 	bytes = (char*)data;
 
-	for (i = 0, k = 0; i < size; )
-	{
+	for (i = 0, k = 0; i < size; ) {
 		uint8_t b0 = i < size ? bytes[i++] : 0;
 		uint8_t b1 = i < size ? bytes[i++] : 0;
 		uint8_t b2 = i < size ? bytes[i++] : 0;
@@ -59,28 +57,23 @@ char* de_base64_encode(const void* data, size_t size, size_t* out_size)
 
 	padding = size % 3;
 
-	if (padding == 1)
-	{
+	if (padding == 1) {
 		buffer[k - 2] = '=';
 		buffer[k - 1] = '=';
-	}
-	else if (padding == 2)
-	{
+	} else if (padding == 2) {
 		buffer[k - 1] = '=';
 	}
 
 	buffer[k] = '\0';
 
-	if (out_size)
-	{
+	if (out_size) {
 		*out_size = encoded_size;
 	}
 
 	return buffer;
 }
 
-void* de_base64_decode(const char* data, size_t size, size_t* out_size)
-{
+void* de_base64_decode(const char* data, size_t size, size_t* out_size) {
 	char* bytes;
 	size_t i, k;
 	size_t data_size;
@@ -115,20 +108,17 @@ void* de_base64_decode(const char* data, size_t size, size_t* out_size)
 
 	data_size = size / 4 * 3;
 
-	if (data[size - 1] == '=')
-	{
+	if (data[size - 1] == '=') {
 		--data_size;
 	}
 
-	if (data[size - 2] == '=')
-	{
+	if (data[size - 2] == '=') {
 		--data_size;
 	}
 
 	bytes = (char*)de_malloc(data_size);
 
-	for (i = 0, k = 0; i < size; )
-	{
+	for (i = 0, k = 0; i < size; ) {
 		uint8_t b0 = data[i] == '=' ? 0 : decode_table[data[i]];
 		++i;
 
@@ -141,16 +131,13 @@ void* de_base64_decode(const char* data, size_t size, size_t* out_size)
 		uint8_t b3 = data[i] == '=' ? 0 : decode_table[data[i]];
 		++i;
 
-		if (k < data_size)
-		{
+		if (k < data_size) {
 			bytes[k++] = (b0 << 2) | (b1 >> 4);
 		}
-		if (k < data_size)
-		{
+		if (k < data_size) {
 			bytes[k++] = (b1 << 4) | (b2 >> 2);
 		}
-		if (k < data_size)
-		{
+		if (k < data_size) {
 			bytes[k++] = (b2 << 6) | b3;
 		}
 	}
@@ -160,8 +147,7 @@ void* de_base64_decode(const char* data, size_t size, size_t* out_size)
 	return bytes;
 }
 
-void de_base64_test(void)
-{
+void de_base64_test(void) {
 	int i;
 	const char* str[] = {
 		"abc",
@@ -176,8 +162,7 @@ void de_base64_test(void)
 	};
 
 	/* encode test */
-	for (i = 0; i < 3; ++i)
-	{
+	for (i = 0; i < 3; ++i) {
 		size_t size = strlen(str[i]);
 		char* buffer = de_base64_encode(str[i], size, NULL);
 		assert(strcmp(buffer, cmp[i]) == 0);
@@ -185,8 +170,7 @@ void de_base64_test(void)
 	}
 
 	/* decode test */
-	for (i = 0; i < 3; ++i)
-	{
+	for (i = 0; i < 3; ++i) {
 		size_t decoded_size;
 		void* decoded = de_base64_decode(cmp[i], strlen(cmp[i]), &decoded_size);
 		assert(memcmp(decoded, str[i], decoded_size) == 0);

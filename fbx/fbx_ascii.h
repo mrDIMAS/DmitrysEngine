@@ -20,8 +20,7 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 
-typedef struct de_fbx_rdbuf_t
-{
+typedef struct de_fbx_rdbuf_t {
 	char chunk[32768];
 	size_t chunk_size;
 	size_t chunk_read_cursor;

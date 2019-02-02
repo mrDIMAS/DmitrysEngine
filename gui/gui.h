@@ -27,8 +27,7 @@
 typedef struct de_gui_node_t de_gui_node_t;
 typedef struct de_gui_draw_list_t de_gui_draw_list_t;
 
-typedef struct de_gui_thickness_t
-{
+typedef struct de_gui_thickness_t {
 	float left;
 	float top;
 	float right;
@@ -37,8 +36,7 @@ typedef struct de_gui_thickness_t
 
 typedef void(*de_gui_callback_func_t)(de_gui_node_t*, void*);
 
-typedef struct de_gui_callback_t
-{	
+typedef struct de_gui_callback_t {
 	void* user_data;
 	de_gui_callback_func_t func;
 } de_gui_callback_t;
@@ -61,14 +59,14 @@ typedef struct de_gui_callback_t
 #include "gui/text.h"
 #include "gui/text_box.h"
 #include "gui/window.h"
+#include "gui/slide_selector.h"
 
 /**
  * @brief
  *
  * Custom types should use DE_GUI_NODE_USER_CONTROL as origin point.
  */
-typedef enum de_gui_node_type_t
-{
+typedef enum de_gui_node_type_t {
 	DE_GUI_NODE_BASE, /**< Default node type */
 	DE_GUI_NODE_TEXT,
 	DE_GUI_NODE_BORDER,
@@ -81,14 +79,14 @@ typedef enum de_gui_node_type_t
 	DE_GUI_NODE_CANVAS,                  /**< Allows user to directly set position and size of a node */
 	DE_GUI_NODE_SCROLL_CONTENT_PRESENTER, /**< Allows user to scroll content */
 	DE_GUI_NODE_DRAWING,
+	DE_GUI_NODE_SLIDE_SELECTOR,
 	DE_GUI_NODE_USER_CONTROL /* Use this as start index for type for your custom controls */
 } de_gui_node_type_t;
 
 /**
  * @brief
  */
-typedef enum de_gui_routed_event_type_t
-{
+typedef enum de_gui_routed_event_type_t {
 	DE_GUI_ROUTED_EVENT_MOUSE_DOWN,
 	DE_GUI_ROUTED_EVENT_MOUSE_UP,
 	DE_GUI_ROUTED_EVENT_MOUSE_ENTER,
@@ -101,24 +99,19 @@ typedef enum de_gui_routed_event_type_t
 /**
  * @brief
  */
-typedef struct de_gui_routed_event_args_t
-{
+typedef struct de_gui_routed_event_args_t {
 	de_gui_routed_event_type_t type;
 	bool handled;
 	de_gui_node_t* source;
-	union
-	{
-		struct
-		{
+	union {
+		struct {
 			de_vec2_t pos;
 		} mouse_move;
-		struct
-		{
+		struct {
 			de_vec2_t pos;
 			enum de_mouse_button button;
 		} mouse_down;
-		struct
-		{
+		struct {
 			de_vec2_t pos;
 			enum de_mouse_button button;
 		} mouse_up;
@@ -128,8 +121,7 @@ typedef struct de_gui_routed_event_args_t
 /**
  * @brief
  */
-typedef enum de_gui_vertical_alignment_t
-{
+typedef enum de_gui_vertical_alignment_t {
 	DE_GUI_VERTICAL_ALIGNMENT_TOP,    /**< Top alignment */
 	DE_GUI_VERTICAL_ALIGNMENT_CENTER, /**< Center alignment */
 	DE_GUI_VERTICAL_ALIGNMENT_BOTTOM, /**< Bottom alignment */
@@ -139,8 +131,7 @@ typedef enum de_gui_vertical_alignment_t
 /**
  * @brief
  */
-typedef enum de_gui_horizontal_alignment_t
-{
+typedef enum de_gui_horizontal_alignment_t {
 	DE_GUI_HORIZONTAL_ALIGNMENT_LEFT,   /**< Left alignment */
 	DE_GUI_HORIZONTAL_ALIGNMENT_CENTER, /**< Center alignment */
 	DE_GUI_HORIZONTAL_ALIGNMENT_RIGHT,  /**< Right alignment */
@@ -150,8 +141,7 @@ typedef enum de_gui_horizontal_alignment_t
 /**
  * @brief
  */
-typedef enum de_gui_node_visibility_t
-{
+typedef enum de_gui_node_visibility_t {
 	DE_GUI_NODE_VISIBILITY_HIDDEN,    /**< Node will be invisible, but its bounds will participate in layout */
 	DE_GUI_NODE_VISIBILITY_COLLAPSED, /**< Node will be invisible and no space will be reserved for it in layout */
 	DE_GUI_NODE_VISIBILITY_VISIBLE    /**< Node will be visible */
@@ -171,8 +161,7 @@ typedef enum de_gui_node_visibility_t
 /**
  * @brief
  */
-typedef struct de_gui_margin_t
-{
+typedef struct de_gui_margin_t {
 	float left;   /**< Margin for left side */
 	float top;    /**< Margin for top side */
 	float right;  /**< Margin for right side */
@@ -204,23 +193,20 @@ typedef void(*de_got_focus_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*)
 	}
 
 /* WARNING: Add new fields ONLY in the end of this struct! DO NOT delete fields! */
-typedef struct de_gui_dispatch_table_t
-{
-	void(*deinit)(de_gui_node_t* n);
-	void(*layout_children)(de_gui_node_t* n);
-	void(*update)(de_gui_node_t* n);
-	void(*render)(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting);
-	bool(*get_property)(de_gui_node_t* n, const char* name, void* value, size_t data_size);
-	bool(*set_property)(de_gui_node_t* n, const char* name, const void* value, size_t data_size);
-	bool(*parse_property)(de_gui_node_t* n, const char* name, const char* value);
+typedef struct de_gui_dispatch_table_t {
+	void(*deinit)(de_gui_node_t* n); /* required */
+	void(*layout_children)(de_gui_node_t* n); /* optional */
+	void(*update)(de_gui_node_t* n);/* optional */
+	void(*render)(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting);/* optional */
+	bool(*get_property)(de_gui_node_t* n, const char* name, void* value, size_t data_size);/* optional */
+	bool(*set_property)(de_gui_node_t* n, const char* name, const void* value, size_t data_size);/* optional */
+	bool(*parse_property)(de_gui_node_t* n, const char* name, const char* value);/* optional */
 } de_gui_dispatch_table_t;
 
 /**
  * @brief GUI node. Tagged union (https://en.wikipedia.org/wiki/Tagged_union)
  */
-struct de_gui_node_t
-{
-	de_gui_t* gui;
+struct de_gui_node_t {	
 	de_gui_node_type_t type;                            /**< Actual type of the node */
 	de_gui_dispatch_table_t* dispatch_table;            /**< Table of pointers to type-related functions (vtable) */
 	de_vec2_t desired_local_position;                   /**< Desired position relative to parent node */
@@ -243,8 +229,7 @@ struct de_gui_node_t
 	bool is_hit_test_visible;                      /**< Will this control participate in hit-test */
 
 	/* Specialization (type-specific data) */
-	union
-	{
+	union {
 		de_gui_border_t border;
 		de_gui_text_t text;
 		de_gui_button_t button;
@@ -255,6 +240,7 @@ struct de_gui_node_t
 		de_gui_scroll_content_presenter_t scroll_content_presenter;
 		de_gui_window_t window;
 		de_gui_text_box_t text_box;
+		de_gui_slide_selector_t slide_selector;
 		void* user_control;
 	} s;
 
@@ -268,17 +254,16 @@ struct de_gui_node_t
 	de_got_focus_event_t got_focus;
 	bool is_focused;
 	bool is_mouse_over;
-	bool is_mouse_down; /**< Indicates that mouse button was pressed while mouse pointer was inside */
 
 	/* intrusive linked list */
 	DE_LINKED_LIST_ITEM(struct de_gui_node_t);
+	de_gui_t* gui;
 };
 
 /**
  * @brief
  */
-struct de_gui_t
-{
+struct de_gui_t {
 	DE_LINKED_LIST_DECLARE(de_gui_node_t, nodes);
 	de_core_t* core;
 	de_gui_draw_list_t draw_list;
@@ -490,3 +475,8 @@ void de_gui_node_set_horizontal_alignment(de_gui_node_t* node, de_gui_horizontal
 de_gui_draw_list_t* de_gui_render(de_gui_t* gui);
 
 void de_gui_update(de_gui_t* gui);
+
+
+bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt);
+
+de_gui_node_t* de_gui_hit_test(de_gui_t* gui, float x, float y);

@@ -19,23 +19,20 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef struct de_rgb8_t
-{
+typedef struct de_rgb8_t {
 	unsigned char r;
 	unsigned char g;
 	unsigned char b;
 } de_rgb8_t;
 
-typedef struct de_rgba8_t
-{
+typedef struct de_rgba8_t {
 	unsigned char r;
 	unsigned char g;
 	unsigned char b;
 	unsigned char a;
 } de_rgba8_t;
 
-typedef struct de_image_t
-{
+typedef struct de_image_t {
 	char* data;
 	unsigned int width;
 	unsigned int height;

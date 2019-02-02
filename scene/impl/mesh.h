@@ -19,9 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/*=======================================================================================*/
-void de_mesh_init(de_node_t* node)
-{
+
+void de_mesh_init(de_node_t* node) {
 	de_mesh_t* mesh = &node->s.mesh;
 
 	DE_ARRAY_INIT(mesh->surfaces);
@@ -29,14 +28,12 @@ void de_mesh_init(de_node_t* node)
 	mesh->parent_node = node;
 }
 
-/*=======================================================================================*/
-void de_mesh_deinit(de_mesh_t* mesh)
-{
+
+void de_mesh_deinit(de_mesh_t* mesh) {
 	size_t i;
 
 	/* Free surfaces */
-	for (i = 0; i < mesh->surfaces.size; ++i)
-	{
+	for (i = 0; i < mesh->surfaces.size; ++i) {
 		de_renderer_free_surface(mesh->surfaces.data[i]);
 	}
 	DE_ARRAY_FREE(mesh->surfaces);
@@ -44,22 +41,18 @@ void de_mesh_deinit(de_mesh_t* mesh)
 
 
 
-/*=======================================================================================*/
-void de_mesh_calculate_normals(de_mesh_t * mesh)
-{
+
+void de_mesh_calculate_normals(de_mesh_t * mesh) {
 	size_t n;
-	for (n = 0; n < mesh->surfaces.size; ++n)
-	{
+	for (n = 0; n < mesh->surfaces.size; ++n) {
 		de_surface_t * surf = mesh->surfaces.data[n];
 		de_surface_calculate_normals(surf);
 	}
 }
 
-/*=======================================================================================*/
-void de_mesh_add_surface(de_mesh_t* mesh, de_surface_t* surf)
-{
-	if (!mesh || !surf)
-	{
+
+void de_mesh_add_surface(de_mesh_t* mesh, de_surface_t* surf) {
+	if (!mesh || !surf) {
 		return;
 	}
 
@@ -67,15 +60,12 @@ void de_mesh_add_surface(de_mesh_t* mesh, de_surface_t* surf)
 }
 
 
-/*=======================================================================================*/
-bool de_mesh_is_skinned(de_mesh_t* mesh)
-{
+
+bool de_mesh_is_skinned(de_mesh_t* mesh) {
 	size_t i;
 
-	for (i = 0; i < mesh->surfaces.size; ++i)
-	{
-		if (de_surface_is_skinned(mesh->surfaces.data[i]))
-		{
+	for (i = 0; i < mesh->surfaces.size; ++i) {
+		if (de_surface_is_skinned(mesh->surfaces.data[i])) {
 			return true;
 		}
 	}
@@ -84,18 +74,15 @@ bool de_mesh_is_skinned(de_mesh_t* mesh)
 }
 
 
-/*=======================================================================================*/
-void de_mesh_set_texture(de_mesh_t* mesh, de_texture_t* texture)
-{
+
+void de_mesh_set_texture(de_mesh_t* mesh, de_texture_t* texture) {
 	size_t i;
 
-	if (!mesh || !texture)
-	{
+	if (!mesh || !texture) {
 		return;
 	}
 
-	for (i = 0; i < mesh->surfaces.size; ++i)
-	{
+	for (i = 0; i < mesh->surfaces.size; ++i) {
 		de_surface_set_diffuse_texture(mesh->surfaces.data[i], texture);
 	}
 }

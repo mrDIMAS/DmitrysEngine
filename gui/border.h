@@ -1,8 +1,7 @@
 /**
 * @brief
 */
-typedef struct de_gui_border_t
-{
+typedef struct de_gui_border_t {
 	de_color_t stroke_color;
 	de_gui_thickness_t thickness;
 } de_gui_border_t;

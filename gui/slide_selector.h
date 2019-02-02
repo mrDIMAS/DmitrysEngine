@@ -19,15 +19,21 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/**
-* @brief Vertex type
-*/
-typedef struct de_vertex_s {
-	de_vec3_t position;         /**< Position of vertex in 3D space */
-	de_vec3_t normal;           /**< Normal vector of vertex */
-	de_vec2_t tex_coord;        /**< Texture coordinates of vertex */
-	de_vec2_t second_tex_coord; /**< Texture coordinates of vertex */
-	de_vec4_t tangent;          /**< Tangent vector of vertex, where w - handedness */
-	float bone_weights[4];      /**< Array of four bone weights */
-	uint8_t bone_indices[4];           /**< Indices of corresponding bone matrix */
-} de_vertex_t;
+
+typedef void(*de_gui_item_text_getter)(void* item, char* out_buffer, int out_buffer_size);
+
+typedef struct de_gui_slide_selector_t {
+	de_gui_node_t* current_item;
+	int item_count;
+	void* items;
+	void* selection;
+	de_gui_item_text_getter get_item_text;
+} de_gui_slide_selector_t;
+
+de_gui_node_t* de_gui_slide_selector_create(de_gui_t* gui);
+
+void de_gui_slide_selector_set_items(de_gui_node_t* node, void* items, int item_count);
+
+void de_gui_slide_selector_set_item_text_getter(de_gui_node_t* node, de_gui_item_text_getter getter);
+
+void* de_gui_slide_selector_get_selection(de_gui_node_t* node);

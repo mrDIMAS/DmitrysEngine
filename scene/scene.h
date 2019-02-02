@@ -19,8 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-struct de_scene_t
-{
+struct de_scene_t {
 	de_core_t* core;
 
 	DE_LINKED_LIST_ITEM(struct de_scene_t);
@@ -85,6 +84,6 @@ de_node_t* de_scene_find_node(const de_scene_t* s, const char* name);
 /**
  * @brief Update scene components (i.e. animations)
  */
-void de_scene_update(de_scene_t* s, float dt);
+void de_scene_update(de_scene_t* s, double dt);
 
 bool de_scene_visit(de_object_visitor_t* visitor, de_scene_t* scene);

@@ -22,14 +22,13 @@
 /**
 * @brief
 */
-typedef struct de_gui_button_t
-{
+typedef struct de_gui_button_t {
 	de_color_t normal_color;
 	de_color_t pressed_color;
 	de_color_t hover_color;
 	struct de_gui_node_t* border;
 	struct de_gui_node_t* text;
-	de_gui_callback_t click;	
+	de_gui_callback_t click;
 	bool was_pressed;
 } de_gui_button_t;
 
@@ -54,3 +53,5 @@ de_gui_node_t* de_gui_button_get_text(de_gui_node_t* node);
 * @return
 */
 de_gui_node_t* de_gui_button_get_border(de_gui_node_t* node);
+
+void de_gui_button_set_text(de_gui_node_t* node, const char* txt);

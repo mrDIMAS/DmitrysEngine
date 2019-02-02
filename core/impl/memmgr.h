@@ -21,14 +21,12 @@
 
 static int de_alloc_count;
 
-void* de_malloc(size_t size)
-{
+void* de_malloc(size_t size) {
 	void* mem;
 
 	mem = malloc(size);
 
-	if (!mem)
-	{
+	if (!mem) {
 		de_fatal_error("Failed to allocate %d bytes of memory!", size);
 	}
 
@@ -37,14 +35,12 @@ void* de_malloc(size_t size)
 	return mem;
 }
 
-void* de_calloc(size_t count, size_t size)
-{
+void* de_calloc(size_t count, size_t size) {
 	void* mem;
 
 	mem = calloc(count, size);
 
-	if (!mem)
-	{
+	if (!mem) {
 		de_fatal_error("Failed to allocate %d bytes of clean memory!", count * size);
 	}
 
@@ -53,47 +49,37 @@ void* de_calloc(size_t count, size_t size)
 	return mem;
 }
 
-void* de_realloc(void* ptr, size_t size)
-{
+void* de_realloc(void* ptr, size_t size) {
 	void* mem;
 
-	if (ptr == NULL && size > 0)
-	{
+	if (ptr == NULL && size > 0) {
 		++de_alloc_count;
 	}
 
 	mem = realloc(ptr, size);
 
-	if (size != 0)
-	{
-		if (!mem)
-		{
+	if (size != 0) {
+		if (!mem) {
 			de_fatal_error("Failed to reallocate %d bytes of memory!", size);
 		}
-	}
-	else
-	{
+	} else {
 		--de_alloc_count;
 	}
 
 	return mem;
 }
 
-void de_free(void* ptr)
-{
-	if (ptr)
-	{
+void de_free(void* ptr) {
+	if (ptr) {
 		--de_alloc_count;
 	}
 	free(ptr);
 }
 
-size_t de_get_alloc_count()
-{
+size_t de_get_alloc_count() {
 	return de_alloc_count;
 }
 
-void de_zero(void* data, size_t size)
-{
+void de_zero(void* data, size_t size) {
 	memset(data, 0, size);
 }

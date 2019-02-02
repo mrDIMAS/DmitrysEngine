@@ -23,8 +23,7 @@ static bool de_is_ear(
 	const de_triangulator_polygon_t* polygon,
 	const de_triangulator_vertex_t* vprev,
 	const de_triangulator_vertex_t* vear,
-	const de_triangulator_vertex_t* vnext)
-{
+	const de_triangulator_vertex_t* vnext) {
 	de_triangulator_vertex_t* v;
 	de_vec2_t ab, cb;
 
@@ -35,28 +34,23 @@ static bool de_is_ear(
 	float angle = de_vec2_angle(&ab, &cb);
 
 	/* not an ear tip, so not an ear triangle */
-	if (angle > M_PI)
-	{
+	if (angle > M_PI) {
 		return false;
 	}
 
 	/* step 2: check winding of a triangle (assume CCW order)*/
-	if (de_get_signed_triangle_area(&vprev->position, &vear->position, &vnext->position) >= 0)
-	{
+	if (de_get_signed_triangle_area(&vprev->position, &vear->position, &vnext->position) >= 0) {
 		return false;
 	}
 
 	/* step 3: check if other points are inside of triangle */
-	for (v = polygon->head; v != polygon->tail; v = v->next)
-	{
-		if (v == vprev || v == vear || v == vnext)
-		{
+	for (v = polygon->head; v != polygon->tail; v = v->next) {
+		if (v == vprev || v == vear || v == vnext) {
 			continue;
 		}
 
 		/* some other point lies in triangle, so current triangle is not an ear */
-		if (de_is_point_inside_triangle_2D(&v->position, &vprev->position, &vear->position, &vnext->position))
-		{
+		if (de_is_point_inside_triangle_2D(&v->position, &vprev->position, &vear->position, &vnext->position)) {
 			return false;
 		}
 	}
@@ -64,13 +58,11 @@ static bool de_is_ear(
 	return true;
 }
 
-int de_triangulate_get_approx_index_count(size_t vertex_count)
-{
+int de_triangulate_get_approx_index_count(size_t vertex_count) {
 	return vertex_count * 4;
 }
 
-int de_triangulate(de_vec3_t* polygon, size_t vertex_count, int* out_indices, int buffer_size)
-{
+int de_triangulate(de_vec3_t* polygon, size_t vertex_count, int* out_indices, int buffer_size) {
 	size_t i;
 	de_vec3_t normal;
 	int vertices_left, loop_sentinel = 0, iteration_limit;
@@ -80,12 +72,11 @@ int de_triangulate(de_vec3_t* polygon, size_t vertex_count, int* out_indices, in
 	de_triangulator_vertex_t* vertices;
 	int index_count = 0;
 
-	if (vertex_count < 3)
-	{
+	if (vertex_count < 3) {
 		de_log("triangulator: trying to triangulate a line or point???");
 		return -1;
 	}
-		
+
 	/* make buffer size be divisible by 3 without remainder so we can put
 	 * only 3*N indices to output buffer */
 	buffer_size = buffer_size - (buffer_size % 3);
@@ -103,8 +94,7 @@ int de_triangulate(de_vec3_t* polygon, size_t vertex_count, int* out_indices, in
 
 	/* prepare vertices: project them to 2d plane and link to circle */
 	vertices = (de_triangulator_vertex_t*)de_malloc(vertex_count * sizeof(de_triangulator_vertex_t));
-	for (i = 0; i < vertex_count; ++i)
-	{
+	for (i = 0; i < vertex_count; ++i) {
 		de_triangulator_vertex_t* v = vertices + i;
 		v->index = i;
 		de_vec3_to_vec2_by_plane(proj_plane_class, &normal, &polygon[i], &v->position);
@@ -115,23 +105,19 @@ int de_triangulate(de_vec3_t* polygon, size_t vertex_count, int* out_indices, in
 	DE_LINKED_LIST_MAKE_CIRCULAR(poly);
 
 	/* now start iterating thru polygon and search for ears */
-	for (vear = poly.head; vertices_left >= 3; ++loop_sentinel)
-	{
+	for (vear = poly.head; vertices_left >= 3; ++loop_sentinel) {
 		de_triangulator_vertex_t* vprev = vear->prev;
 		de_triangulator_vertex_t* vnext = vear->next;
 
-		if (loop_sentinel >= iteration_limit)
-		{
-			/* something went wrong, probably not a simple polygon was passed 
+		if (loop_sentinel >= iteration_limit) {
+			/* something went wrong, probably not a simple polygon was passed
 			 * for triangulation */
 			de_free(vertices);
 			return -1;
 		}
 
-		if (de_is_ear(&poly, vprev, vear, vnext))
-		{
-			if (index_count >= buffer_size)
-			{
+		if (de_is_ear(&poly, vprev, vear, vnext)) {
+			if (index_count >= buffer_size) {
 				/* partial triangulation is not allowed */
 				de_free(vertices);
 				return -1;
@@ -141,13 +127,11 @@ int de_triangulate(de_vec3_t* polygon, size_t vertex_count, int* out_indices, in
 			out_indices[index_count++] = vear->index;
 			out_indices[index_count++] = vnext->index;
 			/* remove ear vertex */
-			DE_LINKED_LIST_REMOVE(poly, vear);			
+			DE_LINKED_LIST_REMOVE(poly, vear);
 			--vertices_left;
 			/* previous vertex is a good candidate for ear tip */
 			vear = vprev;
-		}
-		else
-		{
+		} else {
 			/* try next vertex */
 			vear = vear->next;
 		}
@@ -161,12 +145,11 @@ int de_triangulate(de_vec3_t* polygon, size_t vertex_count, int* out_indices, in
 /**
  * Shallow tests, more complex tests were done in FBX loader
  */
-void de_triangulator_tests(void)
-{
+void de_triangulator_tests(void) {
 	int i;
 	int index_count;
 	int indices[1024];
-	
+
 	de_vec3_t poly[] = {
 	#if 0
 		{ 0, 3, 0 },
@@ -186,11 +169,10 @@ void de_triangulator_tests(void)
 		{ 0, 1, 0 },
 	#endif
 	};
-	
+
 	index_count = de_triangulate(poly, sizeof(poly) / sizeof(poly[0]), indices, sizeof(indices) / sizeof(indices[0]));
 
-	for (i = 0; i < index_count; i += 3)
-	{
+	for (i = 0; i < index_count; i += 3) {
 		printf("%d;%d;%d\n", indices[i], indices[i + 1], indices[i + 2]);
 	}
 

@@ -36,8 +36,7 @@
 
 typedef int de_stamp_t;
 
-typedef struct de_ref_t
-{
+typedef struct de_ref_t {
 	int index; /**< Index of an object in a pool. */
 	de_stamp_t stamp; /**< Unique identifier of an object in a pool. Used to check if reference is valid. */
 } de_ref_t;
@@ -46,8 +45,7 @@ typedef struct de_ref_t
 
 typedef void(*de_pool_object_destructor_t)(void*);
 
-typedef struct de_pool_t
-{
+typedef struct de_pool_t {
 	char* records;
 	size_t item_size;
 	size_t record_size;

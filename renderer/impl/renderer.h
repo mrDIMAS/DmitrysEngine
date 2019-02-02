@@ -3,36 +3,33 @@
 #define DE_STRINGIZE(x) DE_STRINGIZE_(x)
 #define DE_GL_CALL(func) func; de_check_opengl_error(#func, __FILE__, __LINE__)
 
-/*=======================================================================================*/
-void de_check_opengl_error(const char* func, const char* file, int line)
-{
+
+void de_check_opengl_error(const char* func, const char* file, int line) {
 	int err;
 	const char* errorDesc = "Unknown";
 
 	err = glGetError();
 
-	if (err != GL_NO_ERROR)
-	{
-		switch (err)
-		{
-		case GL_INVALID_ENUM:
-			errorDesc = "GL_INVALID_ENUM";
-			break;
-		case GL_INVALID_VALUE:
-			errorDesc = "GL_INVALID_VALUE";
-			break;
-		case GL_INVALID_OPERATION:
-			errorDesc = "GL_INVALID_OPERATION";
-			break;
-		case GL_STACK_OVERFLOW:
-			errorDesc = "GL_STACK_OVERFLOW";
-			break;
-		case GL_STACK_UNDERFLOW:
-			errorDesc = "GL_STACK_UNDERFLOW";
-			break;
-		case GL_OUT_OF_MEMORY:
-			errorDesc = "GL_OUT_OF_MEMORY";
-			break;
+	if (err != GL_NO_ERROR) {
+		switch (err) {
+			case GL_INVALID_ENUM:
+				errorDesc = "GL_INVALID_ENUM";
+				break;
+			case GL_INVALID_VALUE:
+				errorDesc = "GL_INVALID_VALUE";
+				break;
+			case GL_INVALID_OPERATION:
+				errorDesc = "GL_INVALID_OPERATION";
+				break;
+			case GL_STACK_OVERFLOW:
+				errorDesc = "GL_STACK_OVERFLOW";
+				break;
+			case GL_STACK_UNDERFLOW:
+				errorDesc = "GL_STACK_UNDERFLOW";
+				break;
+			case GL_OUT_OF_MEMORY:
+				errorDesc = "GL_OUT_OF_MEMORY";
+				break;
 		}
 		de_fatal_error("OpenGL error \"%s\" occured at function:\n%s\nat line %d in file %s", errorDesc, func, line, file);
 	}
@@ -41,10 +38,9 @@ void de_check_opengl_error(const char* func, const char* file, int line)
 GLuint de_renderer_create_gpu_program(const char* vertexSource, const char* fragmentSource);
 static void de_renderer_upload_surface(de_surface_t* s);
 
-/*=======================================================================================*/
-static void de_renderer_load_extensions()
-{
-#define GET_GL_EXT(type, func) func = (type)de_engine_platform_get_proc_address(#func); \
+
+static void de_renderer_load_extensions() {
+#define GET_GL_EXT(type, func) func = (type)de_core_platform_get_proc_address(#func); \
 								   if(!func) de_fatal_error("Unable to load "#func" function pointer");
 
 	GET_GL_EXT(PFNGLCREATESHADERPROC, glCreateShader);
@@ -104,9 +100,8 @@ static void de_renderer_load_extensions()
 	de_log("Extensions loaded!");
 }
 
-/*=======================================================================================*/
-static void de_create_gbuffer(de_renderer_t* r, int width, int height)
-{
+
+static void de_create_gbuffer(de_renderer_t* r, int width, int height) {
 	de_gbuffer_t * gbuf = &r->gbuffer;
 
 	DE_GL_CALL(glGenFramebuffers(1, &gbuf->fbo));
@@ -156,8 +151,7 @@ static void de_create_gbuffer(de_renderer_t* r, int width, int height)
 
 	DE_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gbuf->normal_texture, 0));
 
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-	{
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 		de_fatal_error("Unable to construct G-Buffer FBO.");
 	}
 
@@ -177,17 +171,15 @@ static void de_create_gbuffer(de_renderer_t* r, int width, int height)
 
 	DE_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, gbuf->depth_buffer));
 
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-	{
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 		de_fatal_error("Unable to initialize Stencil FBO.");
 	}
 
 	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
-/*=======================================================================================*/
-static void de_create_builtin_shaders(de_renderer_t* r)
-{
+
+static void de_create_builtin_shaders(de_renderer_t* r) {
 	/* Built-in shaders */
 
 	/**
@@ -515,9 +507,8 @@ static void de_create_builtin_shaders(de_renderer_t* r)
 	}
 }
 
-/*=======================================================================================*/
-de_renderer_t* de_renderer_init(de_core_t* core)
-{
+
+de_renderer_t* de_renderer_init(de_core_t* core) {
 #if VERBOSE_INIT
 	int i, num_extensions;
 #endif
@@ -534,8 +525,7 @@ de_renderer_t* de_renderer_init(de_core_t* core)
 
 #if VERBOSE_INIT
 	glGetIntegerv(GL_NUM_EXTENSIONS, &num_extensions);
-	for (i = 0; i < num_extensions; ++i)
-	{
+	for (i = 0; i < num_extensions; ++i) {
 		de_log((char*)glGetStringi(GL_EXTENSIONS, i));
 	}
 #endif
@@ -544,12 +534,12 @@ de_renderer_t* de_renderer_init(de_core_t* core)
 	DE_GL_CALL(glEnable(GL_CULL_FACE));
 	glCullFace(GL_BACK);
 
-	de_create_gbuffer(r, core->params.width, core->params.height);
+	de_create_gbuffer(r, core->params.video_mode.width, core->params.video_mode.height);
 
 	/* Create fullscreen quad */
 	{
-		float w = (float)core->params.width;
-		float h = (float)core->params.height;
+		float w = (float)core->params.video_mode.width;
+		float h = (float)core->params.video_mode.height;
 
 		int faces[] = {
 			0, 1, 2,
@@ -606,9 +596,8 @@ de_renderer_t* de_renderer_init(de_core_t* core)
 	return r;
 }
 
-/*=======================================================================================*/
-void de_renderer_free(de_renderer_t* r)
-{
+
+void de_renderer_free(de_renderer_t* r) {
 	de_renderer_free_surface(r->quad);
 	de_renderer_free_surface(r->test_surface);
 	de_texture_release(r->white_dummy);
@@ -617,16 +606,14 @@ void de_renderer_free(de_renderer_t* r)
 	de_free(r);
 }
 
-/*=======================================================================================*/
-static void de_render_surface_normals(de_renderer_t* r, de_surface_t* surface)
-{
+
+static void de_render_surface_normals(de_renderer_t* r, de_surface_t* surface) {
 	size_t i;
 
 	DE_ARRAY_CLEAR(r->test_surface->vertices);
 	DE_ARRAY_CLEAR(r->test_surface->indices);
 
-	for (i = 0; i < surface->vertices.size; ++i)
-	{
+	for (i = 0; i < surface->vertices.size; ++i) {
 		de_vertex_t* vertex;
 		de_vertex_t begin, end;
 		int ia, ib;
@@ -651,25 +638,21 @@ static void de_render_surface_normals(de_renderer_t* r, de_surface_t* surface)
 	DE_GL_CALL(glDrawElements(GL_LINES, r->test_surface->indices.size, GL_UNSIGNED_INT, NULL));
 }
 
-/*=======================================================================================*/
-static void de_renderer_draw_surface_bones(de_renderer_t* r, de_surface_t* surface)
-{
+
+static void de_renderer_draw_surface_bones(de_renderer_t* r, de_surface_t* surface) {
 	size_t i, j, index = 0;
 
 	DE_ARRAY_CLEAR(r->test_surface->vertices);
 	DE_ARRAY_CLEAR(r->test_surface->indices);
 
-	for (i = 0; i < surface->weights.size; ++i)
-	{
+	for (i = 0; i < surface->weights.size; ++i) {
 		de_node_t* bone = surface->weights.data[i];
 		de_vertex_t begin, end;
 
-		for (j = 0; j < bone->children.size; ++j)
-		{
+		for (j = 0; j < bone->children.size; ++j) {
 			de_node_t* next_bone = bone->children.data[j];
 
-			if (!next_bone->is_bone)
-			{
+			if (!next_bone->is_bone) {
 				continue;
 			}
 			de_node_get_global_position(bone, &begin.position);
@@ -689,9 +672,8 @@ static void de_renderer_draw_surface_bones(de_renderer_t* r, de_surface_t* surfa
 	DE_GL_CALL(glDrawElements(GL_LINES, r->test_surface->indices.size, GL_UNSIGNED_INT, NULL));
 }
 
-/*=======================================================================================*/
-GLuint de_renderer_create_shader(GLenum type, const char* source)
-{
+
+GLuint de_renderer_create_shader(GLenum type, const char* source) {
 	GLint compiled;
 	GLuint shader;
 
@@ -702,8 +684,7 @@ GLuint de_renderer_create_shader(GLenum type, const char* source)
 
 	DE_GL_CALL(glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled));
 
-	if (!compiled)
-	{
+	if (!compiled) {
 		static char buffer[2048];
 		DE_GL_CALL(glGetShaderInfoLog(shader, 2048, NULL, buffer));
 		de_fatal_error(buffer);
@@ -712,9 +693,8 @@ GLuint de_renderer_create_shader(GLenum type, const char* source)
 	return shader;
 }
 
-/*=======================================================================================*/
-GLuint de_renderer_create_gpu_program(const char* vertexSource, const char* fragmentSource)
-{
+
+GLuint de_renderer_create_gpu_program(const char* vertexSource, const char* fragmentSource) {
 	GLint linked;
 	GLuint vertex_shader, fragment_shader, program;
 
@@ -732,8 +712,7 @@ GLuint de_renderer_create_gpu_program(const char* vertexSource, const char* frag
 
 	DE_GL_CALL(glGetProgramiv(program, GL_LINK_STATUS, &linked));
 
-	if (!linked)
-	{
+	if (!linked) {
 		static char buffer[2048];
 		DE_GL_CALL(glGetProgramInfoLog(program, 2048, NULL, buffer));
 		de_fatal_error(buffer);
@@ -742,9 +721,8 @@ GLuint de_renderer_create_gpu_program(const char* vertexSource, const char* frag
 	return program;
 }
 
-/*=======================================================================================*/
-static void de_renderer_upload_surface(de_surface_t* s)
-{
+
+static void de_renderer_upload_surface(de_surface_t* s) {
 	glBindVertexArray(s->vao);
 
 	glBindBuffer(GL_ARRAY_BUFFER, s->vbo);
@@ -776,9 +754,8 @@ static void de_renderer_upload_surface(de_surface_t* s)
 	s->need_upload = false;
 }
 
-/*=======================================================================================*/
-de_surface_t* de_renderer_create_surface(de_renderer_t* r)
-{
+
+de_surface_t* de_renderer_create_surface(de_renderer_t* r) {
 	de_surface_t* surf = DE_NEW(de_surface_t);
 
 	surf->renderer = r;
@@ -792,9 +769,8 @@ de_surface_t* de_renderer_create_surface(de_renderer_t* r)
 	return surf;
 }
 
-/*=======================================================================================*/
-void de_renderer_free_surface(de_surface_t* surf)
-{
+
+void de_renderer_free_surface(de_surface_t* surf) {
 	/* Unref texture */
 	de_texture_release(surf->diffuse_map);
 
@@ -812,21 +788,17 @@ void de_renderer_free_surface(de_surface_t* surf)
 	de_free(surf);
 }
 
-/*=======================================================================================*/
-de_texture_t* de_renderer_request_texture(de_renderer_t* r, const char* file)
-{
+
+de_texture_t* de_renderer_request_texture(de_renderer_t* r, const char* file) {
 	de_texture_t* tex;
 	de_image_t img = { 0 };
 
 	/* Look for already loaded textures */
 	{
 		de_texture_t* texture = NULL;
-		DE_LINKED_LIST_FOR_EACH(r->textures, texture)
-		{
-			if (texture->name)
-			{
-				if (strcmp(texture->name, file) == 0)
-				{
+		DE_LINKED_LIST_FOR_EACH(r->textures, texture) {
+			if (texture->name) {
+				if (strcmp(texture->name, file) == 0) {
 					return texture;
 				}
 			}
@@ -834,15 +806,11 @@ de_texture_t* de_renderer_request_texture(de_renderer_t* r, const char* file)
 	}
 
 	/* No already loaded textures, try load new from file */
-	if (strstr(file, ".tga"))
-	{
-		if (!de_image_load_tga(file, &img))
-		{
+	if (strstr(file, ".tga")) {
+		if (!de_image_load_tga(file, &img)) {
 			return NULL;
 		}
-	}
-	else
-	{
+	} else {
 		de_log("Warning: Unsupported texture format! %s is not loaded!", file);
 
 		return NULL;
@@ -868,9 +836,8 @@ de_texture_t* de_renderer_request_texture(de_renderer_t* r, const char* file)
 	return tex;
 }
 
-/*=======================================================================================*/
-de_texture_t* de_renderer_create_texture(de_renderer_t* r, size_t w, size_t h, size_t byte_per_pixel)
-{
+
+de_texture_t* de_renderer_create_texture(de_renderer_t* r, size_t w, size_t h, size_t byte_per_pixel) {
 	de_texture_t* tex;
 
 	tex = DE_NEW(de_texture_t);
@@ -890,37 +857,33 @@ de_texture_t* de_renderer_create_texture(de_renderer_t* r, size_t w, size_t h, s
 	return tex;
 }
 
-/*=======================================================================================*/
-static void de_renderer_remove_texture(de_renderer_t* r, de_texture_t* tex)
-{
+
+static void de_renderer_remove_texture(de_renderer_t* r, de_texture_t* tex) {
 	glDeleteTextures(1, &tex->id);
 	DE_LINKED_LIST_REMOVE(r->textures, tex);
 }
 
-/*=======================================================================================*/
-static void de_renderer_upload_texture(de_texture_t* texture)
-{
+
+static void de_renderer_upload_texture(de_texture_t* texture) {
 	GLint internalFormat;
 	GLint format;
 	GLfloat max_anisotropy;
 
-	switch (texture->byte_per_pixel)
-	{
-	case 3:
-		internalFormat = GL_RGB;
-		format = GL_RGB;
-		break;
-	case 4:
-		internalFormat = GL_RGBA;
-		format = GL_RGBA;
-		break;
-	default:
-		de_fatal_error("Unknown texture byte per pixel: %d", texture->byte_per_pixel);
-		return;
+	switch (texture->byte_per_pixel) {
+		case 3:
+			internalFormat = GL_RGB;
+			format = GL_RGB;
+			break;
+		case 4:
+			internalFormat = GL_RGBA;
+			format = GL_RGBA;
+			break;
+		default:
+			de_fatal_error("Unknown texture byte per pixel: %d", texture->byte_per_pixel);
+			return;
 	}
 
-	if (!texture->id)
-	{
+	if (!texture->id) {
 		DE_GL_CALL(glGenTextures(1, &texture->id));
 	}
 
@@ -936,63 +899,50 @@ static void de_renderer_upload_texture(de_texture_t* texture)
 	texture->need_upload = false;
 }
 
-/*=======================================================================================*/
-static void de_renderer_draw_fullscreen_quad(de_renderer_t* r)
-{
+
+static void de_renderer_draw_fullscreen_quad(de_renderer_t* r) {
 	DE_GL_CALL(glBindVertexArray(r->quad->vao));
 	DE_GL_CALL(glDrawElements(GL_TRIANGLES, r->quad->indices.size, GL_UNSIGNED_INT, NULL));
 }
 
-/*=======================================================================================*/
-static void de_renderer_draw_mesh_bones(de_renderer_t* r, de_mesh_t* mesh)
-{
+
+static void de_renderer_draw_mesh_bones(de_renderer_t* r, de_mesh_t* mesh) {
 	size_t i;
-	for (i = 0; i < mesh->surfaces.size; ++i)
-	{
+	for (i = 0; i < mesh->surfaces.size; ++i) {
 		de_renderer_draw_surface_bones(r, mesh->surfaces.data[i]);
 	}
 }
 
-/*=======================================================================================*/
-static void de_renderer_draw_mesh(de_renderer_t* r, de_mesh_t* mesh)
-{
+
+static void de_renderer_draw_mesh(de_renderer_t* r, de_mesh_t* mesh) {
 	size_t i;
 
-	for (i = 0; i < mesh->surfaces.size; ++i)
-	{
+	for (i = 0; i < mesh->surfaces.size; ++i) {
 		de_surface_t* surf = mesh->surfaces.data[i];
 		bool is_skinned = de_surface_is_skinned(surf);
 
-		if (surf->need_upload)
-		{
+		if (surf->need_upload) {
 			de_renderer_upload_surface(surf);
 		}
 
 		/* bind diffuse map */
 		DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
-		if (surf->diffuse_map)
-		{
+		if (surf->diffuse_map) {
 			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, surf->diffuse_map->id));
-		}
-		else
-		{
+		} else {
 			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->white_dummy->id));
 		}
 
 		/* bind normal map */
 		DE_GL_CALL(glActiveTexture(GL_TEXTURE1));
-		if (surf->normal_map)
-		{
+		if (surf->normal_map) {
 			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, surf->normal_map->id));
-		}
-		else
-		{
+		} else {
 			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->normal_map_dummy->id));
 		}
 
 		DE_GL_CALL(glUniform1i(r->gbuffer_shader.use_skeletal_animation, is_skinned));
-		if (is_skinned)
-		{
+		if (is_skinned) {
 			de_mat4_t matrices[DE_RENDERER_MAX_SKINNING_MATRICES] = { 0 };
 			de_surface_get_skinning_matrices(surf, matrices, DE_RENDERER_MAX_SKINNING_MATRICES);
 
@@ -1004,19 +954,16 @@ static void de_renderer_draw_mesh(de_renderer_t* r, de_mesh_t* mesh)
 	}
 }
 
-/*=======================================================================================*/
-static void de_renderer_draw_mesh_normals(de_renderer_t* r, de_mesh_t* mesh)
-{
+
+static void de_renderer_draw_mesh_normals(de_renderer_t* r, de_mesh_t* mesh) {
 	size_t i;
-	for (i = 0; i < mesh->surfaces.size; ++i)
-	{
+	for (i = 0; i < mesh->surfaces.size; ++i) {
 		de_render_surface_normals(r, mesh->surfaces.data[i]);
 	}
 }
 
-/*=======================================================================================*/
-static void de_renderer_set_viewport(const de_rectf_t* viewport, unsigned int window_width, unsigned int window_height)
-{
+
+static void de_renderer_set_viewport(const de_rectf_t* viewport, unsigned int window_width, unsigned int window_height) {
 	int viewport_x = (int)(viewport->x * window_width);
 	int viewport_y = (int)(viewport->y * window_height);
 	int viewport_w = (int)(viewport->w * window_width);
@@ -1025,23 +972,19 @@ static void de_renderer_set_viewport(const de_rectf_t* viewport, unsigned int wi
 	DE_GL_CALL(glViewport(viewport_x, viewport_y, viewport_w, viewport_h));
 }
 
-/*=======================================================================================*/
-static void de_renderer_upload_textures(de_renderer_t* r)
-{
+
+static void de_renderer_upload_textures(de_renderer_t* r) {
 	de_texture_t* texture;
 
-	DE_LINKED_LIST_FOR_EACH(r->textures, texture)
-	{
-		if (texture->need_upload)
-		{
+	DE_LINKED_LIST_FOR_EACH(r->textures, texture) {
+		if (texture->need_upload) {
 			de_renderer_upload_texture(texture);
 		}
 	}
 }
 
-/*=======================================================================================*/
-void de_renderer_render(de_renderer_t* r)
-{
+
+void de_renderer_render(de_renderer_t* r) {
 	de_core_t* core = r->core;
 	static int last_time_ms;
 	int current_time_ms;
@@ -1052,22 +995,19 @@ void de_renderer_render(de_renderer_t* r)
 	de_mat4_t identity;
 	de_rectf_t gui_viewport = { 0, 0, 1, 1 };
 	GLenum buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT };
-	float w = (float)core->params.width;
-	float h = (float)core->params.height;
-	float frame_start_time = de_time_get_seconds();
+	float w = (float)core->params.video_mode.width;
+	float h = (float)core->params.video_mode.height;
+	double frame_start_time = de_time_get_seconds();
 
 	/* Upload textures first */
 	de_renderer_upload_textures(r);
 
 	de_mat4_identity(&identity);
 
-	if (core->scenes.head)
-	{
+	if (core->scenes.head) {
 		DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, r->gbuffer.fbo));
 		DE_GL_CALL(glDrawBuffers(3, buffers));
-	}
-	else
-	{
+	} else {
 		/* bind back buffer if no scenes */
 		DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 	}
@@ -1081,14 +1021,12 @@ void de_renderer_render(de_renderer_t* r)
 	DE_GL_CALL(glEnable(GL_CULL_FACE));
 
 	/* render each scene */
-	DE_LINKED_LIST_FOR_EACH(core->scenes, scene)
-	{
+	DE_LINKED_LIST_FOR_EACH(core->scenes, scene) {
 		de_node_t* node;
 		de_camera_t* camera;
 		de_vec3_t camera_position;
 
-		if (!scene->active_camera)
-		{
+		if (!scene->active_camera) {
 			continue;
 		}
 
@@ -1098,13 +1036,11 @@ void de_renderer_render(de_renderer_t* r)
 
 		de_camera_update(camera);
 
-		de_renderer_set_viewport(&camera->viewport, core->params.width, core->params.height);
+		de_renderer_set_viewport(&camera->viewport, core->params.video_mode.width, core->params.video_mode.height);
 
 		/* Render each node */
-		DE_LINKED_LIST_FOR_EACH(scene->nodes, node)
-		{
-			if (node->type == DE_NODE_TYPE_MESH)
-			{
+		DE_LINKED_LIST_FOR_EACH(scene->nodes, node) {
+			if (node->type == DE_NODE_TYPE_MESH) {
 				de_mat4_t wvp_matrix;
 				bool is_skinned;
 				de_mesh_t* mesh;
@@ -1131,12 +1067,12 @@ void de_renderer_render(de_renderer_t* r)
 		DE_GL_CALL(glBlendFunc(GL_ONE, GL_ONE));
 		DE_GL_CALL(glDisable(GL_CULL_FACE));
 		DE_GL_CALL(glDisable(GL_DEPTH_TEST));
-				
+
 		/* add ambient lighting */
 		DE_GL_CALL(glUseProgram(r->ambient_shader.program));
 
 		DE_GL_CALL(glUniformMatrix4fv(r->ambient_shader.wvp_matrix, 1, GL_FALSE, y_flip_ortho.f));
-		
+
 		DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
 		DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.color_texture));
 		DE_GL_CALL(glUniform1i(r->ambient_shader.diffuse_texture, 0));
@@ -1146,7 +1082,7 @@ void de_renderer_render(de_renderer_t* r)
 
 		/* add lighting */
 		DE_GL_CALL(glUseProgram(r->lighting_shader.program));
-		
+
 		DE_GL_CALL(glUniformMatrix4fv(r->lighting_shader.wvp_matrix, 1, GL_FALSE, y_flip_ortho.f));
 		DE_GL_CALL(glUniform3f(r->lighting_shader.camera_position, camera_position.x, camera_position.y, camera_position.z));
 
@@ -1162,10 +1098,8 @@ void de_renderer_render(de_renderer_t* r)
 		DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.normal_texture));
 		DE_GL_CALL(glUniform1i(r->lighting_shader.normal_sampler, 2));
 
-		DE_LINKED_LIST_FOR_EACH(scene->nodes, node)
-		{
-			if (node->type == DE_NODE_TYPE_LIGHT)
-			{
+		DE_LINKED_LIST_FOR_EACH(scene->nodes, node) {
+			if (node->type == DE_NODE_TYPE_LIGHT) {
 				de_vec3_t pos, dir;
 				de_light_t* light;
 				float clr[4];
@@ -1196,43 +1130,37 @@ void de_renderer_render(de_renderer_t* r)
 		DE_GL_CALL(glEnable(GL_DEPTH_TEST));
 		DE_GL_CALL(glDisable(GL_BLEND));
 
-		if (r->render_normals)
-		{
+		if (r->render_normals) {
 			DE_GL_CALL(glUseProgram(r->flat_shader.program));
 
-			de_renderer_set_viewport(&camera->viewport, core->params.width, core->params.height);
+			de_renderer_set_viewport(&camera->viewport, core->params.video_mode.width, core->params.video_mode.height);
 
 			/* Render each node */
-			DE_LINKED_LIST_FOR_EACH(scene->nodes, node)
-			{
+			DE_LINKED_LIST_FOR_EACH(scene->nodes, node) {
 				de_mat4_t wvp_matrix;
 
 				de_mat4_mul(&wvp_matrix, &camera->view_projection_matrix, &node->global_matrix);
 				DE_GL_CALL(glUniformMatrix4fv(r->flat_shader.wvp_matrix, 1, GL_FALSE, wvp_matrix.f));
 
-				if (node->type == DE_NODE_TYPE_MESH)
-				{
+				if (node->type == DE_NODE_TYPE_MESH) {
 					de_renderer_draw_mesh_normals(r, &node->s.mesh);
 				}
 			}
 		}
 
-		if (r->render_bones)
-		{
+		if (r->render_bones) {
 			DE_GL_CALL(glUseProgram(r->flat_shader.program));
 
-			de_renderer_set_viewport(&camera->viewport, core->params.width, core->params.height);
+			de_renderer_set_viewport(&camera->viewport, core->params.video_mode.width, core->params.video_mode.height);
 
 			/* Render each node */
-			DE_LINKED_LIST_FOR_EACH(scene->nodes, node)
-			{
+			DE_LINKED_LIST_FOR_EACH(scene->nodes, node) {
 				de_mat4_t wvp_matrix;
 
 				de_mat4_mul(&wvp_matrix, &camera->view_projection_matrix, &identity);
 				DE_GL_CALL(glUniformMatrix4fv(r->flat_shader.wvp_matrix, 1, GL_FALSE, wvp_matrix.f));
 
-				if (node->type == DE_NODE_TYPE_MESH)
-				{
+				if (node->type == DE_NODE_TYPE_MESH) {
 					de_renderer_draw_mesh_bones(r, &node->s.mesh);
 				}
 			}
@@ -1247,7 +1175,7 @@ void de_renderer_render(de_renderer_t* r)
 	DE_GL_CALL(glActiveTexture(GL_TEXTURE2));
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 
-	de_renderer_set_viewport(&gui_viewport, core->params.width, core->params.height);
+	de_renderer_set_viewport(&gui_viewport, core->params.video_mode.width, core->params.video_mode.height);
 
 	DE_GL_CALL(glDisable(GL_DEPTH_TEST));
 	DE_GL_CALL(glEnable(GL_BLEND));
@@ -1287,23 +1215,17 @@ void de_renderer_render(de_renderer_t* r)
 		DE_GL_CALL(glUniformMatrix4fv(r->gui_shader.wvp_matrix, 1, GL_FALSE, ortho.f));
 
 		/* draw */
-		for (i = 0; i < draw_list->commands.size; ++i)
-		{
+		for (i = 0; i < draw_list->commands.size; ++i) {
 			de_gui_draw_command_t* cmd = draw_list->commands.data + i;
 			size_t index_count = cmd->triangle_count * 3;
-			if (cmd->type == DE_GUI_DRAW_COMMAND_TYPE_CLIP)
-			{
+			if (cmd->type == DE_GUI_DRAW_COMMAND_TYPE_CLIP) {
 				bool is_root_nesting = cmd->nesting == 1;
-				if (is_root_nesting)
-				{
+				if (is_root_nesting) {
 					DE_GL_CALL(glClear(GL_STENCIL_BUFFER_BIT));
 				}
-				if (cmd->nesting != 0)
-				{
+				if (cmd->nesting != 0) {
 					glEnable(GL_STENCIL_TEST);
-				}
-				else
-				{
+				} else {
 					glDisable(GL_STENCIL_TEST);
 				}
 				DE_GL_CALL(glStencilOp(GL_KEEP, GL_KEEP, GL_INCR));
@@ -1312,9 +1234,7 @@ void de_renderer_render(de_renderer_t* r)
 				DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->white_dummy->id));
 				/* draw clipping geometry to stencil buffer */
 				DE_GL_CALL(glStencilMask(0xFF));
-			}
-			else
-			{
+			} else {
 				/* make sure to draw geometry only on clipping geometry with current nesting level */
 				DE_GL_CALL(glStencilFunc(GL_EQUAL, cmd->nesting, 0xFF));
 				DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, cmd->texture ? cmd->texture : r->white_dummy->id));
@@ -1333,10 +1253,9 @@ void de_renderer_render(de_renderer_t* r)
 	r->frame_time = 1000.0f * (de_time_get_seconds() - frame_start_time);
 	r->frames_per_second = (size_t)(1000.0f / r->frame_time);
 
-	de_engine_platform_swap_buffers(r->core);
+	de_core_platform_swap_buffers(r->core);
 
-	if (r->frame_rate_limit > 0)
-	{
+	if (r->frame_rate_limit > 0) {
 		time_limit_ms = 1000 / r->frame_rate_limit;
 		current_time_ms = (int)(1000 * de_time_get_seconds());
 		de_sleep(time_limit_ms - (current_time_ms - last_time_ms));
@@ -1344,20 +1263,17 @@ void de_renderer_render(de_renderer_t* r)
 	}
 }
 
-/*=======================================================================================*/
-void de_renderer_set_framerate_limit(de_renderer_t* r, int limit)
-{
+
+void de_renderer_set_framerate_limit(de_renderer_t* r, int limit) {
 	r->frame_rate_limit = limit;
 }
 
-/*=======================================================================================*/
-size_t de_renderer_get_fps(de_renderer_t* r)
-{
+
+size_t de_renderer_get_fps(de_renderer_t* r) {
 	return r->frames_per_second;
 }
 
-/*=======================================================================================*/
-float de_render_get_frame_time(de_renderer_t* r)
-{
+
+double de_render_get_frame_time(de_renderer_t* r) {
 	return r->frame_time;
 }

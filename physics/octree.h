@@ -19,24 +19,21 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef struct de_octree_node_t
-{
+typedef struct de_octree_node_t {
 	int * indices;
 	int indexCount;
 	char split;
-	de_vec3_t min;	
-	de_vec3_t max;	
+	de_vec3_t min;
+	de_vec3_t max;
 	struct de_octree_node_t * children[8];
 } de_octree_node_t;
 
-typedef struct de_trace_buffer
-{
+typedef struct de_trace_buffer {
 	de_octree_node_t ** nodes;
 	int size;
 } de_trace_buffer;
 
-typedef struct de_octree_t
-{
+typedef struct de_octree_t {
 	de_trace_buffer traceBuffer;
 	de_octree_node_t * root;
 } de_octree_t;
@@ -45,13 +42,13 @@ typedef struct de_octree_t
  * @brief Builds octree using a set of vertices and indices.
  * @param vertices Set of vertices
  * @param stride Offset between positions in vertices. Can be zero, if you have tigthly packed array of positios.
- * @param index_count Count of indices 
- * @param 
+ * @param index_count Count of indices
+ * @param
  */
 de_octree_t * de_octree_build(const void* vertices, int stride, int* indices, size_t index_count, size_t max_triangles_per_node);
 
 /**
- * @brief 
+ * @brief
  */
 void de_octree_free(de_octree_t * octree);
 

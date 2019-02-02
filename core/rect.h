@@ -23,8 +23,7 @@
 * @class de_rect_t
 * @brief Rectangle (float)
 */
-typedef struct de_rectf_t
-{
+typedef struct de_rectf_t {
 	float x; /**< X coordinate */
 	float y; /**< Y coordinate */
 	float w; /**< Width */
@@ -35,8 +34,7 @@ typedef struct de_rectf_t
 * @class de_rect_t
 * @brief Rectangle (int)
 */
-typedef struct de_recti_t
-{
+typedef struct de_recti_t {
 	int x; /**< X coordinate */
 	int y; /**< Y coordinate */
 	int w; /**< Width */

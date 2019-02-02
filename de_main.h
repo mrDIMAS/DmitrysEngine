@@ -19,12 +19,12 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/* 
- * Important notes:
- * - Engine uses right-handed coordinate system which means Z axis points towards
- *   screen, Y axis points up, and X axis points right.
- * - Vectors are single-column matrices. 
- **/
+ /*
+  * Important notes:
+  * - Engine uses right-handed coordinate system which means Z axis points towards
+  *   screen, Y axis points up, and X axis points right.
+  * - Vectors are single-column matrices.
+  **/
 
 #ifndef DE_DENGINE_H
 #define DE_DENGINE_H
@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 
-/* Set this to 1 to disable asserts, could be useful for release builds to increase performance a bit. */
+	/* Set this to 1 to disable asserts, could be useful for release builds to increase performance a bit. */
 #define DE_DISABLE_ASSERTS 0
 
 /* Suppress compiler-specific warnings */
@@ -49,6 +49,8 @@ extern "C" {
 #define _USE_MATH_DEFINES
 #define DE_UNUSED(x) ((void)x)
 #define DE_BIT(n) (1 << n)
+
+typedef void(*de_proc)(void);
 
 /* Standard library */
 #include <stdlib.h>
@@ -85,6 +87,54 @@ extern "C" {
 #  include "GL/glx.h"
 #endif
 
+typedef enum de_event_type_t {
+	DE_EVENT_TYPE_CLOSE,
+	DE_EVENT_TYPE_MOUSE_DOWN,
+	DE_EVENT_TYPE_MOUSE_UP,
+	DE_EVENT_TYPE_MOUSE_WHEEL,
+	DE_EVENT_TYPE_MOUSE_MOVE,
+	DE_EVENT_TYPE_MOUSE_LEAVE,
+	DE_EVENT_TYPE_MOUSE_ENTER,
+	DE_EVENT_TYPE_KEY_DOWN,
+	DE_EVENT_TYPE_KEY_UP,
+	DE_EVENT_TYPE_LOST_FOCUS,
+	DE_EVENT_TYPE_GOT_FOCUS,
+} de_event_type_t;
+
+typedef struct de_event_t {
+	de_event_type_t type;
+
+	union {
+		struct {
+			enum de_key key;
+		} key_down;
+
+		struct {
+			enum de_key key;
+		} key_up;
+
+		struct {
+			enum de_mouse_button button;
+			int x, y; /* position */
+		} mouse_down;
+
+		struct {
+			enum de_mouse_button button;
+			int x, y; /* position */
+		} mouse_up;
+
+		struct {
+			int delta;
+			int x, y; /* position */
+		} mouse_wheel;
+
+		struct {
+			int x, y; /* position */
+			int vx, vy; /* velocity */
+		} mouse_move;
+	} s;
+} de_event_t;
+
 /* Forward declarations */
 typedef struct de_renderer_t de_renderer_t;
 typedef struct de_node_t de_node_t;
@@ -101,9 +151,9 @@ typedef struct de_core_t de_core_t;
 typedef struct de_scene_t de_scene_t;
 
 /**
- * Order is important here, because some parts depends on other
- * Modules with minimum dependencies should be placed before others.
- **/
+* Order is important here, because some parts depends on other
+* Modules with minimum dependencies should be placed before others.
+**/
 #include "core/bool.h"
 #include "core/log.h"
 #include "core/byteorder.h"
@@ -144,7 +194,7 @@ typedef struct de_scene_t de_scene_t;
 #include "core/core.h" 
 #include "sound/sound.h"
 
-/* TINFL (part of miniz) - used to decompress FBX data */
+	 /* TINFL (part of miniz) - used to decompress FBX data */
 #ifdef DE_IMPLEMENTATION
 #  define TINFL_IMPLEMENTATION
 #endif
@@ -156,13 +206,9 @@ typedef struct de_scene_t de_scene_t;
  * Not sensitive to order of includes.
  **/
 #ifdef DE_IMPLEMENTATION
-#  ifdef _WIN32
-#    include "platform/impl/win32.h"
-#  else
-#    include "platform/impl/x11.h"
-#  endif
 #  include "resources/impl/image.h"
 #  include "core/impl/byteorder.h"
+#  include "core/impl/array.h"
 #  include "core/impl/color.h"
 #  include "core/impl/pool.h"
 #  include "core/impl/log.h" 

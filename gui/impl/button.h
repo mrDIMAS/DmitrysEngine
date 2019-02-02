@@ -105,7 +105,8 @@ de_gui_node_t* de_gui_button_create(de_gui_t* gui) {
 	n->mouse_enter = de_button_border_mouse_enter;
 	n->mouse_leave = de_button_border_mouse_leave;
 	b->text = de_gui_text_create(gui);
-	de_gui_text_set_alignment(b->text, DE_GUI_TA_CENTER);
+	de_gui_text_set_vertical_alignment(b->text, DE_GUI_VERTICAL_ALIGNMENT_CENTER);
+	de_gui_text_set_horizontal_alignment(b->text, DE_GUI_HORIZONTAL_ALIGNMENT_CENTER);
 	de_gui_node_set_hit_test_visible(b->text, false);
 	de_gui_node_set_color_rgba(b->text, 220, 220, 220, 255);
 	de_gui_border_set_stroke_color_rgba(b->border, 80, 80, 80, 255);

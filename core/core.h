@@ -178,5 +178,7 @@ void de_get_desktop_video_mode(de_video_mode_t* vm);
  * while(de_enum_video_modes(&vm, n++)) {
  *   ..do stuff
  * }
+ * 
+ * Note: Function may return duplicated videomodes! You have to filter them by yourself.
  */
 bool de_enum_video_modes(de_video_mode_t* vm, int n);

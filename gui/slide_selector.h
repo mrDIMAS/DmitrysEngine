@@ -20,20 +20,21 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 
-typedef void(*de_gui_item_text_getter)(void* item, char* out_buffer, int out_buffer_size);
+typedef void(*de_gui_item_text_getter)(void* items, int n, char* out_buffer, int out_buffer_size);
+typedef void(*de_gui_selection_changed)(de_gui_node_t* node, int new_item);
 
 typedef struct de_gui_slide_selector_t {
 	de_gui_node_t* current_item;
 	int item_count;
+	int selection_index;
 	void* items;
 	void* selection;
 	de_gui_item_text_getter get_item_text;
+	de_gui_selection_changed selection_changed;
 } de_gui_slide_selector_t;
 
 de_gui_node_t* de_gui_slide_selector_create(de_gui_t* gui);
 
-void de_gui_slide_selector_set_items(de_gui_node_t* node, void* items, int item_count);
-
-void de_gui_slide_selector_set_item_text_getter(de_gui_node_t* node, de_gui_item_text_getter getter);
+void de_gui_slide_selector_set_items(de_gui_node_t* node, void* items, int item_count, de_gui_item_text_getter getter);
 
 void* de_gui_slide_selector_get_selection(de_gui_node_t* node);

@@ -1,3 +1,23 @@
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
+*
+* Permission is hereby granted, free of charge, to any person obtaining
+* a copy of this software and associated documentation files (the
+* "Software"), to deal in the Software without restriction, including
+* without limitation the rights to use, copy, modify, merge, publish,
+* distribute, sublicense, and/or sell copies of the Software, and to
+* permit persons to whom the Software is furnished to do so, subject to
+* the following conditions:
+*
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+* LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+* OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 static void de_gui_text_deinit(de_gui_node_t* n) {
 	de_gui_text_t* txt;
@@ -52,7 +72,6 @@ static void de_gui_text_break_on_lines(de_gui_node_t* node) {
 	}
 }
 
-
 static void de_gui_text_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting) {
 	size_t i;
 	const de_vec2_t* scr_pos = &n->screen_position;
@@ -62,17 +81,37 @@ static void de_gui_text_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t
 	if (txt->font) {
 		de_vec2_t pos = n->screen_position;
 		de_gui_text_break_on_lines(n);
-		if (txt->alignment == DE_GUI_TA_CENTER) {
-			pos.y = scr_pos->y + n->actual_size.y * 0.5f - txt->total_lines_height * 0.5f;
+		switch (txt->ver_alignment) {
+			case DE_GUI_VERTICAL_ALIGNMENT_TOP:
+				/* already at top */
+				break;
+			case DE_GUI_VERTICAL_ALIGNMENT_BOTTOM:
+				pos.y = scr_pos->y + n->actual_size.y - txt->total_lines_height;
+				break;
+			case DE_GUI_VERTICAL_ALIGNMENT_CENTER:
+				pos.y = scr_pos->y + n->actual_size.y * 0.5f - txt->total_lines_height * 0.5f;
+				break;
+			case DE_GUI_VERTICAL_ALIGNMENT_STRETCH:
+				/* todo */
+				break;
 		}
 		for (i = 0; i < txt->lines.size; ++i) {
 			de_gui_text_line_t* line = txt->lines.data + i;
 			uint32_t* str = txt->str.data + line->begin;
 			size_t len = line->end - line->begin;
-			if (txt->alignment == DE_GUI_TA_CENTER) {
-				pos.x = scr_pos->x + n->actual_size.x * 0.5f - line->width * 0.5f;
-			} else if (txt->alignment == DE_GUI_TA_LEFT) {
-				pos.x = scr_pos->x;
+			switch (txt->hor_alignment) {
+				case DE_GUI_HORIZONTAL_ALIGNMENT_LEFT:
+					pos.x = scr_pos->x;
+					break;
+				case DE_GUI_HORIZONTAL_ALIGNMENT_CENTER:
+					pos.x = scr_pos->x + n->actual_size.x * 0.5f - line->width * 0.5f;
+					break;
+				case DE_GUI_HORIZONTAL_ALIGNMENT_RIGHT:
+					pos.x = scr_pos->x + n->actual_size.x - line->width;
+					break;
+				case DE_GUI_HORIZONTAL_ALIGNMENT_STRETCH:
+					/* todo */
+					break;
 			}
 			de_gui_draw_list_push_text(dl, txt->font, str, len, &pos, &n->color);
 			pos.y += txt->font->ascender;
@@ -127,9 +166,12 @@ void de_gui_text_set_text(de_gui_node_t* node, const char* utf8str) {
 	de_gui_text_break_on_lines(node);
 }
 
-
-void de_gui_text_set_alignment(de_gui_node_t* node, de_gui_text_alignment_t alignment) {
+void de_gui_text_set_vertical_alignment(de_gui_node_t* node, de_gui_vertical_alignment_t alignment) {
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_TEXT);
-	node->s.text.alignment = alignment;
+	node->s.text.ver_alignment = alignment;
 }
 
+void de_gui_text_set_horizontal_alignment(de_gui_node_t* node, de_gui_horizontal_alignment_t alignment) {
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_TEXT);
+	node->s.text.hor_alignment = alignment;
+}

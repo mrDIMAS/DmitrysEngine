@@ -34,6 +34,26 @@ typedef struct de_gui_thickness_t {
 	float bottom;
 } de_gui_thickness_t;
 
+/**
+* @brief
+*/
+typedef enum de_gui_vertical_alignment_t {
+	DE_GUI_VERTICAL_ALIGNMENT_TOP,    /**< Top alignment */
+	DE_GUI_VERTICAL_ALIGNMENT_CENTER, /**< Center alignment */
+	DE_GUI_VERTICAL_ALIGNMENT_BOTTOM, /**< Bottom alignment */
+	DE_GUI_VERTICAL_ALIGNMENT_STRETCH /**< Top alignment with vertical stretch */
+} de_gui_vertical_alignment_t;
+
+/**
+* @brief
+*/
+typedef enum de_gui_horizontal_alignment_t {
+	DE_GUI_HORIZONTAL_ALIGNMENT_LEFT,   /**< Left alignment */
+	DE_GUI_HORIZONTAL_ALIGNMENT_CENTER, /**< Center alignment */
+	DE_GUI_HORIZONTAL_ALIGNMENT_RIGHT,  /**< Right alignment */
+	DE_GUI_HORIZONTAL_ALIGNMENT_STRETCH /**< Left alignment with horizontal stretch */
+} de_gui_horizontal_alignment_t;
+
 typedef void(*de_gui_callback_func_t)(de_gui_node_t*, void*);
 
 typedef struct de_gui_callback_t {
@@ -118,25 +138,7 @@ typedef struct de_gui_routed_event_args_t {
 	} s;
 } de_gui_routed_event_args_t;
 
-/**
- * @brief
- */
-typedef enum de_gui_vertical_alignment_t {
-	DE_GUI_VERTICAL_ALIGNMENT_TOP,    /**< Top alignment */
-	DE_GUI_VERTICAL_ALIGNMENT_CENTER, /**< Center alignment */
-	DE_GUI_VERTICAL_ALIGNMENT_BOTTOM, /**< Bottom alignment */
-	DE_GUI_VERTICAL_ALIGNMENT_STRETCH /**< Top alignment with vertical stretch */
-} de_gui_vertical_alignment_t;
 
-/**
- * @brief
- */
-typedef enum de_gui_horizontal_alignment_t {
-	DE_GUI_HORIZONTAL_ALIGNMENT_LEFT,   /**< Left alignment */
-	DE_GUI_HORIZONTAL_ALIGNMENT_CENTER, /**< Center alignment */
-	DE_GUI_HORIZONTAL_ALIGNMENT_RIGHT,  /**< Right alignment */
-	DE_GUI_HORIZONTAL_ALIGNMENT_STRETCH /**< Left alignment with horizontal stretch */
-} de_gui_horizontal_alignment_t;
 
 /**
  * @brief

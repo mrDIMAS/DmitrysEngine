@@ -192,13 +192,11 @@ de_gui_node_t* de_gui_scroll_bar_create(de_gui_t* gui) {
 
 	sb->up_button = de_gui_button_create(gui);
 	de_gui_text_set_text(de_gui_button_get_text(sb->up_button), "<");
-	de_gui_text_set_alignment(de_gui_button_get_text(sb->up_button), DE_GUI_TA_CENTER);
 	de_gui_node_attach(sb->up_button, sb->grid);
 	de_gui_button_set_click(sb->up_button, de_gui_scroll_bar_on_up_click, NULL);
 
 	sb->down_button = de_gui_button_create(gui);
 	de_gui_text_set_text(de_gui_button_get_text(sb->down_button), ">");
-	de_gui_text_set_alignment(de_gui_button_get_text(sb->down_button), DE_GUI_TA_CENTER);
 	de_gui_node_attach(sb->down_button, sb->grid);
 	de_gui_button_set_click(sb->down_button, de_gui_scroll_bar_on_down_click, NULL);
 

@@ -23,18 +23,46 @@ static void de_gui_slide_selector_deinit(de_gui_node_t* node) {
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SLIDE_SELECTOR);
 }
 
-static void de_gui_slide_selector_update(de_gui_node_t* node) {
-	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SLIDE_SELECTOR);
-}
-
-static void de_gui_slide_selector_on_prev_click(de_gui_node_t* node, void* user_data) {
+static void de_gui_slide_selector_on_prev_click(de_gui_node_t* node, void* user_data) {	
+	de_gui_slide_selector_t* ss;
+	de_gui_node_t* selector_node;
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BUTTON);
-	DE_UNUSED(user_data);
+	selector_node = (de_gui_node_t*)user_data;
+	ss = &selector_node->s.slide_selector;
+	if (ss->get_item_text) {
+		if (ss->selection_index > 0) {
+			char buffer[512];
+			--ss->selection_index;
+			ss->get_item_text(ss->items, ss->selection_index, buffer, sizeof(buffer));
+			de_gui_text_set_text(ss->current_item, buffer);
+			if (ss->selection_changed) {
+				ss->selection_changed(selector_node, ss->selection_index);
+			}
+		}
+	} else {
+		de_gui_text_set_text(ss->current_item, "");
+	}
 }
 
 static void de_gui_slide_selector_on_next_click(de_gui_node_t* node, void* user_data) {
-	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BUTTON);
-	DE_UNUSED(user_data);
+	de_gui_slide_selector_t* ss;
+	de_gui_node_t* selector_node;
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BUTTON);	
+	selector_node = (de_gui_node_t*)user_data;
+	ss = &selector_node->s.slide_selector;
+	if (ss->get_item_text) {
+		if (ss->selection_index < ss->item_count - 1) {
+			char buffer[512];
+			++ss->selection_index;
+			ss->get_item_text(ss->items, ss->selection_index, buffer, sizeof(buffer));
+			de_gui_text_set_text(ss->current_item, buffer);
+			if (ss->selection_changed) {
+				ss->selection_changed(selector_node, ss->selection_index);
+			}
+		}
+	} else {
+		de_gui_text_set_text(ss->current_item, "");
+	}
 }
 
 de_gui_node_t* de_gui_slide_selector_create(de_gui_t* gui) {
@@ -49,7 +77,6 @@ de_gui_node_t* de_gui_slide_selector_create(de_gui_t* gui) {
 		static bool init = false;
 		if (!init) {
 			table.deinit = de_gui_slide_selector_deinit;
-			table.update = de_gui_slide_selector_update;
 			init = true;
 		}
 	}
@@ -72,33 +99,29 @@ de_gui_node_t* de_gui_slide_selector_create(de_gui_t* gui) {
 	de_gui_button_set_text(next, ">");
 	de_gui_node_set_column(next, 2);
 	de_gui_node_attach(next, grid);
-	de_gui_button_set_click(next, de_gui_slide_selector_on_next_click, NULL);
+	de_gui_button_set_click(next, de_gui_slide_selector_on_next_click, node);
 
 	ss->current_item = de_gui_text_create(gui);
 	de_gui_node_set_column(ss->current_item, 1);
 	de_gui_node_attach(ss->current_item, grid);
-	de_gui_text_set_alignment(ss->current_item, DE_GUI_TA_CENTER);
+	de_gui_text_set_vertical_alignment(ss->current_item, DE_GUI_VERTICAL_ALIGNMENT_CENTER);
+	de_gui_text_set_horizontal_alignment(ss->current_item, DE_GUI_HORIZONTAL_ALIGNMENT_CENTER);
 	de_gui_text_set_text(ss->current_item, "some text");
 
 	prev = de_gui_button_create(gui);
 	de_gui_button_set_text(prev, "<");
 	de_gui_node_set_column(prev, 0);
 	de_gui_node_attach(prev, grid);
-	de_gui_button_set_click(prev, de_gui_slide_selector_on_prev_click, NULL);
+	de_gui_button_set_click(prev, de_gui_slide_selector_on_prev_click, node);
 
 	return node;
 }
 
-void de_gui_slide_selector_set_items(de_gui_node_t* node, void* items, int item_count) {
+void de_gui_slide_selector_set_items(de_gui_node_t* node, void* items, int item_count, de_gui_item_text_getter getter) {
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SLIDE_SELECTOR);
 	de_gui_slide_selector_t* ss = &node->s.slide_selector;
 	ss->items = items;
 	ss->item_count = item_count;
-}
-
-void de_gui_slide_selector_set_item_text_getter(de_gui_node_t* node, de_gui_item_text_getter getter) {
-	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SLIDE_SELECTOR);
-	de_gui_slide_selector_t* ss = &node->s.slide_selector;
 	ss->get_item_text = getter;
 }
 

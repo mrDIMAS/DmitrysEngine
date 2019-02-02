@@ -16,6 +16,7 @@ struct game_t {
 
 struct main_menu_t {
 	de_gui_node_t* window;
+	DE_ARRAY_DECLARE(de_video_mode_t, video_modes);
 	bool visible;
 };
 
@@ -402,9 +403,15 @@ void main_menu_on_new_game_click(de_gui_node_t* node, void* user_data) {
 	main_menu_set_visible(game->main_menu, false);
 }
 
+static void videomode_selector_item_getter(void* items, int n, char* out_buffer, int out_buffer_size) {
+	de_video_mode_t* videomode = ((de_video_mode_t*)items) + n;
+	snprintf(out_buffer, out_buffer_size, "%dx%d@%d", videomode->width, videomode->height, videomode->bits_per_pixel);
+}
+
 main_menu_t* main_menu_create(game_t* game) {
 	de_gui_t* gui = game->core->gui;
 	main_menu_t* menu = DE_NEW(main_menu_t);
+
 
 	/* main window */
 	{
@@ -437,7 +444,8 @@ main_menu_t* main_menu_create(game_t* game) {
 			de_gui_node_set_row(title, 0);
 			de_gui_node_set_column(title, 0);
 			de_gui_node_attach(title, grid);
-			de_gui_text_set_alignment(title, DE_GUI_TA_CENTER);
+			de_gui_text_set_vertical_alignment(title, DE_GUI_VERTICAL_ALIGNMENT_CENTER);
+			de_gui_text_set_horizontal_alignment(title, DE_GUI_HORIZONTAL_ALIGNMENT_CENTER);			
 		}
 
 		/* new game */
@@ -493,19 +501,49 @@ main_menu_t* main_menu_create(game_t* game) {
 	/* settings window */
 	{
 		de_gui_node_t* settings_window = de_gui_window_create(gui);
-		de_gui_node_set_desired_size(settings_window, 300, 400);	
-		
+		de_gui_node_set_desired_size(settings_window, 300, 400);
+		de_gui_text_set_text(de_gui_window_get_title(settings_window), "Settings");
+
 		/* content */
 		{
 			de_gui_node_t* grid = de_gui_grid_create(gui);
+			de_gui_grid_add_column(grid, 100, DE_GUI_SIZE_MODE_STRICT);
 			de_gui_grid_add_column(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
-			de_gui_grid_add_row(grid, 30, DE_GUI_SIZE_MODE_STRICT);			
+			de_gui_grid_add_row(grid, 30, DE_GUI_SIZE_MODE_STRICT);
 
 			/* videomode */
 			{
-				de_gui_node_t* selector = de_gui_slide_selector_create(gui);
+				int n = 0;
+				size_t k;
+				de_video_mode_t video_mode;
+				de_gui_node_t* selector;
+				de_gui_node_t* videomode_text = de_gui_text_create(gui);
+				de_gui_text_set_text(videomode_text, "Video Mode");
+				de_gui_node_set_row(videomode_text, 0);
+				de_gui_node_set_column(videomode_text, 0);
+				de_gui_text_set_vertical_alignment(videomode_text, DE_GUI_VERTICAL_ALIGNMENT_CENTER);
+				de_gui_node_attach(videomode_text, grid);
+
+				selector = de_gui_slide_selector_create(gui);
 				de_gui_node_set_row(selector, 0);
+				de_gui_node_set_column(selector, 1);
 				de_gui_node_attach(selector, grid);
+				while (de_enum_video_modes(&video_mode, n++)) {
+					bool duplicate = false;
+					for (k = 0; k < menu->video_modes.size; ++k) {
+						de_video_mode_t* existing = menu->video_modes.data + k;
+						if (existing->width == video_mode.width &&
+							existing->height == video_mode.height &&
+							existing->bits_per_pixel == video_mode.bits_per_pixel) {
+							duplicate = true;
+							break;
+						}
+					}
+					if (!duplicate) {
+						DE_ARRAY_APPEND(menu->video_modes, video_mode);
+					}
+				}
+				de_gui_slide_selector_set_items(selector, menu->video_modes.data, menu->video_modes.size, videomode_selector_item_getter);
 			}
 
 			de_gui_window_set_content(settings_window, grid);
@@ -526,15 +564,9 @@ game_t* game_create(void) {
 	de_log_open("dengine.log");
 	/* Init core */
 	{
-		int n = 0;
 		de_engine_params_t params;
-		de_video_mode_t video_mode;
-		while (de_enum_video_modes(&video_mode, n++)) {
-			de_log("video mode: %dx%d@%d", video_mode.width, video_mode.height, video_mode.bits_per_pixel);
-		}
-
 		//params.flags = DE_CORE_FLAGS_BORDERLESS;
-	//	de_get_desktop_video_mode(&params.video_mode);
+		//de_get_desktop_video_mode(&params.video_mode);
 		params.video_mode.width = 1200;
 		params.video_mode.height = 1000;
 		params.video_mode.bits_per_pixel = 32;
@@ -677,7 +709,7 @@ void test_visitor(game_t* game) {
 		de_object_visitor_save_binary(&visitor, "save.bin");
 
 		de_object_visitor_free(&visitor);
-	}
+}
 #endif
 
 #if 1

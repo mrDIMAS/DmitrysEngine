@@ -113,16 +113,17 @@ typedef enum de_gui_routed_event_type_t {
 	DE_GUI_ROUTED_EVENT_MOUSE_LEAVE,
 	DE_GUI_ROUTED_EVENT_MOUSE_MOVE,
 	DE_GUI_ROUTED_EVENT_LOST_FOCUS,
-	DE_GUI_ROUTED_EVENT_GOT_FOCUS
+	DE_GUI_ROUTED_EVENT_GOT_FOCUS,
+	DE_GUI_ROUTED_EVENT_TEXT,
 } de_gui_routed_event_type_t;
 
 /**
- * @brief
+ * @brief Routed event. Typed union.
  */
 typedef struct de_gui_routed_event_args_t {
 	de_gui_routed_event_type_t type;
-	bool handled;
-	de_gui_node_t* source;
+	bool handled; /* if set to true, further routing will be stopped */
+	de_gui_node_t* source; /* node which initiated this event */
 	union {
 		struct {
 			de_vec2_t pos;
@@ -135,10 +136,11 @@ typedef struct de_gui_routed_event_args_t {
 			de_vec2_t pos;
 			enum de_mouse_button button;
 		} mouse_up;
+		struct {
+			uint32_t unicode;
+		} text;
 	} s;
 } de_gui_routed_event_args_t;
-
-
 
 /**
  * @brief
@@ -178,6 +180,7 @@ typedef void(*de_mouse_enter_event_t)(de_gui_node_t*, de_gui_routed_event_args_t
 typedef void(*de_mouse_leave_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*);
 typedef void(*de_lost_focus_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*);
 typedef void(*de_got_focus_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*);
+typedef void(*de_text_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*);
 
 #define DE_DECLARE_PROPERTY_SETTER(type__, field__, passed_name__, field_name__, value__, data_size__, object__) \
 	if (strcmp(field_name__, passed_name__) == 0) { \
@@ -194,15 +197,15 @@ typedef void(*de_got_focus_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*)
 		} \
 	}
 
-/* WARNING: Add new fields ONLY in the end of this struct! DO NOT delete fields! */
 typedef struct de_gui_dispatch_table_t {
 	void(*deinit)(de_gui_node_t* n); /* required */
+	void(*measure)(de_gui_node_t* n, const de_vec2_t* constraint); /* optional */
 	void(*layout_children)(de_gui_node_t* n); /* optional */
 	void(*update)(de_gui_node_t* n);/* optional */
 	void(*render)(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting);/* optional */
 	bool(*get_property)(de_gui_node_t* n, const char* name, void* value, size_t data_size);/* optional */
 	bool(*set_property)(de_gui_node_t* n, const char* name, const void* value, size_t data_size);/* optional */
-	bool(*parse_property)(de_gui_node_t* n, const char* name, const char* value);/* optional */
+	bool(*parse_property)(de_gui_node_t* n, const char* name, const char* value);/* optional */	
 } de_gui_dispatch_table_t;
 
 /**
@@ -229,6 +232,7 @@ struct de_gui_node_t {
 	DE_ARRAY_DECLARE(struct de_gui_node_t*, children);  /**< Array of children nodes */
 	DE_ARRAY_DECLARE(int, geometry);                    /**< Array of indices to draw command in draw list */
 	bool is_hit_test_visible;                      /**< Will this control participate in hit-test */
+	void* user_data; /**< Pointer to any data. Useful to pass data to callbacks */
 
 	/* Specialization (type-specific data) */
 	union {
@@ -254,6 +258,7 @@ struct de_gui_node_t {
 	de_mouse_leave_event_t mouse_leave;
 	de_lost_focus_event_t lost_focus;
 	de_got_focus_event_t got_focus;
+	de_text_event_t text_entered;
 	bool is_focused;
 	bool is_mouse_over;
 
@@ -482,3 +487,9 @@ void de_gui_update(de_gui_t* gui);
 bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt);
 
 de_gui_node_t* de_gui_hit_test(de_gui_t* gui, float x, float y);
+
+void de_gui_node_set_user_data(de_gui_node_t* node, void* user_data) {
+	node->user_data = user_data;
+}
+
+void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* constraint);

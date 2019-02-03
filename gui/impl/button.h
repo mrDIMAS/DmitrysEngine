@@ -133,5 +133,5 @@ de_gui_node_t* de_gui_button_get_border(de_gui_node_t* node) {
 
 void de_gui_button_set_text(de_gui_node_t* node, const char* txt) {
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BUTTON);
-	de_gui_text_set_text(node->s.button.text, txt);
+	de_gui_text_set_text_utf8(node->s.button.text, txt);
 }

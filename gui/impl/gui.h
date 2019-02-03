@@ -57,12 +57,20 @@ DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_lost_focus, lost_focus)
 #undef DE_DECLARE_ROUTED_EVENT_TRACER
 
 static void de_gui_node_route_mouse_enter(de_gui_node_t* n, de_gui_routed_event_args_t* args) {
-
 	if (n->mouse_enter) {
 		n->mouse_enter(n, args); 
 	}
 	if (n->parent && !args->handled) {
 		de_gui_node_route_mouse_enter(n->parent, args);
+	}
+}
+
+static void de_gui_node_route_text_entered(de_gui_node_t* n, de_gui_routed_event_args_t* args) {
+	if (n->text_entered) {
+		n->text_entered(n, args);
+	}
+	if (n->parent && !args->handled) {
+		de_gui_node_route_text_entered(n->parent, args);
 	}
 }
 
@@ -492,6 +500,14 @@ bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt) {
 			p.y = (float)evt->s.mouse_down.y;
 			gui->picked_node = de_gui_hit_test(gui, p.x, p.y);
 			break;
+		case DE_EVENT_TYPE_TEXT:
+			if (gui->keyboard_focus) {
+				de_gui_routed_event_args_t revt;
+				de_zero(&revt, sizeof(revt));
+				revt.type = DE_GUI_ROUTED_EVENT_TEXT;
+				revt.s.text.unicode = evt->s.text.code;
+				de_gui_node_route_text_entered(gui->keyboard_focus, &revt);
+			}
 		default:
 			break;
 	}
@@ -761,6 +777,31 @@ void de_gui_node_free(de_gui_node_t* n) {
 	DE_ARRAY_FREE(n->children);
 	DE_ARRAY_FREE(n->geometry);
 	de_free(n);
+}
+
+void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* constraint) {
+	size_t i;
+	if (node->dispatch_table->measure) {
+		/* delegate to override method */
+		node->dispatch_table->measure(node, constraint);
+	} else {
+		/* standard measure */
+		node->desired_size.x = 0;
+		node->desired_size.y = 0;		
+		for (i = 0; i < node->children.size; ++i) {
+			de_gui_node_t* child = node->children.data[i];
+			de_vec2_t child_constraint;
+			child_constraint.x = de_maxf(0.0f, constraint->x - (node->margin.left + node->margin.right));
+			child_constraint.y = de_maxf(0.0f, constraint->y - (node->margin.top + node->margin.bottom));
+			de_gui_node_measure(child, &child_constraint);
+			if (child->desired_size.x > node->desired_size.x) {
+				node->desired_size.x = child->desired_size.x;				
+			}
+			if (child->desired_size.y > node->desired_size.y) {
+				node->desired_size.y = child->desired_size.y;
+			}
+		}
+	}
 }
 
 void de_gui_node_set_row(de_gui_node_t* node, uint16_t row) {

@@ -97,6 +97,7 @@ typedef enum de_event_type_t {
 	DE_EVENT_TYPE_MOUSE_ENTER,
 	DE_EVENT_TYPE_KEY_DOWN,
 	DE_EVENT_TYPE_KEY_UP,
+	DE_EVENT_TYPE_TEXT,
 	DE_EVENT_TYPE_LOST_FOCUS,
 	DE_EVENT_TYPE_GOT_FOCUS,
 } de_event_type_t;
@@ -132,6 +133,10 @@ typedef struct de_event_t {
 			int x, y; /* position */
 			int vx, vy; /* velocity */
 		} mouse_move;
+
+		struct {
+			uint32_t code;
+		} text;
 	} s;
 } de_event_t;
 

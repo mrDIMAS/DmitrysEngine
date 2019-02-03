@@ -134,6 +134,7 @@ static int de_win32_remap_key(WPARAM key, LPARAM flags) {
 
 static LRESULT CALLBACK de_win32_window_proc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	static int lastx, lasty;
+	static uint16_t surrogate;
 	de_core_t* core = (de_core_t*)GetWindowLongPtr(wnd, GWLP_USERDATA);
 	de_event_t evt;
 	POINT pos;
@@ -219,6 +220,20 @@ static LRESULT CALLBACK de_win32_window_proc(HWND wnd, UINT msg, WPARAM wParam, 
 			case WM_MOUSELEAVE:
 				evt.type = DE_EVENT_TYPE_MOUSE_LEAVE;
 				de_core_push_event(core, &evt);
+				break;
+			case WM_CHAR:
+				evt.type = DE_EVENT_TYPE_TEXT;
+				evt.s.text.code = (uint32_t)wParam;
+				if (evt.s.text.code >= 0xD800 && evt.s.text.code <= 0xDBFF) {
+					/* first part of character surrogate */
+					surrogate = (uint16_t)evt.s.text.code;
+				} else {					
+					if ((evt.s.text.code >= 0xDC00) && (evt.s.text.code <= 0xDFFF))	{
+						/* todo: convert surrogate pair to utf32 */ 
+						surrogate = 0;
+					}
+					de_core_push_event(core, &evt);
+				}
 				break;
 			case WM_KILLFOCUS:
 				evt.type = DE_EVENT_TYPE_LOST_FOCUS;
@@ -437,11 +452,13 @@ void de_core_set_video_mode(de_core_t* core, const de_video_mode_t* vm) {
 	HWND wnd = core->platform.window;	
 	if (vm->fullscreen) {
 		DEVMODE mode;
+		mode.dmSize = sizeof(mode);
 		mode.dmBitsPerPel = vm->bits_per_pixel;
 		mode.dmPelsWidth = vm->width;
 		mode.dmPelsHeight = vm->height;
+		mode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL;
 		if (ChangeDisplaySettings(&mode, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
-			de_log("unable to set fullscreen videomode: %dx%d%d", vm->width, vm->height, vm->bits_per_pixel);
+			de_log("unable to set fullscreen videomode: %dx%d@%d", vm->width, vm->height, vm->bits_per_pixel);
 			return;
 		}
 	}

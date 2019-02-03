@@ -30,9 +30,9 @@ static void de_gui_text_deinit(de_gui_node_t* n) {
 	DE_ARRAY_FREE(txt->lines);
 }
 
-
 static void de_gui_text_break_on_lines(de_gui_node_t* node) {
 	size_t i;
+	float max_width = 0;
 	de_gui_text_t* txt;
 	de_gui_text_line_t line = { 0 };
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_TEXT);
@@ -54,6 +54,9 @@ static void de_gui_text_break_on_lines(de_gui_node_t* node) {
 			bool control_char = code == '\n' || code == '\r';
 			/* commit line */
 			DE_ARRAY_APPEND(txt->lines, line);
+			if (line.width > max_width) {
+				max_width = line.width;
+			}
 			/* start new line */
 			line.begin = control_char ? i + 1 : i;
 			line.end = line.begin;
@@ -70,6 +73,8 @@ static void de_gui_text_break_on_lines(de_gui_node_t* node) {
 		DE_ARRAY_APPEND(txt->lines, line);
 		txt->total_lines_height += txt->font->ascender;
 	}
+	//node->desired_size.x = max_width;
+	//node->desired_size.y = txt->total_lines_height;
 }
 
 static void de_gui_text_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting) {
@@ -120,7 +125,6 @@ static void de_gui_text_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t
 	}
 }
 
-
 de_gui_node_t* de_gui_text_create(de_gui_t* gui) {
 	de_gui_node_t* n;
 	de_gui_text_t* txt;
@@ -144,18 +148,15 @@ de_gui_node_t* de_gui_text_create(de_gui_t* gui) {
 	return n;
 }
 
-
 void de_gui_text_set_font(de_gui_node_t* node, de_font_t* font) {
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_TEXT);
 	node->s.text.font = font;
 	de_gui_text_break_on_lines(node);
 }
 
-
-void de_gui_text_set_text(de_gui_node_t* node, const char* utf8str) {
+void de_gui_text_set_text_utf8(de_gui_node_t* node, const char* utf8str) {
 	de_gui_text_t* txt;
-	size_t i;
-	size_t len;
+	size_t i, len;	
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_TEXT);
 	txt = &node->s.text;
 	len = de_utf8_to_utf32(utf8str, node->gui->text_buffer, node->gui->text_buffer_size);
@@ -164,6 +165,22 @@ void de_gui_text_set_text(de_gui_node_t* node, const char* utf8str) {
 		DE_ARRAY_APPEND(txt->str, node->gui->text_buffer[i]);
 	}
 	de_gui_text_break_on_lines(node);
+}
+
+void de_gui_text_set_text_utf32(de_gui_node_t* node, const uint32_t* utf32str) {
+	de_gui_text_t* txt;
+	const uint32_t* ptr;
+	size_t i, len = 0;
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_TEXT);
+	txt = &node->s.text;
+	ptr = utf32str;
+	while (*ptr++) {
+		++len;
+	}
+	DE_ARRAY_CLEAR(txt->str);
+	for (i = 0; i < len; ++i) {
+		DE_ARRAY_APPEND(txt->str, utf32str[i]);
+	}
 }
 
 void de_gui_text_set_vertical_alignment(de_gui_node_t* node, de_gui_vertical_alignment_t alignment) {

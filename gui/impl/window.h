@@ -114,21 +114,21 @@ de_gui_node_t* de_gui_window_create(de_gui_t* gui) {
 	de_gui_grid_add_row(wnd->header_grid, 0, DE_GUI_SIZE_MODE_STRETCH);
 
 	wnd->title = de_gui_text_create(gui);
-	de_gui_text_set_text(wnd->title, "Unnamed window");
+	de_gui_text_set_text_utf8(wnd->title, "Unnamed window");
 	de_gui_node_set_margin_uniform(wnd->title, 5);
 	de_gui_node_attach(wnd->title, wnd->header_grid);
 	de_gui_node_set_row(wnd->title, 0);
 	de_gui_node_set_column(wnd->title, 0);
 
 	wnd->close_button = de_gui_button_create(gui);
-	de_gui_text_set_text(de_gui_button_get_text(wnd->close_button), "X");
+	de_gui_text_set_text_utf8(de_gui_button_get_text(wnd->close_button), "X");
 	de_gui_node_attach(wnd->close_button, wnd->header_grid);
 	de_gui_node_set_row(wnd->close_button, 0);
 	de_gui_node_set_column(wnd->close_button, 2);
 	de_gui_node_set_margin_uniform(wnd->close_button, 2);
 
 	wnd->collapse_button = de_gui_button_create(gui);
-	de_gui_text_set_text(de_gui_button_get_text(wnd->collapse_button), "_");
+	de_gui_text_set_text_utf8(de_gui_button_get_text(wnd->collapse_button), "_");
 	de_gui_node_attach(wnd->collapse_button, wnd->header_grid);
 	de_gui_node_set_row(wnd->collapse_button, 0);
 	de_gui_node_set_column(wnd->collapse_button, 1);

@@ -29,6 +29,15 @@ void de_str_from_utf8(de_string_t* str, const char* cstr);
 
 void de_str_free(de_string_t* str);
 
+void de_str_append(de_string32_t* str, uint32_t unicode) {
+	if (str->size == 0) {
+		DE_ARRAY_APPEND(*str, unicode);
+		DE_ARRAY_APPEND(*str, '\0');
+	} else {
+		DE_ARRAY_INSERT(*str, str->size - 1, unicode);
+	}	
+}
+
 /**
 * @brief Creates copy of string on heap. You have to call @de_free to delete string
 * @param src string

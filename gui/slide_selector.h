@@ -38,3 +38,5 @@ de_gui_node_t* de_gui_slide_selector_create(de_gui_t* gui);
 void de_gui_slide_selector_set_items(de_gui_node_t* node, void* items, int item_count, de_gui_item_text_getter getter);
 
 void* de_gui_slide_selector_get_selection(de_gui_node_t* node);
+
+void de_gui_slide_selector_set_selection_changed(de_gui_node_t* node, de_gui_selection_changed callback);

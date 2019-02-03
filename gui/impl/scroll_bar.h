@@ -191,12 +191,12 @@ de_gui_node_t* de_gui_scroll_bar_create(de_gui_t* gui) {
 	de_gui_node_set_mouse_move(sb->indicator, de_gui_scroll_bar_indicator_mouse_move);
 
 	sb->up_button = de_gui_button_create(gui);
-	de_gui_text_set_text(de_gui_button_get_text(sb->up_button), "<");
+	de_gui_text_set_text_utf8(de_gui_button_get_text(sb->up_button), "<");
 	de_gui_node_attach(sb->up_button, sb->grid);
 	de_gui_button_set_click(sb->up_button, de_gui_scroll_bar_on_up_click, NULL);
 
 	sb->down_button = de_gui_button_create(gui);
-	de_gui_text_set_text(de_gui_button_get_text(sb->down_button), ">");
+	de_gui_text_set_text_utf8(de_gui_button_get_text(sb->down_button), ">");
 	de_gui_node_attach(sb->down_button, sb->grid);
 	de_gui_button_set_click(sb->down_button, de_gui_scroll_bar_on_down_click, NULL);
 
@@ -230,8 +230,8 @@ void de_gui_scroll_bar_set_direction(de_gui_node_t* node, de_gui_scroll_bar_orie
 			de_gui_node_set_row(sb->canvas, 1);
 			de_gui_node_set_row(sb->down_button, 2);
 
-			de_gui_text_set_text(de_gui_button_get_text(sb->up_button), "^");
-			de_gui_text_set_text(de_gui_button_get_text(sb->down_button), "v");
+			de_gui_text_set_text_utf8(de_gui_button_get_text(sb->up_button), "^");
+			de_gui_text_set_text_utf8(de_gui_button_get_text(sb->down_button), "v");
 
 			de_gui_border_set_thickness(de_gui_node_find_direct_child_of_type(sb->up_button, DE_GUI_NODE_BORDER), 0, 0, 0, 1);
 			de_gui_border_set_thickness(de_gui_node_find_direct_child_of_type(sb->down_button, DE_GUI_NODE_BORDER), 0, 1, 0, 0);

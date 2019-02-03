@@ -34,13 +34,13 @@ static void de_gui_slide_selector_on_prev_click(de_gui_node_t* node, void* user_
 			char buffer[512];
 			--ss->selection_index;
 			ss->get_item_text(ss->items, ss->selection_index, buffer, sizeof(buffer));
-			de_gui_text_set_text(ss->current_item, buffer);
+			de_gui_text_set_text_utf8(ss->current_item, buffer);
 			if (ss->selection_changed) {
 				ss->selection_changed(selector_node, ss->selection_index);
 			}
 		}
 	} else {
-		de_gui_text_set_text(ss->current_item, "");
+		de_gui_text_set_text_utf8(ss->current_item, "");
 	}
 }
 
@@ -55,13 +55,13 @@ static void de_gui_slide_selector_on_next_click(de_gui_node_t* node, void* user_
 			char buffer[512];
 			++ss->selection_index;
 			ss->get_item_text(ss->items, ss->selection_index, buffer, sizeof(buffer));
-			de_gui_text_set_text(ss->current_item, buffer);
+			de_gui_text_set_text_utf8(ss->current_item, buffer);
 			if (ss->selection_changed) {
 				ss->selection_changed(selector_node, ss->selection_index);
 			}
 		}
 	} else {
-		de_gui_text_set_text(ss->current_item, "");
+		de_gui_text_set_text_utf8(ss->current_item, "");
 	}
 }
 
@@ -106,7 +106,7 @@ de_gui_node_t* de_gui_slide_selector_create(de_gui_t* gui) {
 	de_gui_node_attach(ss->current_item, grid);
 	de_gui_text_set_vertical_alignment(ss->current_item, DE_GUI_VERTICAL_ALIGNMENT_CENTER);
 	de_gui_text_set_horizontal_alignment(ss->current_item, DE_GUI_HORIZONTAL_ALIGNMENT_CENTER);
-	de_gui_text_set_text(ss->current_item, "some text");
+	de_gui_text_set_text_utf8(ss->current_item, "some text");
 
 	prev = de_gui_button_create(gui);
 	de_gui_button_set_text(prev, "<");
@@ -129,4 +129,10 @@ void* de_gui_slide_selector_get_selection(de_gui_node_t* node) {
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SLIDE_SELECTOR);
 	de_gui_slide_selector_t* ss = &node->s.slide_selector;
 	return ss->selection;
+}
+
+void de_gui_slide_selector_set_selection_changed(de_gui_node_t* node, de_gui_selection_changed callback) {
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SLIDE_SELECTOR);
+	de_gui_slide_selector_t* ss = &node->s.slide_selector;
+	ss->selection_changed = callback;
 }

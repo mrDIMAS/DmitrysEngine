@@ -15,6 +15,7 @@ struct game_t {
 };
 
 struct main_menu_t {
+	game_t* game;
 	de_gui_node_t* window;
 	DE_ARRAY_DECLARE(de_video_mode_t, video_modes);
 	bool visible;
@@ -408,10 +409,17 @@ static void videomode_selector_item_getter(void* items, int n, char* out_buffer,
 	snprintf(out_buffer, out_buffer_size, "%dx%d@%d", videomode->width, videomode->height, videomode->bits_per_pixel);
 }
 
+static void videomode_selector_on_selection_changed(de_gui_node_t* node, int n) {
+	main_menu_t* menu;
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SLIDE_SELECTOR);
+	menu = (main_menu_t*)node->user_data;
+	de_core_set_video_mode(menu->game->core, &menu->video_modes.data[n]);
+}
+
 main_menu_t* main_menu_create(game_t* game) {
 	de_gui_t* gui = game->core->gui;
 	main_menu_t* menu = DE_NEW(main_menu_t);
-
+	menu->game = game;
 
 	/* main window */
 	{
@@ -440,7 +448,7 @@ main_menu_t* main_menu_create(game_t* game) {
 		/* title */
 		{
 			de_gui_node_t* title = de_gui_text_create(gui);
-			de_gui_text_set_text(title, "CGame");
+			de_gui_text_set_text_utf8(title, "CGame");
 			de_gui_node_set_row(title, 0);
 			de_gui_node_set_column(title, 0);
 			de_gui_node_attach(title, grid);
@@ -451,7 +459,7 @@ main_menu_t* main_menu_create(game_t* game) {
 		/* new game */
 		{
 			de_gui_node_t* new_game = de_gui_button_create(gui);
-			de_gui_text_set_text(de_gui_button_get_text(new_game), "New Game");
+			de_gui_text_set_text_utf8(de_gui_button_get_text(new_game), "New Game");
 			de_gui_node_set_row(new_game, 1);
 			de_gui_node_attach(new_game, grid);
 			de_gui_node_set_margin_uniform(new_game, 10);
@@ -461,7 +469,7 @@ main_menu_t* main_menu_create(game_t* game) {
 		/* save game */
 		{
 			de_gui_node_t* save = de_gui_button_create(gui);
-			de_gui_text_set_text(de_gui_button_get_text(save), "Save Game");
+			de_gui_text_set_text_utf8(de_gui_button_get_text(save), "Save Game");
 			de_gui_node_set_row(save, 2);
 			de_gui_node_attach(save, grid);
 			de_gui_node_set_margin_uniform(save, 10);
@@ -470,7 +478,7 @@ main_menu_t* main_menu_create(game_t* game) {
 		/* load game */
 		{
 			de_gui_node_t* load = de_gui_button_create(gui);
-			de_gui_text_set_text(de_gui_button_get_text(load), "Load Game");
+			de_gui_text_set_text_utf8(de_gui_button_get_text(load), "Load Game");
 			de_gui_node_set_row(load, 3);
 			de_gui_node_attach(load, grid);
 			de_gui_node_set_margin_uniform(load, 10);
@@ -479,7 +487,7 @@ main_menu_t* main_menu_create(game_t* game) {
 		/* settings */
 		{
 			de_gui_node_t* settings = de_gui_button_create(gui);
-			de_gui_text_set_text(de_gui_button_get_text(settings), "Settings");
+			de_gui_text_set_text_utf8(de_gui_button_get_text(settings), "Settings");
 			de_gui_node_set_row(settings, 4);
 			de_gui_node_attach(settings, grid);
 			de_gui_node_set_margin_uniform(settings, 10);
@@ -488,7 +496,7 @@ main_menu_t* main_menu_create(game_t* game) {
 		/* quit */
 		{
 			de_gui_node_t* quit = de_gui_button_create(gui);
-			de_gui_text_set_text(de_gui_button_get_text(quit), "Quit");
+			de_gui_text_set_text_utf8(de_gui_button_get_text(quit), "Quit");
 			de_gui_node_set_row(quit, 5);
 			de_gui_node_attach(quit, grid);
 			de_gui_node_set_margin_uniform(quit, 10);
@@ -502,7 +510,7 @@ main_menu_t* main_menu_create(game_t* game) {
 	{
 		de_gui_node_t* settings_window = de_gui_window_create(gui);
 		de_gui_node_set_desired_size(settings_window, 300, 400);
-		de_gui_text_set_text(de_gui_window_get_title(settings_window), "Settings");
+		de_gui_text_set_text_utf8(de_gui_window_get_title(settings_window), "Settings");
 
 		/* content */
 		{
@@ -510,6 +518,7 @@ main_menu_t* main_menu_create(game_t* game) {
 			de_gui_grid_add_column(grid, 100, DE_GUI_SIZE_MODE_STRICT);
 			de_gui_grid_add_column(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
 			de_gui_grid_add_row(grid, 30, DE_GUI_SIZE_MODE_STRICT);
+			de_gui_grid_add_row(grid, 100, DE_GUI_SIZE_MODE_STRICT);
 
 			/* videomode */
 			{
@@ -518,16 +527,18 @@ main_menu_t* main_menu_create(game_t* game) {
 				de_video_mode_t video_mode;
 				de_gui_node_t* selector;
 				de_gui_node_t* videomode_text = de_gui_text_create(gui);
-				de_gui_text_set_text(videomode_text, "Video Mode");
+				de_gui_text_set_text_utf8(videomode_text, "Video Mode");
 				de_gui_node_set_row(videomode_text, 0);
 				de_gui_node_set_column(videomode_text, 0);
 				de_gui_text_set_vertical_alignment(videomode_text, DE_GUI_VERTICAL_ALIGNMENT_CENTER);
 				de_gui_node_attach(videomode_text, grid);
 
-				selector = de_gui_slide_selector_create(gui);
+				selector = de_gui_slide_selector_create(gui);	
+				de_gui_node_set_user_data(selector, menu);
 				de_gui_node_set_row(selector, 0);
 				de_gui_node_set_column(selector, 1);
 				de_gui_node_attach(selector, grid);
+				de_gui_slide_selector_set_selection_changed(selector, videomode_selector_on_selection_changed);
 				while (de_enum_video_modes(&video_mode, n++)) {
 					bool duplicate = false;
 					for (k = 0; k < menu->video_modes.size; ++k) {
@@ -544,6 +555,14 @@ main_menu_t* main_menu_create(game_t* game) {
 					}
 				}
 				de_gui_slide_selector_set_items(selector, menu->video_modes.data, menu->video_modes.size, videomode_selector_item_getter);
+			}
+
+			/* password */
+			{
+				de_gui_node_t* text_box = de_gui_text_box_create(gui);
+				de_gui_node_set_row(text_box, 1);
+				de_gui_node_set_column(text_box, 1);
+				de_gui_node_attach(text_box, grid);
 			}
 
 			de_gui_window_set_content(settings_window, grid);
@@ -662,7 +681,7 @@ void game_main_loop(game_t* game) {
 				frame_time,
 				fps,
 				de_get_alloc_count());
-			de_gui_text_set_text(game->fps_text, buffer);
+			de_gui_text_set_text_utf8(game->fps_text, buffer);
 		}
 	}
 }

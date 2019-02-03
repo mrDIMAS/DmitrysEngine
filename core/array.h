@@ -27,13 +27,10 @@
 		size_t _capacity; \
 	} Name \
 
-
 /* Initializes array. Can be omitted if memory block containing array will filled with zeros */
 #define DE_ARRAY_INIT(a) memset(&(a), 0, sizeof(a))
 
-
 #define DE_ARRAY_GROW(a, n) de_array_grow_((void**)&(a).data, &(a).size, &(a)._capacity, sizeof(*(a).data), n);
-
 
 /* Appends new item into array. Array capacity will be increased if needed */
 #define DE_ARRAY_APPEND(a, item) \
@@ -42,7 +39,6 @@
 		(a).data[(a).size - 1] = (item); \
 	} while(0)
 
-
 /* Returns memory to OS */
 #define DE_ARRAY_FREE(a) \
 	do { \
@@ -50,27 +46,22 @@
 		DE_ARRAY_INIT(a); \
 	} while(0) \
 
+#define DE_ARRAY_INSERT(a, pos, item) \
+	de_array_insert_((void**)&(a).data, &(a).size, &(a)._capacity, sizeof(*(a).data), (void*)&item, pos);
 
 #define DE_ARRAY_RESERVE(a, new_capacity) \
-	do { \
-        de_array_reserve_((void**)&(a).data, &(a).size, &(a)._capacity, sizeof(*(a).data), new_capacity); \
-	} while(0)
-
+	de_array_reserve_((void**)&(a).data, &(a).size, &(a)._capacity, sizeof(*(a).data), new_capacity); \
 
 /* Sorts array using quick sort */
 #define DE_ARRAY_QSORT(a, cmp) qsort((a).data, (a).size, sizeof(*(a).data), cmp)
 
-
 #define DE_ARRAY_BSEARCH(a, key, cmp) bsearch(key, (a).data, (a).size, sizeof(*(a).data), cmp)
-
 
 /* Returns size of array's content */
 #define DE_ARRAY_SIZE_BYTES(a) ((a).size * sizeof(*(a).data))
 
-
 /* Clears array (by resetting its size) and prepares it for re-use */
 #define DE_ARRAY_CLEAR(a) (a).size = 0;
-
 
 /* Reverses array members order */
 #define DE_ARRAY_REVERSE(a) \
@@ -89,14 +80,12 @@
 		de_free(swapBuffer); \
 	} while(0)
 
-
 /* Makes array memory block size equals to real size of array's content */
 #define DE_ARRAY_COMPACT(a) \
 	do { \
 		a._capacity = a.size; \
 		a.data = de_realloc(a.data, a._capacity * sizeof(*a.data)); \
 	} while(0) 
-
 
 /* Returns index of item if it is in array. Returns size of array if item is not found */
 #define DE_ARRAY_FIND(a, item, outIndex) \
@@ -107,7 +96,6 @@
 			} \
 		} \
 	} while(0) 
-
 
 /* Removes element at specified position */
 #define DE_ARRAY_REMOVE_AT(a, itemIndex) \
@@ -121,7 +109,6 @@
 		} \
 	} while(0)
 
-
 /* Tries to find and remove specified item */
 #define DE_ARRAY_REMOVE(a, item) \
 	do { \
@@ -130,15 +117,11 @@
 		DE_ARRAY_REMOVE_AT(a, itemIndex); \
 	} while(0)
 
-
 #define DE_ARRAY_LAST(a) a.data[a.size-1]
-
 
 #define DE_ARRAY_FIRST(a) a.data[0]
 
-
 #define DE_ARRAY_AT(a, n) a.data[n]
-
 
 /* Removes duplicates using cmp function as comparator */
 #define DE_ARRAY_REMOVE_DUPLICATES(a, cmp)  \
@@ -152,18 +135,7 @@
 		} \
 	} while(0) 
 
-#define DE_ARRAY_INSERT(a, pos, item) \
-    do { \
-        if(a.size == 0) { \
-            DE_ARRAY_APPEND(a, item); \
-		} \
-		if (pos >= 0 && pos < a.size) { \
-			DE_ARRAY_GROW(a, 1); \
-			memmove(a.data + pos + 1, a.data + pos, sizeof(*a.data) * (a.size - pos)); \
-			memcpy((void*)&item, a.data + pos, sizeof(item)); \
-		} \
-	} while(0)
-
 /* Internals functions. Do not use directly! Use macro instead. */
 void de_array_grow_(void** data, size_t* size, size_t* capacity, size_t item_size, size_t n);
 void de_array_reserve_(void** data, size_t* size, size_t* capacity, size_t item_size, size_t new_capacity);
+void de_array_insert_(void** data, size_t* size, size_t* capacity, size_t item_size, void* item, size_t pos);

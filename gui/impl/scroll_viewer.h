@@ -19,7 +19,6 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-
 static void de_gui_scroll_viewer_ver_scroll_changed(de_gui_node_t* sv_node) {
 	de_gui_node_t* scroll_viewer_node;
 	de_gui_scroll_viewer_t* sv;
@@ -28,7 +27,6 @@ static void de_gui_scroll_viewer_ver_scroll_changed(de_gui_node_t* sv_node) {
 	sv = &scroll_viewer_node->s.scroll_viewer;
 	de_gui_scroll_content_presenter_set_v_scroll(sv->scroll_content_presenter, sv->ver_scroll_bar->s.scroll_bar.value);
 }
-
 
 static void de_gui_scroll_viewer_hor_scroll_changed(de_gui_node_t* sv_node) {
 	de_gui_node_t* scroll_viewer_node;
@@ -39,13 +37,11 @@ static void de_gui_scroll_viewer_hor_scroll_changed(de_gui_node_t* sv_node) {
 	de_gui_scroll_content_presenter_set_h_scroll(sv->scroll_content_presenter, sv->hor_scroll_bar->s.scroll_bar.value);
 }
 
-
 static void de_gui_scroll_viewer_deinit(de_gui_node_t* n) {
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_SCROLL_VIEWER);
 
 	DE_UNUSED(n);
 }
-
 
 void de_gui_scroll_viewer_update(de_gui_node_t* n) {
 	de_gui_scroll_viewer_t* sv = &n->s.scroll_viewer;
@@ -88,8 +84,6 @@ void de_gui_scroll_viewer_update(de_gui_node_t* n) {
 		de_gui_scroll_bar_set_max_value(sv->ver_scroll_bar, max);
 	}
 }
-
-
 
 de_gui_node_t* de_gui_scroll_viewer_create(de_gui_t* gui) {
 	de_gui_node_t* n;
@@ -144,9 +138,6 @@ de_gui_node_t* de_gui_scroll_viewer_create(de_gui_t* gui) {
 
 	return n;
 }
-
-
-
 
 void de_gui_scroll_viewer_set_content(de_gui_node_t* n, de_gui_node_t* content) {
 	de_gui_scroll_viewer_t* sv = &n->s.scroll_viewer;

@@ -233,10 +233,7 @@ static void de_gui_text_box_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uin
 	}
 }
 
-de_gui_node_t* de_gui_text_box_create(de_gui_t* gui) {
-	de_gui_node_t* n;
-	de_gui_text_box_t* tb;
-
+de_gui_dispatch_table_t* de_gui_text_box_get_dispatch_table(void) {
 	static de_gui_dispatch_table_t dispatch_table;
 	{
 		static bool init = false;
@@ -247,7 +244,13 @@ de_gui_node_t* de_gui_text_box_create(de_gui_t* gui) {
 			init = true;
 		}
 	}
-	n = de_gui_node_alloc(gui, DE_GUI_NODE_TEXT_BOX, &dispatch_table);
+	return &dispatch_table;
+}
+
+de_gui_node_t* de_gui_text_box_create(de_gui_t* gui) {
+	de_gui_node_t* n;
+	de_gui_text_box_t* tb;
+	n = de_gui_node_alloc(gui, DE_GUI_NODE_TEXT_BOX, de_gui_text_box_get_dispatch_table());
 	n->text_entered = de_gui_text_box_text_entered;
 	n->got_focus = de_gui_text_box_got_focus;
 	n->lost_focus = de_gui_text_box_lost_focus;

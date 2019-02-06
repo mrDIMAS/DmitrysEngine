@@ -261,25 +261,45 @@ void de_gui_draw_list_push_rect_filled(de_gui_draw_list_t* draw_list, const de_v
 	v->pos.x = pos->x;
 	v->pos.y = pos->y;
 	v->color = *clr;
-	v->tex_coord = tex_coords[0];
+	if (tex_coords) {
+		v->tex_coord = tex_coords[0];
+	} else {
+		v->tex_coord.x = 0.0f;
+		v->tex_coord.y = 0.0f;
+	}
 
 	++v;
 	v->pos.x = pos->x + size->x;
 	v->pos.y = pos->y;
 	v->color = *clr;
-	v->tex_coord = tex_coords[1];
+	if (tex_coords) {
+		v->tex_coord = tex_coords[1];
+	} else {
+		v->tex_coord.x = 1.0f;
+		v->tex_coord.y = 0.0f;
+	}
 
 	++v;
 	v->pos.x = pos->x + size->x;
 	v->pos.y = pos->y + size->y;
 	v->color = *clr;
-	v->tex_coord = tex_coords[2];
+	if (tex_coords) {
+		v->tex_coord = tex_coords[2];
+	} else {
+		v->tex_coord.x = 1.0f;
+		v->tex_coord.y = 1.0f;
+	}
 
 	++v;
 	v->pos.x = pos->x;
 	v->pos.y = pos->y + size->y;
 	v->color = *clr;
-	v->tex_coord = tex_coords[3];
+	if (tex_coords) {
+		v->tex_coord = tex_coords[3];
+	} else {
+		v->tex_coord.x = 0.0f;
+		v->tex_coord.y = 1.0f;
+	}
 
 	/* indices */
 	de_gui_draw_list_ib_push_triangle(draw_list, index, index + 1, index + 2);

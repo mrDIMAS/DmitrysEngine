@@ -73,8 +73,6 @@ static void de_gui_text_break_on_lines(de_gui_node_t* node) {
 		DE_ARRAY_APPEND(txt->lines, line);
 		txt->total_lines_height += txt->font->ascender;
 	}
-	//node->desired_size.x = max_width;
-	//node->desired_size.y = txt->total_lines_height;
 }
 
 static void de_gui_text_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting) {

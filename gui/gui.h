@@ -22,7 +22,7 @@
 /* Inspired by WPF */
 
 /* Set to non-zero to enable visual debugging of GUI */
-#define DE_GUI_ENABLE_GUI_DEBUGGING 0
+#define DE_GUI_ENABLE_GUI_DEBUGGING 1
 
 typedef struct de_gui_node_t de_gui_node_t;
 typedef struct de_gui_draw_list_t de_gui_draw_list_t;
@@ -114,6 +114,8 @@ typedef enum de_gui_routed_event_type_t {
 	DE_GUI_ROUTED_EVENT_MOUSE_MOVE,
 	DE_GUI_ROUTED_EVENT_LOST_FOCUS,
 	DE_GUI_ROUTED_EVENT_GOT_FOCUS,
+	DE_GUI_ROUTED_EVENT_KEY_DOWN,
+	DE_GUI_ROUTED_EVENT_KEY_UP,
 	DE_GUI_ROUTED_EVENT_TEXT,
 } de_gui_routed_event_type_t;
 
@@ -139,6 +141,12 @@ typedef struct de_gui_routed_event_args_t {
 		struct {
 			uint32_t unicode;
 		} text;
+		struct {
+			enum de_key key;
+		} key_down;
+		struct {
+			enum de_key key;
+		} key_up;
 	} s;
 } de_gui_routed_event_args_t;
 
@@ -181,6 +189,8 @@ typedef void(*de_mouse_leave_event_t)(de_gui_node_t*, de_gui_routed_event_args_t
 typedef void(*de_lost_focus_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*);
 typedef void(*de_got_focus_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*);
 typedef void(*de_text_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*);
+typedef void(*de_key_down_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*);
+typedef void(*de_key_up_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*);
 
 #define DE_DECLARE_PROPERTY_SETTER(type__, field__, passed_name__, field_name__, value__, data_size__, object__) \
 	if (strcmp(field_name__, passed_name__) == 0) { \
@@ -259,6 +269,8 @@ struct de_gui_node_t {
 	de_lost_focus_event_t lost_focus;
 	de_got_focus_event_t got_focus;
 	de_text_event_t text_entered;
+	de_key_down_event_t key_down;
+	de_key_up_event_t key_up;
 	bool is_focused;
 	bool is_mouse_over;
 

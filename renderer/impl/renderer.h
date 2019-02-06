@@ -954,14 +954,12 @@ static void de_renderer_draw_mesh(de_renderer_t* r, de_mesh_t* mesh) {
 	}
 }
 
-
 static void de_renderer_draw_mesh_normals(de_renderer_t* r, de_mesh_t* mesh) {
 	size_t i;
 	for (i = 0; i < mesh->surfaces.size; ++i) {
 		de_render_surface_normals(r, mesh->surfaces.data[i]);
 	}
 }
-
 
 static void de_renderer_set_viewport(const de_rectf_t* viewport, unsigned int window_width, unsigned int window_height) {
 	int viewport_x = (int)(viewport->x * window_width);
@@ -972,7 +970,6 @@ static void de_renderer_set_viewport(const de_rectf_t* viewport, unsigned int wi
 	DE_GL_CALL(glViewport(viewport_x, viewport_y, viewport_w, viewport_h));
 }
 
-
 static void de_renderer_upload_textures(de_renderer_t* r) {
 	de_texture_t* texture;
 
@@ -982,7 +979,6 @@ static void de_renderer_upload_textures(de_renderer_t* r) {
 		}
 	}
 }
-
 
 void de_renderer_render(de_renderer_t* r) {
 	de_core_t* core = r->core;

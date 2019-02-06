@@ -22,13 +22,20 @@
 /**
 * @brief
 */
-typedef struct de_gui_text_box_t {
-	de_gui_node_t* border;
-	bool multiline;
-	de_gui_node_t* cursor;
-	de_gui_node_t* scroll_view;
-	de_gui_node_t* text_block;
-	de_string32_t text;
+typedef struct de_gui_text_box_t {	
+	bool multiline;	
+	de_string32_t str;
+	de_font_t* font;
+	de_gui_vertical_alignment_t ver_alignment;
+	de_gui_horizontal_alignment_t hor_alignment;
+	DE_ARRAY_DECLARE(de_gui_text_line_t, lines);
+	float total_lines_height;
+	size_t caret_x;
+	size_t caret_line;
+	bool show_caret;
+	size_t blink_interval; /* in frames (with fixed update at 60 fps, 60 fps = 1s)*/
+	size_t blink_timer;
+	size_t caret_visible;
 } de_gui_text_box_t;
 
 de_gui_node_t* de_gui_text_box_create(de_gui_t* gui);

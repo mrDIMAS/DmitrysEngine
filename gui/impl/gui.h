@@ -74,6 +74,24 @@ static void de_gui_node_route_text_entered(de_gui_node_t* n, de_gui_routed_event
 	}
 }
 
+static void de_gui_node_route_key_down(de_gui_node_t* n, de_gui_routed_event_args_t* args) {
+	if (n->key_down) {
+		n->key_down(n, args);
+	}
+	if (n->parent && !args->handled) {
+		de_gui_node_route_key_down(n->parent, args);
+	}
+}
+
+static void de_gui_node_route_key_up(de_gui_node_t* n, de_gui_routed_event_args_t* args) {
+	if (n->key_up) {
+		n->key_up(n, args);
+	}
+	if (n->parent && !args->handled) {
+		de_gui_node_route_key_up(n->parent, args);
+	}
+}
+
 static void de_gui_node_apply_layout(de_gui_node_t* n) {
 	size_t i;
 
@@ -490,6 +508,7 @@ bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt) {
 					de_gui_routed_event_args_t revt;
 					de_zero(&revt, sizeof(revt));
 					gui->prev_picked_node->is_mouse_over = false;
+					revt.source = gui->prev_picked_node;
 					revt.type = DE_GUI_ROUTED_EVENT_MOUSE_LEAVE;
 					de_gui_node_route_mouse_leave(gui->prev_picked_node, &revt);
 				}
@@ -504,10 +523,32 @@ bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt) {
 			if (gui->keyboard_focus) {
 				de_gui_routed_event_args_t revt;
 				de_zero(&revt, sizeof(revt));
+				revt.source = gui->keyboard_focus;
 				revt.type = DE_GUI_ROUTED_EVENT_TEXT;
 				revt.s.text.unicode = evt->s.text.code;
 				de_gui_node_route_text_entered(gui->keyboard_focus, &revt);
 			}
+			break;
+		case DE_EVENT_TYPE_KEY_DOWN:
+			if (gui->keyboard_focus) {
+				de_gui_routed_event_args_t revt;
+				de_zero(&revt, sizeof(revt));
+				revt.type = DE_GUI_ROUTED_EVENT_KEY_DOWN;
+				revt.source = gui->keyboard_focus;
+				revt.s.key_down.key = evt->s.key_down.key;
+				de_gui_node_route_key_down(gui->keyboard_focus, &revt);
+			}
+			break;
+		case DE_EVENT_TYPE_KEY_UP:
+			if (gui->keyboard_focus) {
+				de_gui_routed_event_args_t revt;
+				de_zero(&revt, sizeof(revt));
+				revt.type = DE_GUI_ROUTED_EVENT_KEY_UP;
+				revt.source = gui->keyboard_focus;
+				revt.s.key_up.key = evt->s.key_up.key;
+				de_gui_node_route_key_up(gui->keyboard_focus, &revt);
+			}
+			break;
 		default:
 			break;
 	}
@@ -875,7 +916,7 @@ de_gui_draw_list_t* de_gui_render(de_gui_t* gui) {
 #if DE_GUI_ENABLE_GUI_DEBUGGING
 	if (gui->picked_node) {
 		de_color_t red = { 255, 0, 0, 255 };
-		de_gui_draw_list_set_nesting(dl, 1);
+		de_gui_draw_list_set_nesting(dl, 0);
 		de_gui_draw_list_push_rect(dl, &gui->picked_node->screen_position, &gui->picked_node->actual_size, 1, &red);
 		de_gui_draw_list_commit(dl, DE_GUI_DRAW_COMMAND_TYPE_GEOMETRY, 0, 0);
 
@@ -884,7 +925,7 @@ de_gui_draw_list_t* de_gui_render(de_gui_t* gui) {
 	}
 	if (gui->keyboard_focus) {
 		de_color_t green = { 0, 200, 0, 255 };
-		de_gui_draw_list_set_nesting(dl, 1);
+		de_gui_draw_list_set_nesting(dl, 0);
 		de_gui_draw_list_push_rect(dl, &gui->keyboard_focus->screen_position, &gui->keyboard_focus->actual_size, 1, &green);
 		de_gui_draw_list_commit(dl, DE_GUI_DRAW_COMMAND_TYPE_GEOMETRY, 0, 0);
 	}

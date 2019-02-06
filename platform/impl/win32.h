@@ -49,14 +49,14 @@ static int de_win32_remap_key(WPARAM key, LPARAM flags) {
 		case VK_ESCAPE: return DE_KEY_ESC;
 		case VK_SPACE: return DE_KEY_Space;
 		case VK_RETURN: return DE_KEY_Return;
-		case VK_BACK: return DE_KEY_BackSpace;
+		case VK_BACK: return DE_KEY_BACKSPACE;
 		case VK_TAB: return DE_KEY_Tab;
 		case VK_PRIOR: return DE_KEY_PageUp;
 		case VK_NEXT: return DE_KEY_PageDown;
 		case VK_END: return DE_KEY_End;
 		case VK_HOME: return DE_KEY_Home;
 		case VK_INSERT: return DE_KEY_Insert;
-		case VK_DELETE: return DE_KEY_Delete;
+		case VK_DELETE: return DE_KEY_DELETE;
 		case VK_ADD: return DE_KEY_Add;
 		case VK_SUBTRACT: return DE_KEY_Subtract;
 		case VK_MULTIPLY: return DE_KEY_Multiply;
@@ -77,10 +77,10 @@ static int de_win32_remap_key(WPARAM key, LPARAM flags) {
 		case VK_F13:      return DE_KEY_F13;
 		case VK_F14:      return DE_KEY_F14;
 		case VK_F15:      return DE_KEY_F15;
-		case VK_LEFT:     return DE_KEY_Left;
-		case VK_RIGHT:    return DE_KEY_Right;
-		case VK_UP:       return DE_KEY_Up;
-		case VK_DOWN:     return DE_KEY_Down;
+		case VK_LEFT:     return DE_KEY_LEFT;
+		case VK_RIGHT:    return DE_KEY_RIGHT;
+		case VK_UP:       return DE_KEY_UP;
+		case VK_DOWN:     return DE_KEY_DOWN;
 		case VK_NUMPAD0:  return DE_KEY_NUMPAD0;
 		case VK_NUMPAD1:  return DE_KEY_NUMPAD1;
 		case VK_NUMPAD2:  return DE_KEY_NUMPAD2;
@@ -241,6 +241,12 @@ static LRESULT CALLBACK de_win32_window_proc(HWND wnd, UINT msg, WPARAM wParam, 
 				break;
 			case WM_SETFOCUS:
 				evt.type = DE_EVENT_TYPE_GOT_FOCUS;
+				de_core_push_event(core, &evt);
+				break;
+			case WM_SIZE:
+				evt.type = DE_EVENT_TYPE_RESIZE;
+				evt.s.resize.w = LOWORD(lParam);
+				evt.s.resize.h = HIWORD(lParam);
 				de_core_push_event(core, &evt);
 				break;
 		}

@@ -28,9 +28,8 @@ typedef struct de_gui_text_line_t {
 	float width;
 } de_gui_text_line_t;
 
-
 /**
-* @brief
+* @brief Lightweight text block. 
 */
 typedef struct de_gui_text_t {
 	de_string32_t str;
@@ -39,7 +38,6 @@ typedef struct de_gui_text_t {
 	de_gui_horizontal_alignment_t hor_alignment;
 	DE_ARRAY_DECLARE(de_gui_text_line_t, lines);
 	float total_lines_height;
-	bool auto_size; /**< desired size will be determined automatically */
 } de_gui_text_t;
 
 de_gui_node_t* de_gui_text_create(de_gui_t* gui);

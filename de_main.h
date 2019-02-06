@@ -100,6 +100,7 @@ typedef enum de_event_type_t {
 	DE_EVENT_TYPE_TEXT,
 	DE_EVENT_TYPE_LOST_FOCUS,
 	DE_EVENT_TYPE_GOT_FOCUS,
+	DE_EVENT_TYPE_RESIZE
 } de_event_type_t;
 
 typedef struct de_event_t {
@@ -137,6 +138,10 @@ typedef struct de_event_t {
 		struct {
 			uint32_t code;
 		} text;
+
+		struct {
+			int w, h;
+		} resize;
 	} s;
 } de_event_t;
 

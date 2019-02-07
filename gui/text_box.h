@@ -30,8 +30,8 @@ typedef struct de_gui_text_box_t {
 	de_gui_horizontal_alignment_t hor_alignment;
 	DE_ARRAY_DECLARE(de_gui_text_line_t, lines);
 	float total_lines_height;
-	size_t caret_x;
-	size_t caret_line;
+	int caret_offset; /* relative offset from begin of line */
+	int caret_line; /* index of line under caret */
 	bool show_caret;
 	size_t blink_interval; /* in frames (with fixed update at 60 fps, 60 fps = 1s)*/
 	size_t blink_timer;

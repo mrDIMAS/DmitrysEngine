@@ -19,6 +19,12 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+void de_array_init_(void** data, size_t* size, size_t* capacity) {
+	*data = NULL;
+	*size = 0;
+	*capacity = 0;
+}
+
 void de_array_grow_(void** data, size_t* size, size_t* capacity, size_t item_size, size_t n) {
 	*size += n;
 	if (*size >= *capacity && *size > 0) {
@@ -47,4 +53,42 @@ void de_array_insert_(void** data, size_t* size, size_t* capacity, size_t item_s
 		memmove(dest, src, byte_count);
 		memcpy(src, item, item_size);
 	}
+}
+
+void de_array_free_(void** data, size_t* size, size_t* capacity) {
+	de_free(*data);
+	*data = NULL;
+	*size = 0;
+	*capacity = 0;
+}
+
+void de_array_reverse_(void** data, size_t* size, size_t item_size) {
+	char* swapBuffer = de_malloc(item_size);
+	size_t i = *size - 1, j = 0;
+	while (i > j) {
+		void* right = (char*)*data + i;
+		void* left = (char*)*data + j;
+		memcpy(swapBuffer, right, item_size);
+		memcpy(right, left, item_size);
+		memcpy(left, swapBuffer, item_size);
+		--i;
+		++j;
+	}
+	de_free(swapBuffer);
+}
+
+void* de_array_find_(const void* data, const size_t* size, size_t item_size, const void* search_data, size_t search_data_size) {
+	size_t i;
+	char* ptr;
+	if (item_size != search_data_size) {
+		return NULL; /* trying to search invalid item */
+	}
+	ptr = (char*)data;
+	for (i = 0; i < *size; ++i) {
+		if (memcmp(ptr, search_data, item_size) == 0) {
+			return ptr;
+		}
+		ptr += item_size;
+	}
+	return NULL;
 }

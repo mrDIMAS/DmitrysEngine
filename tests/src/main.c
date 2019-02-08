@@ -584,12 +584,13 @@ game_t* game_create(void) {
 	/* Init core */
 	{
 		de_engine_params_t params;
+		de_zero(&params, sizeof(params));
 		//params.flags = DE_CORE_FLAGS_BORDERLESS;
 		//de_get_desktop_video_mode(&params.video_mode);
 		params.video_mode.width = 1200;
 		params.video_mode.height = 1000;
 		params.video_mode.bits_per_pixel = 32;
-		params.video_mode.fullscreen = false;
+		params.video_mode.fullscreen = false;		
 		game->core = de_core_init(&params);
 		de_renderer_set_framerate_limit(game->core->renderer, 0);
 	}

@@ -26,7 +26,7 @@ de_core_t* de_core_init(const de_engine_params_t* params) {
 	core->params = *params;
 	core->running = true;
 	de_core_platform_init(core);
-	DE_ARRAY_INIT(core->scenes);
+	DE_LINKED_LIST_INIT(core->scenes);
 	core->renderer = de_renderer_init(core);
 	core->gui = de_gui_init(core);
 	return core;

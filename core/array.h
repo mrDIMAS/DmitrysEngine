@@ -19,6 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+/* Type-safe array */
+
 /* Declares array as a struct */
 #define DE_ARRAY_DECLARE(Type, Name) \
 	struct { \
@@ -28,7 +30,7 @@
 	} Name \
 
 /* Initializes array. Can be omitted if memory block containing array will filled with zeros */
-#define DE_ARRAY_INIT(a) memset(&(a), 0, sizeof(a))
+#define DE_ARRAY_INIT(a) de_array_init_((void**)&(a).data, &(a).size, &(a)._capacity)
 
 #define DE_ARRAY_GROW(a, n) de_array_grow_((void**)&(a).data, &(a).size, &(a)._capacity, sizeof(*(a).data), n);
 
@@ -40,11 +42,7 @@
 	} while(0)
 
 /* Returns memory to OS */
-#define DE_ARRAY_FREE(a) \
-	do { \
-		de_free((a).data); \
-		DE_ARRAY_INIT(a); \
-	} while(0) \
+#define DE_ARRAY_FREE(a) de_array_free_((void**)&(a).data, &(a).size, &(a)._capacity)
 
 #define DE_ARRAY_INSERT(a, pos, item) \
 	de_array_insert_((void**)&(a).data, &(a).size, &(a)._capacity, sizeof(*(a).data), (void*)&item, pos);
@@ -64,21 +62,7 @@
 #define DE_ARRAY_CLEAR(a) (a).size = 0;
 
 /* Reverses array members order */
-#define DE_ARRAY_REVERSE(a) \
-	do { \
-		char* swapBuffer = de_malloc(sizeof(*a.data)); \
-		size_t i = a.size - 1, j = 0; \
-		while(i > j) { \
-			void* right = a.data + i; \
-			void* left = a.data + j; \
-			memcpy(swapBuffer, right, sizeof(*a.data)); \
-			memcpy(right, left, sizeof(*a.data)); \
-			memcpy(left, swapBuffer, sizeof(*a.data)); \
-			--i; \
-			++j; \
-		} \
-		de_free(swapBuffer); \
-	} while(0)
+#define DE_ARRAY_REVERSE(a) de_array_reverse_((void**)&(a).data, &(a).size, sizeof(*(a).data))
 
 /* Makes array memory block size equals to real size of array's content */
 #define DE_ARRAY_COMPACT(a) \
@@ -135,7 +119,12 @@
 		} \
 	} while(0) 
 
-/* Internals functions. Do not use directly! Use macro instead. */
+/* Internals functions. Do not use directly! Use macro instead. Macro desined to automatically 
+ * calculate size of array elements and required pointers to array elements. */
+void de_array_init_(void** data, size_t* size, size_t* capacity);
 void de_array_grow_(void** data, size_t* size, size_t* capacity, size_t item_size, size_t n);
 void de_array_reserve_(void** data, size_t* size, size_t* capacity, size_t item_size, size_t new_capacity);
 void de_array_insert_(void** data, size_t* size, size_t* capacity, size_t item_size, void* item, size_t pos);
+void de_array_free_(void** data, size_t* size, size_t* capacity);
+void de_array_reverse_(void** data, size_t* size, size_t item_size);
+void* de_array_find_(const void* data, const size_t* size, size_t item_size, const void* search_data, size_t search_data_size);

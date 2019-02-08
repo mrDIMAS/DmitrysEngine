@@ -24,6 +24,7 @@ static void de_gui_text_box_deinit(de_gui_node_t* n) {
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_TEXT_BOX);
 	tb = &n->s.text_box;
 	DE_ARRAY_FREE(tb->str);
+	DE_ARRAY_FREE(tb->lines);
 }
 
 static void de_gui_text_box_reset_caret_blink(de_gui_text_box_t* tb) {
@@ -96,8 +97,18 @@ static void de_gui_text_box_move_caret_x(de_gui_text_box_t* tb, int amount) {
 	}
 }
 
+static int de_gui_text_box_caret_to_index(de_gui_text_box_t* tb) {
+	/* any out-of-bounds result are valid here since we are inserting characters via oob-protected func */
+	if (tb->lines.size && tb->caret_line < (int)tb->lines.size) {
+		de_gui_text_line_t* line = tb->lines.data + tb->caret_line;
+		return line->begin + tb->caret_offset;
+	}
+	return 0;
+}
+
 static void de_gui_text_box_key_down(de_gui_node_t* n, de_gui_routed_event_args_t* args) {
 	de_gui_text_box_t* tb;
+	int index;
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_TEXT_BOX);
 	tb = &n->s.text_box;
 	switch (args->s.key_down.key) {
@@ -114,8 +125,17 @@ static void de_gui_text_box_key_down(de_gui_node_t* n, de_gui_routed_event_args_
 			de_gui_text_box_move_caret_y(tb, +1);
 			break;
 		case DE_KEY_BACKSPACE:
+			index = de_gui_text_box_caret_to_index(tb) - 1;
+			if (index >= 0) {
+				de_str32_remove(&tb->str, index, 1);
+				de_gui_text_box_move_caret_x(tb, -1);
+			}
 			break;
 		case DE_KEY_DELETE:
+			index = de_gui_text_box_caret_to_index(tb);
+			if (index >= 0) {
+				de_str32_remove(&tb->str, index, 1);
+			}
 			break;
 		default:
 			break;
@@ -180,21 +200,15 @@ static void de_gui_text_box_break_on_lines(de_gui_node_t* node) {
 	}
 }
 
-static int de_gui_text_box_caret_to_index(de_gui_text_box_t* tb) {
-	/* any out-of-bounds result are valid here since we are inserting characters via oob-protected func */
-	if (tb->lines.size && tb->caret_line < (int)tb->lines.size) {
-		de_gui_text_line_t* line = tb->lines.data + tb->caret_line;
-		return line->begin + tb->caret_offset;
-	}
-	return 0;
-}
-
 static bool de_gui_text_box_text_entered(de_gui_node_t* n, const de_gui_routed_event_args_t* args) {
 	de_gui_text_box_t* tb;
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_TEXT_BOX);
 	tb = &n->s.text_box;
 	switch (args->type) {
 		case DE_GUI_ROUTED_EVENT_TEXT:
+			if (iscntrl(args->s.text.unicode)) {
+				break;
+			}
 			de_str32_insert(&tb->str, de_gui_text_box_caret_to_index(tb), args->s.text.unicode);
 			de_gui_text_box_break_on_lines(n);
 			de_gui_text_box_move_caret_x(tb, 1);

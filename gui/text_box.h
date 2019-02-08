@@ -19,6 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+typedef void(*de_gui_text_changed_event_t)(de_gui_node_t* node);
+
 /**
 * @brief
 */
@@ -36,6 +38,7 @@ typedef struct de_gui_text_box_t {
 	size_t blink_interval; /* in frames (with fixed update at 60 fps, 60 fps = 1s)*/
 	size_t blink_timer;
 	size_t caret_visible;
+	de_gui_text_changed_event_t text_changed;
 } de_gui_text_box_t;
 
 de_gui_node_t* de_gui_text_box_create(de_gui_t* gui);

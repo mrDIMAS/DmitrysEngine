@@ -21,6 +21,34 @@ void de_str_free(de_string_t * str) {
 	DE_ARRAY_FREE(*str);
 }
 
+void de_str32_insert(de_string32_t* str, int pos, uint32_t unicode) {
+	if (str->size == 0) {
+		DE_ARRAY_APPEND(*str, unicode);
+		DE_ARRAY_APPEND(*str, '\0');
+	} else {
+		if (pos < 0) {
+			pos = 0;
+		} else {
+			int end = str->size - 1;
+			if (pos > end) {
+				pos = end;
+			}
+		}
+		DE_ARRAY_INSERT(*str, pos, unicode);
+	}
+}
+
+void de_str32_append(de_string32_t* str, uint32_t unicode) {
+	de_str32_insert(str, str->size - 1, unicode);
+}
+
+void de_str32_remove(de_string32_t* str, int pos, int amount) {
+	pos = pos < 0 ? 0 : pos;
+	amount = (pos + amount) >= (int)str->size ? (int)str->size - pos : amount;
+	memmove(str->data + pos, str->data + pos + amount, sizeof(*str->data) * (str->size - (pos + amount)));
+	str->size -= amount;
+}
+
 char* de_str_copy(const char* src) {
 	char* str;
 	char* p;

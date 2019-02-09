@@ -48,7 +48,9 @@ void de_scene_free(de_scene_t* s) {
 		de_animation_free(s->animations.head);
 	}
 
-	DE_LINKED_LIST_REMOVE(s->core->scenes, s);
+	if (s->core) {
+		DE_LINKED_LIST_REMOVE(s->core->scenes, s);
+	}
 
 	de_free(s);
 }
@@ -131,7 +133,7 @@ void de_scene_remove_node(de_scene_t* s, de_node_t* node) {
 de_node_t* de_scene_find_node(const de_scene_t* s, const char* name) {
 	de_node_t* node = NULL;
 	DE_LINKED_LIST_FOR_EACH(s->nodes, node) {
-		if (node->name && (strcmp(node->name, name) == 0)) {
+		if (de_str8_eq(&node->name, name)) {
 			break;
 		}
 	}

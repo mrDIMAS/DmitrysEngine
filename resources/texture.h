@@ -34,7 +34,7 @@ typedef enum de_texture_type_e {
 struct de_texture_t {
 	de_renderer_t* renderer;
 	DE_LINKED_LIST_ITEM(struct de_texture_t);
-	char* name;             /**< Name for procedural texture, or file name for textures loaded from file */
+	de_str8_t name;             /**< Name for procedural texture, or file name for textures loaded from file */
 	unsigned int id;        /**< OpenGL texture id */
 	int ref_count;          /**< Use count of texture, texture is shared object */
 	int width;              /**< Width of texture */

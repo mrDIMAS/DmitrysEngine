@@ -26,7 +26,7 @@ typedef void(*de_gui_text_changed_event_t)(de_gui_node_t* node);
 */
 typedef struct de_gui_text_box_t {	
 	bool multiline;	
-	de_string32_t str;
+	de_str32_t str;
 	de_font_t* font;
 	de_gui_vertical_alignment_t ver_alignment;
 	de_gui_horizontal_alignment_t hor_alignment;

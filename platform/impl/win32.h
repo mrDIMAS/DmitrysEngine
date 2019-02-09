@@ -147,12 +147,20 @@ static LRESULT CALLBACK de_win32_window_proc(HWND wnd, UINT msg, WPARAM wParam, 
 				break;
 			case WM_KEYDOWN:
 				evt.type = DE_EVENT_TYPE_KEY_DOWN;
-				evt.s.key_down.key = de_win32_remap_key(wParam, lParam);
+				evt.s.key.key = de_win32_remap_key(wParam, lParam);
+				evt.s.key.alt = HIWORD(GetAsyncKeyState(VK_MENU)) ? 1 : 0;
+				evt.s.key.control = HIWORD(GetAsyncKeyState(VK_CONTROL)) ? 1 : 0;
+				evt.s.key.shift = HIWORD(GetAsyncKeyState(VK_SHIFT)) ? 1 : 0;
+				evt.s.key.system = (HIWORD(GetAsyncKeyState(VK_LWIN)) || HIWORD(GetAsyncKeyState(VK_RWIN))) ? 1 : 0;
 				de_core_push_event(core, &evt);
 				break;
 			case WM_KEYUP:
 				evt.type = DE_EVENT_TYPE_KEY_UP;
-				evt.s.key_up.key = de_win32_remap_key(wParam, lParam);
+				evt.s.key.key = de_win32_remap_key(wParam, lParam);
+				evt.s.key.alt = HIWORD(GetAsyncKeyState(VK_MENU)) ? 1 : 0;
+				evt.s.key.control = HIWORD(GetAsyncKeyState(VK_CONTROL)) ? 1 : 0;
+				evt.s.key.shift = HIWORD(GetAsyncKeyState(VK_SHIFT)) ? 1 : 0;
+				evt.s.key.system = (HIWORD(GetAsyncKeyState(VK_LWIN)) || HIWORD(GetAsyncKeyState(VK_RWIN))) ? 1 : 0;
 				de_core_push_event(core, &evt);
 				break;
 			case WM_MOUSEMOVE:
@@ -248,7 +256,7 @@ static LRESULT CALLBACK de_win32_window_proc(HWND wnd, UINT msg, WPARAM wParam, 
 				evt.s.resize.w = LOWORD(lParam);
 				evt.s.resize.h = HIWORD(lParam);
 				de_core_push_event(core, &evt);
-				break;
+				break;	
 		}
 	}
 	return DefWindowProc(wnd, msg, wParam, lParam);
@@ -498,4 +506,35 @@ bool de_enum_video_modes(de_video_mode_t* vm, int n) {
 		return true;
 	}
 	return false;
+}
+
+char* de_gui_clipboard_get_text() {
+	char* osdata, *data;
+	size_t len;
+	if (!OpenClipboard(NULL)) {
+		return NULL;
+	}
+	HANDLE handle = GetClipboardData(CF_TEXT);
+	if (!handle) {
+		return NULL;
+	}
+	osdata = GlobalLock(handle);
+	if (!osdata) {
+		return NULL;
+	}
+	len = strlen(osdata);
+	data = de_malloc(len + 1);
+	memcpy(data, osdata, len);
+	data[len] = '\0';
+	GlobalUnlock(handle);
+	CloseClipboard();
+	return data;
+}
+
+void de_gui_clipboard_set_text(char* data) {
+	if (!OpenClipboard(NULL)) {
+		return;
+	}
+	SetClipboardData(CF_TEXT, data);
+	CloseClipboard();
 }

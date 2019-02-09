@@ -20,9 +20,15 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 /**
-* @brief Returns current process time in seconds
-* @return time in seconds
+ * @brief Converts UTF-8 string to UTF-32 string.
+ */
+int de_utf8_to_utf32(const char* inString, size_t in_str_len, uint32_t* out, int bufferSize);
+
+/**
+* @brief Acts like sprintf, but works with internal fixed-size buffer. Use with caution!
+* @param format format line
+* @return formatted string
 * 
-* Note: Implementation is platform specific.
+* Important: This function is not reentrant, nor thread-safe.
 */
-double de_time_get_seconds(void);
+char* de_str_format(const char* format, ...);

@@ -143,10 +143,11 @@ typedef struct de_gui_routed_event_args_t {
 		} text;
 		struct {
 			enum de_key key;
-		} key_down;
-		struct {
-			enum de_key key;
-		} key_up;
+			int alt : 1;
+			int control : 1;
+			int shift : 1;
+			int system : 1;
+		} key;
 	} s;
 } de_gui_routed_event_args_t;
 
@@ -294,6 +295,7 @@ struct de_gui_t {
 	de_gui_node_t* picked_node;
 	de_gui_node_t* prev_picked_node;
 	de_vec2_t prev_mouse_pos;
+	size_t tab_width; /* count of spaces per tab */
 };
 
 /**

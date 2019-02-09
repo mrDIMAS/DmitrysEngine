@@ -20,9 +20,17 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 /**
-* @brief Returns current process time in seconds
-* @return time in seconds
+* @brief Returns pointer to null-terminated text.
+*
+* WARNING: You must call de_free to free data! Otherwise there will be memory leaks!
 * 
-* Note: Implementation is platform specific.
+* Note: Implementation is platform-specific 
 */
-double de_time_get_seconds(void);
+char* de_gui_clipboard_get_text();
+
+/**
+ * @brief Sets text into clipboard
+ *
+ * Note: Implementation is platform-specific 
+ */
+void de_gui_clipboard_set_text(char* data);

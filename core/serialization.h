@@ -75,7 +75,7 @@ typedef enum de_object_visitor_data_type_t {
  * @brief Data field descriptor.
  */
 typedef struct de_object_visitor_field_t {
-	char* name;
+	de_str8_t name;
 	uint32_t data_offset;
 	uint32_t data_size;
 	de_object_visitor_data_type_t data_type;
@@ -85,7 +85,7 @@ typedef struct de_object_visitor_field_t {
  * @brief Object visitor node - container for data fields.
  */
 typedef struct de_object_visitor_node_t {
-	char* name;
+	de_str8_t name;	
 	struct de_object_visitor_node_t* parent;
 	DE_ARRAY_DECLARE(de_object_visitor_field_t, fields);
 	DE_ARRAY_DECLARE(struct de_object_visitor_node_t*, children);

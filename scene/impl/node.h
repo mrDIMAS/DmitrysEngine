@@ -34,7 +34,7 @@ void de_node_free(de_node_t* node) {
 		de_scene_remove_node(node->scene, node);
 	}
 
-	de_free(node->name);
+	de_str8_free(&node->name);
 
 	switch (node->type) {
 		case DE_NODE_TYPE_BASE:
@@ -280,7 +280,7 @@ de_node_t* de_node_find(de_node_t* node, const char* name) {
 	size_t i;
 
 	if (node) {
-		if (node->name && strcmp(node->name, name) == 0) {
+		if (de_str8_eq(&node->name, name)) {
 			result = node;
 		} else {
 			for (i = 0; i < node->children.size; ++i) {
@@ -317,7 +317,7 @@ de_camera_t* de_node_to_camera(de_node_t* node) {
 
 bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node) {
 	bool result = true;
-	result &= de_object_visitor_visit_heap_string(visitor, "Name", &node->name);
+	//result &= de_object_visitor_visit_heap_string(visitor, "Name", &node->name);
 	result &= de_object_visitor_visit_mat4(visitor, "LocalTransform", &node->local_matrix);
 	result &= de_object_visitor_visit_mat4(visitor, "GlobalTransform", &node->global_matrix);
 	result &= de_object_visitor_visit_mat4(visitor, "InvBindPoseTransform", &node->inv_bind_pose_matrix);
@@ -340,6 +340,5 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node) {
 
 
 void de_node_set_name(de_node_t* node, const char* name) {
-	de_free(node->name);
-	node->name = de_str_copy(name);
+	de_str8_set(&node->name, name);	
 }

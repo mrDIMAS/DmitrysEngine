@@ -193,6 +193,7 @@ de_gui_t* de_gui_init(de_core_t* core) {
 	DE_ARRAY_INIT(gui->draw_list.vertex_buffer);
 	DE_ARRAY_INIT(gui->draw_list.index_buffer);
 
+	gui->tab_width = 4;
 	gui->text_buffer_size = 0x7FFF;
 	gui->text_buffer = (uint32_t*)de_calloc(gui->text_buffer_size, sizeof(*gui->text_buffer));
 
@@ -535,7 +536,11 @@ bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt) {
 				de_zero(&revt, sizeof(revt));
 				revt.type = DE_GUI_ROUTED_EVENT_KEY_DOWN;
 				revt.source = gui->keyboard_focus;
-				revt.s.key_down.key = evt->s.key_down.key;
+				revt.s.key.key = evt->s.key.key;
+				revt.s.key.alt = evt->s.key.alt;
+				revt.s.key.control = evt->s.key.control;
+				revt.s.key.shift = evt->s.key.shift;
+				revt.s.key.system = evt->s.key.system;
 				de_gui_node_route_key_down(gui->keyboard_focus, &revt);
 			}
 			break;
@@ -545,7 +550,11 @@ bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt) {
 				de_zero(&revt, sizeof(revt));
 				revt.type = DE_GUI_ROUTED_EVENT_KEY_UP;
 				revt.source = gui->keyboard_focus;
-				revt.s.key_up.key = evt->s.key_up.key;
+				revt.s.key.key = evt->s.key.key;
+				revt.s.key.alt = evt->s.key.alt;
+				revt.s.key.control = evt->s.key.control;
+				revt.s.key.shift = evt->s.key.shift;
+				revt.s.key.system = evt->s.key.system;
 				de_gui_node_route_key_up(gui->keyboard_focus, &revt);
 			}
 			break;

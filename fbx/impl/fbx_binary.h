@@ -80,13 +80,11 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f) {
 		return NULL;
 	}
 
-	node->name = (char*)de_malloc(name_len + 1);
-	if (!de_fbx_fread(node->name, name_len, f)) {
+	if(de_str8_fread(&node->name, f, name_len) != name_len)
+	{		
 		de_log("FBX Binary: Unable to read name of node!");
-
 		return NULL;
 	}
-	node->name[name_len] = '\0';
 
 	for (i = 0; i < num_attrib; ++i) {
 		char type_code;
@@ -218,7 +216,7 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f) {
 				if (raw_array) {
 					size_t n;
 					de_fbx_node_t* a_node = DE_NEW(de_fbx_node_t);
-					a_node->name = de_str_copy("a");
+					de_str8_set(&a_node->name, "a");					
 					a_node->parent = node;
 					a_node->is_binary = true;
 					for (k = 0, n = 0; k < length; ++k, n += size) {

@@ -19,37 +19,46 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef DE_ARRAY_DECLARE(char, de_string_t);
-typedef DE_ARRAY_DECLARE(uint32_t, de_string32_t);
-typedef DE_ARRAY_DECLARE(char*, de_string_array_t);
+/* UTF-8 String with null-terminator (compatible with strlen, strcpy and others) */
 
-void de_str_init(de_string_t* str);
+ /* Wrap-struct to prevent using string with DE_ARRAY_XXX functions
+  * which can lead to undefined behaviour */
+typedef struct de_str8_t {
+	DE_ARRAY_DECLARE(char, str);
+} de_str8_t;
 
-void de_str_from_utf8(de_string_t* str, const char* cstr);
+void de_str8_init(de_str8_t* str);
 
-void de_str_free(de_string_t* str);
+void de_str8_set(de_str8_t* str, const char* cstr);
 
-void de_str32_insert(de_string32_t* str, int pos, uint32_t unicode);
+void de_str8_move(de_str8_t* src, de_str8_t* dest);
 
-void de_str32_append(de_string32_t* str, uint32_t unicode);
+void de_str8_free(de_str8_t * str);
 
-void de_str32_remove(de_string32_t* str, int pos, int amount);
+size_t de_str8_length(const de_str8_t* str);
+
+bool de_str8_eq(de_str8_t* str, const char* utf8str);
+
+bool de_str8_eq_str8(de_str8_t* str, de_str8_t* other);
+
+const char* de_str8_cstr(const de_str8_t* str);
+
+/**
+ * @brief Reads string from file. 
+ * 
+ * Note: If @len == 0, reads everything until null-terminator. This usage is potentially 
+ * dangerous and slower that reading string with known length. Use with caution!  
+ */
+size_t de_str8_fread(de_str8_t* str, FILE* file, size_t len);
 
 /**
 * @brief Creates copy of string on heap. You have to call @de_free to delete string
 * @param src string
 * @return copy of string
 */
-char* de_str_copy(const char* src);
+void de_str8_copy(const de_str8_t* src, de_str8_t* dest);
 
-/**
-* @brief Acts like sprintf, but works with internal fixed-size buffer
-* @param format format line
-* @return formatted string
-*/
-char* de_str_format(const char* format, ...);
-
-int de_utf8_to_utf32(const char* inString, uint32_t* out, int bufferSize);
+typedef DE_ARRAY_DECLARE(char*, de_string_array_t);
 
 /* Note: Uses internal fixed-size string to tokenize string. This function is NOT reentrant! */
 void de_tokenize_string(const char* str, de_string_array_t* tokens, const char* delim);

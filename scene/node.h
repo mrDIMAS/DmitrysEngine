@@ -48,7 +48,7 @@ struct de_node_t {
 	 * Standard properties
 	 */
 	de_node_type_t type;
-	char* name;
+	de_str8_t name;
 	de_scene_t* scene;
 	de_mat4_t local_matrix; /**< Matrix of local transform of the node. Read-only. */
 	de_mat4_t global_matrix; /**< Matrix of global transform of the node. Read-only. */

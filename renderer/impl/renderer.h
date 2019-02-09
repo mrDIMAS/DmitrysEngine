@@ -1,6 +1,4 @@
 #define DE_RENDERER_MAX_SKINNING_MATRICES 60
-#define DE_STRINGIZE_(x) #x
-#define DE_STRINGIZE(x) DE_STRINGIZE_(x)
 #define DE_GL_CALL(func) func; de_check_opengl_error(#func, __FILE__, __LINE__)
 
 
@@ -796,12 +794,10 @@ de_texture_t* de_renderer_request_texture(de_renderer_t* r, const char* file) {
 	/* Look for already loaded textures */
 	{
 		de_texture_t* texture = NULL;
-		DE_LINKED_LIST_FOR_EACH(r->textures, texture) {
-			if (texture->name) {
-				if (strcmp(texture->name, file) == 0) {
-					return texture;
-				}
-			}
+		DE_LINKED_LIST_FOR_EACH(r->textures, texture) {			
+			if (de_str8_eq(&texture->name, file)) {
+				return texture;
+			}			
 		}
 	}
 
@@ -821,7 +817,7 @@ de_texture_t* de_renderer_request_texture(de_renderer_t* r, const char* file) {
 	tex->width = img.width;
 	tex->height = img.height;
 	tex->byte_per_pixel = img.byte_per_pixel;
-	tex->name = de_str_copy(file);
+	de_str8_set(&tex->name, file);	
 	tex->depth = 0;
 	tex->id = 0;
 	tex->type = DE_TEXTURE_TYPE_2D;
@@ -845,7 +841,6 @@ de_texture_t* de_renderer_create_texture(de_renderer_t* r, size_t w, size_t h, s
 	tex->width = w;
 	tex->height = h;
 	tex->byte_per_pixel = byte_per_pixel;
-	tex->name = NULL;
 	tex->depth = 0;
 	tex->id = 0;
 	tex->type = DE_TEXTURE_TYPE_2D;

@@ -104,7 +104,7 @@ bool player_process_event(player_t* p, const de_event_t* evt) {
 			}
 			break;
 		case DE_EVENT_TYPE_KEY_DOWN:
-			switch (evt->s.key_down.key) {
+			switch (evt->s.key.key) {
 				case DE_KEY_W:
 					p->controller.move_forward = true;
 					break;
@@ -142,7 +142,7 @@ bool player_process_event(player_t* p, const de_event_t* evt) {
 			}
 			break;
 		case DE_EVENT_TYPE_KEY_UP:
-			switch (evt->s.key_up.key) {
+			switch (evt->s.key.key) {
 				case DE_KEY_W:
 					p->controller.move_forward = false;
 					break;
@@ -573,6 +573,7 @@ main_menu_t* main_menu_create(game_t* game) {
 }
 
 void main_menu_free(main_menu_t* menu) {
+	DE_ARRAY_FREE(menu->video_modes);
 	de_free(menu);
 }
 
@@ -639,7 +640,7 @@ void game_main_loop(game_t* game) {
 				bool processed = false;
 				switch (evt.type) {
 					case DE_EVENT_TYPE_KEY_DOWN:
-						if (evt.s.key_down.key == DE_KEY_ESC) {
+						if (evt.s.key.key == DE_KEY_ESC) {
 							main_menu_set_visible(game->main_menu, true);
 							processed = true;
 						}
@@ -729,6 +730,7 @@ void test_visitor(game_t* game) {
 		de_object_visitor_save_binary(&visitor, "save.bin");
 
 		de_object_visitor_free(&visitor);
+		de_scene_free(scene);
 }
 #endif
 
@@ -744,8 +746,9 @@ void test_visitor(game_t* game) {
 		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Scene", &scene, de_scene_visit);
 		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Node", &node, de_node_visit);
 		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Node2", &node2, de_node_visit);
-
+		
 		de_object_visitor_free(&visitor);
+		de_scene_free(scene);
 	}
 #endif
 }

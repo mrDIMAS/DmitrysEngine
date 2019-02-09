@@ -26,13 +26,14 @@ typedef struct de_gui_text_line_t {
 	size_t begin;
 	size_t end;
 	float width;
+	float x; /* relative */
 } de_gui_text_line_t;
 
 /**
 * @brief Lightweight text block. 
 */
 typedef struct de_gui_text_t {
-	de_string32_t str;
+	de_str32_t str;
 	de_font_t* font;
 	de_gui_vertical_alignment_t ver_alignment;
 	de_gui_horizontal_alignment_t hor_alignment;

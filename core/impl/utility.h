@@ -149,6 +149,7 @@ void de_file_extract_extension(const char* path, char* buffer, size_t buffer_siz
 		count = length < buffer_size ? length : buffer_size;
 
 		strncpy(buffer, dot_pos, count);
+		buffer[count] = '\0';
 	}
 }
 

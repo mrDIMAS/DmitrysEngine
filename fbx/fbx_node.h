@@ -60,7 +60,7 @@ void de_fbx_buffer_free(de_fbx_buffer_t* buf) {
 
 typedef struct de_fbx_node_s {
 	/* Name of a node */
-	char* name;
+	de_str8_t name;
 
 	/* Means that each attribute is binary so no conversion needed on fetch */
 	bool is_binary;

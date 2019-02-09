@@ -159,6 +159,7 @@
     <ClInclude Include="..\..\core\base64.h" />
     <ClInclude Include="..\..\core\bool.h" />
     <ClInclude Include="..\..\core\byteorder.h" />
+    <ClInclude Include="..\..\core\clipboard.h" />
     <ClInclude Include="..\..\core\color.h" />
     <ClInclude Include="..\..\core\core.h" />
     <ClInclude Include="..\..\core\impl\array.h" />
@@ -182,8 +183,13 @@
     <ClInclude Include="..\..\core\rectpack.h" />
     <ClInclude Include="..\..\core\serialization.h" />
     <ClInclude Include="..\..\core\string.h" />
+    <ClInclude Include="..\..\core\string_impl.h" />
+    <ClInclude Include="..\..\core\string_utils.h" />
+    <ClInclude Include="..\..\core\string_utils_impl.h" />
     <ClInclude Include="..\..\core\thread.h" />
     <ClInclude Include="..\..\core\time.h" />
+    <ClInclude Include="..\..\core\utf32string.h" />
+    <ClInclude Include="..\..\core\utf32string_impl.h" />
     <ClInclude Include="..\..\core\utility.h" />
     <ClInclude Include="..\..\de_main.h" />
     <ClInclude Include="..\..\external\GL\glext.h" />

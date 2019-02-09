@@ -41,14 +41,15 @@
 		(a).data[(a).size - 1] = (item); \
 	} while(0)
 
+#define DE_ARRAY_MOVE(a, b) de_array_move_((void**)&(a).data, &(a).size, &(a)._capacity, (void**)&(b).data, &(b).size, &(b)._capacity)
+
 /* Returns memory to OS */
 #define DE_ARRAY_FREE(a) de_array_free_((void**)&(a).data, &(a).size, &(a)._capacity)
 
-#define DE_ARRAY_INSERT(a, pos, item) \
-	de_array_insert_((void**)&(a).data, &(a).size, &(a)._capacity, sizeof(*(a).data), (void*)&item, pos);
+/* Fail-safe insertion (out-of-bounds check) with auto-grow of array */
+#define DE_ARRAY_INSERT(a, pos, item) de_array_insert_((void**)&(a).data, &(a).size, &(a)._capacity, sizeof(*(a).data), (void*)&item, pos);
 
-#define DE_ARRAY_RESERVE(a, new_capacity) \
-	de_array_reserve_((void**)&(a).data, &(a).size, &(a)._capacity, sizeof(*(a).data), new_capacity); \
+#define DE_ARRAY_RESERVE(a, new_capacity) de_array_reserve_((void**)&(a).data, &(a).size, &(a)._capacity, sizeof(*(a).data), new_capacity);
 
 /* Sorts array using quick sort */
 #define DE_ARRAY_QSORT(a, cmp) qsort((a).data, (a).size, sizeof(*(a).data), cmp)
@@ -128,3 +129,4 @@ void de_array_insert_(void** data, size_t* size, size_t* capacity, size_t item_s
 void de_array_free_(void** data, size_t* size, size_t* capacity);
 void de_array_reverse_(void** data, size_t* size, size_t item_size);
 void* de_array_find_(const void* data, const size_t* size, size_t item_size, const void* search_data, size_t search_data_size);
+void de_array_move_(void** src_data, size_t* src_size, size_t* src_capacity, void** dest_data, size_t* dest_size, size_t* dest_capacity);

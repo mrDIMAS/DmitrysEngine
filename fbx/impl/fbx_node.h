@@ -91,7 +91,7 @@ char* de_fbx_get_string(de_fbx_node_t* node, int index) {
 
 de_fbx_node_t* de_fbx_create_node(const char* name) {
 	de_fbx_node_t* node = DE_NEW(de_fbx_node_t);
-	node->name = de_str_copy(name);
+	de_str8_set(&node->name, name);
 	return node;
 }
 
@@ -103,7 +103,7 @@ de_fbx_node_t* de_fbx_node_find_child(de_fbx_node_t* node, const char* name) {
 	for (i = 0; i < node->children.size; ++i) {
 		de_fbx_node_t* child = node->children.data[i];
 
-		if (strcmp(child->name, name) == 0) {
+		if (de_str8_eq(&child->name, name)) {
 			return child;
 		}
 	}
@@ -120,7 +120,7 @@ void de_fbx_node_free(de_fbx_node_t* node) {
 	size_t i;
 
 	/* Free name string. */
-	de_free(node->name);
+	de_str8_free(&node->name);
 
 	/* Free attributes. */
 	DE_ARRAY_FREE(node->attributes);
@@ -142,7 +142,7 @@ de_fbx_node_t* de_fbx_node_get_child(de_fbx_node_t* node, const char* name) {
 	/* Look for the node in children nodes. */
 	for (i = 0; i < node->children.size; ++i) {
 		de_fbx_node_t* child = node->children.data[i];
-		if (strcmp(child->name, name) == 0) {
+		if (de_str8_eq(&child->name, name)) {
 			return child;
 		}
 	}

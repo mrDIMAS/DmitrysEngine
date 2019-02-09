@@ -49,6 +49,14 @@ extern "C" {
 #define _USE_MATH_DEFINES
 #define DE_UNUSED(x) ((void)x)
 #define DE_BIT(n) (1 << n)
+#define DE_STRINGIZE_(x) #x
+#define DE_STRINGIZE(x) DE_STRINGIZE_(x)
+
+#if DE_DISABLE_ASSERTS
+#define DE_ASSERT
+#else 
+#define DE_ASSERT(expression) assert(expression)
+#endif
 
 typedef void(*de_proc)(void);
 
@@ -100,7 +108,7 @@ typedef enum de_event_type_t {
 	DE_EVENT_TYPE_TEXT,
 	DE_EVENT_TYPE_LOST_FOCUS,
 	DE_EVENT_TYPE_GOT_FOCUS,
-	DE_EVENT_TYPE_RESIZE
+	DE_EVENT_TYPE_RESIZE,
 } de_event_type_t;
 
 typedef struct de_event_t {
@@ -109,11 +117,11 @@ typedef struct de_event_t {
 	union {
 		struct {
 			enum de_key key;
-		} key_down;
-
-		struct {
-			enum de_key key;
-		} key_up;
+			int alt : 1;
+			int control : 1;
+			int shift : 1;
+			int system : 1;
+		} key;
 
 		struct {
 			enum de_mouse_button button;
@@ -172,6 +180,8 @@ typedef struct de_scene_t de_scene_t;
 #include "core/base64.h"
 #include "core/thread.h"
 #include "core/string.h"
+#include "core/string_utils.h"
+#include "core/utf32string.h"
 #include "core/linked_list.h"
 #include "core/time.h"
 #include "core/color.h"
@@ -224,7 +234,9 @@ typedef struct de_scene_t de_scene_t;
 #  include "core/impl/log.h" 
 #  include "core/impl/memmgr.h"
 #  include "core/impl/base64.h"
-#  include "core/impl/string.h"
+#  include "core/string_utils_impl.h"
+#  include "core/string_impl.h"
+#  include "core/utf32string_impl.h"
 #  include "core/impl/rectpack.h"
 #  include "core/impl/rect.h"
 #  include "core/impl/utility.h"

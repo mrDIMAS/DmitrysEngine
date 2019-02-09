@@ -22,7 +22,7 @@
 
 static de_object_visitor_node_t* de_object_visitor_node_create(const char* name) {
 	de_object_visitor_node_t* node = DE_NEW(de_object_visitor_node_t);
-	node->name = de_str_copy(name);
+	de_str8_set(&node->name, name);	
 	return node;
 }
 
@@ -38,11 +38,11 @@ static void de_object_visitor_node_free(de_object_visitor_node_t* node) {
 
 	/* free records */
 	for (i = 0; i < node->fields.size; ++i) {
-		de_free(node->fields.data[i].name);
+		de_str8_free(&node->fields.data[i].name);
 	}
 	DE_ARRAY_FREE(node->fields);
 
-	de_free(node->name);
+	de_str8_free(&node->name);
 	de_free(node);
 }
 
@@ -59,7 +59,7 @@ static de_object_visitor_field_t* de_object_visitor_node_find_record(de_object_v
 	for (i = 0; i < node->fields.size; ++i) {
 		de_object_visitor_field_t* field = node->fields.data + i;
 
-		if (strcmp(field->name, name) == 0) {
+		if (de_str8_eq(&field->name, name)) {
 			return field;
 		}
 	}
@@ -110,8 +110,9 @@ static bool de_object_visitor_visit_data(de_object_visitor_t* visitor,
 		field.data_offset = offset;
 		field.data_size = data_size;
 		field.data_type = type;
-		field.name = de_str_copy(name);
-
+		de_str8_init(&field.name);
+		de_str8_set(&field.name, name);
+		
 		DE_ARRAY_APPEND(node->fields, field);
 	}
 
@@ -128,7 +129,7 @@ bool de_object_visitor_enter_node(de_object_visitor_t* visitor, const char* node
 		for (i = 0; i < visitor->current_node->children.size; ++i) {
 			de_object_visitor_node_t* child = visitor->current_node->children.data[i];
 
-			if (strcmp(child->name, node_name) == 0) {
+			if (de_str8_eq(&child->name, node_name)) {
 				visitor->current_node = child;
 
 				found = true;
@@ -352,9 +353,9 @@ static void de_object_visitor_field_save_binary(de_object_visitor_field_t* field
 	uint8_t data_type;
 
 	/* write field name */
-	name_length = strlen(field->name);
+	name_length = de_str8_length(&field->name);
 	fwrite(&name_length, sizeof(name_length), 1, file);
-	fwrite(field->name, name_length, 1, file);
+	fwrite(de_str8_cstr(&field->name), name_length, 1, file);
 
 	/* write field data descriptors */
 	data_type = (uint8_t)field->data_type;
@@ -369,9 +370,9 @@ static void de_object_visitor_node_save_binary(de_object_visitor_node_t* node, F
 	uint32_t name_length, fields_count, child_count;
 
 	/* write name without null-terminator */
-	name_length = strlen(node->name);
+	name_length = de_str8_length(&node->name);
 	fwrite(&name_length, sizeof(name_length), 1, file);
-	fwrite(node->name, name_length, 1, file);
+	fwrite(de_str8_cstr(&node->name), name_length, 1, file);
 
 	/* write fields */
 	fields_count = (uint32_t)node->fields.size;
@@ -408,9 +409,8 @@ static void de_object_visitor_field_load_binary(de_object_visitor_field_t* field
 
 	/* read name */
 	fread(&name_length, sizeof(name_length), 1, file);
-	field->name = (char*)de_malloc(name_length + 1);
-	fread(field->name, name_length, 1, file);
-	field->name[name_length] = '\0';
+	de_str8_init(&field->name);
+	de_str8_fread(&field->name, file, name_length);
 
 	/* read field data descriptors */
 	fread(&field->data_size, sizeof(field->data_size), 1, file);
@@ -426,9 +426,8 @@ static void de_object_visitor_node_load_binary(de_object_visitor_node_t* node, F
 
 	/* read name */
 	fread(&name_length, sizeof(name_length), 1, file);
-	node->name = (char*)de_malloc(name_length + 1);
-	fread(node->name, name_length, 1, file);
-	node->name[name_length] = '\0';
+	de_str8_init(&node->name);
+	de_str8_fread(&node->name, file, name_length);
 
 	/* read fields */
 	fread(&fields_count, sizeof(fields_count), 1, file);
@@ -633,7 +632,7 @@ static void de_object_visitor_node_print(de_object_visitor_t* visitor, de_object
 	for (int i = 0; i < level * 2; ++i) {
 		fprintf(stream, " ");
 	}
-	fprintf(stream, "%s: ", node->name);
+	fprintf(stream, "%s: ", de_str8_cstr(&node->name));
 
 	for (size_t i = 0; i < node->fields.size; ++i) {
 		de_object_visitor_field_t* field = node->fields.data + i;
@@ -645,77 +644,77 @@ static void de_object_visitor_node_print(de_object_visitor_t* visitor, de_object
 
 		switch (field->data_type) {
 			case DE_OBJECT_VISITOR_DATA_TYPE_INT8:
-				fprintf(stream, "<%s|i8:%" PRIi8 ">", field->name, *((int8_t*)field_data));
+				fprintf(stream, "<%s|i8:%" PRIi8 ">", de_str8_cstr(&field->name), *((int8_t*)field_data));
 				break;
 			case DE_OBJECT_VISITOR_DATA_TYPE_UINT8:
-				fprintf(stream, "<%s|u8:%" PRIu8 ">", field->name, *((uint8_t*)field_data));
+				fprintf(stream, "<%s|u8:%" PRIu8 ">", de_str8_cstr(&field->name), *((uint8_t*)field_data));
 				break;
 			case DE_OBJECT_VISITOR_DATA_TYPE_INT16:
-				fprintf(stream, "<%s|i16:%" PRIi16 ">", field->name, *((int16_t*)field_data));
+				fprintf(stream, "<%s|i16:%" PRIi16 ">", de_str8_cstr(&field->name), *((int16_t*)field_data));
 				break;
 			case DE_OBJECT_VISITOR_DATA_TYPE_UINT16:
-				fprintf(stream, "<%s|u16:%" PRIu16 ">", field->name, *((uint16_t*)field_data));
+				fprintf(stream, "<%s|u16:%" PRIu16 ">", de_str8_cstr(&field->name), *((uint16_t*)field_data));
 				break;
 			case DE_OBJECT_VISITOR_DATA_TYPE_INT32:
-				fprintf(stream, "<%s|int32:%" PRIi32 ">", field->name, *((int32_t*)field_data));
+				fprintf(stream, "<%s|int32:%" PRIi32 ">", de_str8_cstr(&field->name), *((int32_t*)field_data));
 				break;
 			case DE_OBJECT_VISITOR_DATA_TYPE_UINT32:
-				fprintf(stream, "<%s|u32:%" PRIu32 ">", field->name, *((uint32_t*)field_data));
+				fprintf(stream, "<%s|u32:%" PRIu32 ">", de_str8_cstr(&field->name), *((uint32_t*)field_data));
 				break;
 			case DE_OBJECT_VISITOR_DATA_TYPE_INT64:
-				fprintf(stream, "<%s|i64:%" PRIi64 ">", field->name, *((int64_t*)field_data));
+				fprintf(stream, "<%s|i64:%" PRIi64 ">", de_str8_cstr(&field->name), *((int64_t*)field_data));
 				break;
 			case DE_OBJECT_VISITOR_DATA_TYPE_UINT64:
-				fprintf(stream, "<%s|u64:%" PRIu64 ">", field->name, *((uint64_t*)field_data));
+				fprintf(stream, "<%s|u64:%" PRIu64 ">", de_str8_cstr(&field->name), *((uint64_t*)field_data));
 				break;
 			case DE_OBJECT_VISITOR_DATA_TYPE_FLOAT:
-				fprintf(stream, "<%s|f:%f>", field->name, *((float*)field_data));
+				fprintf(stream, "<%s|f:%f>", de_str8_cstr(&field->name), *((float*)field_data));
 				break;
 			case DE_OBJECT_VISITOR_DATA_TYPE_DOUBLE:
-				fprintf(stream, "<%s|d:%f>", field->name, *((double*)field_data));
+				fprintf(stream, "<%s|d:%f>", de_str8_cstr(&field->name), *((double*)field_data));
 				break;
 			case DE_OBJECT_VISITOR_DATA_TYPE_VECTOR2:
 			{
 				de_vec2_t* v = (de_vec2_t*)field_data;
-				fprintf(stream, "<%s|v2:%f,%f>", field->name, v->x, v->y);
+				fprintf(stream, "<%s|v2:%f,%f>", de_str8_cstr(&field->name), v->x, v->y);
 				break;
 			}
 			case DE_OBJECT_VISITOR_DATA_TYPE_VECTOR3:
 			{
 				de_vec3_t* v = (de_vec3_t*)field_data;
-				fprintf(stream, "<%s|v3:%f,%f,%f>", field->name, v->x, v->y, v->z);
+				fprintf(stream, "<%s|v3:%f,%f,%f>", de_str8_cstr(&field->name), v->x, v->y, v->z);
 				break;
 			}
 			case DE_OBJECT_VISITOR_DATA_TYPE_VECTOR4:
 			{
 				de_vec4_t* v = (de_vec4_t*)field_data;
-				fprintf(stream, "<%s|v4:%f,%f,%f,%f>", field->name, v->x, v->y, v->z, v->w);
+				fprintf(stream, "<%s|v4:%f,%f,%f,%f>", de_str8_cstr(&field->name), v->x, v->y, v->z, v->w);
 				break;
 			}
 			case DE_OBJECT_VISITOR_DATA_TYPE_MATRIX3:
 			{
 				float *v = (float*)field_data;
-				fprintf(stream, "<%s|m3:%f,%f,%f,%f,%f,%f,%f,%f,%f>", field->name, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]);
+				fprintf(stream, "<%s|m3:%f,%f,%f,%f,%f,%f,%f,%f,%f>", de_str8_cstr(&field->name), v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]);
 				break;
 			}
 			case DE_OBJECT_VISITOR_DATA_TYPE_MATRIX4:
 			{
 				float *v = (float*)field_data;
-				fprintf(stream, "<%s|m4:%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f>", field->name,
+				fprintf(stream, "<%s|m4:%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f,%f>", de_str8_cstr(&field->name),
 					v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15]);
 				break;
 			}
 			case DE_OBJECT_VISITOR_DATA_TYPE_QUATERNION:
 			{
 				de_quat_t* q = (de_quat_t*)field_data;
-				fprintf(stream, "<%s|q:%f,%f,%f,%f>", field->name, q->x, q->y, q->z, q->w);
+				fprintf(stream, "<%s|q:%f,%f,%f,%f>", de_str8_cstr(&field->name), q->x, q->y, q->z, q->w);
 				break;
 			}
 			case DE_OBJECT_VISITOR_DATA_TYPE_DATA:
 			{
 				size_t encoded_size;
 				char* base64 = de_base64_encode(field_data, field->data_size, &encoded_size);
-				fprintf(stream, "<%s|data:%s>", field->name, base64);
+				fprintf(stream, "<%s|data:%s>", de_str8_cstr(&field->name), base64);
 				de_free(base64);
 				break;
 			}

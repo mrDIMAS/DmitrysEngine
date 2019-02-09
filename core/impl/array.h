@@ -42,17 +42,24 @@ void de_array_reserve_(void** data, size_t* size, size_t* capacity, size_t item_
 }
 
 void de_array_insert_(void** data, size_t* size, size_t* capacity, size_t item_size, void* item, size_t pos) {
-	if (pos >= 0 && pos < *size) {
-		char* bytes, *dest, *src;
-		size_t byte_count;
-		de_array_grow_(data, size, capacity, item_size, 1);
-		bytes = (char*)*data;
-		dest = bytes + ((pos + 1) * item_size);
-		src = bytes + pos * item_size;
+	size_t byte_count;
+	char* bytes, *dest, *src;	
+	de_array_grow_(data, size, capacity, item_size, 1);
+	if (pos >= *size) {
+		if (*size == 0) {
+			pos = 0;
+		} else {
+			pos = *size - 1;
+		}
+	}
+	bytes = (char*)*data;
+	src = bytes + pos * item_size;
+	if (*size) {
+		dest = src + item_size;
 		byte_count = (*size - 1 - pos) * item_size;
 		memmove(dest, src, byte_count);
-		memcpy(src, item, item_size);
 	}
+	memcpy(src, item, item_size);
 }
 
 void de_array_free_(void** data, size_t* size, size_t* capacity) {
@@ -91,4 +98,14 @@ void* de_array_find_(const void* data, const size_t* size, size_t item_size, con
 		ptr += item_size;
 	}
 	return NULL;
+}
+
+void de_array_move_(void** src_data, size_t* src_size, size_t* src_capacity, void** dest_data, size_t* dest_size, size_t* dest_capacity) {
+	de_array_free_(dest_data, dest_size, dest_capacity); /* prevent mem leaks */
+	*dest_data = *src_data;
+	*src_data = NULL;
+	*dest_size = *src_size;
+	*src_size = 0;
+	*dest_capacity = *src_capacity;
+	*src_capacity = 0;
 }

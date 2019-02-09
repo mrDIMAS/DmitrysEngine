@@ -71,7 +71,7 @@ typedef struct de_fbx_animation_curve_node_t {
 } de_fbx_animation_curve_node_t;
 
 typedef struct de_fbx_texture_t {
-	char* filename;
+	de_str8_t filename;
 } de_fbx_texture_t;
 
 typedef struct de_fbx_material_t {
@@ -132,7 +132,7 @@ typedef struct de_fbx_light_t {
 } de_fbx_light_t;
 
 struct de_fbx_model_t {
-	char* name;
+	de_str8_t name;
 
 	de_vec3_t pre_rotation;
 	de_vec3_t post_rotation;
@@ -407,9 +407,9 @@ static de_fbx_component_t* de_fbx_read_model(de_fbx_node_t* model_node) {
 	name = model_node->attributes.data[1];
 	name_separator = strrchr(name, ':');
 	if (name_separator) {
-		model->name = de_str_copy(name_separator + 1);
+		de_str8_set(&model->name, name_separator + 1);
 	} else {
-		model->name = de_str_copy(name);
+		de_str8_set(&model->name, name);
 	}
 
 	props = de_fbx_node_find_child(model_node, "Properties70");
@@ -450,7 +450,7 @@ static de_fbx_component_t* de_fbx_read_model(de_fbx_node_t* model_node) {
 
 
 static void de_fbx_model_free(de_fbx_model_t* model) {
-	de_free(model->name);
+	de_str8_free(&model->name);
 	DE_ARRAY_FREE(model->geoms);
 	DE_ARRAY_FREE(model->materials);
 	DE_ARRAY_FREE(model->animation_curve_nodes);
@@ -517,7 +517,7 @@ static de_fbx_component_t* de_fbx_read_texture(de_fbx_node_t* tex_node) {
 	filename = strrchr(path, '\\');
 
 	if (filename) {
-		tex->filename = de_str_copy(filename + 1);
+		de_str8_set(&tex->filename, filename + 1);
 	}
 
 	return comp;
@@ -525,7 +525,7 @@ static de_fbx_component_t* de_fbx_read_texture(de_fbx_node_t* tex_node) {
 
 
 static void de_fbx_texture_free(de_fbx_texture_t* tex) {
-	de_free(tex->filename);
+	de_str8_free(&tex->filename);
 }
 
 
@@ -753,25 +753,25 @@ static de_fbx_t* de_fbx_read(de_fbx_node_t* root) {
 	objects = de_fbx_node_find_child(root, "Objects");
 	for (i = 0; i < objects->children.size; ++i) {
 		de_fbx_node_t* child = objects->children.data[i];
-		if (strcmp(child->name, "Geometry") == 0) {
+		if (de_str8_eq(&child->name, "Geometry")) {
 			DE_ARRAY_APPEND(fbx->components, de_fbx_read_geometry(objects->children.data[i]));
-		} else if (strcmp(child->name, "Model") == 0) {
+		} else if (de_str8_eq(&child->name, "Model")) {
 			DE_ARRAY_APPEND(fbx->components, de_fbx_read_model(child));
-		} else if (strcmp(child->name, "Material") == 0) {
+		} else if (de_str8_eq(&child->name, "Material")) {
 			DE_ARRAY_APPEND(fbx->components, de_fbx_read_material(child));
-		} else if (strcmp(child->name, "Texture") == 0) {
+		} else if (de_str8_eq(&child->name, "Texture")) {
 			DE_ARRAY_APPEND(fbx->components, de_fbx_read_texture(child));
-		} else if (strcmp(child->name, "NodeAttribute") == 0) {
+		} else if (de_str8_eq(&child->name, "NodeAttribute")) {
 			if (child->attributes.size > 2) {
 				if (strcmp(child->attributes.data[2], "Light") == 0) {
 					DE_ARRAY_APPEND(fbx->components, de_fbx_read_light(child));
 				}
 			}
-		} else if (strcmp(child->name, "AnimationCurve") == 0) {
+		} else if (de_str8_eq(&child->name, "AnimationCurve")) {
 			DE_ARRAY_APPEND(fbx->components, de_fbx_read_animation_curve(child));
-		} else if (strcmp(child->name, "AnimationCurveNode") == 0) {
+		} else if (de_str8_eq(&child->name, "AnimationCurveNode")) {
 			DE_ARRAY_APPEND(fbx->components, de_fbx_read_animation_curve_node_t(child));
-		} else if (strcmp(child->name, "Deformer") == 0) {
+		} else if (de_str8_eq(&child->name, "Deformer")) {
 			char* type = child->attributes.data[2];
 			if (strcmp(type, "Cluster") == 0) {
 				DE_ARRAY_APPEND(fbx->components, de_fbx_read_sub_deformer(child));
@@ -1258,7 +1258,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 		node->user_data = mdl;
 		mdl->engine_node = node;
 
-		node->name = de_str_copy(mdl->name);
+		de_str8_copy(&mdl->name, &node->name);
 
 		node->position = mdl->translation;
 		node->rotation_offset = mdl->rotation_offset;
@@ -1341,9 +1341,9 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 						char diffuse_tex_extension[32];
 						de_texture_t* diffuse_texture;
 						de_texture_t* normal_texture;
-						de_file_extract_name(mat->diffuse_tex->filename, diffuse_tex_name, sizeof(diffuse_tex_name));
-						de_file_extract_extension(mat->diffuse_tex->filename, diffuse_tex_extension, sizeof(diffuse_tex_extension));
-						snprintf(diffuse_tex_filename, sizeof(diffuse_tex_filename), "data/textures/%s", mat->diffuse_tex->filename);
+						de_file_extract_name(de_str8_cstr(&mat->diffuse_tex->filename), diffuse_tex_name, sizeof(diffuse_tex_name));
+						de_file_extract_extension(de_str8_cstr(&mat->diffuse_tex->filename), diffuse_tex_extension, sizeof(diffuse_tex_extension));
+						snprintf(diffuse_tex_filename, sizeof(diffuse_tex_filename), "data/textures/%s", de_str8_cstr(&mat->diffuse_tex->filename));
 						snprintf(normal_tex_filename, sizeof(normal_tex_filename), "data/textures/%s_normal%s", diffuse_tex_name, diffuse_tex_extension);
 						diffuse_texture = de_renderer_request_texture(renderer, diffuse_tex_filename);
 						de_surface_set_diffuse_texture(surf, diffuse_texture);

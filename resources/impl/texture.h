@@ -37,7 +37,7 @@ void de_texture_release(de_texture_t* tex) {
 		de_renderer_remove_texture(tex->renderer, tex);
 		/* Free resources */
 		de_free(tex->pixels);
-		de_free(tex->name);
+		de_str8_free(&tex->name);
 		de_free(tex);
 	}
 }

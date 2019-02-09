@@ -1335,20 +1335,28 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 					de_surface_t* surf = de_renderer_create_surface(renderer);
 					de_fbx_material_t* mat = mdl->materials.data[k];
 					if (mat->diffuse_tex) {
-						char diffuse_tex_filename[256];
-						char normal_tex_filename[256];
-						char diffuse_tex_name[256];
-						char diffuse_tex_extension[32];
-						de_texture_t* diffuse_texture;
-						de_texture_t* normal_texture;
-						de_file_extract_name(de_str8_cstr(&mat->diffuse_tex->filename), diffuse_tex_name, sizeof(diffuse_tex_name));
-						de_file_extract_extension(de_str8_cstr(&mat->diffuse_tex->filename), diffuse_tex_extension, sizeof(diffuse_tex_extension));
-						snprintf(diffuse_tex_filename, sizeof(diffuse_tex_filename), "data/textures/%s", de_str8_cstr(&mat->diffuse_tex->filename));
-						snprintf(normal_tex_filename, sizeof(normal_tex_filename), "data/textures/%s_normal%s", diffuse_tex_name, diffuse_tex_extension);
-						diffuse_texture = de_renderer_request_texture(renderer, diffuse_tex_filename);
-						de_surface_set_diffuse_texture(surf, diffuse_texture);
-						normal_texture = de_renderer_request_texture(renderer, normal_tex_filename);
-						de_surface_set_normal_texture(surf, normal_texture);
+						de_path_t path, path_view;
+						de_str8_view_t diffuse_tex_name, diffuse_tex_extension;
+						
+						de_path_as_str8_view(&path_view, &mat->diffuse_tex->filename);
+						de_path_file_name(&path_view, &diffuse_tex_name);						
+						de_path_extension(&path_view, &diffuse_tex_extension);
+
+						/* diffuse texture */
+						de_path_init(&path);
+						de_path_append_cstr(&path, "data/textures/");
+						de_path_append_str8(&path, &mat->diffuse_tex->filename);
+						de_surface_set_diffuse_texture(surf, de_renderer_request_texture(renderer, &path));
+
+						/* normal texture */
+						de_path_clear(&path);
+						de_path_append_cstr(&path, "data/textures/");
+						de_path_append_str_view(&path, &diffuse_tex_name);
+						de_path_append_cstr(&path, "_normal");
+						de_path_append_str_view(&path, &diffuse_tex_extension);						
+						de_surface_set_normal_texture(surf, de_renderer_request_texture(renderer, &path));
+						
+						de_path_free(&path);
 					}
 					de_mesh_add_surface(mesh, surf);
 				}

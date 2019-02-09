@@ -115,10 +115,20 @@ static void de_gui_text_box_key_down(de_gui_node_t* n, de_gui_routed_event_args_
 	tb = &n->s.text_box;
 	switch (args->s.key.key) {
 		case DE_KEY_LEFT:
-			de_gui_text_box_move_caret_x(tb, -1);
+			if (args->s.key.control) {
+				/* jump over word to left */
+
+			} else {
+				de_gui_text_box_move_caret_x(tb, -1);
+			}
 			break;
 		case DE_KEY_RIGHT:
-			de_gui_text_box_move_caret_x(tb, +1);
+			if (args->s.key.control) {
+				/* jump over word to right */
+
+			} else {
+				de_gui_text_box_move_caret_x(tb, +1);
+			}
 			break;
 		case DE_KEY_UP:
 			de_gui_text_box_move_caret_y(tb, -1);

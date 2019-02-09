@@ -19,28 +19,38 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/**
-* @brief Loads file as a null-terminated string.
-* @param path file to load
-* @param out_size total bytes count, can be NULL
-*/
-char* de_load_file_into_memory(const char * path, size_t* out_size);
+typedef struct de_path_t {
+	de_str8_t str;	
+} de_path_t;
+
+void de_path_init(de_path_t* path);
+
+void de_path_free(de_path_t* path);
+
+void de_path_clear(de_path_t* path);
+
+void de_path_as_str8_view(de_path_t* path, de_str8_t* str);
+
+const char* de_path_cstr(const de_path_t* path);
+
+void de_path_append_cstr(de_path_t* path, const char* utf8str);
+
+void de_path_append_str8(de_path_t* path, const de_str8_t* str);
+
+void de_path_append_str_view(de_path_t* path, const de_str8_view_t* view);
 
 /**
- * @brief Converts a file 'source' as array to file 'dest'
+ * @brief Extracts extension from file path with dot.
  *
- * Will create a file 'dest' with such content:
- *
- * static const char array[] = {
- *     123, 234, 12, 0, 34, 16, ...
- * };
- *
- * Can be used to pack any file into a source code file. Useful when
- * you need to store some resource as data in your executable file.
+ * Example: "baz/bar/foo.bar"
+ *                      ^^^^ -> .bar
  */
-void de_convert_to_c_array(const char* source, const char* dest);
+void de_path_extension(const de_path_t* p, de_str8_view_t* ext);
 
 /**
- * @brief Tests for file system utilities.
+ * @brief Extracts only name from file path without extension.
+ *
+ * Example: "baz/bar/foo.bar"
+ *                   ^^^ -> foo
  */
-void de_file_tests(void);
+void de_path_file_name(const de_path_t* p, de_str8_view_t* name);

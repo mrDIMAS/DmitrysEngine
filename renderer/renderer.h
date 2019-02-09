@@ -212,7 +212,7 @@ void de_renderer_free_surface(de_surface_t* surf);
 * If texture is already loaded - returns pointer to it, otherwise - loads
 * from file
 */
-de_texture_t* de_renderer_request_texture(de_renderer_t* r, const char* file);
+de_texture_t* de_renderer_request_texture(de_renderer_t* r, const de_path_t* path);
 
 /**
  * @brief Create black texture

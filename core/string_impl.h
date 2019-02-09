@@ -31,6 +31,11 @@ void de_tokenize_string(const char* str, de_string_array_t* tokens, const char* 
 	}
 }
 
+void de_str8_view_set(de_str8_view_t* view, const char* data, size_t len) {
+	view->data = data;
+	view->len = len;
+}
+
 void de_str8_init(de_str8_t* str) {
 	DE_ARRAY_INIT(str->str);
 	DE_ARRAY_APPEND(str->str, '\0');
@@ -45,12 +50,40 @@ void de_str8_set(de_str8_t* str, const char* cstr) {
 	DE_ARRAY_APPEND(str->str, '\0');
 }
 
+void de_str8_clear(de_str8_t* str) {
+	if (str->str.data) {
+		str->str.data[0] = 0;
+	}
+	str->str.size = 1;
+}
+
 void de_str8_move(de_str8_t* src, de_str8_t* dest) {
 	DE_ARRAY_MOVE(src->str, dest->str);
 }
 
+void de_str8_append_cstr(de_str8_t* str, const char* utf8str) {
+	de_str8_view_t view;
+	view.data = utf8str;
+	view.len = strlen(utf8str);
+	de_str8_append_str_view(str, &view);
+}
+
+void de_str8_append_str8(de_str8_t* str, const de_str8_t* other) {
+	de_str8_append_cstr(str, other->str.data);
+}
+
 void de_str8_free(de_str8_t * str) {
 	DE_ARRAY_FREE(str->str);
+}
+
+void de_str8_append_str_view(de_str8_t* str, const de_str8_view_t* view) {
+	if (!view->data || view->len == 0) {
+		return;
+	}
+	size_t i = str->str.size ? str->str.size - 1 : 0;
+	DE_ARRAY_GROW(str->str, view->len - 1);
+	memcpy(str->str.data + i, view->data, view->len);
+	DE_ARRAY_APPEND(str->str, '\0');
 }
 
 size_t de_str8_length(const de_str8_t* str) {

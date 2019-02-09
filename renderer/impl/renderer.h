@@ -787,9 +787,10 @@ void de_renderer_free_surface(de_surface_t* surf) {
 }
 
 
-de_texture_t* de_renderer_request_texture(de_renderer_t* r, const char* file) {
+de_texture_t* de_renderer_request_texture(de_renderer_t* r, const de_path_t* path) {
 	de_texture_t* tex;
 	de_image_t img = { 0 };
+	const char* file = de_path_cstr(path);
 
 	/* Look for already loaded textures */
 	{

@@ -27,27 +27,79 @@ typedef struct de_str8_t {
 	DE_ARRAY_DECLARE(char, str);
 } de_str8_t;
 
+/* String slice, portion of some string */
+typedef struct de_str8_view_t {
+	const char* data;
+	size_t len;
+} de_str8_view_t;
+
+/**
+ * @brief Small helper to create string view.
+ */
+void de_str8_view_set(de_str8_view_t* view, const char* data, size_t len);
+
+/**
+ * @brief Initializes string. Allocates 1 byte for null-terminator.
+ */
 void de_str8_init(de_str8_t* str);
 
+/**
+ * @brief Set string content as UTF8 null terminated string (or plain C string)
+ */
 void de_str8_set(de_str8_t* str, const char* cstr);
 
+/**
+ * @brief Clears string. Does not deallocates memory!
+ */
+void de_str8_clear(de_str8_t* str);
+
+/**
+ * @brief Moves @src string to @dest string. @src string will be empty!
+ */
 void de_str8_move(de_str8_t* src, de_str8_t* dest);
 
+/**
+ * @brief Frees allocated memory.
+ */
 void de_str8_free(de_str8_t * str);
 
+/**
+ * @brief Appends UTF-8 null terminated string into string.
+ */
+void de_str8_append_cstr(de_str8_t* str, const char* utf8str);
+
+void de_str8_append_str8(de_str8_t* str, const de_str8_t* other);
+
+/**
+ * @brief Appends string view to string.
+ */
+void de_str8_append_str_view(de_str8_t* str, const de_str8_view_t* view);
+
+/**
+ * @brief Returns length of a string.
+ */
 size_t de_str8_length(const de_str8_t* str);
 
+/**
+ * @brief Checks strings for equality.
+ */
 bool de_str8_eq(de_str8_t* str, const char* utf8str);
 
+/**
+ * @brief Checks two utf8 strings for equality
+ */
 bool de_str8_eq_str8(de_str8_t* str, de_str8_t* other);
 
+/**
+ * @brief Returns internal data as plain C string.
+ */
 const char* de_str8_cstr(const de_str8_t* str);
 
 /**
  * @brief Reads string from file. 
  * 
  * Note: If @len == 0, reads everything until null-terminator. This usage is potentially 
- * dangerous and slower that reading string with known length. Use with caution!  
+ * dangerous and slower than reading string with known length. Use with caution!  
  */
 size_t de_str8_fread(de_str8_t* str, FILE* file, size_t len);
 

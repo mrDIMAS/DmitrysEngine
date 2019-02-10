@@ -27,7 +27,7 @@ typedef struct de_video_mode_t {
 } de_video_mode_t;
 
 typedef enum de_core_flags_t {
-	DE_CORE_FLAGS_BORDERLESS = DE_BIT(0),
+	DE_CORE_FLAGS_BORDERLESS = DE_BIT(0)
 } de_core_flags_t;
 
 typedef struct de_engine_params_t {

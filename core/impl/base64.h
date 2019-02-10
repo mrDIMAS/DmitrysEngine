@@ -119,16 +119,18 @@ void* de_base64_decode(const char* data, size_t size, size_t* out_size) {
 	bytes = (char*)de_malloc(data_size);
 
 	for (i = 0, k = 0; i < size; ) {
-		uint8_t b0 = data[i] == '=' ? 0 : decode_table[data[i]];
+        uint8_t b0, b1, b2, b3;
+        
+		b0 = data[i] == '=' ? 0 : decode_table[(int)data[i]];
 		++i;
 
-		uint8_t b1 = data[i] == '=' ? 0 : decode_table[data[i]];
+		b1 = data[i] == '=' ? 0 : decode_table[(int)data[i]];
 		++i;
 
-		uint8_t b2 = data[i] == '=' ? 0 : decode_table[data[i]];
+		b2 = data[i] == '=' ? 0 : decode_table[(int)data[i]];
 		++i;
 
-		uint8_t b3 = data[i] == '=' ? 0 : decode_table[data[i]];
+		b3 = data[i] == '=' ? 0 : decode_table[(int)data[i]];
 		++i;
 
 		if (k < data_size) {

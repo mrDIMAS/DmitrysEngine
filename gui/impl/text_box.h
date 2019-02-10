@@ -108,7 +108,8 @@ static int de_gui_text_box_caret_to_index(de_gui_text_box_t* tb) {
 }
 
 static void de_gui_text_box_key_down(de_gui_node_t* n, de_gui_routed_event_args_t* args) {
-	int index;
+	int i;	
+	int index, jump_offset;		
 	de_gui_text_box_t* tb;
 	de_gui_text_line_t* line;	
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_TEXT_BOX);
@@ -116,8 +117,28 @@ static void de_gui_text_box_key_down(de_gui_node_t* n, de_gui_routed_event_args_
 	switch (args->s.key.key) {
 		case DE_KEY_LEFT:
 			if (args->s.key.control) {
+				uint32_t c;
 				/* jump over word to left */
-
+				index = de_gui_text_box_caret_to_index(tb);
+				if (index < 0) {
+					index = 0;
+				} else if (index >= (int)de_str32_length(&tb->str)) {
+					index = de_str32_length(&tb->str);
+				}
+				c = de_str32_at(&tb->str, index > 0 ? index - 1 : 0);
+				if (c < 255 && (ispunct(c) || isspace(c))) {
+					/* step over 1 symbol */
+					jump_offset = 1;
+				} else {
+					for (i = index, jump_offset = 0; i >= 0; --i, ++jump_offset) {
+						c = de_str32_at(&tb->str, i);
+						if (c < 255 && (ispunct(c) || isspace(c))) {
+							--jump_offset;
+							break;
+						}
+					}
+				}
+				de_gui_text_box_move_caret_x(tb, -jump_offset);
 			} else {
 				de_gui_text_box_move_caret_x(tb, -1);
 			}
@@ -158,6 +179,7 @@ static void de_gui_text_box_key_down(de_gui_node_t* n, de_gui_routed_event_args_
 			if (args->s.key.control) {
 
 			}
+            break;
 		case DE_KEY_End:
 			line = de_gui_text_box_get_current_line(tb);
 			if (line) {
@@ -187,9 +209,7 @@ static void de_gui_text_box_update(de_gui_node_t* node) {
 }
 
 static void de_gui_text_box_mouse_down(de_gui_node_t* node, de_gui_routed_event_args_t* args) {
-	de_gui_text_box_t* tb;
-	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_TEXT_BOX);
-	tb = &node->s.text_box;
+    DE_UNUSED(node);
 	DE_UNUSED(args);
 }
 
@@ -209,9 +229,10 @@ static void de_gui_text_box_break_on_lines(de_gui_node_t* node) {
 	for (i = 0; i < de_str32_length(&tb->str); ++i) {
 		float new_width;
 		bool control_char;
+        de_glyph_t* glyph;
 		uint32_t code = de_str32_at(&tb->str, i);
 		control_char = code == '\n' || code == '\r';
-		de_glyph_t* glyph = de_font_get_glyph(tb->font, code);
+		glyph = de_font_get_glyph(tb->font, code);
 		if (!glyph) {
 			continue;
 		}
@@ -260,7 +281,7 @@ static void de_gui_text_box_break_on_lines(de_gui_node_t* node) {
 	}
 }
 
-static bool de_gui_text_box_text_entered(de_gui_node_t* n, const de_gui_routed_event_args_t* args) {
+static void de_gui_text_box_text_entered(de_gui_node_t* n, de_gui_routed_event_args_t* args) {
 	uint32_t code;
 	de_gui_text_box_t* tb;
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_TEXT_BOX);
@@ -274,11 +295,10 @@ static bool de_gui_text_box_text_entered(de_gui_node_t* n, const de_gui_routed_e
 			de_str32_insert(&tb->str, de_gui_text_box_caret_to_index(tb), code);
 			de_gui_text_box_break_on_lines(n);
 			de_gui_text_box_move_caret_x(tb, 1);
-			return true;
+			return;
 		default:
 			break;
 	}
-	return false;
 }
 
 static void de_gui_text_box_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting) {
@@ -367,8 +387,7 @@ de_gui_node_t* de_gui_text_box_create(de_gui_t* gui) {
 	tb = &n->s.text_box;
 	tb->font = gui->default_font;
 	tb->blink_interval = 35;
-	tb->blink_timer = 0;
-	tb->hor_alignment = DE_GUI_HORIZONTAL_ALIGNMENT_CENTER;
+	tb->blink_timer = 0;	
 	de_str32_init(&tb->str);
 	return n;
 }

@@ -26,8 +26,9 @@ typedef struct de_face_aabb_t {
 
 
 static void de_octree_count_leafs_recursive(de_octree_node_t* node, int* counter) {
+    int i;
 	if (node->split) {
-		for (int i = 0; i < 8; ++i) {
+		for (i = 0; i < 8; ++i) {
 			de_octree_count_leafs_recursive(node->children[i], counter);
 		}
 	} else {
@@ -51,11 +52,12 @@ static void de_octree_create_trace_buffers(de_octree_t* octree) {
 
 
 static void de_octree_split_node(de_octree_node_t* node) {
+    int i;
 	de_vec3_t center;
 
 	de_vec3_middle(&center, &node->min, &node->max);
 
-	for (int i = 0; i < 8; i++) {
+	for (i = 0; i < 8; i++) {
 		node->children[i] = DE_NEW(de_octree_node_t);
 	}
 
@@ -162,13 +164,14 @@ de_octree_t* de_octree_build(const void* vertices, int stride, int* indices, siz
 	face_aabbs = (de_face_aabb_t*)de_malloc(index_count / 3 * sizeof(de_face_aabb_t));
 	for (i = 0, k = 0; i < index_count; ++k) {
 		de_face_aabb_t* aabb = face_aabbs + k;
+        de_vec3_t* v0, *v1, *v2;
 
 		de_vec3_set(&aabb->max, -FLT_MAX, -FLT_MAX, -FLT_MAX);
 		de_vec3_set(&aabb->min, FLT_MAX, FLT_MAX, FLT_MAX);
 
-		const de_vec3_t* v0 = (de_vec3_t*)(data + stride * indices[i++]);
-		const de_vec3_t* v1 = (de_vec3_t*)(data + stride * indices[i++]);
-		const de_vec3_t* v2 = (de_vec3_t*)(data + stride * indices[i++]);
+		v0 = (de_vec3_t*)(data + stride * indices[i++]);
+		v1 = (de_vec3_t*)(data + stride * indices[i++]);
+		v2 = (de_vec3_t*)(data + stride * indices[i++]);
 
 		de_vec3_min_max(v0, &aabb->min, &aabb->max);
 		de_vec3_min_max(v1, &aabb->min, &aabb->max);
@@ -184,8 +187,9 @@ de_octree_t* de_octree_build(const void* vertices, int stride, int* indices, siz
 
 
 static void de_octree_node_free(de_octree_node_t* node) {
+    int i;
 	if (node->split) {
-		for (int i = 0; i < 8; ++i) {
+		for (i = 0; i < 8; ++i) {
 			de_octree_node_free(node->children[i]);
 		}
 	}
@@ -203,9 +207,10 @@ void de_octree_free(de_octree_t* octree) {
 
 
 static void de_octree_trace_ray_recursive(de_octree_t* octree, de_octree_node_t* node, const de_ray_t* ray) {
+    int i;
 	if (de_ray_aabb_intersection(ray, &node->min, &node->max, NULL, NULL)) {
 		if (node->split) {
-			for (int i = 0; i < 8; i++) {
+			for (i = 0; i < 8; i++) {
 				de_octree_trace_ray_recursive(octree, node->children[i], ray);
 			}
 		} else {
@@ -224,6 +229,7 @@ void de_octree_trace_ray(de_octree_t* octree, const de_ray_t* ray) {
 static bool de_octree_node_is_intersect_sphere(const de_octree_node_t* node, const de_vec3_t* position, float radius) {
 	float r2 = radius* radius;
 	float dmin = 0;
+    bool sphereInside;
 
 	if (position->x < node->min.x) {
 		dmin += de_sqr(position->x - node->min.x);
@@ -243,7 +249,7 @@ static bool de_octree_node_is_intersect_sphere(const de_octree_node_t* node, con
 		dmin += de_sqr(position->z - node->max.z);
 	}
 
-	bool sphereInside = (position->x >= node->min.x) && (position->x <= node->max.x) &&
+	sphereInside = (position->x >= node->min.x) && (position->x <= node->max.x) &&
 		(position->y >= node->min.y) && (position->y <= node->max.y) &&
 		(position->z >= node->min.z) && (position->z <= node->max.z);
 
@@ -252,9 +258,10 @@ static bool de_octree_node_is_intersect_sphere(const de_octree_node_t* node, con
 
 
 static void de_octree_trace_sphere_recursive(de_octree_t* octree, de_octree_node_t* node, const de_vec3_t* position, float radius) {
+    int i;
 	if (de_octree_node_is_intersect_sphere(node, position, radius)) {
 		if (node->split) {
-			for (int i = 0; i < 8; i++) {
+			for (i = 0; i < 8; i++) {
 				de_octree_trace_sphere_recursive(octree, node->children[i], position, radius);
 			}
 		} else {

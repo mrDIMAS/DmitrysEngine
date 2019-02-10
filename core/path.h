@@ -29,6 +29,9 @@ void de_path_free(de_path_t* path);
 
 void de_path_clear(de_path_t* path);
 
+/**
+ * @brief Initializes path as string view. Useful to temporarily use existing string as path.
+ */
 void de_path_as_str8_view(de_path_t* path, de_str8_t* str);
 
 const char* de_path_cstr(const de_path_t* path);

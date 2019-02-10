@@ -317,7 +317,7 @@ de_camera_t* de_node_to_camera(de_node_t* node) {
 
 bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node) {
 	bool result = true;
-	//result &= de_object_visitor_visit_heap_string(visitor, "Name", &node->name);
+	/*result &= de_object_visitor_visit_heap_string(visitor, "Name", &node->name);*/
 	result &= de_object_visitor_visit_mat4(visitor, "LocalTransform", &node->local_matrix);
 	result &= de_object_visitor_visit_mat4(visitor, "GlobalTransform", &node->global_matrix);
 	result &= de_object_visitor_visit_mat4(visitor, "InvBindPoseTransform", &node->inv_bind_pose_matrix);

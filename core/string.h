@@ -27,16 +27,51 @@ typedef struct de_str8_t {
 	DE_ARRAY_DECLARE(char, str);
 } de_str8_t;
 
-/* String slice, portion of some string */
+/* String slice, portion of some string. NOT compatible with strlen and others.
+ * Be careful with string views: if source string will be changed then ALL views
+ * will become invalid! So do NOT store views for long period of time: use them
+ * as soon as possible. */
 typedef struct de_str8_view_t {
 	const char* data;
 	size_t len;
 } de_str8_view_t;
 
+typedef DE_ARRAY_DECLARE(de_str8_view_t, de_str8_view_array_t);
+
 /**
  * @brief Small helper to create string view.
  */
 void de_str8_view_set(de_str8_view_t* view, const char* data, size_t len);
+
+/**
+ * @brief Small helper to create string view from c string.
+ */
+void de_str8_view_set_cstr(de_str8_view_t* view, const char* data);
+
+/**
+ * @brief Prints string view into console.
+ */
+void de_str8_view_print(de_str8_view_t* view);
+
+/**
+ * @brief Creates new string from given view.
+ */
+void de_str8_view_to_string(const de_str8_view_t* view, de_str8_t* str);
+
+/**
+ * @brief Compares string view with any null-terminated string.
+ */
+bool de_str8_view_eq_cstr(const de_str8_view_t* view, const char* utf8str);
+
+/**
+ * @brief Compares string view with str8.
+ */
+bool de_str8_view_eq_str8(const de_str8_view_t* view, const de_str8_t* str);
+
+/**
+ * @brief Compares two string views.
+ */
+bool de_str8_view_eq(const de_str8_view_t* view, const de_str8_view_t* other);
 
 /**
  * @brief Initializes string. Allocates 1 byte for null-terminator.
@@ -64,10 +99,13 @@ void de_str8_move(de_str8_t* src, de_str8_t* dest);
 void de_str8_free(de_str8_t * str);
 
 /**
- * @brief Appends UTF-8 null terminated string into string.
+ * @brief Appends UTF-8 null terminated string.
  */
 void de_str8_append_cstr(de_str8_t* str, const char* utf8str);
 
+/**
+ * @brief Appends UTF8 string.
+ */
 void de_str8_append_str8(de_str8_t* str, const de_str8_t* other);
 
 /**
@@ -96,6 +134,25 @@ bool de_str8_eq_str8(de_str8_t* str, de_str8_t* other);
 const char* de_str8_cstr(const de_str8_t* str);
 
 /**
+ * @brief Searches for a given substring in a given string. Fills @out_view with a params of first occurrence.
+ */
+void de_str8_find(const de_str8_t* str, size_t offset, const de_str8_view_t* substr, de_str8_view_t* out_view);
+
+/**
+ * @brief Fills out string view with a requested sub-string range [offset, offset + count].
+ * 
+ * Note: Function is non-sensitive for out-of-bounds arguments.
+ */
+void de_str8_substr(const de_str8_t* str, de_str8_view_t* view, size_t offset, size_t count);
+
+/**
+ * @brief Replaces all substrings in a string with a given string.
+ * 
+ * Note: @what and @with must NOT be views of @str!
+ */
+void de_str8_replace(de_str8_t* str, const de_str8_view_t* what, const de_str8_view_t* with);
+
+/**
  * @brief Reads string from file. 
  * 
  * Note: If @len == 0, reads everything until null-terminator. This usage is potentially 
@@ -104,13 +161,16 @@ const char* de_str8_cstr(const de_str8_t* str);
 size_t de_str8_fread(de_str8_t* str, FILE* file, size_t len);
 
 /**
-* @brief Creates copy of string on heap. You have to call @de_free to delete string
-* @param src string
-* @return copy of string
-*/
+ * @brief Copies @src to @dest
+ */
 void de_str8_copy(const de_str8_t* src, de_str8_t* dest);
 
-typedef DE_ARRAY_DECLARE(char*, de_string_array_t);
+/**
+ * @brief Returns array of string views for tokens. Array must be freed!
+ */
+de_str8_view_array_t de_str8_tokenize(const de_str8_t* str, const char* delim);
 
-/* Note: Uses internal fixed-size string to tokenize string. This function is NOT reentrant! */
-void de_tokenize_string(const char* str, de_string_array_t* tokens, const char* delim);
+/**
+ * @brief Internal tests.
+ */
+void de_str8_tests(void);

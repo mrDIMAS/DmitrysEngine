@@ -98,7 +98,7 @@ typedef struct de_plane_t {
 typedef enum de_plane_class_t {
 	DE_PLANE_OXY = 1,
 	DE_PLANE_OXZ = 2,
-	DE_PLANE_OYZ = 3,
+	DE_PLANE_OYZ = 3
 } de_plane_class_t;
 
 /**

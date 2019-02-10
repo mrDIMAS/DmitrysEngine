@@ -118,21 +118,24 @@ de_gui_node_t* de_gui_slide_selector_create(de_gui_t* gui) {
 }
 
 void de_gui_slide_selector_set_items(de_gui_node_t* node, void* items, int item_count, de_gui_item_text_getter getter) {
+    de_gui_slide_selector_t* ss;
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SLIDE_SELECTOR);
-	de_gui_slide_selector_t* ss = &node->s.slide_selector;
+	ss = &node->s.slide_selector;
 	ss->items = items;
 	ss->item_count = item_count;
 	ss->get_item_text = getter;
 }
 
 void* de_gui_slide_selector_get_selection(de_gui_node_t* node) {
+    de_gui_slide_selector_t* ss;
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SLIDE_SELECTOR);
-	de_gui_slide_selector_t* ss = &node->s.slide_selector;
+	ss = &node->s.slide_selector;
 	return ss->selection;
 }
 
 void de_gui_slide_selector_set_selection_changed(de_gui_node_t* node, de_gui_selection_changed callback) {
+    de_gui_slide_selector_t* ss;
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SLIDE_SELECTOR);
-	de_gui_slide_selector_t* ss = &node->s.slide_selector;
+	ss = &node->s.slide_selector;
 	ss->selection_changed = callback;
 }

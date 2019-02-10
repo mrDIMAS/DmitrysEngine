@@ -20,7 +20,7 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 typedef enum de_gui_window_flags_t {
-	DE_GUI_WINDOW_FLAGS_NO_MOVE = DE_BIT(0),
+	DE_GUI_WINDOW_FLAGS_NO_MOVE = DE_BIT(0)
 } de_gui_window_flags_t;
 
 /**

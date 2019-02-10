@@ -757,21 +757,24 @@ bool de_gui_node_set_property(de_gui_node_t* n, const char* name, const void* va
 }
 
 bool de_gui_node_parse_property(de_gui_node_t* n, const char* name, const char* value) {
-	static de_string_array_t tokens;
+	de_str8_t str;
+	de_str8_view_array_t tokens;
+	bool result = false;
 	if (n->dispatch_table->parse_property) {
-		if (n->dispatch_table->parse_property(n, name, value)) {
-			return true;
-		}
-	}
-	de_tokenize_string(value, &tokens, ";, ");
+		result = n->dispatch_table->parse_property(n, name, value);		
+	}	
+	de_str8_set(&str, value);
+	tokens = de_str8_tokenize(&str, ";, ");	
 	if (strcmp(name, DE_GUI_NODE_DESIRED_POSITION_PROPERTY) == 0) {
 		if (tokens.size == 2) {
-			n->desired_local_position.x = (float)atof(tokens.data[0]);
-			n->desired_local_position.y = (float)atof(tokens.data[1]);
-			return true;
+			n->desired_local_position.x = (float)atof(tokens.data[0].data);
+			n->desired_local_position.y = (float)atof(tokens.data[1].data);
+			result = true;
 		}
 	}
-	return false;
+	de_str8_free(&str);
+	DE_ARRAY_FREE(tokens);
+	return result;
 }
 
 bool de_gui_node_get_property(de_gui_node_t* n, const char* name, void* value, size_t data_size) {

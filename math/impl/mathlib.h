@@ -1296,6 +1296,8 @@ unsigned int de_ceil_pow2(unsigned int v) {
 }
 
 float de_fwrap(float n, float min_limit, float max_limit) {
+    float offset, num_of_max;
+    
 	if (n >= min_limit && n <= max_limit) {
 		return n;
 	}
@@ -1306,11 +1308,11 @@ float de_fwrap(float n, float min_limit, float max_limit) {
 
 	max_limit = max_limit - min_limit;
 
-	float offset = min_limit;
+	offset = min_limit;
 	min_limit = 0;
 	n = n - offset;
 
-	float num_of_max = (float)floor(fabs(n / max_limit));
+	num_of_max = (float)floor(fabs(n / max_limit));
 
 	if (n >= max_limit) {
 		n = n - num_of_max * max_limit;

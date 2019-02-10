@@ -173,9 +173,9 @@ bool de_scene_visit(de_object_visitor_t* visitor, de_scene_t* scene) {
 	bool result = true;
 
 	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Nodes", scene->nodes, de_node_t, de_node_visit);
-	//result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Bodies", scene->bodies, de_node_visit);
-	//result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "StaticGeometries", scene->static_geometries, de_node_visit);
-	//result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Animations", scene->animations, de_node_visit);
+	/*result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Bodies", scene->bodies, de_node_visit);
+	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "StaticGeometries", scene->static_geometries, de_node_visit);
+	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Animations", scene->animations, de_node_visit);*/
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "ActiveCamera", &scene->active_camera, de_node_visit);
 
 	return result;

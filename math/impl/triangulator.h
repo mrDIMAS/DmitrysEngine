@@ -24,6 +24,7 @@ static bool de_is_ear(
 	const de_triangulator_vertex_t* vprev,
 	const de_triangulator_vertex_t* vear,
 	const de_triangulator_vertex_t* vnext) {
+    float angle;
 	de_triangulator_vertex_t* v;
 	de_vec2_t ab, cb;
 
@@ -31,7 +32,7 @@ static bool de_is_ear(
 	de_vec2_sub(&ab, &vear->position, &vprev->position);
 	de_vec2_sub(&cb, &vear->position, &vnext->position);
 
-	float angle = de_vec2_angle(&ab, &cb);
+    angle = de_vec2_angle(&ab, &cb);
 
 	/* not an ear tip, so not an ear triangle */
 	if (angle > M_PI) {

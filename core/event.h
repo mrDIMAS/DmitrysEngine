@@ -19,39 +19,60 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+typedef enum de_event_type_t {
+	DE_EVENT_TYPE_CLOSE,
+	DE_EVENT_TYPE_MOUSE_DOWN,
+	DE_EVENT_TYPE_MOUSE_UP,
+	DE_EVENT_TYPE_MOUSE_WHEEL,
+	DE_EVENT_TYPE_MOUSE_MOVE,
+	DE_EVENT_TYPE_MOUSE_LEAVE,
+	DE_EVENT_TYPE_MOUSE_ENTER,
+	DE_EVENT_TYPE_KEY_DOWN,
+	DE_EVENT_TYPE_KEY_UP,
+	DE_EVENT_TYPE_TEXT,
+	DE_EVENT_TYPE_LOST_FOCUS,
+	DE_EVENT_TYPE_GOT_FOCUS,
+	DE_EVENT_TYPE_RESIZE
+} de_event_type_t;
 
-void de_light_init(de_node_t* node) {
-	de_light_t* light = &node->s.light;
-	de_color_set(&light->color, 255, 255, 255, 255);
-	light->radius = 2.0f;
-	light->type = DE_LIGHT_TYPE_POINT;
-	light->cone_angle = (float)M_PI;
-	light->cone_angle_cos = -1.0f;
-	light->parent_node = node;
-}
+typedef struct de_event_t {
+	de_event_type_t type;
 
+	union {
+		struct {
+			enum de_key key;
+			int alt : 1;
+			int control : 1;
+			int shift : 1;
+			int system : 1;
+		} key;
 
-void de_light_deinit(de_light_t* light) {
-	DE_UNUSED(light);
-}
+		struct {
+			enum de_mouse_button button;
+			int x, y; /* position */
+		} mouse_down;
 
+		struct {
+			enum de_mouse_button button;
+			int x, y; /* position */
+		} mouse_up;
 
-void de_light_set_radius(de_node_t * node, float radius) {
-	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_LIGHT);
-	node->s.light.radius = de_maxf(FLT_EPSILON, radius);
-}
+		struct {
+			int delta;
+			int x, y; /* position */
+		} mouse_wheel;
 
+		struct {
+			int x, y; /* position */
+			int vx, vy; /* velocity */
+		} mouse_move;
 
-void de_light_set_cone_angle(de_node_t* node, float angle) {
-    de_light_t* light;
-	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_LIGHT);
-	light = &node->s.light;
-	light->cone_angle = angle;
-	light->cone_angle_cos = (float)cos(angle);
-}
+		struct {
+			uint32_t code;
+		} text;
 
-
-float de_light_get_cone_angle(de_node_t* node) {
-	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_LIGHT);
-	return node->s.light.cone_angle;
-}
+		struct {
+			int w, h;
+		} resize;
+	} s;
+} de_event_t;

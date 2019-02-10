@@ -121,7 +121,7 @@ typedef enum de_fbx_light_type_t {
 	DE_FBX_LIGHT_TYPE_DIRECTIONAL,
 	DE_FBX_LIGHT_TYPE_SPOT,
 	DE_FBX_LIGHT_TYPE_AREA, /* not supported */
-	DE_FBX_LIGHT_TYPE_VOLUME, /* not supported */
+	DE_FBX_LIGHT_TYPE_VOLUME /* not supported */
 } de_fbx_light_type_t;
 
 typedef struct de_fbx_light_t {
@@ -242,6 +242,7 @@ static void de_fbx_read_normals(de_fbx_node_t* geom_node, de_fbx_geom_t* geom) {
 
 static void de_fbx_read_tangents(de_fbx_node_t* geom_node, de_fbx_geom_t* geom) {
 	int i, k;
+    de_fbx_node_t* map_type, *ref_type, *tangents;
 	de_fbx_node_t* tangents_node = de_fbx_node_find_child(geom_node, "LayerElementTangent");
 
 	if (!tangents_node) {
@@ -249,9 +250,9 @@ static void de_fbx_read_tangents(de_fbx_node_t* geom_node, de_fbx_geom_t* geom) 
 		return;
 	}
 
-	de_fbx_node_t* map_type = de_fbx_node_find_child(tangents_node, "MappingInformationType");
-	de_fbx_node_t* ref_type = de_fbx_node_find_child(tangents_node, "ReferenceInformationType");
-	de_fbx_node_t* tangents = de_fbx_node_find_child(de_fbx_node_find_child(tangents_node, "Tangents"), "a");
+	map_type = de_fbx_node_find_child(tangents_node, "MappingInformationType");
+	ref_type = de_fbx_node_find_child(tangents_node, "ReferenceInformationType");
+	tangents = de_fbx_node_find_child(de_fbx_node_find_child(tangents_node, "Tangents"), "a");
 
 	geom->tangent_mapping = de_fbx_get_mapping(map_type->attributes.data[0]);
 	geom->tangent_reference = de_fbx_get_reference(ref_type->attributes.data[0]);
@@ -297,15 +298,16 @@ static void de_fbx_read_vertices(de_fbx_node_t* geom_node, de_fbx_geom_t* geom) 
 static void de_fbx_read_uvs(de_fbx_node_t* geom_node, de_fbx_geom_t* geom) {
 	int i, k;
 	size_t j;
+    de_fbx_node_t* map_type, *ref_type, *uvs;
 	de_fbx_node_t* uvs_node = de_fbx_node_find_child(geom_node, "LayerElementUV");
 
 	if (!uvs_node) {
 		return;
 	}
 
-	de_fbx_node_t* map_type = de_fbx_node_find_child(uvs_node, "MappingInformationType");
-	de_fbx_node_t* ref_type = de_fbx_node_find_child(uvs_node, "ReferenceInformationType");
-	de_fbx_node_t* uvs = de_fbx_node_find_child(de_fbx_node_find_child(uvs_node, "UV"), "a");
+	map_type = de_fbx_node_find_child(uvs_node, "MappingInformationType");
+	ref_type = de_fbx_node_find_child(uvs_node, "ReferenceInformationType");
+	uvs = de_fbx_node_find_child(de_fbx_node_find_child(uvs_node, "UV"), "a");
 
 	geom->uv_mapping = de_fbx_get_mapping(map_type->attributes.data[0]);
 	geom->uv_reference = de_fbx_get_reference(ref_type->attributes.data[0]);
@@ -1521,12 +1523,13 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 			/* TODO: Very brittle method, relies on compare two floats! Should be rewritten! */
 			for (;;) {
 				de_keyframe_t keyframe;
+                float next_time;
 
 				de_fbx_eval_keyframe(node, time, lcl_translation, lcl_rotation, lcl_scale, &keyframe);
 
 				de_animation_track_add_keyframe(track, &keyframe);
 
-				float next_time = de_fbx_get_next_keyframe_time(time, lcl_translation, lcl_rotation, lcl_scale);
+				next_time = de_fbx_get_next_keyframe_time(time, lcl_translation, lcl_rotation, lcl_scale);
 
 				if (next_time >= FLT_MAX) {
 					break;

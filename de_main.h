@@ -40,7 +40,7 @@ extern "C" {
 #ifdef _MSC_VER
 #  define _CRT_SECURE_NO_WARNINGS
 #  pragma warning(disable : 4204 4820)
-#elif defined GNUC
+#elif defined __GNUC__
 #  pragma GCC diagnostic ignored "-Woverlength-strings" /* built-in shaders does not fit in C89 limits of 512 chars */
 #else
 #error Compiler not supported
@@ -77,6 +77,7 @@ typedef void(*de_proc)(void);
 /* Platform-specific */
 #ifdef _WIN32
 #  define WIN32_LEAN_AND_MEAN
+#  define NOMINMAX
 #  include <windows.h>
 #else
 #  include <X11/Xlib.h>
@@ -94,64 +95,6 @@ typedef void(*de_proc)(void);
 #else
 #  include "GL/glx.h"
 #endif
-
-typedef enum de_event_type_t {
-	DE_EVENT_TYPE_CLOSE,
-	DE_EVENT_TYPE_MOUSE_DOWN,
-	DE_EVENT_TYPE_MOUSE_UP,
-	DE_EVENT_TYPE_MOUSE_WHEEL,
-	DE_EVENT_TYPE_MOUSE_MOVE,
-	DE_EVENT_TYPE_MOUSE_LEAVE,
-	DE_EVENT_TYPE_MOUSE_ENTER,
-	DE_EVENT_TYPE_KEY_DOWN,
-	DE_EVENT_TYPE_KEY_UP,
-	DE_EVENT_TYPE_TEXT,
-	DE_EVENT_TYPE_LOST_FOCUS,
-	DE_EVENT_TYPE_GOT_FOCUS,
-	DE_EVENT_TYPE_RESIZE,
-} de_event_type_t;
-
-typedef struct de_event_t {
-	de_event_type_t type;
-
-	union {
-		struct {
-			enum de_key key;
-			int alt : 1;
-			int control : 1;
-			int shift : 1;
-			int system : 1;
-		} key;
-
-		struct {
-			enum de_mouse_button button;
-			int x, y; /* position */
-		} mouse_down;
-
-		struct {
-			enum de_mouse_button button;
-			int x, y; /* position */
-		} mouse_up;
-
-		struct {
-			int delta;
-			int x, y; /* position */
-		} mouse_wheel;
-
-		struct {
-			int x, y; /* position */
-			int vx, vy; /* velocity */
-		} mouse_move;
-
-		struct {
-			uint32_t code;
-		} text;
-
-		struct {
-			int w, h;
-		} resize;
-	} s;
-} de_event_t;
 
 /* Forward declarations */
 typedef struct de_renderer_t de_renderer_t;
@@ -187,6 +130,8 @@ typedef struct de_scene_t de_scene_t;
 #include "core/time.h"
 #include "core/color.h"
 #include "core/pool.h"
+#include "input/input.h"
+#include "core/event.h"
 #include "resources/builtin_fonts.h"
 #include "math/mathlib.h"
 #include "core/serialization.h"
@@ -195,7 +140,6 @@ typedef struct de_scene_t de_scene_t;
 #include "renderer/vertex.h"	
 #include "core/rectpack.h"
 #include "resources/image.h"
-#include "input/input.h"
 #include "vg/vgraster.h"
 #include "scene/camera.h"
 #include "scene/mesh.h"
@@ -220,7 +164,7 @@ typedef struct de_scene_t de_scene_t;
 #  define TINFL_IMPLEMENTATION
 #endif
 
-#include "miniz/miniz_tinfl.h"
+#include "external/miniz/miniz_tinfl.h"
 
 /**
  * Implementation.

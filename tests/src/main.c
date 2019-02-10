@@ -28,7 +28,7 @@ struct level_t {
 };
 
 typedef enum weapon_type_t {
-	WEAPON_TYPE_SHOTGUN,
+	WEAPON_TYPE_SHOTGUN
 } weapon_type_t;
 
 struct weapon_t {
@@ -423,6 +423,7 @@ main_menu_t* main_menu_create(game_t* game) {
 
 	/* main window */
 	{
+        de_gui_node_t* grid;
 		float window_width = 400;
 		float window_height = 500;
 		float window_x = (de_core_get_window_width(game->core) - window_width) * 0.5f;
@@ -433,7 +434,7 @@ main_menu_t* main_menu_create(game_t* game) {
 		de_gui_node_set_desired_local_position(menu->window, window_x, window_y);
 		de_gui_window_set_flags(menu->window, DE_GUI_WINDOW_FLAGS_NO_MOVE);
 
-		de_gui_node_t* grid = de_gui_grid_create(gui);
+		grid = de_gui_grid_create(gui);
 		de_gui_node_set_desired_size(grid, 100, 100);
 		de_gui_node_set_desired_local_position(grid, 10, 10);
 		de_gui_grid_add_column(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
@@ -586,8 +587,6 @@ game_t* game_create(void) {
 	{
 		de_engine_params_t params;
 		de_zero(&params, sizeof(params));
-		//params.flags = DE_CORE_FLAGS_BORDERLESS;
-		//de_get_desktop_video_mode(&params.video_mode);
 		params.video_mode.width = 1200;
 		params.video_mode.height = 1000;
 		params.video_mode.bits_per_pixel = 32;
@@ -605,8 +604,6 @@ game_t* game_create(void) {
 	{
 		game->fps_text = de_gui_text_create(game->core->gui);
 	}
-
-	//game->level = level_create_test(game);
 
 	return game;
 }
@@ -737,11 +734,11 @@ void test_visitor(game_t* game) {
 #if 1
 	{
 		de_object_visitor_t visitor;
-		de_object_visitor_load_binary(&visitor, "save.bin");
-
-		de_scene_t* scene;
+        de_scene_t* scene;
 		de_node_t* node;
 		de_node_t* node2;
+        
+		de_object_visitor_load_binary(&visitor, "save.bin");
 
 		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Scene", &scene, de_scene_visit);
 		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Node", &node, de_node_visit);
@@ -754,11 +751,15 @@ void test_visitor(game_t* game) {
 }
 
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv) {    
+	de_str8_tests();
+
+    game_t* game;
+    
 	DE_UNUSED(argc);
 	DE_UNUSED(argv);
 
-	game_t* game = game_create();
+	game = game_create();
 
 	test_visitor(game);
 

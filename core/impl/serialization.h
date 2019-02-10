@@ -166,6 +166,7 @@ bool de_object_visitor_visit_pointer(de_object_visitor_t* visitor, const char* n
 	uint64_t int_ptr = 0;
 	de_pointer_pair_t * existing = NULL;
 	de_pointer_pair_t* pointer_pair;
+    size_t i;
 
 	if (!pointee_visitor) {
 		de_log("serialization: trying to visit pointer, but visitor function is not specified!");
@@ -178,7 +179,7 @@ bool de_object_visitor_visit_pointer(de_object_visitor_t* visitor, const char* n
 
 	/* Visit IntPtr */
 	if (!visitor->is_reading) {
-		int_ptr = (uint64_t)*pointer_ptr;
+		int_ptr = (uint64_t)((intptr_t)*pointer_ptr);
 	}
 	if (!de_object_visitor_visit_data(visitor, "IntPtr", &int_ptr, sizeof(int_ptr), DE_OBJECT_VISITOR_DATA_TYPE_UINT64)) {
 		return false;
@@ -192,7 +193,7 @@ bool de_object_visitor_visit_pointer(de_object_visitor_t* visitor, const char* n
 	}
 
 	/* try to find existing pointer. TODO: optimize using binary search? */
-	for (size_t i = 0; i < visitor->pointerPairs.size; ++i) {
+	for (i = 0; i < visitor->pointerPairs.size; ++i) {
 		pointer_pair = visitor->pointerPairs.data + i;
 
 		if (pointer_pair->last == int_ptr) {
@@ -512,11 +513,14 @@ bool de_object_visitor_visit_array(de_object_visitor_t* visitor, const char* nam
 
 
 bool de_object_visitor_visit_pointer_array(de_object_visitor_t* visitor, const char* name, void** array, size_t* item_count, size_t pointee_size, de_visit_callback_t callback) {
+    size_t i;
+    uint32_t length;
+    void** pointers;
+    
 	if (!de_object_visitor_enter_node(visitor, name)) {
 		return false;
 	}
 
-	uint32_t length;
 	if (!visitor->is_reading) {
 		length = (uint32_t)(*item_count);
 	}
@@ -532,8 +536,8 @@ bool de_object_visitor_visit_pointer_array(de_object_visitor_t* visitor, const c
 		*array = de_calloc(length, sizeof(void*));
 	}
 
-	void** pointers = (void**)*array;
-	for (size_t i = 0; i < *item_count; ++i) {
+	pointers = (void**)*array;
+	for (i = 0; i < *item_count; ++i) {
 		char item_name[128];
 		void** ptr_ptr = &pointers[i];
 
@@ -574,12 +578,11 @@ bool de_object_visitor_visit_intrusive_linked_list(de_object_visitor_t* visitor,
 	size_t i;
 	bool result = true;
 	void* item = NULL, *prev_item = NULL;
-
+	uint32_t length = 0;
+    
 	if (!de_object_visitor_enter_node(visitor, name)) {
 		return false;
 	}
-
-	uint32_t length = 0;
 
 	if (!visitor->is_reading) {
 		for (item = *head; item; item = *((void**)((char*)item + next_offset))) {
@@ -629,12 +632,14 @@ bool de_object_visitor_visit_intrusive_linked_list(de_object_visitor_t* visitor,
 
 
 static void de_object_visitor_node_print(de_object_visitor_t* visitor, de_object_visitor_node_t* node, FILE* stream, int level) {
-	for (int i = 0; i < level * 2; ++i) {
+    int i;
+    
+	for (i = 0; i < level * 2; ++i) {
 		fprintf(stream, " ");
 	}
 	fprintf(stream, "%s: ", de_str8_cstr(&node->name));
 
-	for (size_t i = 0; i < node->fields.size; ++i) {
+	for (i = 0; i < (int)node->fields.size; ++i) {
 		de_object_visitor_field_t* field = node->fields.data + i;
 		char* field_data = visitor->data + field->data_offset;
 
@@ -661,12 +666,20 @@ static void de_object_visitor_node_print(de_object_visitor_t* visitor, de_object
 			case DE_OBJECT_VISITOR_DATA_TYPE_UINT32:
 				fprintf(stream, "<%s|u32:%" PRIu32 ">", de_str8_cstr(&field->name), *((uint32_t*)field_data));
 				break;
+/* temporarily suppress annoying GCC warning about unsupported format. PRIi64/PRIu64 are absolutely safe, 
+ * bug GCC whines about them */
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wformat"
+#endif
 			case DE_OBJECT_VISITOR_DATA_TYPE_INT64:
 				fprintf(stream, "<%s|i64:%" PRIi64 ">", de_str8_cstr(&field->name), *((int64_t*)field_data));
 				break;
 			case DE_OBJECT_VISITOR_DATA_TYPE_UINT64:
 				fprintf(stream, "<%s|u64:%" PRIu64 ">", de_str8_cstr(&field->name), *((uint64_t*)field_data));
 				break;
+#ifdef __GNUC__
+#pragma GCC diagnostic warning "-Wformat"
+#endif              
 			case DE_OBJECT_VISITOR_DATA_TYPE_FLOAT:
 				fprintf(stream, "<%s|f:%f>", de_str8_cstr(&field->name), *((float*)field_data));
 				break;
@@ -726,7 +739,7 @@ static void de_object_visitor_node_print(de_object_visitor_t* visitor, de_object
 
 	fprintf(stream, "\n");
 
-	for (size_t i = 0; i < node->children.size; ++i) {
+	for (i = 0; i < (int)node->children.size; ++i) {
 		de_object_visitor_node_print(visitor, node->children.data[i], stream, level + 1);
 	}
 }

@@ -22,7 +22,7 @@
 /* Inspired by WPF */
 
 /* Set to non-zero to enable visual debugging of GUI */
-#define DE_GUI_ENABLE_GUI_DEBUGGING 1
+#define DE_GUI_ENABLE_GUI_DEBUGGING 0
 
 typedef struct de_gui_node_t de_gui_node_t;
 typedef struct de_gui_draw_list_t de_gui_draw_list_t;
@@ -116,7 +116,7 @@ typedef enum de_gui_routed_event_type_t {
 	DE_GUI_ROUTED_EVENT_GOT_FOCUS,
 	DE_GUI_ROUTED_EVENT_KEY_DOWN,
 	DE_GUI_ROUTED_EVENT_KEY_UP,
-	DE_GUI_ROUTED_EVENT_TEXT,
+	DE_GUI_ROUTED_EVENT_TEXT
 } de_gui_routed_event_type_t;
 
 /**

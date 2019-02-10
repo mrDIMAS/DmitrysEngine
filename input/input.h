@@ -124,7 +124,7 @@ enum de_key {
 	DE_KEY_F13,     /**< F13 key */
 	DE_KEY_F14,     /**< F14 key */
 	DE_KEY_F15,     /**< F15 key */
-	DE_KEY_Pause,   /**< Pause\break key */
+	DE_KEY_Pause   /**< Pause\break key */
 };
 
 /**
@@ -133,5 +133,5 @@ enum de_key {
 enum de_mouse_button {
 	DE_BUTTON_LEFT,   /**< Left mouse button */
 	DE_BUTTON_RIGHT,  /**< Right mouse button */
-	DE_BUTTON_MIDDLE, /**< Middle (wheel) mouse button */
+	DE_BUTTON_MIDDLE /**< Middle (wheel) mouse button */
 };

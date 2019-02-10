@@ -239,6 +239,8 @@ static LRESULT CALLBACK de_win32_window_proc(HWND wnd, UINT msg, WPARAM wParam, 
 					if ((evt.s.text.code >= 0xDC00) && (evt.s.text.code <= 0xDFFF))	{
 						/* todo: convert surrogate pair to utf32 */ 
 						surrogate = 0;
+                        
+                        surrogate += surrogate; /* DELETE */
 					}
 					de_core_push_event(core, &evt);
 				}
@@ -510,11 +512,12 @@ bool de_enum_video_modes(de_video_mode_t* vm, int n) {
 
 char* de_gui_clipboard_get_text() {
 	char* osdata, *data;
+    HANDLE handle;
 	size_t len;
 	if (!OpenClipboard(NULL)) {
 		return NULL;
 	}
-	HANDLE handle = GetClipboardData(CF_TEXT);
+	handle = GetClipboardData(CF_TEXT);
 	if (!handle) {
 		return NULL;
 	}

@@ -86,7 +86,7 @@
 #define DE_ARRAY_REMOVE_AT(a, itemIndex) \
 	do { \
 		size_t i; \
-		if(itemIndex >= 0 && itemIndex < a.size) { \
+		if((int)itemIndex >= 0 && itemIndex < a.size) { \
 			--a.size; \
 			for(i = itemIndex; i < a.size; ++i) { \
 				a.data[i] = a.data[i + 1]; \

@@ -47,7 +47,7 @@ typedef enum de_object_visitor_data_type_t {
 	DE_OBJECT_VISITOR_DATA_TYPE_MATRIX3,    /**< 36 bytes */
 	DE_OBJECT_VISITOR_DATA_TYPE_MATRIX4,    /**< 64 bytes */
 	DE_OBJECT_VISITOR_DATA_TYPE_QUATERNION, /**< 16 bytes */
-	DE_OBJECT_VISITOR_DATA_TYPE_DATA,       /**< Size defined by leading field "Length", see notes below. */
+	DE_OBJECT_VISITOR_DATA_TYPE_DATA        /**< Size defined by leading field "Length", see notes below. */
 
 	/**
 	 * Where about other types? Other types are stored as nodes.

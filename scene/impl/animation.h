@@ -231,6 +231,7 @@ void de_animation_clamp_length(de_animation_t* anim) {
 
 de_animation_t* de_animation_extract(de_animation_t* anim, float from, float to) {
 	size_t i;
+    de_animation_t* new_anim;
 
 	from = (float)fabs(from);
 	to = (float)fabs(to);
@@ -241,7 +242,7 @@ de_animation_t* de_animation_extract(de_animation_t* anim, float from, float to)
 		to = temp;
 	}
 
-	de_animation_t* new_anim = de_animation_create(anim->scene);
+	new_anim = de_animation_create(anim->scene);
 
 	for (i = 0; i < anim->tracks.size; ++i) {
 		/* TODO */

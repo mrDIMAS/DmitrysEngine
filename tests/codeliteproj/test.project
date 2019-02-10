@@ -1,51 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Project Name="test" Version="10.0.0" InternalType="Console">
-  <VirtualDirectory Name="vg">
-    <VirtualDirectory Name="impl">
-      <File Name="../../vg/impl/vgraster.h"/>
-    </VirtualDirectory>
-    <File Name="../../vg/vgraster.h"/>
-  </VirtualDirectory>
+  <Plugins>
+    <Plugin Name="qmake">
+      <![CDATA[00010001N0005Debug000000000000]]>
+    </Plugin>
+  </Plugins>
   <VirtualDirectory Name="sound">
+    <File Name="../../sound/sound.h"/>
+    <File Name="../../sound/device.h"/>
     <VirtualDirectory Name="impl">
       <File Name="../../sound/impl/sound.h"/>
+      <File Name="../../sound/impl/device.h"/>
     </VirtualDirectory>
-    <File Name="../../sound/sound.h"/>
   </VirtualDirectory>
-  <VirtualDirectory Name="scene">
-    <VirtualDirectory Name="impl">
-      <File Name="../../scene/impl/scene.h"/>
-      <File Name="../../scene/impl/node.h"/>
-      <File Name="../../scene/impl/animation.h"/>
-      <File Name="../../scene/impl/light.h"/>
-      <File Name="../../scene/impl/mesh.h"/>
-      <File Name="../../scene/impl/camera.h"/>
+  <VirtualDirectory Name="tests">
+    <VirtualDirectory Name="src">
+      <File Name="../src/main.c"/>
     </VirtualDirectory>
-    <File Name="../../scene/scene.h"/>
-    <File Name="../../scene/node.h"/>
-    <File Name="../../scene/animation.h"/>
-    <File Name="../../scene/light.h"/>
-    <File Name="../../scene/mesh.h"/>
-    <File Name="../../scene/camera.h"/>
   </VirtualDirectory>
   <VirtualDirectory Name="resources">
+    <File Name="../../resources/texture.h"/>
+    <File Name="../../resources/image.h"/>
+    <File Name="../../resources/builtin_fonts.h"/>
     <VirtualDirectory Name="impl">
-      <File Name="../../resources/impl/fbx.h"/>
       <File Name="../../resources/impl/texture.h"/>
       <File Name="../../resources/impl/image.h"/>
     </VirtualDirectory>
-    <File Name="../../resources/fbx.h"/>
-    <File Name="../../resources/texture.h"/>
-    <File Name="../../resources/image.h"/>
-  </VirtualDirectory>
-  <VirtualDirectory Name="renderer">
-    <VirtualDirectory Name="impl">
-      <File Name="../../renderer/impl/renderer.h"/>
-      <File Name="../../renderer/impl/surface.h"/>
-    </VirtualDirectory>
-    <File Name="../../renderer/renderer.h"/>
-    <File Name="../../renderer/surface.h"/>
-    <File Name="../../renderer/vertex.h"/>
   </VirtualDirectory>
   <VirtualDirectory Name="platform">
     <VirtualDirectory Name="impl">
@@ -53,94 +33,160 @@
       <File Name="../../platform/impl/win32.h"/>
     </VirtualDirectory>
   </VirtualDirectory>
-  <VirtualDirectory Name="physics">
+  <VirtualDirectory Name="renderer">
+    <File Name="../../renderer/vertex.h"/>
+    <File Name="../../renderer/surface.h"/>
+    <File Name="../../renderer/renderer.h"/>
     <VirtualDirectory Name="impl">
-      <File Name="../../physics/impl/collision.h"/>
+      <File Name="../../renderer/impl/surface.h"/>
+      <File Name="../../renderer/impl/renderer.h"/>
     </VirtualDirectory>
-    <File Name="../../physics/collision.h"/>
   </VirtualDirectory>
   <VirtualDirectory Name="math">
+    <File Name="../../math/triangulator.h"/>
+    <File Name="../../math/mathlib.h"/>
     <VirtualDirectory Name="impl">
+      <File Name="../../math/impl/triangulator.h"/>
       <File Name="../../math/impl/mathlib.h"/>
     </VirtualDirectory>
-    <File Name="../../math/mathlib.h"/>
   </VirtualDirectory>
-  <VirtualDirectory Name="gui">
+  <VirtualDirectory Name="physics">
+    <File Name="../../physics/octree.h"/>
+    <File Name="../../physics/collision.h"/>
     <VirtualDirectory Name="impl">
-      <File Name="../../gui/impl/scroll_viewer.h"/>
-      <File Name="../../gui/impl/button.h"/>
-      <File Name="../../gui/impl/scroll_content_presenter.h"/>
-      <File Name="../../gui/impl/window.h"/>
-      <File Name="../../gui/impl/scroll_bar.h"/>
-      <File Name="../../gui/impl/border.h"/>
-      <File Name="../../gui/impl/canvas.h"/>
-      <File Name="../../gui/impl/text_box.h"/>
-      <File Name="../../gui/impl/draw.h"/>
-      <File Name="../../gui/impl/gui.h"/>
-      <File Name="../../gui/impl/grid.h"/>
-      <File Name="../../gui/impl/text.h"/>
+      <File Name="../../physics/impl/octree.h"/>
+      <File Name="../../physics/impl/collision.h"/>
     </VirtualDirectory>
-    <File Name="../../gui/scroll_viewer.h"/>
-    <File Name="../../gui/button.h"/>
-    <File Name="../../gui/scroll_content_presenter.h"/>
-    <File Name="../../gui/window.h"/>
-    <File Name="../../gui/scroll_bar.h"/>
-    <File Name="../../gui/border.h"/>
-    <File Name="../../gui/canvas.h"/>
-    <File Name="../../gui/text_box.h"/>
-    <File Name="../../gui/draw.h"/>
-    <File Name="../../gui/gui.h"/>
-    <File Name="../../gui/grid.h"/>
-    <File Name="../../gui/text.h"/>
   </VirtualDirectory>
-  <VirtualDirectory Name="font">
+  <VirtualDirectory Name="fbx">
+    <File Name="../../fbx/fbx_node.h"/>
+    <File Name="../../fbx/fbx_binary.h"/>
+    <File Name="../../fbx/fbx_ascii.h"/>
+    <File Name="../../fbx/fbx.h"/>
     <VirtualDirectory Name="impl">
-      <File Name="../../font/impl/font.h"/>
+      <File Name="../../fbx/impl/fbx_node.h"/>
+      <File Name="../../fbx/impl/fbx_binary.h"/>
+      <File Name="../../fbx/impl/fbx_ascii.h"/>
+      <File Name="../../fbx/impl/fbx.h"/>
     </VirtualDirectory>
-    <File Name="../../font/font.h"/>
   </VirtualDirectory>
   <VirtualDirectory Name="core">
-    <VirtualDirectory Name="impl">
-      <File Name="../../core/impl/core.h"/>
-      <File Name="../../core/impl/memmgr.h"/>
-      <File Name="../../core/impl/rectpack.h"/>
-      <File Name="../../core/impl/color.h"/>
-      <File Name="../../core/impl/string.h"/>
-      <File Name="../../core/impl/log.h"/>
-      <File Name="../../core/impl/rect.h"/>
-      <File Name="../../core/impl/utility.h"/>
-      <File Name="../../core/impl/byteorder.h"/>
-    </VirtualDirectory>
-    <File Name="../../core/time.h"/>
-    <File Name="../../core/core.h"/>
-    <File Name="../../core/thread.h"/>
-    <File Name="../../core/bool.h"/>
-    <File Name="../../core/array.h"/>
-    <File Name="../../core/memmgr.h"/>
-    <File Name="../../core/rectpack.h"/>
-    <File Name="../../core/color.h"/>
-    <File Name="../../core/string.h"/>
-    <File Name="../../core/log.h"/>
-    <File Name="../../core/rect.h"/>
+    <File Name="../../core/event.h"/>
     <File Name="../../core/utility.h"/>
+    <File Name="../../core/utf32string_impl.h"/>
+    <File Name="../../core/utf32string.h"/>
+    <File Name="../../core/time.h"/>
+    <File Name="../../core/thread.h"/>
+    <File Name="../../core/string_utils_impl.h"/>
+    <File Name="../../core/string_utils.h"/>
+    <File Name="../../core/string_impl.h"/>
+    <File Name="../../core/string.h"/>
+    <File Name="../../core/serialization.h"/>
+    <File Name="../../core/rectpack.h"/>
+    <File Name="../../core/rect.h"/>
+    <File Name="../../core/pool.h"/>
+    <File Name="../../core/path_impl.h"/>
+    <File Name="../../core/path.h"/>
+    <File Name="../../core/memmgr.h"/>
+    <File Name="../../core/log.h"/>
     <File Name="../../core/linked_list.h"/>
+    <File Name="../../core/core.h"/>
+    <File Name="../../core/color.h"/>
+    <File Name="../../core/clipboard.h"/>
     <File Name="../../core/byteorder.h"/>
-  </VirtualDirectory>
-  <Description/>
-  <Dependencies/>
-  <VirtualDirectory Name="tests">
-    <File Name="../main.c"/>
+    <File Name="../../core/bool.h"/>
+    <File Name="../../core/base64.h"/>
+    <File Name="../../core/array.h"/>
+    <VirtualDirectory Name="impl">
+      <File Name="../../core/impl/utility.h"/>
+      <File Name="../../core/impl/serialization.h"/>
+      <File Name="../../core/impl/rectpack.h"/>
+      <File Name="../../core/impl/rect.h"/>
+      <File Name="../../core/impl/pool.h"/>
+      <File Name="../../core/impl/memmgr.h"/>
+      <File Name="../../core/impl/log.h"/>
+      <File Name="../../core/impl/core.h"/>
+      <File Name="../../core/impl/color.h"/>
+      <File Name="../../core/impl/byteorder.h"/>
+      <File Name="../../core/impl/base64.h"/>
+      <File Name="../../core/impl/array.h"/>
+    </VirtualDirectory>
   </VirtualDirectory>
   <VirtualDirectory Name="DmitrysEngine">
     <File Name="../../de_main.h"/>
   </VirtualDirectory>
+  <VirtualDirectory Name="gui">
+    <File Name="../../gui/window.h"/>
+    <File Name="../../gui/text_box.h"/>
+    <File Name="../../gui/text.h"/>
+    <File Name="../../gui/slide_selector.h"/>
+    <File Name="../../gui/scroll_viewer.h"/>
+    <File Name="../../gui/scroll_content_presenter.h"/>
+    <File Name="../../gui/scroll_bar.h"/>
+    <File Name="../../gui/gui.h"/>
+    <File Name="../../gui/grid.h"/>
+    <File Name="../../gui/draw.h"/>
+    <File Name="../../gui/canvas.h"/>
+    <File Name="../../gui/button.h"/>
+    <File Name="../../gui/border.h"/>
+    <VirtualDirectory Name="impl">
+      <File Name="../../gui/impl/window.h"/>
+      <File Name="../../gui/impl/text_box.h"/>
+      <File Name="../../gui/impl/text.h"/>
+      <File Name="../../gui/impl/slide_selector.h"/>
+      <File Name="../../gui/impl/scroll_viewer.h"/>
+      <File Name="../../gui/impl/scroll_content_presenter.h"/>
+      <File Name="../../gui/impl/scroll_bar.h"/>
+      <File Name="../../gui/impl/gui.h"/>
+      <File Name="../../gui/impl/grid.h"/>
+      <File Name="../../gui/impl/draw.h"/>
+      <File Name="../../gui/impl/canvas.h"/>
+      <File Name="../../gui/impl/button.h"/>
+      <File Name="../../gui/impl/border.h"/>
+    </VirtualDirectory>
+  </VirtualDirectory>
+  <VirtualDirectory Name="scene">
+    <File Name="../../scene/scene.h"/>
+    <File Name="../../scene/node.h"/>
+    <File Name="../../scene/mesh.h"/>
+    <File Name="../../scene/light.h"/>
+    <File Name="../../scene/camera.h"/>
+    <File Name="../../scene/animation.h"/>
+    <VirtualDirectory Name="impl">
+      <File Name="../../scene/impl/scene.h"/>
+      <File Name="../../scene/impl/node.h"/>
+      <File Name="../../scene/impl/mesh.h"/>
+      <File Name="../../scene/impl/light.h"/>
+      <File Name="../../scene/impl/camera.h"/>
+      <File Name="../../scene/impl/animation.h"/>
+    </VirtualDirectory>
+  </VirtualDirectory>
   <VirtualDirectory Name="external">
-    <File Name="../../external/glext.h"/>
-    <File Name="../../external/wglext.h"/>
+    <VirtualDirectory Name="miniz">
+      <File Name="../../external/miniz/miniz_tinfl.h"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="GL">
+      <File Name="../../external/GL/wglext.h"/>
+      <File Name="../../external/GL/glext.h"/>
+    </VirtualDirectory>
+  </VirtualDirectory>
+  <VirtualDirectory Name="font">
+    <File Name="../../font/font.h"/>
+    <VirtualDirectory Name="impl">
+      <File Name="../../font/impl/font.h"/>
+    </VirtualDirectory>
   </VirtualDirectory>
   <VirtualDirectory Name="input">
     <File Name="../../input/input.h"/>
   </VirtualDirectory>
+  <VirtualDirectory Name="vg">
+    <File Name="../../vg/vgraster.h"/>
+    <VirtualDirectory Name="impl">
+      <File Name="../../vg/impl/vgraster.h"/>
+    </VirtualDirectory>
+  </VirtualDirectory>
+  <Description/>
+  <Dependencies/>
   <Settings Type="Executable">
     <GlobalSettings>
       <Compiler Options="" C_Options="" Assembler="">
@@ -151,18 +197,14 @@
       </Linker>
       <ResourceCompiler Options=""/>
     </GlobalSettings>
-    <Configuration Name="Debug" CompilerType="GCC" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="" C_Options="-g;-O0;-Wall;-std=c89;-pedantic;" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+    <Configuration Name="Debug" CompilerType="MinGW-8.1.0" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="" C_Options="-g;-O0;-Wall;-std=c89;-pedantic;-Werror;" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="."/>
         <IncludePath Value="../../."/>
       </Compiler>
-      <Linker Options="" Required="yes">
-        <Library Value="GL"/>
-        <Library Value="X11"/>
-        <Library Value="dl"/>
-      </Linker>
+      <Linker Options="" Required="yes"/>
       <ResourceCompiler Options="" Required="no"/>
-      <General OutputFile="../bin/test" IntermediateDirectory="./Debug" Command="../bin/test" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="../bin/" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <General OutputFile="../bin/test.exe" IntermediateDirectory="./Debug" Command="../bin/test.exe" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="../bin/" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
       <BuildSystem Name="Default"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>

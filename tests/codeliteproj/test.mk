@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=mrDIMAS
-Date                   :=09/02/2019
+Date                   :=10/02/2019
 CodeLitePath           :="C:/Program Files/CodeLite"
 LinkerName             :=C:/MinGW-8.1.0/bin/g++.exe
 SharedObjectLinkerName :=C:/MinGW-8.1.0/bin/g++.exe -shared -fPIC
@@ -41,8 +41,8 @@ LinkOptions            :=
 IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch). $(IncludeSwitch)../../. 
 IncludePCH             := 
 RcIncludePath          := 
-Libs                   := 
-ArLibs                 :=  
+Libs                   := $(LibrarySwitch)opengl32 
+ArLibs                 :=  "opengl32" 
 LibPath                := $(LibraryPathSwitch). 
 
 ##

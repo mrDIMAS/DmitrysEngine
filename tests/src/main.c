@@ -752,9 +752,9 @@ void test_visitor(game_t* game) {
 
 
 int main(int argc, char** argv) {    
-	de_str8_tests();
-
     game_t* game;
+       
+	de_str8_tests();
     
 	DE_UNUSED(argc);
 	DE_UNUSED(argv);

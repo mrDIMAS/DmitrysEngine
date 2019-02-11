@@ -202,7 +202,9 @@
         <IncludePath Value="."/>
         <IncludePath Value="../../."/>
       </Compiler>
-      <Linker Options="" Required="yes"/>
+      <Linker Options="" Required="yes">
+        <Library Value="opengl32"/>
+      </Linker>
       <ResourceCompiler Options="" Required="no"/>
       <General OutputFile="../bin/test.exe" IntermediateDirectory="./Debug" Command="../bin/test.exe" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="../bin/" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
       <BuildSystem Name="Default"/>

@@ -46,6 +46,25 @@ de_str8_view_array_t de_str8_tokenize(const de_str8_t* str, const char* delim) {
 	return tokens;
 }
 
+void de_str8_format(de_str8_t* str, const char* format, ...) {
+	int n;
+	va_list argument_list;
+	de_str8_clear(str);
+	/* count how much memory is needed */
+	va_start(argument_list, format);
+	n = vsnprintf(0, 0, format, argument_list);
+	if (n < 0) {
+		return;
+	}
+	va_end(argument_list);
+	/* reserve */
+	DE_ARRAY_GROW(str->str, n);
+	/* print */
+	va_start(argument_list, format);
+	vsnprintf(str->str.data, str->str.size, format, argument_list);
+	va_end(argument_list);
+}
+
 void de_str8_view_set(de_str8_view_t* view, const char* data, size_t len) {
 	view->data = data;
 	view->len = len;
@@ -76,18 +95,20 @@ bool de_str8_view_eq_cstr(const de_str8_view_t* view, const char* utf8str) {
 }
 
 bool de_str8_view_eq_str8(const de_str8_view_t* view, const de_str8_t* str) {
+    size_t count;
 	if (!view || !str || !str->str.data || !view->data) {
 		return false;
 	}
-	size_t count = view->len > str->str.size ? str->str.size : view->len;
+	count = view->len > str->str.size ? str->str.size : view->len;
 	return strncmp(view->data, str->str.data, count);
 }
 
 bool de_str8_view_eq(const de_str8_view_t* view, const de_str8_view_t* other) {
+    size_t count;
 	if (!view || !other || !other->data || !view->data) {
 		return false;
 	}
-	size_t count = view->len > other->len ? other->len : view->len;
+	count = view->len > other->len ? other->len : view->len;
 	return strncmp(view->data, other->data, count);
 }
 
@@ -217,30 +238,33 @@ void de_str8_replace(de_str8_t* str, const de_str8_view_t* what, const de_str8_v
 		if (!substr.data) {
 			break;
 		} else {
+			int substr_index;
 			s = (char*)substr.data;
+			substr_index = (ptrdiff_t)(s - str->str.data);
 			/* enough space */
 			if (what->len > with->len) {				
 				/* replace */
 				memcpy(s, with->data, with->len);
 				/* place rest near replacement */
-				memmove(s + with->len, s + substr.len, str->str.size - (ptrdiff_t)(s - str->str.data));
+				memmove(s + with->len, s + substr.len, str->str.size - substr_index);
 			} else {
 				/* not enough space, grow array */
 				DE_ARRAY_GROW(str->str, with->len - what->len);
 				/* move null-terminator */
 				str->str.data[str->str.size - 1] = '\0'; 
 				/* move to free place */
-				memmove(s + with->len, s + substr.len, str->str.size - (ptrdiff_t)(s - str->str.data));
+				memmove(s + with->len, s + substr.len, str->str.size - substr_index);
 				/* replace */
 				memcpy(s, with->data, with->len);				
 			}			
-			offset = (ptrdiff_t)(s - str->str.data) + with->len;
+			offset = substr_index + with->len;
 		}
 	}
 }
 
 size_t de_str8_fread(de_str8_t* str, FILE* file, size_t len) {
 	size_t read;
+	de_str8_free(str);
 	if (len == 0) {
 		char c;
 		read = 0;
@@ -254,11 +278,10 @@ size_t de_str8_fread(de_str8_t* str, FILE* file, size_t len) {
 			}
 		}
 	} else {
-		de_str8_free(str);
 		DE_ARRAY_GROW(str->str, len);
 		read = fread(str->str.data, 1, len, file);
-		DE_ARRAY_APPEND(str->str, '\0');
 	}
+	DE_ARRAY_APPEND(str->str, '\0');
 	return read;
 }
 
@@ -309,6 +332,14 @@ void de_str8_tests(void) {
 			printf(de_str8_cstr(&str));
 		}
 
+		de_str8_free(&str);
+	}
+
+	/* de_str8_format */
+	{
+		de_str8_init(&str);
+		de_str8_format(&str, "Some numbers: %d %f foo", 123, 456.789);
+		printf(de_str8_cstr(&str));
 		de_str8_free(&str);
 	}
 }

@@ -171,6 +171,11 @@ void de_str8_copy(const de_str8_t* src, de_str8_t* dest);
 de_str8_view_array_t de_str8_tokenize(const de_str8_t* str, const char* delim);
 
 /**
+ * @brief Safe sprintf. Does NOT accept string views.
+ */
+void de_str8_format(de_str8_t* str, const char* format, ...);
+
+/**
  * @brief Internal tests.
  */
 void de_str8_tests(void);

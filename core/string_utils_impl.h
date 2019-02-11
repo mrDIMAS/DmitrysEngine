@@ -80,12 +80,3 @@ int de_utf8_to_utf32(const char* inString, size_t in_str_len, uint32_t* out, int
 #undef MASK4BYTES
 #undef MASK5BYTES
 #undef MASK6BYTES
-
-char* de_str_format(const char* format, ...) {
-	static char format_buffer[32768];
-	va_list argument_list;
-	va_start(argument_list, format);
-	vsprintf(format_buffer, format, argument_list);
-	va_end(argument_list);
-	return format_buffer;
-}

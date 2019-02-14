@@ -177,7 +177,10 @@ static void de_gui_text_box_key_down(de_gui_node_t* n, de_gui_routed_event_args_
 			break;
 		case DE_KEY_C: /* copy */
 			if (args->s.key.control) {
-
+				char* txt = de_clipboard_get_text();
+				if (txt) {
+					de_free(txt);
+				}
 			}
             break;
 		case DE_KEY_End:

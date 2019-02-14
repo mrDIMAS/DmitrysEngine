@@ -21,6 +21,9 @@
 
  /*
   * Important notes:
+  * - Minumum supported version of Windows is Windows Vista (due to using of
+  *   Windows conditional variables in implentation of threading routines, can be
+  *   fixed if someone needs WinXP support)
   * - Engine uses right-handed coordinate system which means Z axis points towards
   *   screen, Y axis points up, and X axis points right.
   * - Vectors are single-column matrices.
@@ -33,7 +36,7 @@
 extern "C" {
 #endif
 
-	/* Set this to 1 to disable asserts, could be useful for release builds to increase performance a bit. */
+/* Set this to 1 to disable asserts, could be useful for release builds to increase performance a bit. */
 #define DE_DISABLE_ASSERTS 0
 
 /* Suppress compiler-specific warnings */
@@ -58,9 +61,9 @@ extern "C" {
 #define DE_ASSERT(expression) assert(expression)
 #endif
 
-typedef void(*de_proc)(void);
+	typedef void(*de_proc)(void);
 
-/* Standard library */
+	/* Standard library */
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -73,6 +76,7 @@ typedef void(*de_proc)(void);
 #include <assert.h>
 #include <ctype.h>
 #include <inttypes.h>
+#include <process.h>
 
 /* Platform-specific */
 #ifdef _WIN32
@@ -92,29 +96,34 @@ typedef void(*de_proc)(void);
 /* External header-only dependencies */
 #ifdef _WIN32
 #  include "GL/wglext.h"
+#  include <mmsystem.h>
+#  include "external/dsound.h"
 #else
 #  include "GL/glx.h"
 #endif
 
 /* Forward declarations */
-typedef struct de_renderer_t de_renderer_t;
-typedef struct de_node_t de_node_t;
-typedef struct de_surface_t de_surface_t;
-typedef struct de_body_t de_body_t;
-typedef struct de_animation_track_t de_animation_track_t;
-typedef struct de_texture_t de_texture_t;
-typedef struct de_static_triangle_t de_static_triangle_t;
-typedef struct de_static_geometry_t de_static_geometry_t;
-typedef struct de_mesh_t de_mesh_t;
-typedef struct de_light_t de_light_t;
-typedef struct de_gui_t de_gui_t;
-typedef struct de_core_t de_core_t;
-typedef struct de_scene_t de_scene_t;
+	typedef struct de_renderer_t de_renderer_t;
+	typedef struct de_node_t de_node_t;
+	typedef struct de_surface_t de_surface_t;
+	typedef struct de_body_t de_body_t;
+	typedef struct de_animation_track_t de_animation_track_t;
+	typedef struct de_texture_t de_texture_t;
+	typedef struct de_static_triangle_t de_static_triangle_t;
+	typedef struct de_static_geometry_t de_static_geometry_t;
+	typedef struct de_mesh_t de_mesh_t;
+	typedef struct de_light_t de_light_t;
+	typedef struct de_gui_t de_gui_t;
+	typedef struct de_core_t de_core_t;
+	typedef struct de_scene_t de_scene_t;
+	typedef struct de_sound_device_t de_sound_device_t;
+	typedef struct de_sound_source_t de_sound_source_t;
+	typedef struct de_sound_buffer_t de_sound_buffer_t;
 
-/**
-* Order is important here, because some parts depends on other
-* Modules with minimum dependencies should be placed before others.
-**/
+	/**
+	* Order is important here, because some parts depends on other
+	* Modules with minimum dependencies should be placed before others.
+	**/
 #include "core/bool.h"
 #include "core/log.h"
 #include "core/byteorder.h"
@@ -156,15 +165,16 @@ typedef struct de_scene_t de_scene_t;
 #include "font/font.h"
 #include "core/utility.h"
 #include "gui/gui.h"
-#include "core/core.h" 
 #include "sound/sound.h"
+#include "core/core.h" 
 
-	 /* TINFL (part of miniz) - used to decompress FBX data */
+
+	/* TINFL (part of miniz) - used to decompress FBX data */
 #ifdef DE_IMPLEMENTATION
 #  define TINFL_IMPLEMENTATION
 #endif
 
-#include "external/miniz/miniz_tinfl.h"
+#include "external/miniz_tinfl.h"
 
 /**
  * Implementation.

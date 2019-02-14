@@ -26,11 +26,11 @@
 * 
 * Note: Implementation is platform-specific 
 */
-char* de_gui_clipboard_get_text();
+char* de_clipboard_get_text();
 
 /**
  * @brief Sets text into clipboard
  *
  * Note: Implementation is platform-specific 
  */
-void de_gui_clipboard_set_text(char* data);
+void de_clipboard_set_text(char* data);

@@ -54,11 +54,6 @@ void de_str32_move(de_str32_t* src, de_str32_t* dest);
 void de_str32_insert(de_str32_t* str, int pos, uint32_t unicode);
 
 /**
- * @brief Inserts UTF-8 string at @pos by converting it to UTF-32.
- */
-void de_str32_insert_str_utf8(de_str32_t* str, int pos, char* utf8);
-
-/**
  * @brief Appends single character to the end of the string.
  */
 void de_str32_append(de_str32_t* str, uint32_t unicode);
@@ -93,3 +88,34 @@ const uint32_t* de_str32_get_data(const de_str32_t* str);
  * WARNING: There is no out-of-bound checks!
  */
 uint32_t de_str32_at(const de_str32_t* str, size_t i);
+
+/**
+ * @brief Sets string.
+ */
+void de_str32_set_utf8(de_str32_t* str, const de_str8_view_t* view);
+
+/**
+ * @brief Appends UTF8 string view.
+ */
+void de_str32_append_utf8(de_str32_t* str, const de_str8_view_t* view);
+
+/**
+ * @brief Appends null-terminated string as UTF8 string.
+ */
+void de_str32_append_cstr(de_str32_t* str, const char* cstr);
+
+/**
+ * @brief Inserts UTF-8 string at @pos by converting it to UTF-32.
+ */
+
+#if 0
+void de_str32_insert_utf8(de_str32_t* str, const de_str8_view_t* view) {
+	size_t old_size, decoded;
+	int reserved_size = view->len * 4;
+	old_size = str->str.size;
+	DE_ARRAY_GROW(str->str, reserved_size);
+	memmove(str->str.data + old_size + reserved_size, str->str.data + old_size, old_size -  )
+	decoded = (size_t)de_utf8_to_utf32(view->data, view->len, str->str.data + old_size, reserved_size);
+	str->str.size = old_size + decoded;
+}
+#endif

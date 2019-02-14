@@ -54,6 +54,7 @@ struct de_core_t {
 	DE_LINKED_LIST_DECLARE(de_scene_t, scenes);
 	DE_LINKED_LIST_DECLARE(de_font_t, fonts);
 	de_renderer_t* renderer;
+	de_sound_device_t sound_dev;
 	de_gui_t* gui;
 	size_t alloc_count;
 	DE_ARRAY_DECLARE(de_event_t, events_queue);

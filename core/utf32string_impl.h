@@ -35,12 +35,6 @@ void de_str32_insert(de_str32_t* str, int pos, uint32_t unicode) {
 	DE_ARRAY_INSERT(str->str, pos, unicode);	
 }
 
-void de_str32_insert_str_utf8(de_str32_t* str, int pos, char* utf8) {
-	DE_UNUSED(str);
-	DE_UNUSED(pos);
-	DE_UNUSED(utf8);
-}
-
 void de_str32_append(de_str32_t* str, uint32_t unicode) {
 	de_str32_insert(str, str->str.size, unicode);
 }
@@ -68,4 +62,26 @@ const uint32_t* de_str32_get_data(const de_str32_t* str) {
 
 uint32_t de_str32_at(const de_str32_t* str, size_t i) {
 	return str->str.data[i];
+}
+
+void de_str32_set_utf8(de_str32_t* str, const de_str8_view_t* view) {
+	int reserved_size = view->len * 4;
+	de_str32_clear(str);
+	DE_ARRAY_GROW(str->str, reserved_size);
+	str->str.size = (size_t)de_utf8_to_utf32(view->data, view->len, str->str.data, reserved_size);
+}
+
+void de_str32_append_utf8(de_str32_t* str, const de_str8_view_t* view) {
+	size_t old_size, decoded;
+	int reserved_size = view->len * 4;
+	old_size = str->str.size;
+	DE_ARRAY_GROW(str->str, reserved_size);
+	decoded = (size_t)de_utf8_to_utf32(view->data, view->len, str->str.data + old_size, reserved_size);
+	str->str.size = old_size + decoded;
+}
+
+void de_str32_append_cstr(de_str32_t* str, const char* cstr) {
+	de_str8_view_t view;
+	de_str8_view_set_cstr(&view, cstr);
+	de_str32_append_utf8(str, &view);
 }

@@ -19,6 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+/* Contains all Win32 dependent stuff. */
+
 PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB;
 PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB;
 
@@ -510,7 +512,7 @@ bool de_enum_video_modes(de_video_mode_t* vm, int n) {
 	return false;
 }
 
-char* de_gui_clipboard_get_text() {
+char* de_clipboard_get_text() {
 	char* osdata, *data;
     HANDLE handle;
 	size_t len;
@@ -534,10 +536,72 @@ char* de_gui_clipboard_get_text() {
 	return data;
 }
 
-void de_gui_clipboard_set_text(char* data) {
+void de_clipboard_set_text(char* data) {
 	if (!OpenClipboard(NULL)) {
 		return;
 	}
 	SetClipboardData(CF_TEXT, data);
 	CloseClipboard();
 }
+
+int de_thrd_create(de_thrd_t* thr, de_thrd_start_t func, void* arg) {	
+	thr->handle = (intptr_t)_beginthreadex(NULL, 0, (_beginthreadex_proc_type) func, arg, CREATE_SUSPENDED, 0);
+	return thr->handle != 0;
+}
+
+int de_thrd_detach(de_thrd_t* thr) {
+	HANDLE h = (HANDLE)thr->handle;
+	ResumeThread(h);
+	CloseHandle(h);
+	return true;
+}
+
+int de_thrd_join(de_thrd_t* thr) {
+	HANDLE h = (HANDLE)thr->handle;
+	ResumeThread(h);
+	WaitForSingleObject(h, INFINITE);
+	return true;
+}
+
+void de_mtx_init(de_mtx_t* mtx) {
+	CRITICAL_SECTION* ptr = de_malloc(sizeof(CRITICAL_SECTION));
+	InitializeCriticalSection(ptr);
+	mtx->handle = (intptr_t)ptr;		
+}
+
+void de_mtx_lock(de_mtx_t* mtx) {	
+	EnterCriticalSection((CRITICAL_SECTION*)mtx->handle);
+}
+
+void de_mtx_unlock(de_mtx_t* mtx) {
+	LeaveCriticalSection((CRITICAL_SECTION*)mtx->handle);
+}
+
+void de_mtx_destroy(de_mtx_t* mtx) {
+	DeleteCriticalSection((CRITICAL_SECTION*)mtx->handle);
+	de_free((void*)mtx->handle);
+}
+
+void de_cnd_init(de_cnd_t* cnd) {
+	CONDITION_VARIABLE* ptr = de_malloc(sizeof(CONDITION_VARIABLE));
+	InitializeConditionVariable(ptr);
+	cnd->handle = (intptr_t)ptr;
+}
+
+void de_cnd_destroy(de_cnd_t* cnd) {	
+	/* no WinAPI call needed */
+	de_free((CONDITION_VARIABLE*)cnd->handle);
+}
+
+void de_cnd_signal(de_cnd_t* cnd) {
+	WakeConditionVariable((CONDITION_VARIABLE*)cnd->handle);
+}
+
+void de_cnd_broadcast(de_cnd_t* cnd) {
+	WakeAllConditionVariable((CONDITION_VARIABLE*)cnd->handle);
+}
+
+void de_cnd_wait(de_cnd_t* cnd, de_mtx_t* mtx) {
+	SleepConditionVariableCS((CONDITION_VARIABLE*)cnd->handle, (CRITICAL_SECTION*)mtx->handle, INFINITE);
+}
+

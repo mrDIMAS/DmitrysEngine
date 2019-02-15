@@ -19,16 +19,16 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-void de_sound_device_send_data(de_sound_device_t* dev, short* data) {
+void de_sound_device_send_data(de_sound_device_t* dev) {
 	int err;
-	if ((err = snd_pcm_writei(dev->playbackDevice, data, dev->frameCount)) < 0) {
+	if ((err = snd_pcm_writei(dev->playbackDevice, dev->out_buffer, dev->frameCount)) < 0) {
 		if (err == -EPIPE) {
 			de_log("ALSA Error: Buffer underrun!");
 		}
 		if ((err = snd_pcm_prepare(dev->playbackDevice)) < 0) {
 			de_log("ALSA Error unable to snd_pcm_prepare: %s", snd_strerror(err));
 		} else {
-			if ((err = snd_pcm_writei(dev->playbackDevice, data, dev->frameCount)) < 0) {
+			if ((err = snd_pcm_writei(dev->playbackDevice, dev->out_buffer, dev->frameCount)) < 0) {
 				de_log("ALSA Error unable to snd_pcm_writei: %s", snd_strerror(err));
 			}
 		}

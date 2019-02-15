@@ -42,20 +42,22 @@ void de_sound_device_send_data(de_sound_device_t* dev);
 #include "sound/device_impl_alsa.h"
 #endif
 
+short waveSIN(int x, float frequency) {
+	return (short)(32767.0f * (float)sin(frequency * 2.0f * M_PI * ((float)x / SW_OUTPUT_DEVICE_SAMPLE_RATE)));
+}
+
 static int de_sound_device_mixer_thread(void* ptr) {
 	size_t i;
-	double k = 0;
-
 	de_sound_device_t* dev = (de_sound_device_t*)ptr;
 	de_log("Sound thread started!");
+	for (i = 0; i < dev->buffer_len; i += 2) {
+		short sample = waveSIN(i, 220);
+		dev->out_buffer[i] = sample;
+		dev->out_buffer[i + 1] = sample;
+	}
 	while (dev->mixer_status == DE_MIXER_STATUS_ACTIVE) {
 		de_mtx_lock(&dev->mtx);
-		for (i = 0; i < dev->buffer_len; i += 2) {
-			short sample = (short)(sin(k) * 1024.0);
-			dev->out_buffer[i] = sample;
-			dev->out_buffer[i+1] = sample;
-			k += 0.05f;
-		}
+		
 		de_mtx_unlock(&dev->mtx);
 		/* send_data is locking so mutex is already unlocked here */
 		de_sound_device_send_data(dev);

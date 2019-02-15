@@ -78,10 +78,6 @@ typedef void(*de_proc)(void);
 #include <inttypes.h>
 #include <process.h>
 
-#if defined(__GNUC__) || defined(__MINGW32__) || defined(__MINGW64__)
-#include <pthread.h>
-#endif
-
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
@@ -173,6 +169,7 @@ typedef struct de_sound_buffer_t de_sound_buffer_t;
 #include "font/font.h"
 #include "core/utility.h"
 #include "gui/gui.h"
+#include "sound/device.h"
 #include "sound/sound.h"
 #include "core/core.h" 
 
@@ -224,7 +221,8 @@ typedef struct de_sound_buffer_t de_sound_buffer_t;
 #  include "gui/impl/gui.h" 
 #  include "vg/impl/vgraster.h"
 #  include "core/thread_impl.h"
-#  include "sound/impl/sound.h"
+#  include "sound/device_impl.h"
+#  include "sound/sound_impl.h"
 #endif
 
 #ifdef __cplusplus

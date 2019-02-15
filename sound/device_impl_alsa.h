@@ -19,27 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/**
- * @brief Sends data to output device.
- * 
- * Note: This function is blocking. 
- */
-static void de_sound_device_send_data(de_sound_device_t* dev, short* data) {
-#ifdef _WIN32
-	void * outputData;
-	int size;
-	int result = WaitForMultipleObjects(2, dev->points, 0, INFINITE);
-	if (result == WAIT_OBJECT_0) {
-		IDirectSoundBuffer8_Lock(dev->buffer, DE_OUTPUT_DEVICE_HALF_BUFFER_SIZE, DE_OUTPUT_DEVICE_HALF_BUFFER_SIZE, &outputData, (LPDWORD)&size, 0, 0, 0);
-		memcpy(outputData, data, size);
-		IDirectSoundBuffer8_Unlock(dev->buffer, outputData, size, 0, 0);
-	}
-	if (result == (WAIT_OBJECT_0 + 1)) {
-		IDirectSoundBuffer8_Lock(dev->buffer, 0, DE_OUTPUT_DEVICE_HALF_BUFFER_SIZE, &outputData, (LPDWORD)&size, 0, 0, 0);
-		memcpy(outputData, data, size);
-		IDirectSoundBuffer8_Unlock(dev->buffer, outputData, size, 0, 0);
-	}
-#else
+void de_sound_device_send_data(de_sound_device_t* dev, short* data) {
 	int err;
 	if ((err = snd_pcm_writei(dev->playbackDevice, data, dev->frameCount)) < 0) {
 		if (err == -EPIPE) {
@@ -53,98 +33,12 @@ static void de_sound_device_send_data(de_sound_device_t* dev, short* data) {
 			}
 		}
 	}
-#endif
 }
 
-static int de_sound_device_thread(void* ptr) {
-	de_sound_device_t* dev = (de_sound_device_t*)ptr;
-	de_log("Sound thread started!");
-	while (dev->mixer_status == DE_MIXER_STATUS_ACTIVE) {
-		de_mtx_lock(&dev->mtx);
-		/* mix */
-		de_mtx_unlock(&dev->mtx);
-
-		/* send_data is locking so mutex is already unlocked here */
-		de_sound_device_send_data(dev, dev->out_buffer);		
-	}
-	dev->mixer_status = DE_MIXER_STATUS_STOPPED;
-	de_cnd_signal(&dev->cnd);
-	de_log("Sound thread stopped!");
-	return 0;
-}
-
-bool de_sound_device_init(de_core_t* core, de_sound_device_t* dev) {
-	de_thrd_t mixer_thread;
-#ifdef _WIN32
-	/* dsound */
-	WAVEFORMATEX bufferFormat = { 0 };
-	DSBUFFERDESC bufferDesc = { 0 };
-	DSBPOSITIONNOTIFY pPosNotify[2];
-	IDirectSoundBuffer * pDSB;
-#else
-	/* alsa */
+bool de_sound_device_setup(de_sound_device_t* dev) {
 	snd_pcm_hw_params_t *hw_params;
 	snd_pcm_sw_params_t *sw_params;
 	int err;
-#endif
-
-	de_zero(dev, sizeof(*dev));
-	dev->core = core;
-	dev->out_buffer = de_calloc(DE_OUTPUT_DEVICE_HALF_BUFFER_SIZE, sizeof(*dev->out_buffer));
-	dev->mixer_status = DE_MIXER_STATUS_ACTIVE;
-	de_mtx_init(&dev->mtx);
-	de_cnd_init(&dev->cnd);
-
-	/* platform specific code */
-#ifdef _WIN32
-	if (FAILED(DirectSoundCreate8(0, &dev->dsound, 0))) {
-		de_log("Failed to create DirectSound8 device");
-		return false;
-	}
-
-	if (FAILED(IDirectSound8_SetCooperativeLevel(dev->dsound, GetForegroundWindow(), DSSCL_PRIORITY))) {
-		de_log("Failed to set DirectSound8 coop level");
-		IDirectSound8_Release(dev->dsound);
-		return false;
-	}
-
-	bufferFormat.cbSize = sizeof(WAVEFORMATEX);
-	bufferFormat.wFormatTag = WAVE_FORMAT_PCM;
-	bufferFormat.nChannels = 2;
-	bufferFormat.nSamplesPerSec = SW_OUTPUT_DEVICE_SAMPLE_RATE;
-	bufferFormat.wBitsPerSample = 16;
-	bufferFormat.nBlockAlign = (bufferFormat.wBitsPerSample / 8) * bufferFormat.nChannels;
-	bufferFormat.nAvgBytesPerSec = bufferFormat.nSamplesPerSec * bufferFormat.nBlockAlign;
-
-	bufferDesc.dwSize = sizeof(DSBUFFERDESC);
-	bufferDesc.dwFlags = DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_GLOBALFOCUS;
-	bufferDesc.dwBufferBytes = DE_OUTPUT_DEVICE_HALF_BUFFER_SIZE * 2;
-	bufferDesc.lpwfxFormat = &bufferFormat;
-
-	if (FAILED(IDirectSound8_CreateSoundBuffer(dev->dsound, &bufferDesc, &pDSB, NULL))) {
-		de_log("Failed to create DirectSoundBuffer8!");
-		IDirectSound8_Release(dev->dsound);
-		return false;
-	}
-
-	IDirectSoundBuffer_QueryInterface(pDSB, &IID_IDirectSoundBuffer8, (void**)&dev->buffer);
-	IDirectSoundBuffer_Release(pDSB);
-
-	IDirectSoundBuffer8_QueryInterface(dev->buffer, &IID_IDirectSoundNotify8, (void**)&dev->notify);
-
-	dev->points[0] = CreateEvent(0, 0, 0, 0);
-	dev->points[1] = CreateEvent(0, 0, 0, 0);
-
-	pPosNotify[0].dwOffset = 0;
-	pPosNotify[0].hEventNotify = dev->points[0];
-
-	pPosNotify[1].dwOffset = DE_OUTPUT_DEVICE_HALF_BUFFER_SIZE;
-	pPosNotify[1].hEventNotify = dev->points[1];
-
-	IDirectSoundNotify_SetNotificationPositions(dev->notify, 2, pPosNotify);
-	IDirectSoundBuffer8_Play(dev->buffer, 0, 0, DSBPLAY_LOOPING);
-	de_log("DirectSound8 device successfully initialized!");
-#else /* !_WIN32 */
 
 	dev->frameCount = bufferHalfSize / 4; /* 16-bit stereo is 4 bytes, so frame count is bufferHalfSize / 4 */
 
@@ -218,28 +112,10 @@ bool de_sound_device_init(de_core_t* core, de_sound_device_t* dev) {
 	}
 
 	de_log("ALSA device successfully initialized!");
-#endif
-
-	de_thrd_create(&mixer_thread, de_sound_device_thread, dev);
-	de_thrd_detach(&mixer_thread);
 
 	return true;
 }
 
-void de_sound_device_free(de_sound_device_t* dev) {	
-	dev->mixer_status = DE_MIXER_STATUS_NEED_STOP;
-	while (dev->mixer_status != DE_MIXER_STATUS_STOPPED) {
-		de_cnd_wait(&dev->cnd, &dev->mtx);
-	}
-	de_free(dev->out_buffer);	
-#ifdef _WIN32
-	IDirectSoundNotify_Release(dev->notify);
-	IDirectSoundBuffer8_Release(dev->buffer);
-	IDirectSound8_Release(dev->dsound);
-#else
+void de_sound_device_shutdown(de_sound_device_t* dev) {
 	snd_pcm_close(dev->playbackDevice);
-#endif
-	de_mtx_unlock(&dev->mtx);
-	de_mtx_destroy(&dev->mtx);
-	de_cnd_destroy(&dev->cnd);
 }

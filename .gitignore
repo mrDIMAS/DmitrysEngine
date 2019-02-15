@@ -12,6 +12,7 @@
 
 /tests/codeliteproj/.codelite
 /tests/codeliteproj/Debug
+/tests/codeliteproj/Release
 
 /tests/vcproj/Debug
 /tests/vcproj/x64

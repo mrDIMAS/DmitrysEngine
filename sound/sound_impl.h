@@ -19,47 +19,21 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef enum de_mixer_status_t {
-	DE_MIXER_STATUS_ACTIVE,
-	DE_MIXER_STATUS_NEED_STOP,
-	DE_MIXER_STATUS_STOPPED
-} de_mixer_status_t;
+de_sound_source_t* de_sound_source_create(de_sound_device_t* dev) {
+	de_sound_source_t* src = DE_NEW(de_sound_source_t);
+	src->device = dev;
+	src->pitch = 1.0f;
+	src->playback_position = 0.0;
+	src->pan = 0;
+	DE_LINKED_LIST_APPEND(dev->sounds, src);
+	return src;
+}
 
-struct de_sound_device_t {
-	de_core_t* core;
-	de_mtx_t mtx;
-	de_cnd_t cnd;
-	de_mixer_status_t mixer_status;
-	short* out_buffer;
-	size_t buffer_len;
-	DE_LINKED_LIST_DECLARE(de_sound_source_t, sounds);
-#ifdef _WIN32
-	/* dsound */
-	IDirectSound8* dsound;
-	IDirectSoundBuffer8* buffer;
-	IDirectSoundNotify* notify;
-	HANDLE points[2];
-#else
-	/* alsa */
-	snd_pcm_t* playbackDevice;
-	int frameCount;
-#endif
-};
+void de_sound_source_free(de_sound_source_t* src) {
+	DE_LINKED_LIST_REMOVE(src->device->sounds, src);
+}
 
-/**
- * @brief Initializes sound device.
- */
-bool de_sound_device_init(de_core_t* core, de_sound_device_t* dev);
+void de_sound_source_set_buffer(de_sound_source_t* src, de_sound_buffer_t* buf) {
+	src->buffer = buf;
+}
 
-/**
- * @brief Destroys sound device.
- */
-void de_sound_device_free(de_sound_device_t* dev);
-
-/**
- * @brief Applies properties of every sounds source. This function is blocking, which
- * means that mixer thread will be paused until every sound source isn't updated.
- * You should call this function at least 10 times per second to get decent 
- * results.
- */
-void de_sound_device_update(de_sound_device_t* dev);

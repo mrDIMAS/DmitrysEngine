@@ -252,9 +252,6 @@
     <ClInclude Include="..\..\scene\scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\sound\impl\sound.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\sound\sound.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -360,7 +357,28 @@
     <ClInclude Include="..\..\core\path.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\core\thread_impl_win32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\thread_impl_posix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\core\thread_impl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sound\sound_impl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sound\device_impl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sound\device_impl_alsa.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sound\device_impl_dsound.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sound\device.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -19,47 +19,52 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef enum de_mixer_status_t {
-	DE_MIXER_STATUS_ACTIVE,
-	DE_MIXER_STATUS_NEED_STOP,
-	DE_MIXER_STATUS_STOPPED
-} de_mixer_status_t;
+int de_thrd_create(de_thrd_t* thr, de_thrd_start_t func, void* arg) {	
+    pthread_create(thr, NULL, (void*(*)(void*)) func, arg);
+    return true;
+}
 
-struct de_sound_device_t {
-	de_core_t* core;
-	de_mtx_t mtx;
-	de_cnd_t cnd;
-	de_mixer_status_t mixer_status;
-	short* out_buffer;
-	size_t buffer_len;
-	DE_LINKED_LIST_DECLARE(de_sound_source_t, sounds);
-#ifdef _WIN32
-	/* dsound */
-	IDirectSound8* dsound;
-	IDirectSoundBuffer8* buffer;
-	IDirectSoundNotify* notify;
-	HANDLE points[2];
-#else
-	/* alsa */
-	snd_pcm_t* playbackDevice;
-	int frameCount;
-#endif
-};
+int de_thrd_detach(de_thrd_t* thr) {    
+    return pthread_detach(*thr) == 0;
+}
 
-/**
- * @brief Initializes sound device.
- */
-bool de_sound_device_init(de_core_t* core, de_sound_device_t* dev);
+int de_thrd_join(de_thrd_t* thr) {
+    void* code;
+    return pthread_join(*thr, &code);
+}
 
-/**
- * @brief Destroys sound device.
- */
-void de_sound_device_free(de_sound_device_t* dev);
+void de_mtx_init(de_mtx_t* mtx) {
+    pthread_mutex_init(mtx, NULL);
+}
 
-/**
- * @brief Applies properties of every sounds source. This function is blocking, which
- * means that mixer thread will be paused until every sound source isn't updated.
- * You should call this function at least 10 times per second to get decent 
- * results.
- */
-void de_sound_device_update(de_sound_device_t* dev);
+void de_mtx_lock(de_mtx_t* mtx) {	
+	pthread_mutex_lock(mtx);
+}
+
+void de_mtx_unlock(de_mtx_t* mtx) {
+	pthread_mutex_unlock(mtx);
+}
+
+void de_mtx_destroy(de_mtx_t* mtx) {
+    pthread_mutex_destroy(mtx);
+}
+
+void de_cnd_init(de_cnd_t* cnd) {
+    pthread_cond_init(cnd, NULL);
+}
+
+void de_cnd_destroy(de_cnd_t* cnd) {	
+    pthread_cond_destroy(cnd);
+}
+
+void de_cnd_signal(de_cnd_t* cnd) {
+    pthread_cond_signal(cnd);
+}
+
+void de_cnd_broadcast(de_cnd_t* cnd) {
+    pthread_cond_broadcast(cnd);
+}
+
+void de_cnd_wait(de_cnd_t* cnd, de_mtx_t* mtx) {
+    pthread_cond_wait(cnd, mtx);
+}

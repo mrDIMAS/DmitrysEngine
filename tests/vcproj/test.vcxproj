@@ -200,6 +200,8 @@
     <ClInclude Include="..\..\core\string_utils_impl.h" />
     <ClInclude Include="..\..\core\thread.h" />
     <ClInclude Include="..\..\core\thread_impl.h" />
+    <ClInclude Include="..\..\core\thread_impl_posix.h" />
+    <ClInclude Include="..\..\core\thread_impl_win32.h" />
     <ClInclude Include="..\..\core\time.h" />
     <ClInclude Include="..\..\core\utf32string.h" />
     <ClInclude Include="..\..\core\utf32string_impl.h" />
@@ -277,8 +279,12 @@
     <ClInclude Include="..\..\scene\mesh.h" />
     <ClInclude Include="..\..\scene\node.h" />
     <ClInclude Include="..\..\scene\scene.h" />
-    <ClInclude Include="..\..\sound\impl\sound.h" />
+    <ClInclude Include="..\..\sound\device.h" />
+    <ClInclude Include="..\..\sound\device_impl.h" />
+    <ClInclude Include="..\..\sound\device_impl_alsa.h" />
+    <ClInclude Include="..\..\sound\device_impl_dsound.h" />
     <ClInclude Include="..\..\sound\sound.h" />
+    <ClInclude Include="..\..\sound\sound_impl.h" />
     <ClInclude Include="..\..\vg\impl\vgraster.h" />
     <ClInclude Include="..\..\vg\vgraster.h" />
   </ItemGroup>

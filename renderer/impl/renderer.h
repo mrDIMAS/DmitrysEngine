@@ -939,7 +939,7 @@ static void de_renderer_draw_mesh(de_renderer_t* r, de_mesh_t* mesh) {
 
 		DE_GL_CALL(glUniform1i(r->gbuffer_shader.use_skeletal_animation, is_skinned));
 		if (is_skinned) {
-			de_mat4_t matrices[DE_RENDERER_MAX_SKINNING_MATRICES] = { 0 };
+			de_mat4_t matrices[DE_RENDERER_MAX_SKINNING_MATRICES] = { { {0 }} };
 			de_surface_get_skinning_matrices(surf, matrices, DE_RENDERER_MAX_SKINNING_MATRICES);
 
 			glUniformMatrix4fv(r->gbuffer_shader.bone_matrices, DE_RENDERER_MAX_SKINNING_MATRICES, GL_FALSE, (const float*)&matrices[0]);
@@ -1017,6 +1017,7 @@ void de_renderer_render(de_renderer_t* r) {
 		de_node_t* node;
 		de_camera_t* camera;
 		de_vec3_t camera_position;
+        de_vec3_zero(&camera_position);
 
 		if (!scene->active_camera) {
 			continue;

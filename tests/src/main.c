@@ -248,6 +248,8 @@ void player_update(player_t* p) {
 	camera = p->camera;
 
 	de_vec3_zero(&offset);
+    de_vec3_zero(&look);
+    de_vec3_zero(&side);
 	de_node_get_look_vector(pivot, &look);
 	de_node_get_side_vector(pivot, &side);
 

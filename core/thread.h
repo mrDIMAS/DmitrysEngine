@@ -27,6 +27,11 @@
  * 
  * Note: Implementation is platform-specific. */
 
+#if defined(__GNUC__) || defined(__MINGW32__) || defined(__MINGW64__)
+typedef pthread_cond_t de_cnd_t;
+typedef pthread_t de_thrd_t;
+typedef pthread_mutex_t de_mtx_t;
+#else
 typedef struct de_mtx_t {
 	intptr_t handle;
 } de_mtx_t;
@@ -38,6 +43,7 @@ typedef struct de_thrd_t {
 typedef struct de_cnd_t {
 	intptr_t handle;
 } de_cnd_t;
+#endif
 
 typedef int(*de_thrd_start_t)(void*);
 

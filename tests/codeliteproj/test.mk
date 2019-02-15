@@ -13,10 +13,10 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=mrDIMAS
-Date                   :=10/02/2019
+Date                   :=15/02/2019
 CodeLitePath           :="C:/Program Files/CodeLite"
-LinkerName             :=C:/MinGW-8.1.0/bin/g++.exe
-SharedObjectLinkerName :=C:/MinGW-8.1.0/bin/g++.exe -shared -fPIC
+LinkerName             :=C:/Mingw_old/MinGW-4.8.1/bin/g++.exe
+SharedObjectLinkerName :=C:/Mingw_old/MinGW-4.8.1/bin/g++.exe -shared -fPIC
 ObjectSuffix           :=.o
 DependSuffix           :=.o.d
 PreprocessSuffix       :=.i
@@ -36,26 +36,26 @@ ObjectsFileList        :="test.txt"
 PCHCompileFlags        :=
 MakeDirCommand         :=makedir
 RcCmpOptions           := 
-RcCompilerName         :=C:/MinGW-8.1.0/bin/windres.exe
+RcCompilerName         :=C:/Mingw_old/MinGW-4.8.1/bin/windres.exe
 LinkOptions            :=  
-IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch). $(IncludeSwitch)../../. 
+IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch). $(IncludeSwitch)../../. $(IncludeSwitch)../../external/ 
 IncludePCH             := 
 RcIncludePath          := 
-Libs                   := $(LibrarySwitch)opengl32 
-ArLibs                 :=  "opengl32" 
+Libs                   := $(LibrarySwitch)opengl32 $(LibrarySwitch)dsound $(LibrarySwitch)gdi32 $(LibrarySwitch)dxguid 
+ArLibs                 :=  "opengl32" "dsound" "gdi32" "dxguid" 
 LibPath                := $(LibraryPathSwitch). 
 
 ##
 ## Common variables
 ## AR, CXX, CC, AS, CXXFLAGS and CFLAGS can be overriden using an environment variables
 ##
-AR       := C:/MinGW-8.1.0/bin/ar.exe rcu
-CXX      := C:/MinGW-8.1.0/bin/g++.exe
-CC       := C:/MinGW-8.1.0/bin/gcc.exe
+AR       := C:/Mingw_old/MinGW-4.8.1/bin/ar.exe rcu
+CXX      := C:/Mingw_old/MinGW-4.8.1/bin/g++.exe
+CC       := C:/Mingw_old/MinGW-4.8.1/bin/gcc.exe
 CXXFLAGS :=   $(Preprocessors)
 CFLAGS   :=  -g -O0 -Wall -std=c89 -pedantic -Werror  $(Preprocessors)
 ASFLAGS  := 
-AS       := C:/MinGW-8.1.0/bin/as.exe
+AS       := C:/Mingw_old/MinGW-4.8.1/bin/as.exe
 
 
 ##

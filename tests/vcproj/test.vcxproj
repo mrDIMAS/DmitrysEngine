@@ -199,6 +199,7 @@
     <ClInclude Include="..\..\core\string_utils.h" />
     <ClInclude Include="..\..\core\string_utils_impl.h" />
     <ClInclude Include="..\..\core\thread.h" />
+    <ClInclude Include="..\..\core\thread_impl.h" />
     <ClInclude Include="..\..\core\time.h" />
     <ClInclude Include="..\..\core\utf32string.h" />
     <ClInclude Include="..\..\core\utf32string_impl.h" />

@@ -176,6 +176,4 @@ void de_triangulator_tests(void) {
 	for (i = 0; i < index_count; i += 3) {
 		printf("%d;%d;%d\n", indices[i], indices[i + 1], indices[i + 2]);
 	}
-
-	de_free(indices);
 }

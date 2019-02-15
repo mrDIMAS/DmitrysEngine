@@ -216,7 +216,7 @@ static void de_ttf_prepare_contours(de_ttf_glyph_t * glyph, de_point_t* points) 
 	/* Unpack contours */
 	for (j = 0; j < glyph->num_contours; ++j) {
 		de_polygon_t * raw_contour = glyph->raw_contours + j;
-		de_polygon_t unpacked_contour = { 0 };
+		de_polygon_t unpacked_contour = { {0} };
 
 		int start_off = !(raw_contour->points.data[0].flags & ON_CURVE_POINT);
 

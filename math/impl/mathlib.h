@@ -1366,17 +1366,17 @@ de_plane_class_t de_plane_classify(const de_vec3_t * triangle_normal) {
 
 	de_plane_class_t plane = DE_PLANE_OXY;
 
-	if (fabsf(triangle_normal->x) > longest) {
-		longest = fabsf(triangle_normal->x);
+	if (fabs(triangle_normal->x) > longest) {
+		longest = (float)fabs(triangle_normal->x);
 		plane = DE_PLANE_OYZ;
 	}
 
-	if (fabsf(triangle_normal->y) > longest) {
-		longest = fabsf(triangle_normal->y);
+	if (fabs(triangle_normal->y) > longest) {
+		longest = (float)fabs(triangle_normal->y);
 		plane = DE_PLANE_OXZ;
 	}
 
-	if (fabsf(triangle_normal->z) > longest) {
+	if (fabs(triangle_normal->z) > longest) {
 		plane = DE_PLANE_OXY;
 	}
 

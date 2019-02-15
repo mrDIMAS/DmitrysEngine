@@ -25,7 +25,7 @@
 
 typedef enum de_sound_format_t {
 	DE_SOUND_FORMAT_MONO,
-	DE_SOUND_FORMAT_STEREO,
+	DE_SOUND_FORMAT_STEREO
 } de_sound_format_t;
 
 struct de_sound_buffer_t {

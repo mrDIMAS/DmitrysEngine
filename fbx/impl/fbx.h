@@ -1366,7 +1366,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 
 			material_index = 0;
 			for (n = 0; n < geom->index_count; ) {
-				int index_per_face;
+				int index_per_face = 0;
 				int origin = n;
 
 				n += de_fbx_prepare_next_face(geom, n, temp_indices, &index_per_face, relative_indices, sizeof(relative_indices) / sizeof(relative_indices[0]));;
@@ -1377,7 +1377,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 				}
 
 				for (m = 0; m < index_per_face; ++m) {
-					de_vertex_t v = { 0 };
+					de_vertex_t v = { {0} };
 					int index = temp_indices[m];
 					int surface_index = 0;
 					de_vec3_t* tangent;

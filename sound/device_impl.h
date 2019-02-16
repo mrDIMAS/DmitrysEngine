@@ -42,22 +42,37 @@ void de_sound_device_send_data(de_sound_device_t* dev);
 #include "sound/device_impl_alsa.h"
 #endif
 
-short waveSIN(int x, float frequency) {
-	return (short)(32767.0f * (float)sin(frequency * 2.0f * M_PI * ((float)x / SW_OUTPUT_DEVICE_SAMPLE_RATE)));
-}
-
 static int de_sound_device_mixer_thread(void* ptr) {
 	size_t i;
+	de_sound_source_t* src;
 	de_sound_device_t* dev = (de_sound_device_t*)ptr;
 	de_log("Sound thread started!");
-	for (i = 0; i < dev->buffer_len; i += 2) {
-		short sample = waveSIN(i, 220);
-		dev->out_buffer[i] = sample;
-		dev->out_buffer[i + 1] = sample;
-	}
 	while (dev->mixer_status == DE_MIXER_STATUS_ACTIVE) {
+		float count = 0;
+		DE_LINKED_LIST_FOR_EACH(dev->ctx->sounds, src) {
+			++count;
+		}
 		de_mtx_lock(&dev->mtx);
-		
+		for (i = 0; i < dev->buffer_len/2;) {
+			float samples[2] = { 0 };
+			DE_LINKED_LIST_FOR_EACH(dev->ctx->sounds, src) {
+				de_sound_source_sample(src, samples);
+			}		
+			samples[0] /= count;
+			samples[1] /= count;
+			if (samples[0] > 1.0f) {
+				samples[0] = 1.0f;
+			} else if (samples[0] < -1.0f) {
+				samples[0] = -1.0f;
+			}
+			if (samples[1] > 1.0f) {
+				samples[1] = 1.0f;
+			} else if (samples[1] < -1.0f) {
+				samples[1] = -1.0f;
+			}
+			dev->out_buffer[i++] = (short)(samples[0] * 32767);
+			dev->out_buffer[i++] = (short)(samples[1] * 32767);
+		}
 		de_mtx_unlock(&dev->mtx);
 		/* send_data is locking so mutex is already unlocked here */
 		de_sound_device_send_data(dev);
@@ -68,12 +83,12 @@ static int de_sound_device_mixer_thread(void* ptr) {
 	return 0;
 }
 
-bool de_sound_device_init(de_core_t* core, de_sound_device_t* dev) {
+bool de_sound_device_init(de_sound_context_t* ctx, de_sound_device_t* dev) {
 	de_thrd_t mixer_thread;
 
 	de_zero(dev, sizeof(*dev));
-	dev->core = core;
-	dev->buffer_len = SW_OUTPUT_DEVICE_SAMPLE_RATE ;
+	dev->ctx = ctx;
+	dev->buffer_len = DE_SOUND_DEVICE_SAMPLE_RATE;
 	dev->out_buffer = de_calloc(dev->buffer_len, sizeof(*dev->out_buffer));
 	dev->mixer_status = DE_MIXER_STATUS_ACTIVE;
 	de_mtx_init(&dev->mtx);
@@ -98,11 +113,4 @@ void de_sound_device_free(de_sound_device_t* dev) {
 	de_mtx_unlock(&dev->mtx);
 	de_mtx_destroy(&dev->mtx);
 	de_cnd_destroy(&dev->cnd);
-}
-
-void de_sound_device_update(de_sound_device_t* dev) {
-	de_sound_source_t* src;
-	DE_LINKED_LIST_FOR_EACH(dev->sounds, src) {
-
-	}
 }

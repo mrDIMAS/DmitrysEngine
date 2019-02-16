@@ -26,13 +26,12 @@ typedef enum de_mixer_status_t {
 } de_mixer_status_t;
 
 struct de_sound_device_t {
-	de_core_t* core;
+	de_sound_context_t* ctx;
 	de_mtx_t mtx;
 	de_cnd_t cnd;
 	de_mixer_status_t mixer_status;
 	short* out_buffer;
 	size_t buffer_len;
-	DE_LINKED_LIST_DECLARE(de_sound_source_t, sounds);
 #ifdef _WIN32
 	/* dsound */
 	IDirectSound8* dsound;
@@ -49,17 +48,9 @@ struct de_sound_device_t {
 /**
  * @brief Initializes sound device.
  */
-bool de_sound_device_init(de_core_t* core, de_sound_device_t* dev);
+bool de_sound_device_init(de_sound_context_t* ctx, de_sound_device_t* dev);
 
 /**
  * @brief Destroys sound device.
  */
 void de_sound_device_free(de_sound_device_t* dev);
-
-/**
- * @brief Applies properties of every sounds source. This function is blocking, which
- * means that mixer thread will be paused until every sound source isn't updated.
- * You should call this function at least 10 times per second to get decent 
- * results.
- */
-void de_sound_device_update(de_sound_device_t* dev);

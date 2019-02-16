@@ -27,7 +27,7 @@ de_core_t* de_core_init(const de_engine_params_t* params) {
 	core->running = true;
 	de_core_platform_init(core);
 	DE_LINKED_LIST_INIT(core->scenes);
-	de_sound_device_init(core, &core->sound_dev);
+	core->sound_context = de_sound_context_create(core);
 	core->renderer = de_renderer_init(core);
 	core->gui = de_gui_init(core);
 	return core;
@@ -35,7 +35,7 @@ de_core_t* de_core_init(const de_engine_params_t* params) {
 
 void de_core_shutdown(de_core_t* core) {
 	DE_ARRAY_FREE(core->events_queue);
-	de_sound_device_free(&core->sound_dev);
+	de_sound_context_free(core->sound_context);
 	de_gui_shutdown(core->gui);
 	de_renderer_free(core->renderer);
 	de_core_platform_shutdown(core);

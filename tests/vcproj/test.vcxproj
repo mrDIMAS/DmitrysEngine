@@ -279,12 +279,22 @@
     <ClInclude Include="..\..\scene\mesh.h" />
     <ClInclude Include="..\..\scene\node.h" />
     <ClInclude Include="..\..\scene\scene.h" />
+    <ClInclude Include="..\..\sound\buffer.h" />
+    <ClInclude Include="..\..\sound\buffer_impl.h" />
+    <ClInclude Include="..\..\sound\context.h" />
+    <ClInclude Include="..\..\sound\context_impl.h" />
+    <ClInclude Include="..\..\sound\decoder.h" />
+    <ClInclude Include="..\..\sound\decoder_impl.h" />
     <ClInclude Include="..\..\sound\device.h" />
     <ClInclude Include="..\..\sound\device_impl.h" />
     <ClInclude Include="..\..\sound\device_impl_alsa.h" />
     <ClInclude Include="..\..\sound\device_impl_dsound.h" />
+    <ClInclude Include="..\..\sound\listener.h" />
+    <ClInclude Include="..\..\sound\listener_impl.h" />
     <ClInclude Include="..\..\sound\sound.h" />
     <ClInclude Include="..\..\sound\sound_impl.h" />
+    <ClInclude Include="..\..\sound\source.h" />
+    <ClInclude Include="..\..\sound\source_impl.h" />
     <ClInclude Include="..\..\vg\impl\vgraster.h" />
     <ClInclude Include="..\..\vg\vgraster.h" />
   </ItemGroup>

@@ -123,6 +123,8 @@ typedef struct de_scene_t de_scene_t;
 typedef struct de_sound_device_t de_sound_device_t;
 typedef struct de_sound_source_t de_sound_source_t;
 typedef struct de_sound_buffer_t de_sound_buffer_t;
+typedef struct de_sound_context_t de_sound_context_t;
+typedef struct de_sound_decoder_t de_sound_decoder_t;
 
 /**
 * Order is important here, because some parts depends on other
@@ -169,7 +171,6 @@ typedef struct de_sound_buffer_t de_sound_buffer_t;
 #include "font/font.h"
 #include "core/utility.h"
 #include "gui/gui.h"
-#include "sound/device.h"
 #include "sound/sound.h"
 #include "core/core.h" 
 
@@ -221,7 +222,6 @@ typedef struct de_sound_buffer_t de_sound_buffer_t;
 #  include "gui/impl/gui.h" 
 #  include "vg/impl/vgraster.h"
 #  include "core/thread_impl.h"
-#  include "sound/device_impl.h"
 #  include "sound/sound_impl.h"
 #endif
 

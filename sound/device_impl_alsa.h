@@ -63,12 +63,12 @@ bool de_sound_device_setup(de_sound_device_t* dev) {
 		de_log("ALSA Error unable to snd_pcm_hw_params_set_format: %s", snd_strerror(err));
 	}
 
-	unsigned int exactRate = SW_OUTPUT_DEVICE_SAMPLE_RATE;
+	unsigned int exactRate = DE_SOUND_DEVICE_SAMPLE_RATE;
 	if ((err = snd_pcm_hw_params_set_rate_near(dev->playbackDevice, hw_params, &exactRate, 0)) < 0) {
 		de_log("ALSA Error unable to snd_pcm_hw_params_set_rate_near: %s", snd_strerror(err));
 	}
-	if (exactRate != SW_OUTPUT_DEVICE_SAMPLE_RATE) {
-		de_log("Warning! %d playback rate is not supported, using %d instead.", SW_OUTPUT_DEVICE_SAMPLE_RATE, exactRate);
+	if (exactRate != DE_SOUND_DEVICE_SAMPLE_RATE) {
+		de_log("Warning! %d playback rate is not supported, using %d instead.", DE_SOUND_DEVICE_SAMPLE_RATE, exactRate);
 	}
 
 	if ((err = snd_pcm_hw_params_set_channels(dev->playbackDevice, hw_params, 2)) < 0) {

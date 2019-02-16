@@ -19,36 +19,23 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-#define SW_OUTPUT_DEVICE_SAMPLE_RATE 44100
+/**
+ * Important notes: Sound system internally uses floats to store samples.
+ * Each sample is normalized to [-1; 1] range so it is independent of
+ * output device bit-depth.
+ * You may say: "Hey, what the fuck, floats eats too much memory and slow
+ * for mixing?!". That is true only for ancient hardware, modern CPU's 
+ * are very fast at floating point operations and modern computers have enough 
+ * memory to store float samples.
+ * Floats giving great flexibility in calculations, so we'll stick with them.
+ */
+
+#define DE_SOUND_DEVICE_SAMPLE_RATE 44100
 #define DE_SOUND_MAX_CHANNELS 2 
 
-typedef enum de_sound_format_t {
-	DE_SOUND_FORMAT_MONO,
-	DE_SOUND_FORMAT_STEREO
-} de_sound_format_t;
-
-struct de_sound_buffer_t {
-	de_sound_format_t format;
-	float* data;
-	size_t size;
-};
-
-struct de_sound_source_t {
-	de_sound_device_t* device;
-	de_sound_buffer_t* buffer;
-	double playback_position;
-	float pan;
-	float pitch;
-	float gain;
-	/* gain of each channel. currently mono and stereo are supported */
-	float channel_gain[DE_SOUND_MAX_CHANNELS];
-	/* spatial data */
-	de_vec3_t position;
-	DE_LINKED_LIST_ITEM(de_sound_source_t);
-};
-
-de_sound_source_t* de_sound_source_create(de_sound_device_t* dev);
-
-void de_sound_source_free(de_sound_source_t* src);
-
-void de_sound_source_set_buffer(de_sound_source_t* src, de_sound_buffer_t* buf);
+#include "sound/listener.h"
+#include "sound/device.h"
+#include "sound/decoder.h"
+#include "sound/buffer.h"
+#include "sound/source.h"
+#include "sound/context.h"

@@ -15,6 +15,8 @@ struct game_t {
 };
 
 struct main_menu_t {
+	de_sound_buffer_t* music_buffer;
+	de_sound_source_t* music;
 	game_t* game;
 	de_gui_node_t* window;
 	DE_ARRAY_DECLARE(de_video_mode_t, video_modes);
@@ -191,6 +193,7 @@ player_t* player_create(level_t* level) {
 	de_vec3_set(&p->camera_position, 0, p->stand_body_radius, 0);
 
 	p->body = de_scene_create_body(level->scene);
+	p->body->gravity.y = -20;
 	de_body_set_radius(p->body, p->stand_body_radius);
 
 	p->pivot = de_node_create(level->scene, DE_NODE_TYPE_BASE);
@@ -248,8 +251,8 @@ void player_update(player_t* p) {
 	camera = p->camera;
 
 	de_vec3_zero(&offset);
-    de_vec3_zero(&look);
-    de_vec3_zero(&side);
+	de_vec3_zero(&look);
+	de_vec3_zero(&side);
 	de_node_get_look_vector(pivot, &look);
 	de_node_get_side_vector(pivot, &side);
 
@@ -423,9 +426,16 @@ main_menu_t* main_menu_create(game_t* game) {
 	main_menu_t* menu = DE_NEW(main_menu_t);
 	menu->game = game;
 
+	{
+		menu->music_buffer = de_sound_buffer_create(game->core->sound_context, 0);
+		de_sound_buffer_load_file(menu->music_buffer, "data/sounds/test.wav");
+
+		menu->music = de_sound_source_create(game->core->sound_context);
+		de_sound_source_set_buffer(menu->music, menu->music_buffer);
+	}
 	/* main window */
 	{
-        de_gui_node_t* grid;
+		de_gui_node_t* grid;
 		float window_width = 400;
 		float window_height = 500;
 		float window_x = (de_core_get_window_width(game->core) - window_width) * 0.5f;
@@ -456,7 +466,7 @@ main_menu_t* main_menu_create(game_t* game) {
 			de_gui_node_set_column(title, 0);
 			de_gui_node_attach(title, grid);
 			de_gui_text_set_vertical_alignment(title, DE_GUI_VERTICAL_ALIGNMENT_CENTER);
-			de_gui_text_set_horizontal_alignment(title, DE_GUI_HORIZONTAL_ALIGNMENT_CENTER);			
+			de_gui_text_set_horizontal_alignment(title, DE_GUI_HORIZONTAL_ALIGNMENT_CENTER);
 		}
 
 		/* new game */
@@ -536,7 +546,7 @@ main_menu_t* main_menu_create(game_t* game) {
 				de_gui_text_set_vertical_alignment(videomode_text, DE_GUI_VERTICAL_ALIGNMENT_CENTER);
 				de_gui_node_attach(videomode_text, grid);
 
-				selector = de_gui_slide_selector_create(gui);	
+				selector = de_gui_slide_selector_create(gui);
 				de_gui_node_set_user_data(selector, menu);
 				de_gui_node_set_row(selector, 0);
 				de_gui_node_set_column(selector, 1);
@@ -592,7 +602,7 @@ game_t* game_create(void) {
 		params.video_mode.width = 1200;
 		params.video_mode.height = 1000;
 		params.video_mode.bits_per_pixel = 32;
-		params.video_mode.fullscreen = false;		
+		params.video_mode.fullscreen = false;
 		game->core = de_core_init(&params);
 		de_renderer_set_framerate_limit(game->core->renderer, 0);
 	}
@@ -736,28 +746,28 @@ void test_visitor(game_t* game) {
 #if 1
 	{
 		de_object_visitor_t visitor;
-        de_scene_t* scene;
+		de_scene_t* scene;
 		de_node_t* node;
 		de_node_t* node2;
-        
+
 		de_object_visitor_load_binary(&visitor, "save.bin");
 
 		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Scene", &scene, de_scene_visit);
 		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Node", &node, de_node_visit);
 		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Node2", &node2, de_node_visit);
-		
+
 		de_object_visitor_free(&visitor);
 		de_scene_free(scene);
 	}
 #endif
 }
 
+int main(int argc, char** argv) {
+	game_t* game;
 
-int main(int argc, char** argv) {    
-    game_t* game;
-       
 	de_str8_tests();
-    
+
+
 	DE_UNUSED(argc);
 	DE_UNUSED(argv);
 

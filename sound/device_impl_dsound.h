@@ -27,7 +27,7 @@ void de_sound_device_send_data(de_sound_device_t* dev) {
 		IDirectSoundBuffer8_Lock(dev->buffer, dev->buffer_len, dev->buffer_len, &outputData, (LPDWORD)&size, 0, 0, 0);
 		memcpy(outputData, dev->out_buffer, size);
 		IDirectSoundBuffer8_Unlock(dev->buffer, outputData, size, 0, 0);
-	} else if (result == (WAIT_OBJECT_0 + 1)) {
+	} if (result == (WAIT_OBJECT_0 + 1)) {
 		IDirectSoundBuffer8_Lock(dev->buffer, 0, dev->buffer_len, &outputData, (LPDWORD)&size, 0, 0, 0);
 		memcpy(outputData, dev->out_buffer, size);
 		IDirectSoundBuffer8_Unlock(dev->buffer, outputData, size, 0, 0);
@@ -54,7 +54,7 @@ bool de_sound_device_setup(de_sound_device_t* dev) {
 	bufferFormat.cbSize = sizeof(WAVEFORMATEX);
 	bufferFormat.wFormatTag = WAVE_FORMAT_PCM;
 	bufferFormat.nChannels = 2;
-	bufferFormat.nSamplesPerSec = SW_OUTPUT_DEVICE_SAMPLE_RATE;
+	bufferFormat.nSamplesPerSec = DE_SOUND_DEVICE_SAMPLE_RATE;
 	bufferFormat.wBitsPerSample = 16;
 	bufferFormat.nBlockAlign = (bufferFormat.wBitsPerSample / 8) * bufferFormat.nChannels;
 	bufferFormat.nAvgBytesPerSec = bufferFormat.nSamplesPerSec * bufferFormat.nBlockAlign;

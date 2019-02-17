@@ -245,7 +245,7 @@
       </Completion>
     </Configuration>
     <Configuration Name="Release" CompilerType="MinGW-4.8.1" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="" C_Options="-g;-O2;-Wall;-std=c89;-pedantic;-Werror;" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+      <Compiler Options="" C_Options="-g;-O3;-Wall;-std=c89;-pedantic;-Werror;" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="."/>
         <IncludePath Value="../../."/>
         <IncludePath Value="../../external/"/>

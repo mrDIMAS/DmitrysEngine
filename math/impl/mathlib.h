@@ -503,24 +503,28 @@ float de_vec3_sqr_len(const de_vec3_t* a) {
 }
 
 de_vec3_t* de_vec3_normalize(de_vec3_t* out, const de_vec3_t* a) {
+    float k;
 	float len = de_vec3_len(a);
-	if (len > 0.00001f) {
-		float k = 1.0f / len;
-		out->x = a->x * k;
-		out->y = a->y * k;
-		out->z = a->z * k;
-	}
+#if DE_MATH_CHECKS
+	DE_CHECK_DENOMINATOR(len);
+#endif
+	k = 1.0f / len;
+	out->x = a->x * k;
+	out->y = a->y * k;
+	out->z = a->z * k;
 	return out;
 }
 
 de_vec3_t* de_vec3_normalize_ex(de_vec3_t* out, const de_vec3_t* a, float* length) {
+    float k;
 	*length = de_vec3_len(a);
-	if (*length > 0.00001f) {
-		float k = 1.0f / *length;
-		out->x = a->x * k;
-		out->y = a->y * k;
-		out->z = a->z * k;
-	}
+#if DE_MATH_CHECKS
+	DE_CHECK_DENOMINATOR(*length);
+#endif
+	k = 1.0f / *length;
+	out->x = a->x * k;
+	out->y = a->y * k;
+	out->z = a->z * k;	
 	return out;
 }
 
@@ -542,7 +546,11 @@ float de_vec3_sqr_distance(const de_vec3_t* a, const de_vec3_t* b) {
 }
 
 float de_vec3_angle(const de_vec3_t* a, const de_vec3_t* b) {
-	return (float)acos(de_vec3_dot(a, b) / (de_vec3_len(a) * de_vec3_len(b)));
+	float denominator = de_vec3_len(a) * de_vec3_len(b);
+#if DE_MATH_CHECKS
+	DE_CHECK_DENOMINATOR(denominator);
+#endif
+	return (float)acos(de_vec3_dot(a, b) / denominator);
 }
 
 de_vec3_t* de_vec3_project_plane(de_vec3_t* out, const de_vec3_t* point, const de_vec3_t* normal) {

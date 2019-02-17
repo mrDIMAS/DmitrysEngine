@@ -20,13 +20,17 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 de_sound_buffer_t* de_sound_buffer_create(de_sound_context_t* ctx, uint32_t flags) {
-	de_sound_buffer_t* buf = DE_NEW(de_sound_buffer_t);
+	de_sound_buffer_t* buf;
+	de_sound_context_lock(ctx);
+	buf = DE_NEW(de_sound_buffer_t);
 	buf->ctx = ctx;
 	buf->flags = flags;
+	de_sound_context_unlock(ctx);
 	return buf;
 }
 
 void de_sound_buffer_load_file(de_sound_buffer_t* buf, const char* file) {
+	de_sound_context_lock(buf->ctx);
 	buf->decoder = de_sound_decoder_init(file);
 	buf->channel_count = buf->decoder->channel_count;
 	if (buf->flags & DE_SOUND_BUFFER_FLAGS_STREAM) {
@@ -42,8 +46,14 @@ void de_sound_buffer_load_file(de_sound_buffer_t* buf, const char* file) {
 	if (!(buf->flags & DE_SOUND_BUFFER_FLAGS_STREAM)) {
 		de_sound_decoder_free(buf->decoder);
 	}
+	de_sound_context_unlock(buf->ctx);
 }
 
 void de_sound_buffer_free(de_sound_buffer_t* buf) {
+	de_sound_context_lock(buf->ctx);
+	if (buf->decoder) {
+		de_sound_decoder_free(buf->decoder);
+	}
 	de_free(buf);
+	de_sound_context_unlock(buf->ctx);
 }

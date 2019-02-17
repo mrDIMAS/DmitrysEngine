@@ -24,14 +24,19 @@
  * Each sample is normalized to [-1; 1] range so it is independent of
  * output device bit-depth.
  * You may say: "Hey, what the fuck, floats eats too much memory and slow
- * for mixing?!". That is true only for ancient hardware, modern CPU's 
- * are very fast at floating point operations and modern computers have enough 
+ * for mixing?!". That is true only for ancient hardware, modern CPU's
+ * are very fast at floating point operations and modern computers have enough
  * memory to store float samples.
  * Floats giving great flexibility in calculations, so we'll stick with them.
  */
 
 #define DE_SOUND_DEVICE_SAMPLE_RATE 44100
-#define DE_SOUND_MAX_CHANNELS 2 
+
+typedef enum de_sound_channel_type_t {
+	DE_SOUND_CHANNEL_LEFT,
+	DE_SOUND_CHANNEL_RIGHT,
+	DE_SOUND_MAX_CHANNELS
+} de_sound_channel_type_t;
 
 #include "sound/listener.h"
 #include "sound/device.h"

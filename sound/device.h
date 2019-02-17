@@ -27,7 +27,6 @@ typedef enum de_mixer_status_t {
 
 struct de_sound_device_t {
 	de_sound_context_t* ctx;
-	de_mtx_t mtx;
 	de_cnd_t cnd;
 	de_mixer_status_t mixer_status;
 	short* out_buffer;

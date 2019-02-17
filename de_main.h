@@ -39,6 +39,10 @@ extern "C" {
 /* Set this to 1 to disable asserts, could be useful for release builds to increase performance a bit. */
 #define DE_DISABLE_ASSERTS 0
 
+/* Enables additional code in the math library and allows you to catch division by zero, NAN's and other
+ * weird stuff. When 0 - gives absolutely zero performance impact. Very useful for debugging. */
+#define DE_MATH_CHECKS 1
+
 /* Suppress compiler-specific warnings */
 #ifdef _MSC_VER
 #  define _CRT_SECURE_NO_WARNINGS

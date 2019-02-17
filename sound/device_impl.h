@@ -48,18 +48,14 @@ static int de_sound_device_mixer_thread(void* ptr) {
 	de_sound_device_t* dev = (de_sound_device_t*)ptr;
 	de_log("Sound thread started!");
 	while (dev->mixer_status == DE_MIXER_STATUS_ACTIVE) {
-		float count = 0;
-		DE_LINKED_LIST_FOR_EACH(dev->ctx->sounds, src) {
-			++count;
-		}
-		de_mtx_lock(&dev->mtx);
+		de_sound_context_lock(dev->ctx);
 		for (i = 0; i < dev->buffer_len/2;) {
 			float samples[2] = { 0 };
 			DE_LINKED_LIST_FOR_EACH(dev->ctx->sounds, src) {
-				de_sound_source_sample(src, samples);
-			}		
-			samples[0] /= count;
-			samples[1] /= count;
+				if (de_sound_source_can_produce_samples(src)) {
+					de_sound_source_sample(src, samples);
+				}
+			}
 			if (samples[0] > 1.0f) {
 				samples[0] = 1.0f;
 			} else if (samples[0] < -1.0f) {
@@ -70,10 +66,10 @@ static int de_sound_device_mixer_thread(void* ptr) {
 			} else if (samples[1] < -1.0f) {
 				samples[1] = -1.0f;
 			}
-			dev->out_buffer[i++] = (short)(samples[0] * 32767);
-			dev->out_buffer[i++] = (short)(samples[1] * 32767);
+			dev->out_buffer[i++] = (short)(samples[0] * SHRT_MAX);
+			dev->out_buffer[i++] = (short)(samples[1] * SHRT_MAX);
 		}
-		de_mtx_unlock(&dev->mtx);
+		de_sound_context_unlock(dev->ctx);
 		/* send_data is locking so mutex is already unlocked here */
 		de_sound_device_send_data(dev);
 	}
@@ -88,10 +84,10 @@ bool de_sound_device_init(de_sound_context_t* ctx, de_sound_device_t* dev) {
 
 	de_zero(dev, sizeof(*dev));
 	dev->ctx = ctx;
-	dev->buffer_len = DE_SOUND_DEVICE_SAMPLE_RATE;
+	dev->buffer_len = DE_SOUND_DEVICE_SAMPLE_RATE / sizeof(short);
 	dev->out_buffer = de_calloc(dev->buffer_len, sizeof(*dev->out_buffer));
 	dev->mixer_status = DE_MIXER_STATUS_ACTIVE;
-	de_mtx_init(&dev->mtx);
+
 	de_cnd_init(&dev->cnd);
 
 	de_sound_device_setup(dev);
@@ -104,13 +100,12 @@ bool de_sound_device_init(de_sound_context_t* ctx, de_sound_device_t* dev) {
 
 void de_sound_device_free(de_sound_device_t* dev) {
 	dev->mixer_status = DE_MIXER_STATUS_NEED_STOP;
-	de_mtx_lock(&dev->mtx);
+	de_sound_context_lock(dev->ctx);
 	while (dev->mixer_status != DE_MIXER_STATUS_STOPPED) {
-		de_cnd_wait(&dev->cnd, &dev->mtx);
+		de_cnd_wait(&dev->cnd, &dev->ctx->mtx);
 	}
 	de_free(dev->out_buffer);
 	de_sound_device_shutdown(dev);
-	de_mtx_unlock(&dev->mtx);
-	de_mtx_destroy(&dev->mtx);
+	de_sound_context_unlock(dev->ctx);
 	de_cnd_destroy(&dev->cnd);
 }

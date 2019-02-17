@@ -2,18 +2,18 @@
 ## Auto Generated makefile by CodeLite IDE
 ## any manual changes will be erased      
 ##
-## Debug
+## Release
 ProjectName            :=test
-ConfigurationName      :=Debug
+ConfigurationName      :=Release
 WorkspacePath          :=C:/DmitrysEngine/DmitrysEngine/tests/codeliteproj
 ProjectPath            :=C:/DmitrysEngine/DmitrysEngine/tests/codeliteproj
-IntermediateDirectory  :=./Debug
+IntermediateDirectory  :=./Release
 OutDir                 := $(IntermediateDirectory)
 CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=mrDIMAS
-Date                   :=15/02/2019
+Date                   :=17/02/2019
 CodeLitePath           :="C:/Program Files/CodeLite"
 LinkerName             :=C:/Mingw_old/MinGW-4.8.1/bin/g++.exe
 SharedObjectLinkerName :=C:/Mingw_old/MinGW-4.8.1/bin/g++.exe -shared -fPIC
@@ -28,7 +28,7 @@ LibraryPathSwitch      :=-L
 PreprocessorSwitch     :=-D
 SourceSwitch           :=-c 
 OutputFile             :=../bin/test.exe
-Preprocessors          :=
+Preprocessors          :=$(PreprocessorSwitch)NDEBUG 
 ObjectSwitch           :=-o 
 ArchiveOutputSwitch    := 
 PreprocessOnlySwitch   :=-E
@@ -53,7 +53,7 @@ AR       := C:/Mingw_old/MinGW-4.8.1/bin/ar.exe rcu
 CXX      := C:/Mingw_old/MinGW-4.8.1/bin/g++.exe
 CC       := C:/Mingw_old/MinGW-4.8.1/bin/gcc.exe
 CXXFLAGS :=   $(Preprocessors)
-CFLAGS   :=  -g -O0 -Wall -std=c89 -pedantic -Werror  $(Preprocessors)
+CFLAGS   :=  -g -O3 -Wall -std=c89 -pedantic -Werror  $(Preprocessors)
 ASFLAGS  := 
 AS       := C:/Mingw_old/MinGW-4.8.1/bin/as.exe
 
@@ -81,11 +81,11 @@ $(OutputFile): $(IntermediateDirectory)/.d $(Objects)
 	$(LinkerName) $(OutputSwitch)$(OutputFile) @$(ObjectsFileList) $(LibPath) $(Libs) $(LinkOptions)
 
 MakeIntermediateDirs:
-	@$(MakeDirCommand) "./Debug"
+	@$(MakeDirCommand) "./Release"
 
 
 $(IntermediateDirectory)/.d:
-	@$(MakeDirCommand) "./Debug"
+	@$(MakeDirCommand) "./Release"
 
 PreBuild:
 
@@ -107,6 +107,6 @@ $(IntermediateDirectory)/up_src_main.c$(PreprocessSuffix): ../src/main.c
 ## Clean
 ##
 clean:
-	$(RM) -r ./Debug/
+	$(RM) -r ./Release/
 
 

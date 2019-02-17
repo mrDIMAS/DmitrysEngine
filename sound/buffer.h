@@ -25,7 +25,7 @@ typedef enum de_sound_format_t {
 } de_sound_format_t;
 
 typedef enum de_sound_buffer_flags_t {
-	DE_SOUND_BUFFER_FLAGS_STREAM = DE_BIT(0),
+	DE_SOUND_BUFFER_FLAGS_STREAM = DE_BIT(0) /**< Useful for huge sounds like music */
 } de_sound_buffer_flags_t;
 
 struct de_sound_buffer_t {
@@ -42,8 +42,22 @@ struct de_sound_buffer_t {
 	de_sound_decoder_t* decoder;
 };
 
+/**
+ * @brief Creates new sound buffer. Thread-safe.
+ */
 de_sound_buffer_t* de_sound_buffer_create(de_sound_context_t* ctx, uint32_t flags);
 
+/**
+ * @brief Uploads content of file into buffer. Thread-safe.
+ * 
+ * If used with DE_SOUND_BUFFER_FLAGS_STREAM flag, then reads small portion from file 
+ * and keeps it open until @de_sound_buffer_free is called. 
+ * 
+ * IMPORTANT: Streaming buffers can ONLY be used with only one sound source!
+ */
 void de_sound_buffer_load_file(de_sound_buffer_t* buf, const char* file);
 
+/**
+ * @brief Destroys sound buffer. Thread-safe.
+ */
 void de_sound_buffer_free(de_sound_buffer_t* buf);

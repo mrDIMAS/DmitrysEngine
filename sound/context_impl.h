@@ -21,6 +21,7 @@
 
 de_sound_context_t* de_sound_context_create(de_core_t* core) {
 	de_sound_context_t* ctx = DE_NEW(de_sound_context_t);
+	de_mtx_init(&ctx->mtx);
 	ctx->core = core;
 	de_sound_device_init(ctx, &ctx->dev);
 	return ctx;
@@ -28,6 +29,7 @@ de_sound_context_t* de_sound_context_create(de_core_t* core) {
 
 void de_sound_context_free(de_sound_context_t* ctx) {
 	de_sound_device_free(&ctx->dev);
+	de_mtx_destroy(&ctx->mtx);
 	de_free(ctx);
 }
 
@@ -36,4 +38,12 @@ void de_sound_context_update(de_sound_context_t* ctx) {
 	DE_LINKED_LIST_FOR_EACH(ctx->sounds, src) {
 
 	}
+}
+
+void de_sound_context_lock(de_sound_context_t* ctx) {
+	de_mtx_lock(&ctx->mtx);
+}
+
+void de_sound_context_unlock(de_sound_context_t* ctx) {
+	de_mtx_unlock(&ctx->mtx);
 }

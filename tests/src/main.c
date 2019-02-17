@@ -746,9 +746,9 @@ void test_visitor(game_t* game) {
 #if 1
 	{
 		de_object_visitor_t visitor;
-		de_scene_t* scene;
-		de_node_t* node;
-		de_node_t* node2;
+		de_scene_t* scene = NULL;
+		de_node_t* node = NULL;
+		de_node_t* node2 = NULL;
 
 		de_object_visitor_load_binary(&visitor, "save.bin");
 

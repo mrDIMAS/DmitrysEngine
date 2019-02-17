@@ -19,21 +19,37 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef struct de_sound_context_t {
+struct de_sound_context_t {
+	de_mtx_t mtx;
 	de_core_t* core;
 	de_sound_device_t dev;
 	DE_LINKED_LIST_DECLARE(de_sound_source_t, sounds);
-} de_sound_context_t;
+};
 
+/**
+ * @brief Internal. Creates new sound context.
+ */
 de_sound_context_t* de_sound_context_create(de_core_t* core);
 
+/**
+ * @brief Internal. Destroys sound context.
+ */
 void de_sound_context_free(de_sound_context_t* ctx);
 
 /**
-* @brief Applies properties of every sounds source. This function is blocking, which
-* means that mixer thread will be paused until every sound source isn't updated.
-* You should call this function at least 10 times per second to get decent
-* results.
-*/
+ * @brief Applies properties of every sounds source. This function is blocking, which
+ * means that mixer thread will be paused until every sound source isn't updated.
+ * You should call this function at least 10 times per second to get decent
+ * results.
+ */
 void de_sound_context_update(de_sound_context_t* ctx);
 
+/**
+ * @brief Internal. Locks context, use with caution.
+ */
+void de_sound_context_lock(de_sound_context_t* ctx);
+
+/**
+ * @brief Internal. Unlocks context, use with caution.
+ */
+void de_sound_context_unlock(de_sound_context_t* ctx);

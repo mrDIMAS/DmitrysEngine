@@ -20,7 +20,7 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 typedef enum de_sound_decoder_type_t {
-	DE_SOUND_DECODER_TYPE_WAV = 1,
+	DE_SOUND_DECODER_TYPE_WAV = 1
 } de_sound_decoder_type_t;
 
 struct de_sound_decoder_t {

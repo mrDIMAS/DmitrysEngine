@@ -19,6 +19,9 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+#define DE_CHECK_DENOMINATOR(n) if ((n) == 0) de_fatal_error("math assertion failed in %s. %s cannot be zero", __func__, DE_STRINGIZE(n));
+#define DE_CHECK_NAN(n) if ((n) == 0) de_fatal_error("math assertion failed in %s. %s is nan", __func__, DE_STRINGIZE(n));
+
 /**
  * Possible rotation orders
  */
@@ -361,7 +364,7 @@ float de_vec3_len(const de_vec3_t* a);
 float de_vec3_sqr_len(const de_vec3_t* a);
 
 /**
- * @brief Normalizes vector. If length of vector is less than Epsilon, vector will not be modified
+ * @brief Normalizes vector. If length of vector is zero, result is undefined.
  * @param out output vector
  * @param a input vector
  * @return normalized @a
@@ -369,7 +372,7 @@ float de_vec3_sqr_len(const de_vec3_t* a);
 de_vec3_t* de_vec3_normalize(de_vec3_t* out, const de_vec3_t* a);
 
 /**
- * @brief Normalizes vector. If length of vector is less than Epsilon, vector will not be modified
+ * @brief Normalizes vector. If length of vector is less than zero, result is undefined.
  * @param out output vector
  * @param a input vector
  * @param length output vector length, can NOT be NULL

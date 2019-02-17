@@ -2,21 +2,21 @@
 ## Auto Generated makefile by CodeLite IDE
 ## any manual changes will be erased      
 ##
-## Release
+## Linux_Debug
 ProjectName            :=test
-ConfigurationName      :=Release
-WorkspacePath          :=C:/DmitrysEngine/DmitrysEngine/tests/codeliteproj
-ProjectPath            :=C:/DmitrysEngine/DmitrysEngine/tests/codeliteproj
-IntermediateDirectory  :=./Release
+ConfigurationName      :=Linux_Debug
+WorkspacePath          :=/home/dmitry/DmitrysEngine/tests/codeliteproj
+ProjectPath            :=/home/dmitry/DmitrysEngine/tests/codeliteproj
+IntermediateDirectory  :=./Debug
 OutDir                 := $(IntermediateDirectory)
 CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
-User                   :=mrDIMAS
-Date                   :=17/02/2019
-CodeLitePath           :="C:/Program Files/CodeLite"
-LinkerName             :=C:/Mingw_old/MinGW-4.8.1/bin/g++.exe
-SharedObjectLinkerName :=C:/Mingw_old/MinGW-4.8.1/bin/g++.exe -shared -fPIC
+User                   :=dmitry
+Date                   :=17/02/19
+CodeLitePath           :=/home/dmitry/.codelite
+LinkerName             :=/usr/bin/g++
+SharedObjectLinkerName :=/usr/bin/g++ -shared -fPIC
 ObjectSuffix           :=.o
 DependSuffix           :=.o.d
 PreprocessSuffix       :=.i
@@ -28,40 +28,38 @@ LibraryPathSwitch      :=-L
 PreprocessorSwitch     :=-D
 SourceSwitch           :=-c 
 OutputFile             :=../bin/test.exe
-Preprocessors          :=$(PreprocessorSwitch)NDEBUG 
+Preprocessors          :=
 ObjectSwitch           :=-o 
 ArchiveOutputSwitch    := 
 PreprocessOnlySwitch   :=-E
 ObjectsFileList        :="test.txt"
 PCHCompileFlags        :=
-MakeDirCommand         :=makedir
-RcCmpOptions           := 
-RcCompilerName         :=C:/Mingw_old/MinGW-4.8.1/bin/windres.exe
+MakeDirCommand         :=mkdir -p
 LinkOptions            :=  
 IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch). $(IncludeSwitch)../../. $(IncludeSwitch)../../external/ 
 IncludePCH             := 
 RcIncludePath          := 
-Libs                   := $(LibrarySwitch)opengl32 $(LibrarySwitch)dsound $(LibrarySwitch)gdi32 $(LibrarySwitch)dxguid 
-ArLibs                 :=  "opengl32" "dsound" "gdi32" "dxguid" 
+Libs                   := $(LibrarySwitch)GL $(LibrarySwitch)pthread $(LibrarySwitch)asound $(LibrarySwitch)X11 $(LibrarySwitch)Xrandr 
+ArLibs                 :=  "GL" "pthread" "asound" "X11" "Xrandr" 
 LibPath                := $(LibraryPathSwitch). 
 
 ##
 ## Common variables
 ## AR, CXX, CC, AS, CXXFLAGS and CFLAGS can be overriden using an environment variables
 ##
-AR       := C:/Mingw_old/MinGW-4.8.1/bin/ar.exe rcu
-CXX      := C:/Mingw_old/MinGW-4.8.1/bin/g++.exe
-CC       := C:/Mingw_old/MinGW-4.8.1/bin/gcc.exe
+AR       := /usr/bin/ar rcu
+CXX      := /usr/bin/g++
+CC       := /usr/bin/gcc
 CXXFLAGS :=   $(Preprocessors)
-CFLAGS   :=  -g -O3 -Wall -std=c89 -pedantic -Werror  $(Preprocessors)
+CFLAGS   :=  -g -O0 -Wall -std=c99 -pedantic -Werror  $(Preprocessors)
 ASFLAGS  := 
-AS       := C:/Mingw_old/MinGW-4.8.1/bin/as.exe
+AS       := /usr/bin/as
 
 
 ##
 ## User defined environment variables
 ##
-CodeLiteDir:=C:\Program Files\CodeLite
+CodeLiteDir:=/usr/share/codelite
 Objects0=$(IntermediateDirectory)/up_src_main.c$(ObjectSuffix) 
 
 
@@ -81,11 +79,11 @@ $(OutputFile): $(IntermediateDirectory)/.d $(Objects)
 	$(LinkerName) $(OutputSwitch)$(OutputFile) @$(ObjectsFileList) $(LibPath) $(Libs) $(LinkOptions)
 
 MakeIntermediateDirs:
-	@$(MakeDirCommand) "./Release"
+	@test -d ./Debug || $(MakeDirCommand) ./Debug
 
 
 $(IntermediateDirectory)/.d:
-	@$(MakeDirCommand) "./Release"
+	@test -d ./Debug || $(MakeDirCommand) ./Debug
 
 PreBuild:
 
@@ -94,7 +92,7 @@ PreBuild:
 ## Objects
 ##
 $(IntermediateDirectory)/up_src_main.c$(ObjectSuffix): ../src/main.c $(IntermediateDirectory)/up_src_main.c$(DependSuffix)
-	$(CC) $(SourceSwitch) "C:/DmitrysEngine/DmitrysEngine/tests/src/main.c" $(CFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/up_src_main.c$(ObjectSuffix) $(IncludePath)
+	$(CC) $(SourceSwitch) "/home/dmitry/DmitrysEngine/tests/src/main.c" $(CFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/up_src_main.c$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/up_src_main.c$(DependSuffix): ../src/main.c
 	@$(CC) $(CFLAGS) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/up_src_main.c$(ObjectSuffix) -MF$(IntermediateDirectory)/up_src_main.c$(DependSuffix) -MM ../src/main.c
 
@@ -107,6 +105,6 @@ $(IntermediateDirectory)/up_src_main.c$(PreprocessSuffix): ../src/main.c
 ## Clean
 ##
 clean:
-	$(RM) -r ./Release/
+	$(RM) -r ./Debug/
 
 

@@ -49,6 +49,7 @@ extern "C" {
 #  pragma warning(disable : 4204 4820)
 #elif defined __GNUC__
 #  pragma GCC diagnostic ignored "-Woverlength-strings" /* built-in shaders does not fit in C89 limits of 512 chars */
+#  define _POSIX_C_SOURCE 200809L
 #else
 #error Compiler not supported
 #endif
@@ -60,9 +61,9 @@ extern "C" {
 #define DE_STRINGIZE(x) DE_STRINGIZE_(x)
 
 #if DE_DISABLE_ASSERTS
-#define DE_ASSERT
+#  define DE_ASSERT
 #else 
-#define DE_ASSERT(expression) assert(expression)
+#  define DE_ASSERT(expression) assert(expression)
 #endif
 
 typedef void(*de_proc)(void);
@@ -80,7 +81,8 @@ typedef void(*de_proc)(void);
 #include <assert.h>
 #include <ctype.h>
 #include <inttypes.h>
-#include <process.h>
+#include <limits.h>
+/*#include <process.h>*/
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -93,8 +95,10 @@ typedef void(*de_proc)(void);
 #  include <windows.h>
 #else
 #  include <X11/Xlib.h>
+#  include <X11/extensions/Xrandr.h>
 #  define __USE_MISC
 #  include <unistd.h>
+#  include <alsa/asoundlib.h>
 #endif
 
 /* OpenGL */

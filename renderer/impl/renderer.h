@@ -863,8 +863,9 @@ static void de_renderer_remove_texture(de_renderer_t* r, de_texture_t* tex) {
 static void de_renderer_upload_texture(de_texture_t* texture) {
 	GLint internalFormat;
 	GLint format;
+#if 0
 	GLfloat max_anisotropy;
-
+#endif
 	switch (texture->byte_per_pixel) {
 		case 3:
 			internalFormat = GL_RGB;
@@ -888,8 +889,10 @@ static void de_renderer_upload_texture(de_texture_t* texture) {
 	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
 	DE_GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
-	DE_GL_CALL(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_anisotropy));
+#if 0
+	DE_GL_CALL(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &max_anisotropy));
 	DE_GL_CALL(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy));
+#endif
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 
 	texture->need_upload = false;

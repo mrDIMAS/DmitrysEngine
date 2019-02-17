@@ -26,6 +26,8 @@ typedef struct de_video_mode_t {
 	bool fullscreen;
 } de_video_mode_t;
 
+typedef DE_ARRAY_DECLARE(de_video_mode_t, de_video_mode_array_t);
+
 typedef enum de_core_flags_t {
 	DE_CORE_FLAGS_BORDERLESS = DE_BIT(0)
 } de_core_flags_t;
@@ -171,15 +173,7 @@ void de_get_desktop_video_mode(de_video_mode_t* vm);
 
 /**
  * @brief Enumerates available video modes.
- * 
- * Typical usage:
- * 
- * int n = 0;
- * de_video_mode_t vm;
- * while(de_enum_video_modes(&vm, n++)) {
- *   ..do stuff
- * }
- * 
+ *
  * Note: Function may return duplicated videomodes! You have to filter them by yourself.
  */
-bool de_enum_video_modes(de_video_mode_t* vm, int n);
+de_video_mode_array_t de_enum_video_modes();

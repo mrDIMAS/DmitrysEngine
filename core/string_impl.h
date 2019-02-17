@@ -323,13 +323,13 @@ void de_str8_tests(void) {
 			de_str8_set(&str, "some string with some tokens");
 			de_str8_view_set_cstr(&with, "foobar");
 			de_str8_replace(&str, &what, &with);
-			printf(de_str8_cstr(&str));
+			printf("%s", de_str8_cstr(&str));
 		}
 		{
 			de_str8_set(&str, "some string with some tokens some");
 			de_str8_view_set_cstr(&with, "foo");
 			de_str8_replace(&str, &what, &with);
-			printf(de_str8_cstr(&str));
+			printf("%s", de_str8_cstr(&str));
 		}
 
 		de_str8_free(&str);
@@ -339,7 +339,7 @@ void de_str8_tests(void) {
 	{
 		de_str8_init(&str);
 		de_str8_format(&str, "Some numbers: %d %f foo", 123, 456.789);
-		printf(de_str8_cstr(&str));
+		printf("%s", de_str8_cstr(&str));
 		de_str8_free(&str);
 	}
 }

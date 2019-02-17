@@ -478,7 +478,7 @@ void de_object_visitor_load_binary(de_object_visitor_t* visitor, const char* fil
 
 
 bool de_object_visitor_visit_array(de_object_visitor_t* visitor, const char* name, void** array, size_t* item_count, size_t item_size, de_visit_callback_t callback) {
-	size_t i;
+	uint32_t i;
 	uint32_t length;
 
 	if (!de_object_visitor_enter_node(visitor, name)) {
@@ -513,7 +513,7 @@ bool de_object_visitor_visit_array(de_object_visitor_t* visitor, const char* nam
 
 
 bool de_object_visitor_visit_pointer_array(de_object_visitor_t* visitor, const char* name, void** array, size_t* item_count, size_t pointee_size, de_visit_callback_t callback) {
-    size_t i;
+    uint32_t i;
     uint32_t length;
     void** pointers;
     
@@ -575,7 +575,7 @@ bool de_object_visitor_visit_pointer_array_ex(de_object_visitor_t* visitor, cons
 
 
 bool de_object_visitor_visit_intrusive_linked_list(de_object_visitor_t* visitor, const char* name, void** head, void** tail, size_t next_offset, size_t prev_offset, size_t item_size, de_visit_callback_t callback) {
-	size_t i;
+	uint32_t i;
 	bool result = true;
 	void* item = NULL, *prev_item = NULL;
 	uint32_t length = 0;

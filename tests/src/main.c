@@ -19,7 +19,7 @@ struct main_menu_t {
 	de_sound_source_t* music;
 	game_t* game;
 	de_gui_node_t* window;
-	DE_ARRAY_DECLARE(de_video_mode_t, video_modes);
+	de_video_mode_array_t video_modes;
 	bool visible;
 };
 
@@ -322,8 +322,10 @@ void player_update(player_t* p) {
 		speed_multiplier = p->run_speed_multiplier;
 	}
 
-	de_vec3_normalize(&offset, &offset);
-	de_vec3_scale(&offset, &offset, speed_multiplier * p->move_speed);
+    if(is_moving) {	
+        de_vec3_normalize(&offset, &offset);
+        de_vec3_scale(&offset, &offset, speed_multiplier * p->move_speed);    
+    }
 
 	p->yaw += (p->desired_yaw - p->yaw) * 0.22f;
 	p->pitch += (p->desired_pitch - p->pitch) * 0.22f;
@@ -534,10 +536,7 @@ main_menu_t* main_menu_create(game_t* game) {
 			de_gui_grid_add_row(grid, 100, DE_GUI_SIZE_MODE_STRICT);
 
 			/* videomode */
-			{
-				int n = 0;
-				size_t k;
-				de_video_mode_t video_mode;
+			{				
 				de_gui_node_t* selector;
 				de_gui_node_t* videomode_text = de_gui_text_create(gui);
 				de_gui_text_set_text_utf8(videomode_text, "Video Mode");
@@ -552,21 +551,7 @@ main_menu_t* main_menu_create(game_t* game) {
 				de_gui_node_set_column(selector, 1);
 				de_gui_node_attach(selector, grid);
 				de_gui_slide_selector_set_selection_changed(selector, videomode_selector_on_selection_changed);
-				while (de_enum_video_modes(&video_mode, n++)) {
-					bool duplicate = false;
-					for (k = 0; k < menu->video_modes.size; ++k) {
-						de_video_mode_t* existing = menu->video_modes.data + k;
-						if (existing->width == video_mode.width &&
-							existing->height == video_mode.height &&
-							existing->bits_per_pixel == video_mode.bits_per_pixel) {
-							duplicate = true;
-							break;
-						}
-					}
-					if (!duplicate) {
-						DE_ARRAY_APPEND(menu->video_modes, video_mode);
-					}
-				}
+				menu->video_modes = de_enum_video_modes();
 				de_gui_slide_selector_set_items(selector, menu->video_modes.data, menu->video_modes.size, videomode_selector_item_getter);
 			}
 
@@ -634,12 +619,13 @@ void game_main_loop(game_t* game) {
 	game_clock = de_time_get_seconds();
 	while (de_core_is_running(game->core)) {
 		dt = de_time_get_seconds() - game_clock;
-		while (dt >= fixed_timestep) {
+		//while (dt >= fixed_timestep) {
+        {
 			de_scene_t* scene;
 			de_event_t evt;
 			if (dt >= 4 * fixed_timestep) {
 				game_clock = de_time_get_seconds();
-				break;
+				//break;
 			}
 
 			dt -= fixed_timestep;
@@ -690,8 +676,8 @@ void game_main_loop(game_t* game) {
 
 			snprintf(buffer, sizeof(buffer), "Frame time: %.2f ms\nFPS: %d\nAllocations: %d",
 				frame_time,
-				fps,
-				de_get_alloc_count());
+				(int)fps,
+				(int)de_get_alloc_count());
 			de_gui_text_set_text_utf8(game->fps_text, buffer);
 		}
 	}

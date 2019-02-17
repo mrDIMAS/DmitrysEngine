@@ -38,9 +38,12 @@ void de_sound_device_send_data(de_sound_device_t* dev) {
 bool de_sound_device_setup(de_sound_device_t* dev) {
 	snd_pcm_hw_params_t *hw_params;
 	snd_pcm_sw_params_t *sw_params;
+    snd_pcm_access_t access;
+    unsigned int exactRate;
+    long unsigned int exactSize;
 	int err;
 
-	dev->frameCount = bufferHalfSize / 4; /* 16-bit stereo is 4 bytes, so frame count is bufferHalfSize / 4 */
+	dev->frameCount = dev->buffer_len / 4; /* 16-bit stereo is 4 bytes, so frame count is bufferHalfSize / 4 */
 
 	if ((err = snd_pcm_open(&dev->playbackDevice, "default", SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
 		de_log("ALSA Error unable to snd_pcm_open: %s", snd_strerror(err));
@@ -54,7 +57,7 @@ bool de_sound_device_setup(de_sound_device_t* dev) {
 		de_log("ALSA Error unable to snd_pcm_hw_params_any: %s", snd_strerror(err));
 	}
 
-	snd_pcm_access_t access = SND_PCM_ACCESS_RW_INTERLEAVED;
+	access = SND_PCM_ACCESS_RW_INTERLEAVED;
 	if ((err = snd_pcm_hw_params_set_access(dev->playbackDevice, hw_params, access)) < 0) {
 		de_log("ALSA Error unable to snd_pcm_hw_params_set_access: %s", snd_strerror(err));
 	}
@@ -63,7 +66,7 @@ bool de_sound_device_setup(de_sound_device_t* dev) {
 		de_log("ALSA Error unable to snd_pcm_hw_params_set_format: %s", snd_strerror(err));
 	}
 
-	unsigned int exactRate = DE_SOUND_DEVICE_SAMPLE_RATE;
+	exactRate = DE_SOUND_DEVICE_SAMPLE_RATE;
 	if ((err = snd_pcm_hw_params_set_rate_near(dev->playbackDevice, hw_params, &exactRate, 0)) < 0) {
 		de_log("ALSA Error unable to snd_pcm_hw_params_set_rate_near: %s", snd_strerror(err));
 	}
@@ -76,7 +79,7 @@ bool de_sound_device_setup(de_sound_device_t* dev) {
 	}
 
 	/* dev->frameCount * 2 because user defines size of buffer's half, but for removing 'clicks' we need to use full sized buffer */
-	long unsigned int exactSize = dev->frameCount * 2;
+	exactSize = dev->frameCount * 2;
 	if (snd_pcm_hw_params_set_buffer_size_near(dev->playbackDevice, hw_params, &exactSize) < 0) {
 		de_log("ALSA Error unable to snd_pcm_hw_params_set_buffer_size_near: %s", snd_strerror(err));
 	}

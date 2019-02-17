@@ -168,7 +168,7 @@ static int ctxErrorHandler(Display *dpy, XErrorEvent *ev) {
 	return 0;
 }
 
-void de_core_platform_init(void) {
+void de_core_platform_init(de_core_t* core) {
 	int glx_major, glx_minor;
 	XSetWindowAttributes swa;
 	Colormap cmap;
@@ -176,16 +176,10 @@ void de_core_platform_init(void) {
 	Display *display;
 	GLXFBConfig* fbc;
 	int i;
-	Window* rootWindow;
+	Window rootWindow;
+    GLXFBConfig bestFbc;
 	glXCreateContextAttribsARBProc glXCreateContextAttribsARB = NULL;
 	int best_fbc = -1, worst_fbc = -1, best_num_samp = -1, worst_num_samp = 999;
-
-	display = XOpenDisplay(NULL);
-	if (!display) {
-		de_error("Failed to open X display\n");
-	}
-
-	/* Get a matching FB config */
 	static int visual_attribs[] =
 	{
 		GLX_X_RENDERABLE, True,
@@ -201,15 +195,20 @@ void de_core_platform_init(void) {
 		GLX_DOUBLEBUFFER, True,
 		None
 	};
+    
+	display = XOpenDisplay(NULL);
+	if (!display) {
+		de_fatal_error("Failed to open X display\n");
+	}
 
 	/* FBConfigs were added in GLX version 1.3. */
 	if (!glXQueryVersion(display, &glx_major, &glx_minor) || ((glx_major == 1) && (glx_minor < 3)) || (glx_major < 1)) {
-		de_error("Invalid GLX version");
+		de_fatal_error("Invalid GLX version");
 	}
 
 	fbc = glXChooseFBConfig(display, DefaultScreen(display), visual_attribs, &fbcount);
 	if (!fbc) {
-		de_error("Failed to retrieve a framebuffer config");
+		de_fatal_error("Failed to retrieve a framebuffer config");
 	}
 
 	/* Pick the FB config/visual with the most samples per pixel */
@@ -220,7 +219,7 @@ void de_core_platform_init(void) {
 			glXGetFBConfigAttrib(display, fbc[i], GLX_SAMPLE_BUFFERS, &samp_buf);
 			glXGetFBConfigAttrib(display, fbc[i], GLX_SAMPLES, &samples);
 
-			if (best_fbc < 0 || samp_buf && samples > best_num_samp) {
+			if (best_fbc < 0 || (samp_buf && samples > best_num_samp)) {
 				best_fbc = i;
 				best_num_samp = samples;
 			}
@@ -232,7 +231,7 @@ void de_core_platform_init(void) {
 		XFree(vi);
 	}
 
-	GLXFBConfig bestFbc = fbc[best_fbc];
+	bestFbc = fbc[best_fbc];
 
 	/* Be sure to free the FBConfig list allocated by glXChooseFBConfig() */
 	XFree(fbc);
@@ -249,11 +248,11 @@ void de_core_platform_init(void) {
 		EnterWindowMask | LeaveWindowMask | PointerMotionMask;
 
 	Window win = XCreateWindow(display, rootWindow,
-		0, 0, de_core->params.width, de_core->params.height, 0, vi->depth, InputOutput,
+		0, 0, core->params.video_mode.width, core->params.video_mode.height, 0, vi->depth, InputOutput,
 		vi->visual,
 		CWBorderPixel | CWColormap | CWEventMask, &swa);
 	if (!win) {
-		de_error("Failed to create window.");
+		de_fatal_error("Failed to create window.");
 	}
 
 	XFree(vi);
@@ -284,7 +283,7 @@ void de_core_platform_init(void) {
 	int(*oldHandler)(Display*, XErrorEvent*) = XSetErrorHandler(&ctxErrorHandler);
 
 	if (!isExtensionSupported(glxExts, "GLX_ARB_create_context") || !glXCreateContextAttribsARB) {
-		de_error("GLX_ARB_create_context is not supported!");
+		de_fatal_error("GLX_ARB_create_context is not supported!");
 	} else {
 		int context_attribs[] =
 		{
@@ -302,7 +301,7 @@ void de_core_platform_init(void) {
 		XSync(display, False);
 
 		if (ctxErrorOccurred || !ctx) {
-			de_error("Unable to create OpenGL 3.3 Core Context! It is required minimum!");
+			de_fatal_error("Unable to create OpenGL 3.3 Core Context! It is required minimum!");
 		}
 
 		de_log("Core Context Created!");
@@ -315,7 +314,7 @@ void de_core_platform_init(void) {
 	XSetErrorHandler(oldHandler);
 
 	if (ctxErrorOccurred || !ctx) {
-		de_error("Failed to create an OpenGL context");
+		de_fatal_error("Failed to create an OpenGL context");
 	}
 
 	/* Verifying that context is a direct context */
@@ -328,85 +327,104 @@ void de_core_platform_init(void) {
 	de_log("Making context current\n");
 	glXMakeCurrent(display, win, ctx);
 
-	de_core->platform.display = display;
-	de_core->platform.glContext = ctx;
-	de_core->platform.window = win;
+	core->platform.display = display;
+	core->platform.glContext = ctx;
+	core->platform.window = win;
 }
 
-void de_core_platform_shutdown(void) {
-	glXMakeCurrent(de_engine->platform.display, 0, 0);
-	glXDestroyContext(de_engine->platform.display, de_engine->platform.glContext);
+void de_core_platform_shutdown(de_core_t* core) {
+	glXMakeCurrent(core->platform.display, 0, 0);
+	glXDestroyContext(core->platform.display, core->platform.glContext);
 
-	XDestroyWindow(de_engine->platform.display, de_engine->platform.window);
-	XCloseDisplay(de_engine->platform.display);
+	XDestroyWindow(core->platform.display, core->platform.window);
+	XCloseDisplay(core->platform.display);
 }
 
-void de_core_platform_poll_events(void) {
+void de_core_platform_poll_events(de_core_t* core) {
+    int i, key;
+    static int lastx, lasty;
 	XEvent event;
-	Display* dpy = de_engine->platform.display;
-
+	Display* dpy = core->platform.display;
+	de_event_t evt;    
 	while (XEventsQueued(dpy, QueuedAfterFlush) != 0) {
 		XNextEvent(dpy, &event);
-
 		switch (event.type) {
 			case DestroyNotify:
-			{
-				de_engine->running = false;
+                evt.type = DE_EVENT_TYPE_CLOSE;
+				de_core_push_event(core, &evt);				
 				break;
-			}
-
-			case KeyRelease:
-			case KeyPress:
-			{
-				int i, key;
-				for (i = 0; i < 4; ++i) {
+            case KeyRelease:
+                for (i = 0; i < 4; ++i) {
 					key = de_remap_key(XLookupKeysym(&event.xkey, i));
-
 					if (key != DE_KEY_UKNOWN) {
 						break;
 					}
-				}
-				de_engine->keys[key] = event.xkey.type == KeyPress;
-				break;
-			}
+				}            
+                evt.type = DE_EVENT_TYPE_KEY_UP;
+				evt.s.key.key = key;
+                evt.s.key.alt = event.xkey.state & Mod1Mask;
+                evt.s.key.control = event.xkey.state & ControlMask;
+                evt.s.key.shift = event.xkey.state & ShiftMask;
+                evt.s.key.system = event.xkey.state & Mod4Mask;
+                de_core_push_event(core, &evt);
+                break;
+			case KeyPress:							
+				for (i = 0; i < 4; ++i) {
+					key = de_remap_key(XLookupKeysym(&event.xkey, i));
+					if (key != DE_KEY_UKNOWN) {
+						break;
+					}
+				}            
+                evt.type = DE_EVENT_TYPE_KEY_DOWN;
+				evt.s.key.key = key;
+                evt.s.key.alt = event.xkey.state & Mod1Mask;
+                evt.s.key.control = event.xkey.state & ControlMask;
+                evt.s.key.shift = event.xkey.state & ShiftMask;
+                evt.s.key.system = event.xkey.state & Mod4Mask;
+                de_core_push_event(core, &evt);		
 
+                /* generate TEXT_ENTER here */
+				break;
 			case ButtonRelease:
-			case ButtonPress:
-			{
-				int i;
+                evt.type = DE_EVENT_TYPE_MOUSE_UP;
+                evt.s.mouse_up.x = event.xbutton.x;
+                evt.s.mouse_up.y = event.xbutton.y;
 				switch (event.xbutton.button) {
-					case Button1: i = 0; break;
-					case Button2: i = 1; break;
-					case Button3: i = 2; break;
-					case 8: i = 3; break;
-					case 9: i = 4; break;
-					default: i = -1; break;
+					case Button1: evt.s.mouse_up.button = 0; break;
+					case Button2: evt.s.mouse_up.button = 1; break;
+					case Button3: evt.s.mouse_up.button = 2; break;
+					case 8: evt.s.mouse_up.button = 3; break;
+					case 9: evt.s.mouse_up.button = 4; break;
+					default: evt.s.mouse_up.button = -1; break;
 				}
-
-				if (i >= 0) {
-					de_engine->mouse_buttons[i] = event.xbutton.type == ButtonPress;
+                de_core_push_event(core, &evt);
+                break;
+			case ButtonPress:            
+                evt.type = DE_EVENT_TYPE_MOUSE_DOWN;
+                evt.s.mouse_down.x = event.xbutton.x;
+                evt.s.mouse_down.y = event.xbutton.y;
+				switch (event.xbutton.button) {
+					case Button1: evt.s.mouse_down.button = 0; break;
+					case Button2: evt.s.mouse_down.button = 1; break;
+					case Button3: evt.s.mouse_down.button = 2; break;
+					case 8: evt.s.mouse_down.button = 3; break;
+					case 9: evt.s.mouse_down.button = 4; break;
+					default: evt.s.mouse_down.button = -1; break;
 				}
+                de_core_push_event(core, &evt);	
 				break;
-			}
-
 			case MotionNotify:
-			{
-				int x = event.xmotion.x;
-				int y = event.xmotion.y;
-
-				de_engine->mouse_vel.x = x - de_engine->mouse_pos.x;
-				de_engine->mouse_vel.y = y - de_engine->mouse_pos.y;
-
-				de_engine->mouse_pos.x = (float)x;
-				de_engine->mouse_pos.y = (float)y;
-
+                evt.type = DE_EVENT_TYPE_MOUSE_MOVE;
+                evt.s.mouse_move.x = event.xmotion.x;
+                evt.s.mouse_move.y = event.xmotion.y;
+                evt.s.mouse_move.vx = evt.s.mouse_move.x - lastx;
+				evt.s.mouse_move.vy = evt.s.mouse_move.y - lasty;
+				lastx = evt.s.mouse_move.x;
+				lasty = evt.s.mouse_move.y;
+				de_core_push_event(core, &evt);
 				break;
-			}
-
-			default:
-			{
-				break;
-			}
+			default:			
+				break;			
 		}
 	}
 }
@@ -415,19 +433,168 @@ de_proc de_core_platform_get_proc_address(const char *name) {
 	return glXGetProcAddress((const GLubyte*)name);
 }
 
-void de_core_platform_swap_buffers() {
-	glXSwapBuffers(de_engine->platform.display, de_engine->platform.window);
+void de_core_platform_swap_buffers(de_core_t* core) {
+	glXSwapBuffers(core->platform.display, core->platform.window);
 }
 
-void de_core_platform_message_box(const char * msg) {
+void de_core_platform_message_box(de_core_t* core, const char * msg, const char* title) {
 	/* Stub */
-	printf(msg);
+	printf("%s", msg);
 }
 
-float de_time_get_seconds(void) {
-	return clock() / (float)CLOCKS_PER_SEC;
+double de_time_get_seconds(void) {
+    struct timespec t;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t);
+    return t.tv_nsec / 1000000000.0;	
 }
 
 void de_sleep(int milliseconds) {
 	usleep(milliseconds * 1000);
+}
+
+char* de_clipboard_get_text() {
+    return (char*)de_calloc(1,1);
+}
+
+void de_clipboard_set_text(char* data) {
+    (void)data;
+}
+
+de_video_mode_array_t de_enum_video_modes() {
+    int i,j,k;
+    de_video_mode_array_t modes;
+    DE_ARRAY_INIT(modes);
+    Display* display = XOpenDisplay(NULL);
+    if(display) {
+        int screen = DefaultScreen(display);
+        int version;
+        if(XQueryExtension(display, "RANDR", &version, &version, &version)) {
+            XRRScreenConfiguration* config = XRRGetScreenInfo(display, RootWindow(display, screen));
+            if(config) {
+                int num_sizes;
+                XRRScreenSize* sizes = XRRConfigSizes(config, &num_sizes);
+                if(sizes && num_sizes > 0) {
+                    int num_depths = 0;
+                    int* depths = XListDepths(display, screen, &num_depths);                    
+                    if(depths && num_depths > 0) {
+                        for(i=0;i< num_depths;++i) {
+                            for(j=0;j<num_sizes;++j) {
+                                Rotation rotation;
+                                bool duplicate = false;
+                                de_video_mode_t vm;
+                                
+                                vm.width = sizes[j].width;
+                                vm.height = sizes[j].height;
+                                vm.bits_per_pixel = depths[i];
+                                vm.fullscreen = true;
+                                
+                                XRRConfigRotations(config, &rotation);
+                                if(rotation == RR_Rotate_90 || rotation == RR_Rotate_270) {
+                                    int temp = vm.width;
+                                    vm.width = vm.height;
+                                    vm.height = temp;
+                                }
+                                                                
+                                for (k = 0; k < modes.size; ++k) {
+                                    de_video_mode_t* existing = modes.data + k;
+                                    if (existing->width == vm.width &&
+                                        existing->height == vm.height &&
+                                        existing->bits_per_pixel == vm.bits_per_pixel) {
+                                        duplicate = true;
+                                        break;
+                                    }
+                                }
+                                
+                                if(!duplicate) {
+                                    DE_ARRAY_APPEND(modes, vm);
+                                }
+                            }
+                        }
+                    }   
+                    XFree(depths);
+                }                
+                XRRFreeScreenConfigInfo(config);
+            } else {
+                de_log("failed to get desktop video mode");
+            }
+        } else {
+             de_log("RANDR is not supported");
+        }
+        XCloseDisplay(display);
+    } else {
+        de_log("failed to connect to X11 server");
+    }
+    return modes;
+}
+
+void de_core_set_video_mode(de_core_t* core, const de_video_mode_t* vm) {
+    XRRScreenConfiguration* config;
+    int version, i, screen;
+    
+    if(!XQueryExtension(core->platform.display, "RANDR", &version, &version, &version)) {
+        de_log("unable to set videomode, randr not supported");
+        return;
+    }
+    
+    screen = DefaultScreen(core->platform.display);
+    
+    config = XRRGetScreenInfo(core->platform.display, RootWindow(core->platform.display, screen));
+    if(config) {
+        int num_sizes;
+        XRRScreenSize* sizes;
+        sizes = XRRConfigSizes(config, &num_sizes);
+        if(sizes) {     
+            for(i=0;i<num_sizes;++i) {
+                Rotation rotation;                
+                XRRConfigRotations(config, &rotation);
+                if(rotation == RR_Rotate_90 || rotation == RR_Rotate_270) {
+                    int temp = sizes[i].width;
+                    sizes[i].width = sizes[i].height;
+                    sizes[i].height = temp;
+                }
+                
+                if(sizes[i].width == (int)vm->width && sizes[i].height == (int)vm->height) {
+                    XRRSetScreenConfig(core->platform.display, config, RootWindow(core->platform.display, screen), i, rotation, CurrentTime);
+                    break;
+                }
+            }        
+        }
+        XRRFreeScreenConfigInfo(config);
+    } else {
+        de_log("unable to set videomode");
+    }    
+}
+
+void de_get_desktop_video_mode(de_video_mode_t* vm) {
+    Display* display = XOpenDisplay(NULL);
+    if(display) {
+        int screen = DefaultScreen(display);
+        int version;
+        if(XQueryExtension(display, "RANDR", &version, &version, &version)) {
+            XRRScreenConfiguration* config = XRRGetScreenInfo(display, RootWindow(display, screen));
+            if(config) {
+                int num_sizes;
+                Rotation rotation;
+                XRRScreenSize* sizes;
+                int current_mode = XRRConfigCurrentConfiguration(config, &rotation);
+                
+                sizes = XRRConfigSizes(config, &num_sizes);
+                if(sizes && num_sizes > 0) {
+                    vm->width = sizes[current_mode].width;
+                    vm->height = sizes[current_mode].height;
+                    vm->bits_per_pixel = DefaultDepth(display, screen);
+                    vm->fullscreen = true;
+                }
+                
+                XRRFreeScreenConfigInfo(config);
+            } else {
+                de_log("failed to get desktop video mode");
+            }
+        } else {
+             de_log("RANDR is not supported");
+        }
+        XCloseDisplay(display);
+    } else {
+        de_log("failed to connect to X11 server");
+    }
 }

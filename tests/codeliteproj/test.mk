@@ -2,21 +2,21 @@
 ## Auto Generated makefile by CodeLite IDE
 ## any manual changes will be erased      
 ##
-## Linux_Debug
+## Debug
 ProjectName            :=test
-ConfigurationName      :=Linux_Debug
-WorkspacePath          :=/home/dmitry/DmitrysEngine/tests/codeliteproj
-ProjectPath            :=/home/dmitry/DmitrysEngine/tests/codeliteproj
+ConfigurationName      :=Debug
+WorkspacePath          :=C:/DmitrysEngine/DmitrysEngine/tests/codeliteproj
+ProjectPath            :=C:/DmitrysEngine/DmitrysEngine/tests/codeliteproj
 IntermediateDirectory  :=./Debug
 OutDir                 := $(IntermediateDirectory)
 CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
-User                   :=dmitry
-Date                   :=17/02/19
-CodeLitePath           :=/home/dmitry/.codelite
-LinkerName             :=/usr/bin/g++
-SharedObjectLinkerName :=/usr/bin/g++ -shared -fPIC
+User                   :=mrDIMAS
+Date                   :=17/02/2019
+CodeLitePath           :="C:/Program Files/CodeLite"
+LinkerName             :=C:/Mingw_old/MinGW-4.8.1/bin/g++.exe
+SharedObjectLinkerName :=C:/Mingw_old/MinGW-4.8.1/bin/g++.exe -shared -fPIC
 ObjectSuffix           :=.o
 DependSuffix           :=.o.d
 PreprocessSuffix       :=.i
@@ -34,32 +34,34 @@ ArchiveOutputSwitch    :=
 PreprocessOnlySwitch   :=-E
 ObjectsFileList        :="test.txt"
 PCHCompileFlags        :=
-MakeDirCommand         :=mkdir -p
+MakeDirCommand         :=makedir
+RcCmpOptions           := 
+RcCompilerName         :=C:/Mingw_old/MinGW-4.8.1/bin/windres.exe
 LinkOptions            :=  
 IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch). $(IncludeSwitch)../../. $(IncludeSwitch)../../external/ 
 IncludePCH             := 
 RcIncludePath          := 
-Libs                   := $(LibrarySwitch)GL $(LibrarySwitch)pthread $(LibrarySwitch)asound $(LibrarySwitch)X11 $(LibrarySwitch)Xrandr 
-ArLibs                 :=  "GL" "pthread" "asound" "X11" "Xrandr" 
+Libs                   := $(LibrarySwitch)opengl32 $(LibrarySwitch)dsound $(LibrarySwitch)gdi32 $(LibrarySwitch)dxguid 
+ArLibs                 :=  "opengl32" "dsound" "gdi32" "dxguid" 
 LibPath                := $(LibraryPathSwitch). 
 
 ##
 ## Common variables
 ## AR, CXX, CC, AS, CXXFLAGS and CFLAGS can be overriden using an environment variables
 ##
-AR       := /usr/bin/ar rcu
-CXX      := /usr/bin/g++
-CC       := /usr/bin/gcc
+AR       := C:/Mingw_old/MinGW-4.8.1/bin/ar.exe rcu
+CXX      := C:/Mingw_old/MinGW-4.8.1/bin/g++.exe
+CC       := C:/Mingw_old/MinGW-4.8.1/bin/gcc.exe
 CXXFLAGS :=   $(Preprocessors)
-CFLAGS   :=  -g -O0 -Wall -std=c99 -pedantic -Werror  $(Preprocessors)
+CFLAGS   :=  -g -O0 -Wall -std=c89 -pedantic -Werror  $(Preprocessors)
 ASFLAGS  := 
-AS       := /usr/bin/as
+AS       := C:/Mingw_old/MinGW-4.8.1/bin/as.exe
 
 
 ##
 ## User defined environment variables
 ##
-CodeLiteDir:=/usr/share/codelite
+CodeLiteDir:=C:\Program Files\CodeLite
 Objects0=$(IntermediateDirectory)/up_src_main.c$(ObjectSuffix) 
 
 
@@ -79,11 +81,11 @@ $(OutputFile): $(IntermediateDirectory)/.d $(Objects)
 	$(LinkerName) $(OutputSwitch)$(OutputFile) @$(ObjectsFileList) $(LibPath) $(Libs) $(LinkOptions)
 
 MakeIntermediateDirs:
-	@test -d ./Debug || $(MakeDirCommand) ./Debug
+	@$(MakeDirCommand) "./Debug"
 
 
 $(IntermediateDirectory)/.d:
-	@test -d ./Debug || $(MakeDirCommand) ./Debug
+	@$(MakeDirCommand) "./Debug"
 
 PreBuild:
 
@@ -92,7 +94,7 @@ PreBuild:
 ## Objects
 ##
 $(IntermediateDirectory)/up_src_main.c$(ObjectSuffix): ../src/main.c $(IntermediateDirectory)/up_src_main.c$(DependSuffix)
-	$(CC) $(SourceSwitch) "/home/dmitry/DmitrysEngine/tests/src/main.c" $(CFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/up_src_main.c$(ObjectSuffix) $(IncludePath)
+	$(CC) $(SourceSwitch) "C:/DmitrysEngine/DmitrysEngine/tests/src/main.c" $(CFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/up_src_main.c$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/up_src_main.c$(DependSuffix): ../src/main.c
 	@$(CC) $(CFLAGS) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/up_src_main.c$(ObjectSuffix) -MF$(IntermediateDirectory)/up_src_main.c$(DependSuffix) -MM ../src/main.c
 

@@ -619,13 +619,12 @@ void game_main_loop(game_t* game) {
 	game_clock = de_time_get_seconds();
 	while (de_core_is_running(game->core)) {
 		dt = de_time_get_seconds() - game_clock;
-		//while (dt >= fixed_timestep) {
-        {
+		while (dt >= fixed_timestep) {
 			de_scene_t* scene;
 			de_event_t evt;
 			if (dt >= 4 * fixed_timestep) {
 				game_clock = de_time_get_seconds();
-				//break;
+				break;
 			}
 
 			dt -= fixed_timestep;

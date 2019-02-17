@@ -19,29 +19,47 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+#define DE_BUFFER_STREAM_SMALL_BLOCK_SIZE 64
+
 de_sound_buffer_t* de_sound_buffer_create(de_sound_context_t* ctx, uint32_t flags) {
 	de_sound_buffer_t* buf;
 	de_sound_context_lock(ctx);
 	buf = DE_NEW(de_sound_buffer_t);
 	buf->ctx = ctx;
 	buf->flags = flags;
+	DE_ARRAY_APPEND(ctx->buffers, buf);
 	de_sound_context_unlock(ctx);
 	return buf;
 }
 
 void de_sound_buffer_load_file(de_sound_buffer_t* buf, const char* file) {
+	size_t buffer_sample_count, block_sample_count;
 	de_sound_context_lock(buf->ctx);
 	buf->decoder = de_sound_decoder_init(file);
 	buf->channel_count = buf->decoder->channel_count;
 	if (buf->flags & DE_SOUND_BUFFER_FLAGS_STREAM) {
 		/* 1 second streaming buffer */
-		buf->sample_per_channel = DE_SOUND_DEVICE_SAMPLE_RATE;
+		buf->sample_per_channel = DE_SOUND_DEVICE_SAMPLE_RATE / sizeof(short);
 	} else {
 		/* Full-length buffer */
 		buf->sample_per_channel = buf->decoder->sample_per_channel;
 	}
-	buf->data = de_calloc(buf->sample_per_channel * buf->channel_count, sizeof(float));
+	block_sample_count = buf->sample_per_channel * buf->channel_count;	
+	if (buf->flags & DE_SOUND_BUFFER_FLAGS_STREAM) {
+		buffer_sample_count = 2 * block_sample_count;
+	} else {
+		buffer_sample_count = block_sample_count;
+	}
+	buf->data = de_calloc(buffer_sample_count, sizeof(float));
+	/* upload data */
+	buf->total_sample_per_channel = buf->decoder->sample_per_channel * buf->decoder->channel_count;
+	buf->read_ptr = buf->data;
+	buf->stream_write_ptr = buf->data + block_sample_count;
 	de_sound_decoder_get_next_block(buf->decoder, buf->data, buf->sample_per_channel);
+	if (buf->flags & DE_SOUND_BUFFER_FLAGS_STREAM) {
+		/* upload second block for streaming */
+		de_sound_decoder_get_next_block(buf->decoder, buf->stream_write_ptr, buf->sample_per_channel);
+	}
 	/* decoder is needed only for streaming */
 	if (!(buf->flags & DE_SOUND_BUFFER_FLAGS_STREAM)) {
 		de_sound_decoder_free(buf->decoder);
@@ -54,6 +72,28 @@ void de_sound_buffer_free(de_sound_buffer_t* buf) {
 	if (buf->decoder) {
 		de_sound_decoder_free(buf->decoder);
 	}
+	DE_ARRAY_REMOVE(buf->ctx->buffers, buf);
 	de_free(buf);
 	de_sound_context_unlock(buf->ctx);
+}
+
+void de_sound_buffer_update(de_sound_buffer_t* buf) {
+	if (buf->flags & DE_SOUND_BUFFER_FLAGS_UPLOAD_NEXT_BLOCK) {
+		de_sound_decoder_get_next_block(buf->decoder, buf->stream_write_ptr, buf->sample_per_channel);
+		de_sound_buffer_reset_flags(buf, DE_SOUND_BUFFER_FLAGS_UPLOAD_NEXT_BLOCK);
+	}
+}
+
+void de_sound_buffer_swap_pointers(de_sound_buffer_t* buf) {
+	float* temp = buf->read_ptr;
+	buf->read_ptr = buf->stream_write_ptr;
+	buf->stream_write_ptr = temp;
+}
+
+void de_sound_buffer_set_flags(de_sound_buffer_t* buf, uint32_t flags) {
+	buf->flags |= flags;
+}
+
+void de_sound_buffer_reset_flags(de_sound_buffer_t* buf, uint32_t flags) {
+	buf->flags &= ~flags;
 }

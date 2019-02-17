@@ -429,7 +429,7 @@ main_menu_t* main_menu_create(game_t* game) {
 	menu->game = game;
 
 	{
-		menu->music_buffer = de_sound_buffer_create(game->core->sound_context, 0);
+		menu->music_buffer = de_sound_buffer_create(game->core->sound_context, DE_SOUND_BUFFER_FLAGS_STREAM);
 		de_sound_buffer_load_file(menu->music_buffer, "data/sounds/test.wav");
 
 		menu->music = de_sound_source_create(game->core->sound_context);
@@ -651,6 +651,7 @@ void game_main_loop(game_t* game) {
 					}
 				}
 			}
+			de_sound_context_update(game->core->sound_context);
 			de_gui_update(game->core->gui);
 			de_physics_step(game->core, dt);
 			DE_LINKED_LIST_FOR_EACH(game->core->scenes, scene) {

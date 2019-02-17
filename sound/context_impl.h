@@ -34,10 +34,19 @@ void de_sound_context_free(de_sound_context_t* ctx) {
 }
 
 void de_sound_context_update(de_sound_context_t* ctx) {
+	size_t i;
 	de_sound_source_t* src;
+
+	de_sound_context_lock(ctx);
 	DE_LINKED_LIST_FOR_EACH(ctx->sounds, src) {
 
 	}
+
+	for (i = 0; i < ctx->buffers.size; ++i) {
+		de_sound_buffer_t* buf = ctx->buffers.data[i];
+		de_sound_buffer_update(buf);
+	}
+	de_sound_context_unlock(ctx);
 }
 
 void de_sound_context_lock(de_sound_context_t* ctx) {

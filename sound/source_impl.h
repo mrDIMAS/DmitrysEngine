@@ -26,7 +26,7 @@ de_sound_source_t* de_sound_source_create(de_sound_context_t* ctx) {
 	src = DE_NEW(de_sound_source_t);
 	src->ctx = ctx;
 	src->pitch = 1.0f;
-	src->playback_position = 0.0;
+	src->read_pos = 0.0;
 	src->current_sample_rate = 1.0f;
 	src->pan = 0;
 	for (i = 0; i < DE_SOUND_MAX_CHANNELS; ++i) {
@@ -51,17 +51,32 @@ void de_sound_source_set_buffer(de_sound_source_t* src, de_sound_buffer_t* buf) 
 
 void de_sound_source_sample(de_sound_source_t* src, float samples[2]) {
 	size_t i;
-	src->playback_position += src->current_sample_rate;
-	i = (size_t)src->playback_position;
+	src->read_pos += src->current_sample_rate;
+	src->playback_pos += src->current_sample_rate;
+	i = (size_t)src->read_pos;
 	if (i >= src->buffer->sample_per_channel) {
+		if (src->buffer->flags & DE_SOUND_BUFFER_FLAGS_STREAM) {
+			if (src->playback_pos >= src->buffer->total_sample_per_channel) {
+				if (!src->loop) {
+					src->status = DE_SOUND_SOURCE_STATUS_STOPPED;
+				}
+			}
+			de_sound_buffer_swap_pointers(src->buffer);
+			/* indicate to user that next block must be loaded */
+			de_sound_buffer_set_flags(src->buffer, DE_SOUND_BUFFER_FLAGS_UPLOAD_NEXT_BLOCK);			
+		} else {
+			if (!src->loop) {
+				src->status = DE_SOUND_SOURCE_STATUS_STOPPED;
+			}
+		}
 		i = 0;
-		src->playback_position = 0;
+		src->read_pos = 0;
 	}
 	if (src->buffer->channel_count == 2) {
-		samples[DE_SOUND_CHANNEL_LEFT] = src->buffer->data[i];
-		samples[DE_SOUND_CHANNEL_RIGHT] = src->buffer->data[i + src->buffer->sample_per_channel];
+		samples[DE_SOUND_CHANNEL_LEFT] = src->buffer->read_ptr[i];
+		samples[DE_SOUND_CHANNEL_RIGHT] = src->buffer->read_ptr[i + src->buffer->sample_per_channel];
 	} else if (src->buffer->channel_count == 1) {
-		float sample = src->buffer->data[i];
+		float sample = src->buffer->read_ptr[i];
 		samples[DE_SOUND_CHANNEL_LEFT] = sample;
 		samples[DE_SOUND_CHANNEL_RIGHT] = sample;
 	}
@@ -69,4 +84,24 @@ void de_sound_source_sample(de_sound_source_t* src, float samples[2]) {
 
 bool de_sound_source_can_produce_samples(de_sound_source_t* src) {
 	return (src->status == DE_SOUND_SOURCE_STATUS_PLAYING) && src->buffer;
+}
+
+void de_sound_source_play(de_sound_source_t* src) {
+	de_sound_context_lock(src->ctx);
+	src->status = DE_SOUND_SOURCE_STATUS_PLAYING;
+	de_sound_context_unlock(src->ctx);
+}
+
+void de_sound_source_stop(de_sound_source_t* src) {
+	de_sound_context_lock(src->ctx);
+	src->status = DE_SOUND_SOURCE_STATUS_STOPPED;
+	/* rewind */
+	src->read_pos = 0;
+	de_sound_context_unlock(src->ctx);
+}
+
+void de_sound_source_pause(de_sound_source_t* src) {
+	de_sound_context_lock(src->ctx);
+	src->status = DE_SOUND_SOURCE_STATUS_PAUSED;
+	de_sound_context_unlock(src->ctx);
 }

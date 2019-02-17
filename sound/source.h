@@ -25,15 +25,18 @@ typedef enum de_sound_source_status_t {
 	DE_SOUND_SOURCE_STATUS_PAUSED
 } de_sound_source_status_t;
 
+
 struct de_sound_source_t {
 	de_sound_context_t* ctx;
 	de_sound_buffer_t* buffer;
 	de_sound_source_status_t status;
-	double playback_position;
+	double read_pos; /**< Read position in the buffer */
+	double playback_pos /**< Real playback position */;
 	double current_sample_rate;
 	float pan;
 	float pitch;
 	float gain;
+	bool loop;
 	/* gain of each channel. currently mono and stereo are supported */
 	float channel_gain[DE_SOUND_MAX_CHANNELS];
 	/* spatial data */
@@ -70,3 +73,18 @@ void de_sound_source_sample(de_sound_source_t* src, float samples[2]);
  * discarded from mixing process.
  */
 bool de_sound_source_can_produce_samples(de_sound_source_t* src);
+
+/**
+ * @brief Starts playing the sound. Thread-safe.
+ */
+void de_sound_source_play(de_sound_source_t* src);
+
+/**
+ * @brief Stops the sound, rewinds to beginning. Thread-safe.
+ */
+void de_sound_source_stop(de_sound_source_t* src);
+
+/**
+ * @brief Pauses the sound, playing can be continued by @de_sound_source_play. Thread-safe.
+ */
+void de_sound_source_pause(de_sound_source_t* src);

@@ -105,8 +105,8 @@ int de_sound_decoder_get_next_block(de_sound_decoder_t* dec, float* out_data, si
 	int actual_sample_count = -1;
 	int sample_chunk_size = dec->source_byte_per_sample * dec->channel_count;
 	switch (dec->type) {
-		case DE_SOUND_DECODER_TYPE_WAV:
-			for (i = 0; i < sample_per_channel; ++i) {				
+		case DE_SOUND_DECODER_TYPE_WAV:			 
+			for (i = 0, actual_sample_count = 0; i < sample_per_channel; ++i, ++actual_sample_count) {
 				/* read sample chunk */
 				readed_bytes = fread(chunk, 1, sample_chunk_size, dec->file);
 				if (readed_bytes != sample_chunk_size) {

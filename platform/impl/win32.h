@@ -520,17 +520,35 @@ void de_get_desktop_video_mode(de_video_mode_t* vm) {
 	vm->bits_per_pixel = mode.dmBitsPerPel;
 }
 
-bool de_enum_video_modes(de_video_mode_t* vm, int n) {
+de_video_mode_array_t de_enum_video_modes() {
+	size_t k;
+	int n = 0;
+	de_video_mode_array_t modes;
 	DEVMODE mode;
+	DE_ARRAY_INIT(modes);
 	mode.dmSize = sizeof(mode);
-	if (EnumDisplaySettings(NULL, n, &mode)) {
-		vm->fullscreen = true;
-		vm->width = mode.dmPelsWidth;
-		vm->height = mode.dmPelsHeight;
-		vm->bits_per_pixel = mode.dmBitsPerPel;
-		return true;
+	while (EnumDisplaySettings(NULL, n++, &mode)) {
+		bool duplicate = false;
+		de_video_mode_t vm;
+		vm.fullscreen = true;
+		vm.width = mode.dmPelsWidth;
+		vm.height = mode.dmPelsHeight;
+		vm.bits_per_pixel = mode.dmBitsPerPel;
+		for (k = 0; k < modes.size; ++k) {
+			de_video_mode_t* existing = modes.data + k;
+			if (existing->width == vm.width &&
+				existing->height == vm.height &&
+				existing->bits_per_pixel == vm.bits_per_pixel) {
+				duplicate = true;
+				break;
+			}
+		}
+
+		if (!duplicate) {
+			DE_ARRAY_APPEND(modes, vm);
+		}
 	}
-	return false;
+	return modes;
 }
 
 char* de_clipboard_get_text() {

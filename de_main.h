@@ -82,7 +82,7 @@ typedef void(*de_proc)(void);
 #include <ctype.h>
 #include <inttypes.h>
 #include <limits.h>
-/*#include <process.h>*/
+
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -93,6 +93,7 @@ typedef void(*de_proc)(void);
 #  define WIN32_LEAN_AND_MEAN
 #  define NOMINMAX
 #  include <windows.h>
+#  include <process.h>
 #else
 #  include <X11/Xlib.h>
 #  include <X11/extensions/Xrandr.h>

@@ -20,10 +20,10 @@ Please note, that this engine is at very early development stage and some featur
 * Documentation - almost every function of the engine has description in Doxygen format.
 
 ## Planned features (by priorities)
+- Sound 
 - Materials (probably PBR)
 - More GUI widgets (there are still no text input nodes)
 - Stability
-- Sound 
 - Particle systems
 - Support more 3D formats (3ds for example)
 - Compound character support in fonts.
@@ -48,6 +48,15 @@ If compling as C++, you will need C++98 or higher compiler.
 
 ## Why engine called in that way?
 At very beginning engine was called Dark Engine, but then I found that there is already one engine with that name (Thief game series using it). Then I started to looking at some fancy adjectives that could fit into `de` prefix that I was already using for my functions, and I haven't found anything suitable. And then I said - "fuck it, let it be like Dmitry's Engine, I'm too tired of fancy names".
+
+## How to build?
+### Windows
+Required packages: None.
+Options for linker: `opengl32; dsound; gdi32; dxguid`
+
+### Linux
+Required packages: `libx11-dev, mesa-common-dev, libgl1-mesa-dev, libxrandr-dev.`
+Options for linker: `-lGL -lpthread -lasound -lX11 -lXrandr`
 
 ## Why C?
 ![Why](pics/why.png?raw=true "Why")

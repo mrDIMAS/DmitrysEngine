@@ -52,13 +52,13 @@ void de_sound_buffer_load_file(de_sound_buffer_t* buf, const char* file) {
 	}
 	buf->data = de_calloc(buffer_sample_count, sizeof(float));
 	/* upload data */
-	buf->total_sample_per_channel = buf->decoder->sample_per_channel * buf->decoder->channel_count;
+	buf->total_sample_per_channel = buf->decoder->sample_per_channel;
 	buf->read_ptr = buf->data;
 	buf->stream_write_ptr = buf->data + block_sample_count;
-	de_sound_decoder_get_next_block(buf->decoder, buf->data, buf->sample_per_channel);
+	de_sound_decoder_read(buf->decoder, buf->data, buf->sample_per_channel, 0, buf->sample_per_channel);
 	if (buf->flags & DE_SOUND_BUFFER_FLAGS_STREAM) {
 		/* upload second block for streaming */
-		de_sound_decoder_get_next_block(buf->decoder, buf->stream_write_ptr, buf->sample_per_channel);
+		de_sound_decoder_read(buf->decoder, buf->stream_write_ptr, buf->sample_per_channel, 0, buf->sample_per_channel);
 	}
 	/* decoder is needed only for streaming */
 	if (!(buf->flags & DE_SOUND_BUFFER_FLAGS_STREAM)) {
@@ -79,7 +79,13 @@ void de_sound_buffer_free(de_sound_buffer_t* buf) {
 
 void de_sound_buffer_update(de_sound_buffer_t* buf) {
 	if (buf->flags & DE_SOUND_BUFFER_FLAGS_UPLOAD_NEXT_BLOCK) {
-		de_sound_decoder_get_next_block(buf->decoder, buf->stream_write_ptr, buf->sample_per_channel);
+		size_t readed, next_readed;
+		readed = de_sound_decoder_read(buf->decoder, buf->stream_write_ptr, buf->sample_per_channel, 0, buf->sample_per_channel);
+		if (readed < buf->sample_per_channel) {
+			de_sound_decoder_rewind(buf->decoder);
+			next_readed = de_sound_decoder_read(buf->decoder, buf->stream_write_ptr, buf->sample_per_channel, readed, buf->sample_per_channel - readed);
+			DE_ASSERT(next_readed + readed == buf->sample_per_channel);			
+		}
 		de_sound_buffer_reset_flags(buf, DE_SOUND_BUFFER_FLAGS_UPLOAD_NEXT_BLOCK);
 	}
 }
@@ -88,6 +94,11 @@ void de_sound_buffer_swap_pointers(de_sound_buffer_t* buf) {
 	float* temp = buf->read_ptr;
 	buf->read_ptr = buf->stream_write_ptr;
 	buf->stream_write_ptr = temp;
+}
+
+void de_sound_buffer_reset_pointers(de_sound_buffer_t* buf) {
+	buf->read_ptr = buf->data;
+	buf->stream_write_ptr = buf->data + buf->sample_per_channel * buf->channel_count;
 }
 
 void de_sound_buffer_set_flags(de_sound_buffer_t* buf, uint32_t flags) {

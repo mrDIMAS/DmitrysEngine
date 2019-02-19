@@ -430,7 +430,7 @@ main_menu_t* main_menu_create(game_t* game) {
 
 	{
 		menu->music_buffer = de_sound_buffer_create(game->core->sound_context, DE_SOUND_BUFFER_FLAGS_STREAM);
-		de_sound_buffer_load_file(menu->music_buffer, "data/sounds/test.wav");
+		de_sound_buffer_load_file(menu->music_buffer, "data/sounds/part.wav");
 
 		menu->music = de_sound_source_create(game->core->sound_context);
 		de_sound_source_set_buffer(menu->music, menu->music_buffer);

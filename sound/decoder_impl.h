@@ -89,8 +89,10 @@ de_sound_decoder_t* de_sound_decoder_init(const char* filename) {
 		dec->sample_rate = wav.sample_rate;
 		dec->sample_per_channel = wav.data_chunk_size / wav.block_align;
 		dec->type = DE_SOUND_DECODER_TYPE_WAV;
-		dec->source_byte_per_sample = wav.bits_per_sample / 8;		
-		/* next goes data which will be obtained by de_sound_decoder_get_next_block */
+		dec->total_bytes = wav.data_chunk_size;
+		dec->bytes_readed = 0;
+		dec->source_byte_per_sample = wav.bits_per_sample / 8;
+		/* next goes data which will be obtained by de_sound_decoder_read */
 	} else {
 		de_log("decoder: unsupported format of file %s", filename);
 	}
@@ -98,43 +100,49 @@ de_sound_decoder_t* de_sound_decoder_init(const char* filename) {
 	return dec;
 }
 
-int de_sound_decoder_get_next_block(de_sound_decoder_t* dec, float* out_data, size_t sample_per_channel) {	
-	int readed_bytes;
+size_t de_sound_decoder_read(de_sound_decoder_t* dec, float* out_data, size_t sample_per_channel, size_t offset, size_t count) {
 	uint8_t chunk[64];
-	size_t i, k;	
-	int actual_sample_count = -1;
-	int sample_chunk_size = dec->source_byte_per_sample * dec->channel_count;
+	size_t i = 0, k;
+	int sample_chunk_size;
+	sample_chunk_size = dec->source_byte_per_sample * dec->channel_count;
 	switch (dec->type) {
-		case DE_SOUND_DECODER_TYPE_WAV:			 
-			for (i = 0, actual_sample_count = 0; i < sample_per_channel; ++i, ++actual_sample_count) {
+		case DE_SOUND_DECODER_TYPE_WAV:
+			for (i = 0; i < count && dec->bytes_readed < dec->total_bytes; ++i) {
 				/* read sample chunk */
-				readed_bytes = fread(chunk, 1, sample_chunk_size, dec->file);
-				if (readed_bytes != sample_chunk_size) {
-					break;
-				} 
+				fread(chunk, 1, sample_chunk_size, dec->file);
 				/* convert interleaved i8/i16 data non-interleaved normalized float */
 				for (k = 0; k < (size_t)dec->channel_count; ++k) {
+					size_t channel_start = k * sample_per_channel;
 					switch (dec->source_byte_per_sample) {
 						case 1:
-							out_data[k * sample_per_channel + i] = ((int8_t*)chunk)[k] / 255.0f;
+							out_data[channel_start + offset + i] = ((int8_t*)chunk)[k] / 255.0f;
 							break;
 						case 2:
-							out_data[k * sample_per_channel + i] = ((int16_t*)chunk)[k] / 32767.0f;
+							out_data[channel_start + offset + i] = ((int16_t*)chunk)[k] / 32767.0f;
 							break;
 						default:
 							break;
 					}
 				}
-			}			
+
+				dec->bytes_readed += dec->source_byte_per_sample * dec->channel_count;
+			}
 			break;
 		default:
 			break;
 	}
-	return actual_sample_count;
+	return i;
 }
 
 void de_sound_decoder_rewind(de_sound_decoder_t* dec) {
 	rewind(dec->file);
+	dec->bytes_readed = 0;
+	switch (dec->type) {
+		case DE_SOUND_DECODER_TYPE_WAV:
+			fseek(dec->file, sizeof(de_wav_header_t), SEEK_SET);
+		default:
+			break;
+	}
 }
 
 void de_sound_decoder_free(de_sound_decoder_t* dec) {

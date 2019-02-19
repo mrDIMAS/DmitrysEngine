@@ -27,11 +27,12 @@ struct de_sound_decoder_t {
 	uint32_t channel_count;
 	uint32_t sample_per_channel;
 	uint32_t sample_rate;
-
 	/* private */
 	de_sound_decoder_type_t type;
 	FILE* file;
 	uint32_t source_byte_per_sample;
+	size_t total_bytes;
+	size_t bytes_readed;
 };
 
 /**
@@ -42,7 +43,7 @@ de_sound_decoder_t* de_sound_decoder_init(const char* filename);
 /**
  * @brief Reads next portion of decoded PCM data. Returns actual count of samples per channel.
  * 
- * Note: If return size is less than zero, then end of stream has been reached.
+ * Returns actual sample count per channel that was readed.
  * 
  * Explanation: We don't care about size in bytes of data since we using floats to store samples,
  * so this method expects amount of samples that it should read per channel in source stream.
@@ -54,7 +55,7 @@ de_sound_decoder_t* de_sound_decoder_init(const char* filename);
  * used as parameter to calculate playback speed of a sound source. Thus we will eliminate resampling
  * stage, it will be performed automatically.
  */
-int de_sound_decoder_get_next_block(de_sound_decoder_t* dec, float* out_data, size_t sample_per_channel);
+size_t de_sound_decoder_read(de_sound_decoder_t* dec, float* out_data, size_t sample_per_channel, size_t offset, size_t count);
 
 /**
  * @brief Rewinds read head to beginning of the stream. 

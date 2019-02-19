@@ -30,7 +30,7 @@ struct de_sound_source_t {
 	de_sound_context_t* ctx;
 	de_sound_buffer_t* buffer;
 	de_sound_source_status_t status;
-	double read_pos; /**< Read position in the buffer */
+	double buf_read_pos; /**< Read position in the buffer */
 	double playback_pos /**< Real playback position */;
 	double current_sample_rate;
 	float pan;

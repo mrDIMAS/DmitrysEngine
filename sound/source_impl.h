@@ -26,9 +26,10 @@ de_sound_source_t* de_sound_source_create(de_sound_context_t* ctx) {
 	src = DE_NEW(de_sound_source_t);
 	src->ctx = ctx;
 	src->pitch = 1.0f;
-	src->read_pos = 0.0;
+	src->buf_read_pos = 0.0;
 	src->current_sample_rate = 1.0f;
 	src->pan = 0;
+	src->loop = true;
 	for (i = 0; i < DE_SOUND_MAX_CHANNELS; ++i) {
 		src->channel_gain[i] = 1.0f;
 	}
@@ -51,26 +52,26 @@ void de_sound_source_set_buffer(de_sound_source_t* src, de_sound_buffer_t* buf) 
 
 void de_sound_source_sample(de_sound_source_t* src, float samples[2]) {
 	size_t i;
-	src->read_pos += src->current_sample_rate;
+
+	src->buf_read_pos += src->current_sample_rate;
 	src->playback_pos += src->current_sample_rate;
-	i = (size_t)src->read_pos;
+	
+	if (src->playback_pos >= src->buffer->total_sample_per_channel) {
+		src->playback_pos = 0;	
+		src->status = src->loop ? DE_SOUND_SOURCE_STATUS_PLAYING : DE_SOUND_SOURCE_STATUS_STOPPED;		
+	} 
+	
+	i = (size_t)src->buf_read_pos;
+
 	if (i >= src->buffer->sample_per_channel) {
 		if (src->buffer->flags & DE_SOUND_BUFFER_FLAGS_STREAM) {
-			if (src->playback_pos >= src->buffer->total_sample_per_channel) {
-				if (!src->loop) {
-					src->status = DE_SOUND_SOURCE_STATUS_STOPPED;
-				}
-			}
+			/* still have data in buffer, read it */
 			de_sound_buffer_swap_pointers(src->buffer);
 			/* indicate to user that next block must be loaded */
-			de_sound_buffer_set_flags(src->buffer, DE_SOUND_BUFFER_FLAGS_UPLOAD_NEXT_BLOCK);			
-		} else {
-			if (!src->loop) {
-				src->status = DE_SOUND_SOURCE_STATUS_STOPPED;
-			}
+			de_sound_buffer_set_flags(src->buffer, DE_SOUND_BUFFER_FLAGS_UPLOAD_NEXT_BLOCK);
 		}
+		src->buf_read_pos = 0;
 		i = 0;
-		src->read_pos = 0;
 	}
 	if (src->buffer->channel_count == 2) {
 		samples[DE_SOUND_CHANNEL_LEFT] = src->buffer->read_ptr[i];
@@ -96,7 +97,7 @@ void de_sound_source_stop(de_sound_source_t* src) {
 	de_sound_context_lock(src->ctx);
 	src->status = DE_SOUND_SOURCE_STATUS_STOPPED;
 	/* rewind */
-	src->read_pos = 0;
+	src->buf_read_pos = 0;
 	de_sound_context_unlock(src->ctx);
 }
 

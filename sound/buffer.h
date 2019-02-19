@@ -52,7 +52,7 @@ struct de_sound_buffer_t {
 	de_sound_context_t* ctx;
 	de_sound_format_t format;
 	float* data; /**< Data of buffer. Do NOT read from this pointer directly! Use read_ptr! */
-	float* read_ptr; /**< Pointer to beginning of actual block of samples */
+	float* read_ptr; /**< Pointer to beginning of actual block of samples */	
 	float* stream_write_ptr; /**< Pointer to beginning of block for streaming. */
 	size_t sample_per_channel; /**< Count of samples per each channel (left, right, etc.) */
 	size_t total_sample_per_channel; /**< Total amount of samples in the buffer. */
@@ -86,6 +86,9 @@ void de_sound_buffer_free(de_sound_buffer_t* buf);
  */
 void de_sound_buffer_update(de_sound_buffer_t* buf);
 
+/**
+ * @brief Internal. Swaps read and stream write pointers, used for streaming.
+ */
 void de_sound_buffer_swap_pointers(de_sound_buffer_t* buf);
 
 void de_sound_buffer_set_flags(de_sound_buffer_t* buf, uint32_t flags);

@@ -54,8 +54,8 @@ bool de_sound_device_setup(de_sound_device_t* dev) {
 	bufferFormat.cbSize = sizeof(WAVEFORMATEX);
 	bufferFormat.wFormatTag = WAVE_FORMAT_PCM;
 	bufferFormat.nChannels = 2;
-	bufferFormat.nSamplesPerSec = DE_SOUND_DEVICE_SAMPLE_RATE;
-	bufferFormat.wBitsPerSample = 16;
+	bufferFormat.nSamplesPerSec = dev->sample_rate;
+	bufferFormat.wBitsPerSample = (WORD) dev->bits_per_sample;
 	bufferFormat.nBlockAlign = (bufferFormat.wBitsPerSample / 8) * bufferFormat.nChannels;
 	bufferFormat.nAvgBytesPerSec = bufferFormat.nSamplesPerSec * bufferFormat.nBlockAlign;
 

@@ -23,7 +23,7 @@ struct de_sound_context_t {
 	de_mtx_t mtx;
 	de_core_t* core;
 	de_sound_device_t dev;
-	DE_LINKED_LIST_DECLARE(de_sound_source_t, sounds);
+	DE_ARRAY_DECLARE(de_sound_source_t*, sounds);
 	DE_ARRAY_DECLARE(de_sound_buffer_t*, buffers);
 };
 

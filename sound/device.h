@@ -30,7 +30,11 @@ struct de_sound_device_t {
 	de_cnd_t cnd;
 	de_mixer_status_t mixer_status;
 	short* out_buffer;
+	size_t sample_rate;
+	size_t samples_per_channel;
+	size_t bits_per_sample;
 	size_t buffer_len;
+	DE_ARRAY_DECLARE(de_sound_source_t*, active_sources); /**< Array of active sound sources */
 #ifdef _WIN32
 	/* dsound */
 	IDirectSound8* dsound;

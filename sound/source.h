@@ -25,29 +25,33 @@ typedef enum de_sound_source_status_t {
 	DE_SOUND_SOURCE_STATUS_PAUSED
 } de_sound_source_status_t;
 
+typedef enum de_sound_source_type_t {
+	DE_SOUND_SOURCE_TYPE_2D,
+	DE_SOUND_SOURCE_TYPE_3D
+} de_sound_source_type_t;
 
 struct de_sound_source_t {
+	de_sound_source_type_t type;
 	de_sound_context_t* ctx;
 	de_sound_buffer_t* buffer;
 	de_sound_source_status_t status;
-	double buf_read_pos; /**< Read position in the buffer */
-	double playback_pos /**< Real playback position */;
+	double buf_read_pos; /**< Read position in the buffer. Differs from @playback_pos if buffer is streaming. */
+	double playback_pos; /**< Real playback position */
 	double current_sample_rate;
-	float pan;
+	float pan; 
 	float pitch;
 	float gain;
 	bool loop;
 	/* gain of each channel. currently mono and stereo are supported */
 	float channel_gain[DE_SOUND_MAX_CHANNELS];
-	/* spatial data */
+	/* spatial data for 3d sounds */
 	de_vec3_t position;
-	DE_LINKED_LIST_ITEM(de_sound_source_t);
 };
 
 /**
  * @brief Creates new sound source. Thread-safe.
  */
-de_sound_source_t* de_sound_source_create(de_sound_context_t* ctx);
+de_sound_source_t* de_sound_source_create(de_sound_context_t* ctx, de_sound_source_type_t type);
 
 /**
  * @brief Frees all resources associated with sound source. Thread-safe.
@@ -60,15 +64,15 @@ void de_sound_source_free(de_sound_source_t* src);
 void de_sound_source_set_buffer(de_sound_source_t* src, de_sound_buffer_t* buf);
 
 /**
- * @brief Writes out final samples for sound device mixer. 
- * 
+ * @brief Internal. Writes out final samples for sound device mixer.
+ *
  * Note: Left and right channels only! 2.1, 5.1 and so on formats not supported!
  */
 void de_sound_source_sample(de_sound_source_t* src, float samples[2]);
 
 /**
- * @brief Sound mixer uses this method to ensure that source should participate in mixing.
- * 
+ * @brief Internal. Sound mixer uses this method to ensure that source should participate in mixing.
+ *
  * Sources without buffers or stopped sources does not produce any samples and can be
  * discarded from mixing process.
  */
@@ -88,3 +92,14 @@ void de_sound_source_stop(de_sound_source_t* src);
  * @brief Pauses the sound, playing can be continued by @de_sound_source_play. Thread-safe.
  */
 void de_sound_source_pause(de_sound_source_t* src);
+
+/**
+ * @brief Sets actual type of sound (3d or 2d). Thread-safe.
+ */
+void de_sound_source_set_type(de_sound_source_t* src, de_sound_source_type_t type);
+
+/**
+ * @brief Internal. Calculates gain for each channel. This is relatively heavy method and
+ * should not be called too frequently.
+ */
+void de_sound_source_update(de_sound_source_t* src);

@@ -19,8 +19,6 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-#define DE_BUFFER_STREAM_SMALL_BLOCK_SIZE 64
-
 de_sound_buffer_t* de_sound_buffer_create(de_sound_context_t* ctx, uint32_t flags) {
 	de_sound_buffer_t* buf;
 	de_sound_context_lock(ctx);
@@ -39,7 +37,7 @@ void de_sound_buffer_load_file(de_sound_buffer_t* buf, const char* file) {
 	buf->channel_count = buf->decoder->channel_count;
 	if (buf->flags & DE_SOUND_BUFFER_FLAGS_STREAM) {
 		/* 1 second streaming buffer */
-		buf->sample_per_channel = DE_SOUND_DEVICE_SAMPLE_RATE / sizeof(short);
+		buf->sample_per_channel = 2 * buf->ctx->dev.samples_per_channel;
 	} else {
 		/* Full-length buffer */
 		buf->sample_per_channel = buf->decoder->sample_per_channel;
@@ -63,6 +61,7 @@ void de_sound_buffer_load_file(de_sound_buffer_t* buf, const char* file) {
 	/* decoder is needed only for streaming */
 	if (!(buf->flags & DE_SOUND_BUFFER_FLAGS_STREAM)) {
 		de_sound_decoder_free(buf->decoder);
+		buf->decoder = NULL;
 	}
 	de_sound_context_unlock(buf->ctx);
 }
@@ -107,4 +106,18 @@ void de_sound_buffer_set_flags(de_sound_buffer_t* buf, uint32_t flags) {
 
 void de_sound_buffer_reset_flags(de_sound_buffer_t* buf, uint32_t flags) {
 	buf->flags &= ~flags;
+}
+
+void de_sound_buffer_rewind(de_sound_buffer_t* buf) {
+	if (buf->flags & DE_SOUND_BUFFER_FLAGS_STREAM) {
+		size_t block_sample_count;
+		de_sound_decoder_rewind(buf->decoder);
+		block_sample_count = buf->sample_per_channel * buf->channel_count;
+		/* reset pointers */
+		buf->read_ptr = buf->data;
+		buf->stream_write_ptr = buf->data + block_sample_count;
+		/* load blocks */
+		de_sound_decoder_read(buf->decoder, buf->data, buf->sample_per_channel, 0, buf->sample_per_channel);
+		de_sound_decoder_read(buf->decoder, buf->stream_write_ptr, buf->sample_per_channel, 0, buf->sample_per_channel);
+	}
 }

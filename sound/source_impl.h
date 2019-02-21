@@ -19,11 +19,12 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-de_sound_source_t* de_sound_source_create(de_sound_context_t* ctx) {
+de_sound_source_t* de_sound_source_create(de_sound_context_t* ctx, de_sound_source_type_t type) {
 	size_t i;
 	de_sound_source_t* src;
 	de_sound_context_lock(ctx);
 	src = DE_NEW(de_sound_source_t);
+	src->type = type;
 	src->ctx = ctx;
 	src->pitch = 1.0f;
 	src->buf_read_pos = 0.0;
@@ -33,14 +34,14 @@ de_sound_source_t* de_sound_source_create(de_sound_context_t* ctx) {
 	for (i = 0; i < DE_SOUND_MAX_CHANNELS; ++i) {
 		src->channel_gain[i] = 1.0f;
 	}
-	DE_LINKED_LIST_APPEND(ctx->sounds, src);
+	DE_ARRAY_APPEND(ctx->sounds, src);
 	de_sound_context_unlock(ctx);
 	return src;
 }
 
 void de_sound_source_free(de_sound_source_t* src) {
 	de_sound_context_lock(src->ctx);
-	DE_LINKED_LIST_REMOVE(src->ctx->sounds, src);
+	DE_ARRAY_REMOVE(src->ctx->sounds, src);
 	de_sound_context_unlock(src->ctx);
 }
 
@@ -51,35 +52,34 @@ void de_sound_source_set_buffer(de_sound_source_t* src, de_sound_buffer_t* buf) 
 }
 
 void de_sound_source_sample(de_sound_source_t* src, float samples[2]) {
-	size_t i;
+	uint64_t i;
 
 	src->buf_read_pos += src->current_sample_rate;
 	src->playback_pos += src->current_sample_rate;
-	
+
 	if (src->playback_pos >= src->buffer->total_sample_per_channel) {
-		src->playback_pos = 0;	
-		src->status = src->loop ? DE_SOUND_SOURCE_STATUS_PLAYING : DE_SOUND_SOURCE_STATUS_STOPPED;		
-	} 
-	
-	i = (size_t)src->buf_read_pos;
+		src->playback_pos = 0;
+		src->status = src->loop ? DE_SOUND_SOURCE_STATUS_PLAYING : DE_SOUND_SOURCE_STATUS_STOPPED;
+	}
+
+	i = (uint64_t)src->buf_read_pos;
 
 	if (i >= src->buffer->sample_per_channel) {
 		if (src->buffer->flags & DE_SOUND_BUFFER_FLAGS_STREAM) {
-			/* still have data in buffer, read it */
 			de_sound_buffer_swap_pointers(src->buffer);
-			/* indicate to user that next block must be loaded */
 			de_sound_buffer_set_flags(src->buffer, DE_SOUND_BUFFER_FLAGS_UPLOAD_NEXT_BLOCK);
 		}
 		src->buf_read_pos = 0;
 		i = 0;
 	}
+
 	if (src->buffer->channel_count == 2) {
-		samples[DE_SOUND_CHANNEL_LEFT] = src->buffer->read_ptr[i];
-		samples[DE_SOUND_CHANNEL_RIGHT] = src->buffer->read_ptr[i + src->buffer->sample_per_channel];
+		samples[DE_SOUND_CHANNEL_LEFT] = src->channel_gain[DE_SOUND_CHANNEL_LEFT] * src->buffer->read_ptr[i];
+		samples[DE_SOUND_CHANNEL_RIGHT] = src->channel_gain[DE_SOUND_CHANNEL_RIGHT] * src->buffer->read_ptr[i + src->buffer->sample_per_channel];
 	} else if (src->buffer->channel_count == 1) {
 		float sample = src->buffer->read_ptr[i];
-		samples[DE_SOUND_CHANNEL_LEFT] = sample;
-		samples[DE_SOUND_CHANNEL_RIGHT] = sample;
+		samples[DE_SOUND_CHANNEL_LEFT] = src->channel_gain[DE_SOUND_CHANNEL_LEFT] * sample;
+		samples[DE_SOUND_CHANNEL_RIGHT] = src->channel_gain[DE_SOUND_CHANNEL_RIGHT] * sample;
 	}
 }
 
@@ -98,6 +98,7 @@ void de_sound_source_stop(de_sound_source_t* src) {
 	src->status = DE_SOUND_SOURCE_STATUS_STOPPED;
 	/* rewind */
 	src->buf_read_pos = 0;
+	de_sound_buffer_rewind(src->buffer);
 	de_sound_context_unlock(src->ctx);
 }
 
@@ -105,4 +106,21 @@ void de_sound_source_pause(de_sound_source_t* src) {
 	de_sound_context_lock(src->ctx);
 	src->status = DE_SOUND_SOURCE_STATUS_PAUSED;
 	de_sound_context_unlock(src->ctx);
+}
+
+void de_sound_source_set_type(de_sound_source_t* src, de_sound_source_type_t type) {
+	de_sound_context_lock(src->ctx);
+	src->type = type;
+	de_sound_context_unlock(src->ctx);
+}
+
+void de_sound_source_update(de_sound_source_t* src) {
+	switch (src->type) {
+		case DE_SOUND_SOURCE_TYPE_2D:
+			break;
+		case DE_SOUND_SOURCE_TYPE_3D:
+			break;
+		default:
+			break;
+	}
 }

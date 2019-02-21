@@ -109,3 +109,10 @@ void de_array_move_(void** src_data, size_t* src_size, size_t* src_capacity, voi
 	*dest_capacity = *src_capacity;
 	*src_capacity = 0;
 }
+
+void de_array_copy_(const void** src_data, size_t src_size, void** dest_data, size_t* dest_size, size_t* dest_capacity, size_t item_size) {
+	if (src_size > *dest_size) {
+		de_array_grow_(dest_data, dest_size, dest_capacity, item_size, src_size - *dest_size);
+	}
+	memcpy(*dest_data, *src_data, src_size * item_size);
+}

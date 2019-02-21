@@ -34,11 +34,11 @@ void de_sound_context_free(de_sound_context_t* ctx) {
 }
 
 void de_sound_context_update(de_sound_context_t* ctx) {
-	size_t i;
-	de_sound_source_t* src;
+	size_t i;	
 
 	de_sound_context_lock(ctx);
-	DE_LINKED_LIST_FOR_EACH(ctx->sounds, src) {
+	for (i = 0; i < ctx->sounds.size; ++i) {
+//		de_sound_source_t* src = ctx->sounds.data[i];
 
 	}
 

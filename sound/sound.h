@@ -30,8 +30,6 @@
  * Floats giving great flexibility in calculations, so we'll stick with them.
  */
 
-#define DE_SOUND_DEVICE_SAMPLE_RATE 44100
-
 typedef enum de_sound_channel_type_t {
 	DE_SOUND_CHANNEL_LEFT,
 	DE_SOUND_CHANNEL_RIGHT,

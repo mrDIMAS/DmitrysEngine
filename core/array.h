@@ -19,7 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/* Type-safe array */
+/* Type-safe array. NOT thread-safe */
 
 /* Declares array as a struct */
 #define DE_ARRAY_DECLARE(Type, Name) \
@@ -48,6 +48,16 @@
 
 /* Fail-safe insertion (out-of-bounds check) with auto-grow of array */
 #define DE_ARRAY_INSERT(a, pos, item) de_array_insert_((void**)&(a).data, &(a).size, &(a)._capacity, sizeof(*(a).data), (void*)&item, pos);
+
+/* Copies array @a to array @b.
+ *
+ * IMPORTANT. Will NEVER decrease size of dest array @b, only increase. To storage fix exactly to data
+ * size use DE_ARRAY_COMPACT after. */
+#define DE_ARRAY_COPY(a, b) \
+	do { \
+		DE_STATIC_ASSERT(sizeof(*(a).data) == sizeof(*(b).data), array_sizes_must_be_equal); \
+		de_array_copy_((const void**)&(a).data, (a).size, (void**)&(b).data, &(b).size, &(b)._capacity, sizeof(*(a).data)); \
+	} while(0)
 
 #define DE_ARRAY_RESERVE(a, new_capacity) de_array_reserve_((void**)&(a).data, &(a).size, &(a)._capacity, sizeof(*(a).data), new_capacity);
 
@@ -130,3 +140,4 @@ void de_array_free_(void** data, size_t* size, size_t* capacity);
 void de_array_reverse_(void** data, size_t* size, size_t item_size);
 void* de_array_find_(const void* data, const size_t* size, size_t item_size, const void* search_data, size_t search_data_size);
 void de_array_move_(void** src_data, size_t* src_size, size_t* src_capacity, void** dest_data, size_t* dest_size, size_t* dest_capacity);
+void de_array_copy_(const void** src_data, size_t src_size, void** dest_data, size_t* dest_size, size_t* dest_capacity, size_t item_size);

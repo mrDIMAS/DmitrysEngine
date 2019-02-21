@@ -115,10 +115,10 @@ size_t de_sound_decoder_read(de_sound_decoder_t* dec, float* out_data, size_t sa
 					size_t channel_start = k * sample_per_channel;
 					switch (dec->source_byte_per_sample) {
 						case 1:
-							out_data[channel_start + offset + i] = ((int8_t*)chunk)[k] / 255.0f;
+							out_data[channel_start + offset + i] = ((int8_t*)chunk)[k] / (float)INT8_MAX;
 							break;
 						case 2:
-							out_data[channel_start + offset + i] = ((int16_t*)chunk)[k] / 32767.0f;
+							out_data[channel_start + offset + i] = ((int16_t*)chunk)[k] / (float)INT16_MAX;
 							break;
 						default:
 							break;

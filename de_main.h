@@ -59,6 +59,7 @@ extern "C" {
 #define DE_BIT(n) (1 << n)
 #define DE_STRINGIZE_(x) #x
 #define DE_STRINGIZE(x) DE_STRINGIZE_(x)
+#define DE_STATIC_ASSERT(condition, message) typedef char static_assertion_##message[(condition)?1:-1]
 
 #if DE_DISABLE_ASSERTS
 #  define DE_ASSERT

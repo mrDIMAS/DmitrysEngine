@@ -26,6 +26,8 @@ typedef enum de_sound_format_t {
 
 typedef enum de_sound_buffer_flags_t {
 	DE_SOUND_BUFFER_FLAGS_STREAM = DE_BIT(0), /**< Useful for huge sounds like music */
+
+	/* Internal flags. Do not use. */
 	DE_SOUND_BUFFER_FLAGS_UPLOAD_NEXT_BLOCK = DE_BIT(1), /**< Sound source will raise this flag,
 														 which indicates that next block must be
 														 uploaded */
@@ -91,6 +93,17 @@ void de_sound_buffer_update(de_sound_buffer_t* buf);
  */
 void de_sound_buffer_swap_pointers(de_sound_buffer_t* buf);
 
+/**
+* @brief Internal. Sets specified flags.
+*/
 void de_sound_buffer_set_flags(de_sound_buffer_t* buf, uint32_t flags);
 
+/**
+ * @brief Internal. Resets specified flags.
+ */
 void de_sound_buffer_reset_flags(de_sound_buffer_t* buf, uint32_t flags);
+
+/**
+ * @brief Rewinds streaming buffer. Immediately uploads two blocks of data.
+ */
+void de_sound_buffer_rewind(de_sound_buffer_t* buf);

@@ -84,7 +84,24 @@ void de_sound_source_sample(de_sound_source_t* src, float samples[2]) {
 }
 
 bool de_sound_source_can_produce_samples(de_sound_source_t* src) {
-	return (src->status == DE_SOUND_SOURCE_STATUS_PLAYING) && src->buffer;
+	size_t i;
+	bool gain_significant;
+
+	if (!(src->status == DE_SOUND_SOURCE_STATUS_PLAYING) || !src->buffer) {
+		return false;
+	}
+	
+	/* Ignore almost inaudible sounds. This will significantly reduce number of sound sources 
+	 * participating in mixing for distant or muted sounds. */
+	gain_significant = false;		
+	for (i = 0; i < DE_SOUND_MAX_CHANNELS; ++i) {
+		if (src->channel_gain[i] > 0.0005f) {
+			gain_significant = true;
+			break;
+		}
+	}
+
+	return gain_significant;
 }
 
 void de_sound_source_play(de_sound_source_t* src) {

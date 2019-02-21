@@ -20,6 +20,14 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 /**
+ * Sound library. 
+ * 
+ * If you familiar with OpenAL, then you won't get any troubles understanding how
+ * library works. Main concepts are:
+ * - Listener
+ * - Buffer
+ * - Sound source  * 
+ *
  * Important notes: Sound system internally uses floats to store samples.
  * Each sample is normalized to [-1; 1] range so it is independent of
  * output device bit-depth.
@@ -28,6 +36,47 @@
  * are very fast at floating point operations and modern computers have enough
  * memory to store float samples.
  * Floats giving great flexibility in calculations, so we'll stick with them.
+ * 
+ * Notes about mixing and output device feeding.
+ * 
+ * Output device playbacks special buffer which consists of two parts of the same size.
+ * While device playing one part, mixer thread mixes all audible sounds into other part
+ * and then when playback device wants more data, mixer threads "feeds" it with already
+ * mixed data and cycle starts over. So changes in output audio can be applied only with 
+ * fixed time interval which defined by output buffer size. Unlike graphics, updating
+ * panning and other sound properties can be done less frequently, even 10 Hz update 
+ * frequency sounds pretty fine. Thus being said, you should NOT call de_sound_context_update
+ * too frequently, because update frequncy cannot exceed frequency mentioned above, but you 
+ * will lose precious CPU resources on redundant work.
+ * 
+ * Signal flow scheme:
+ * 
+ * Device part:                   _______________________________________________________________
+ *                                |                                                              |
+ *                                V                                                              |
+ * ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||  <-- Audio device data     |
+ * ^                              |                                 |                            |
+ * |                              |                                 |                            |
+ * |_____________________         |  Signaling playback positions   |                            |
+ *                      |         |     (triggers copying)          |                            |
+ * Mixer thread:        |         V                                 |                             
+ *                      |__(<<copy to device)____    ________ (copy to device>>)_________________|
+ *                                               |  |
+ * |||||||||||||||||||||||||||||||||     <-- Output buffer
+ * ^......(mix until end)......^^^^^
+ * |            
+ * + Adder
+ * |------------------------
+ * |            |          |
+ * Source1 	Source2 ... SourceN
+ *    ^        ^           ^
+ *    |        |           |_______________________________________________________
+ *    |        |________________________                                           |
+ *    |_______                          |                                          |
+ *            |                         |                                          |
+ * Buffer1: |||||||||||||||||||||||||||||||||           Buffer2: |||||||||||||||||||||||||||||||||
+ *                                      
+ *                             BufferN: |||||||||||||||||||||||||||||||||
  */
 
 typedef enum de_sound_channel_type_t {

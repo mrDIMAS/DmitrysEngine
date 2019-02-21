@@ -19,3 +19,5 @@
 /tests/vcproj/Release
 /tests/vcproj/.vs
 
+*.psess
+*.vsp

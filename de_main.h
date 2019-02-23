@@ -93,6 +93,7 @@ typedef void(*de_proc)(void);
 #  include <windows.h>
 #  include <process.h>
 #else
+#  include <linux/limits.h>
 #  include <X11/Xlib.h>
 #  include <X11/extensions/Xrandr.h>
 #  define __USE_MISC

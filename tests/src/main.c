@@ -182,7 +182,7 @@ bool player_process_event(player_t* p, const de_event_t* evt) {
 }
 
 player_t* player_create(level_t* level) {
-	size_t i;
+	int i;
 	de_sound_context_t* ctx;
 	player_t* p;
 
@@ -222,7 +222,7 @@ player_t* player_create(level_t* level) {
 
 	ctx = de_core_get_sound_context(level->game->core);
 	for (i = 0; i < 4; ++i) {
-		char filename[MAX_PATH];
+		char filename[PATH_MAX];
 		snprintf(filename, sizeof(filename), "data/sounds/footsteps/FootStep_shoe_metal_step%d.wav", i + 1);
 		p->footstep_bufs[i] = de_sound_buffer_create(ctx, 0);
 		de_sound_buffer_load_file(p->footstep_bufs[i], filename);

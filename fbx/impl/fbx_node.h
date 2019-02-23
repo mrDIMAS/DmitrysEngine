@@ -135,6 +135,12 @@ void de_fbx_node_free(de_fbx_node_t* node) {
 	de_free(node);
 }
 
+void de_fbx_buffer_init(de_fbx_buffer_t* buf, size_t size) {
+	buf->data = (char*)de_malloc(size);
+	buf->ptr = buf->data;
+	buf->end = (char*)buf->data + size;
+	buf->size = size;
+}
 
 de_fbx_node_t* de_fbx_node_get_child(de_fbx_node_t* node, const char* name) {
 	size_t i;
@@ -148,4 +154,23 @@ de_fbx_node_t* de_fbx_node_get_child(de_fbx_node_t* node, const char* name) {
 	}
 
 	return NULL;
+}
+
+void* de_fbx_buffer_alloc(de_fbx_buffer_t* buf, size_t size) {
+	void* ptr;
+
+	ptr = buf->ptr;
+	buf->ptr += size;
+
+	if (buf->ptr >= buf->end) {
+		de_fatal_error("buffer overflow");
+	}
+
+	return ptr;
+}
+
+void de_fbx_buffer_free(de_fbx_buffer_t* buf) {
+	de_free(buf->data);
+	buf->data = NULL;
+	buf->size = 0;
 }

@@ -48,6 +48,8 @@ void de_sound_source_free(de_sound_source_t* src) {
 void de_sound_source_set_buffer(de_sound_source_t* src, de_sound_buffer_t* buf) {
 	de_sound_context_lock(src->ctx);
 	src->buffer = buf;
+	src->playback_pos = 0;
+	src->buf_read_pos = 0;	
 	de_sound_context_unlock(src->ctx);
 }
 
@@ -105,12 +107,14 @@ bool de_sound_source_can_produce_samples(de_sound_source_t* src) {
 }
 
 void de_sound_source_play(de_sound_source_t* src) {
+	DE_ASSERT(src);
 	de_sound_context_lock(src->ctx);
 	src->status = DE_SOUND_SOURCE_STATUS_PLAYING;
 	de_sound_context_unlock(src->ctx);
 }
 
 void de_sound_source_stop(de_sound_source_t* src) {
+	DE_ASSERT(src);
 	de_sound_context_lock(src->ctx);
 	src->status = DE_SOUND_SOURCE_STATUS_STOPPED;
 	/* rewind */
@@ -120,18 +124,21 @@ void de_sound_source_stop(de_sound_source_t* src) {
 }
 
 void de_sound_source_pause(de_sound_source_t* src) {
+	DE_ASSERT(src);
 	de_sound_context_lock(src->ctx);
 	src->status = DE_SOUND_SOURCE_STATUS_PAUSED;
 	de_sound_context_unlock(src->ctx);
 }
 
 void de_sound_source_set_type(de_sound_source_t* src, de_sound_source_type_t type) {
+	DE_ASSERT(src);
 	de_sound_context_lock(src->ctx);
 	src->type = type;
 	de_sound_context_unlock(src->ctx);
 }
 
 void de_sound_source_update(de_sound_source_t* src) {
+	DE_ASSERT(src);
 	switch (src->type) {
 		case DE_SOUND_SOURCE_TYPE_2D:
 			break;

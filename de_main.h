@@ -36,7 +36,7 @@
 extern "C" {
 #endif
 
-/* Set this to 1 to disable asserts, could be useful for release builds to increase performance a bit. */
+/* Set this to 1 to disable asserts, can be useful for release builds to increase performance a bit. */
 #define DE_DISABLE_ASSERTS 0
 
 /* Enables additional code in the math library and allows you to catch division by zero, NAN's and other
@@ -51,7 +51,7 @@ extern "C" {
 #  pragma GCC diagnostic ignored "-Woverlength-strings" /* built-in shaders does not fit in C89 limits of 512 chars */
 #  define _POSIX_C_SOURCE 200809L
 #else
-#error Compiler not supported
+#  error Compiler not supported
 #endif
 
 #define _USE_MATH_DEFINES
@@ -64,7 +64,7 @@ extern "C" {
 #if DE_DISABLE_ASSERTS
 #  define DE_ASSERT
 #else 
-#  define DE_ASSERT(expression) assert(expression)
+#  define DE_ASSERT(expression) if(!(expression)) de_fatal_error("assertion failed: '" DE_STRINGIZE(expression) "' at line " DE_STRINGIZE(__LINE__) " in " __FILE__)
 #endif
 
 typedef void(*de_proc)(void);
@@ -83,7 +83,6 @@ typedef void(*de_proc)(void);
 #include <ctype.h>
 #include <inttypes.h>
 #include <limits.h>
-
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -183,57 +182,7 @@ typedef struct de_sound_decoder_t de_sound_decoder_t;
 #include "gui/gui.h"
 #include "sound/sound.h"
 #include "core/core.h" 
-
-
-/* TINFL (part of miniz) - used to decompress FBX data */
-#ifdef DE_IMPLEMENTATION
-#  define TINFL_IMPLEMENTATION
-#endif
-
 #include "external/miniz_tinfl.h"
-
-/**
- * Implementation.
- * Not sensitive to order of includes.
- **/
-#ifdef DE_IMPLEMENTATION
-#  include "resources/impl/image.h"
-#  include "core/impl/byteorder.h"
-#  include "core/impl/array.h"
-#  include "core/impl/color.h"
-#  include "core/impl/pool.h"
-#  include "core/impl/log.h" 
-#  include "core/impl/memmgr.h"
-#  include "core/impl/base64.h"
-#  include "core/string_utils_impl.h"
-#  include "core/string_impl.h"
-#  include "core/utf32string_impl.h"
-#  include "core/path_impl.h"
-#  include "core/impl/rectpack.h"
-#  include "core/impl/rect.h"
-#  include "core/impl/utility.h"
-#  include "core/impl/serialization.h"
-#  include "core/impl/core.h"
-#  include "physics/impl/octree.h"
-#  include "physics/impl/collision.h"
-#  include "fbx/impl/fbx.h"
-#  include "font/impl/font.h"
-#  include "math/impl/mathlib.h"
-#  include "math/impl/triangulator.h"
-#  include "scene/impl/animation.h"
-#  include "scene/impl/camera.h"
-#  include "scene/impl/light.h"
-#  include "scene/impl/mesh.h"
-#  include "scene/impl/node.h"
-#  include "scene/impl/scene.h"
-#  include "renderer/impl/renderer.h"
-#  include "renderer/impl/surface.h"
-#  include "resources/impl/texture.h"
-#  include "gui/impl/gui.h" 
-#  include "vg/impl/vgraster.h"
-#  include "core/thread_impl.h"
-#  include "sound/sound_impl.h"
-#endif
 
 #ifdef __cplusplus
 }

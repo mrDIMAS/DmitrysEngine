@@ -476,6 +476,10 @@ static bool de_gui_node_process_event(de_gui_node_t* n, const de_event_t* evt) {
 	return processed;
 }
 
+void de_gui_node_set_user_data(de_gui_node_t* node, void* user_data) {
+	node->user_data = user_data;
+}
+
 de_gui_node_t* de_gui_hit_test(de_gui_t* gui, float x, float y) {
 	de_gui_node_t* n;
 	de_gui_node_t* picked_node = gui->captured_node;

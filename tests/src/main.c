@@ -1,4 +1,3 @@
-#define DE_IMPLEMENTATION
 #include "de_main.h"
 
 typedef struct game_t game_t;
@@ -24,6 +23,7 @@ struct main_menu_t {
 };
 
 struct level_t {
+	game_t* game;
 	de_scene_t* scene;
 	de_node_t* test_fbx;
 	player_t* player;
@@ -62,11 +62,13 @@ struct player_t {
 	float sit_down_speed;
 	float run_speed_multiplier;
 	float camera_wobble;
+	float path_len;
 	de_vec3_t camera_offset;
 	de_vec3_t camera_dest_offset;
 	de_vec3_t camera_position;
 	DE_ARRAY_DECLARE(weapon_t*, weapons);
 	player_controller_t controller;
+	de_sound_source_t* footsteps[4];
 };
 
 weapon_t* weapon_create(level_t* level, weapon_type_t type) {
@@ -215,6 +217,8 @@ player_t* player_create(level_t* level) {
 	de_node_attach(p->weapon_pivot, p->camera);
 	de_node_set_local_position_xyz(p->weapon_pivot, 0.03f, -0.052f, -0.02f);
 
+	p->footsteps[0] = de_sound_source_create(de_core_get_sound_context(level->game->core), DE_SOUND_SOURCE_TYPE_3D);
+
 #if 0
 	{
 		weapon_t* shotgun = weapon_create(level, WEAPON_TYPE_SHOTGUN);
@@ -322,11 +326,16 @@ void player_update(player_t* p) {
 		speed_multiplier = p->run_speed_multiplier;
 	}
 
-    if(is_moving) {	
+    if(de_vec3_sqr_len(&offset) > 0) {	
         de_vec3_normalize(&offset, &offset);
-        de_vec3_scale(&offset, &offset, speed_multiplier * p->move_speed);    
+        de_vec3_scale(&offset, &offset, speed_multiplier * p->move_speed);
+		p->path_len += 0.1f;
+		if (p->path_len > 1) {
+			de_sound_source_play(p->footsteps[rand() % (sizeof(p->footsteps) / sizeof(*p->footsteps))]);
+			p->path_len = 0;
+		}
     }
-
+	
 	p->yaw += (p->desired_yaw - p->yaw) * 0.22f;
 	p->pitch += (p->desired_pitch - p->pitch) * 0.22f;
 
@@ -345,7 +354,7 @@ level_t* level_create_test(game_t* game) {
 	de_vec3_t rp = { -1, 1, 1 };
 
 	level = DE_NEW(level_t);
-
+	level->game = game;
 	level->scene = de_scene_create(game->core);
 
 	level->test_fbx = de_fbx_load_to_scene(level->scene, "data/models/ripper.fbx");
@@ -429,10 +438,10 @@ main_menu_t* main_menu_create(game_t* game) {
 	menu->game = game;
 
 	{
-		menu->music_buffer = de_sound_buffer_create(game->core->sound_context, 0);
+		menu->music_buffer = de_sound_buffer_create(de_core_get_sound_context(game->core), 0);
 		de_sound_buffer_load_file(menu->music_buffer, "data/sounds/test.wav");
 
-		menu->music = de_sound_source_create(game->core->sound_context, DE_SOUND_SOURCE_TYPE_2D);
+		menu->music = de_sound_source_create(de_core_get_sound_context(game->core), DE_SOUND_SOURCE_TYPE_2D);
 		de_sound_source_set_buffer(menu->music, menu->music_buffer);
 	}
 	/* main window */
@@ -589,7 +598,7 @@ game_t* game_create(void) {
 		params.video_mode.bits_per_pixel = 32;
 		params.video_mode.fullscreen = false;
 		game->core = de_core_init(&params);
-		de_renderer_set_framerate_limit(game->core->renderer, 0);
+		de_renderer_set_framerate_limit(de_core_get_renderer(game->core), 0);
 	}
 
 	/* Create menu */
@@ -651,7 +660,7 @@ void game_main_loop(game_t* game) {
 					}
 				}
 			}
-			de_sound_context_update(game->core->sound_context);
+			de_sound_context_update(de_core_get_sound_context(game->core));
 			de_gui_update(game->core->gui);
 			de_physics_step(game->core, dt);
 			DE_LINKED_LIST_FOR_EACH(game->core->scenes, scene) {

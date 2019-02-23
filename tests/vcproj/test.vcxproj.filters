@@ -297,9 +297,6 @@
     <ClInclude Include="..\..\fbx\impl\fbx_node.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\external\miniz\miniz_tinfl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\core\impl\pool.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -411,10 +408,16 @@
     <ClInclude Include="..\..\sound\source_impl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\de_main_impl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\main.c">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\de_main.c">
+      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

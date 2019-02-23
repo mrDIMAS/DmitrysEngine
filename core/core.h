@@ -38,6 +38,15 @@ typedef struct de_engine_params_t {
 } de_engine_params_t;
 
 struct de_core_t {
+	/* All fields are private. Do not access directly! */
+	de_renderer_t* renderer; 
+	de_sound_context_t* sound_context;
+	de_gui_t* gui; 
+	DE_LINKED_LIST_DECLARE(de_scene_t, scenes);
+	DE_LINKED_LIST_DECLARE(de_font_t, fonts); 
+	de_engine_params_t params; 
+	bool is_running; 
+	DE_ARRAY_DECLARE(de_event_t, events_queue);
 	struct {
 	#ifdef _WIN32
 		HGLRC gl_context;
@@ -49,17 +58,6 @@ struct de_core_t {
 		GLXContext glContext;
 	#endif
 	} platform;
-
-	de_engine_params_t params; /**< Initialization parameters */
-	bool running; /**< true if engine is running */
-	bool keyboard_focus; /**< true if rendering window is in focus */
-	DE_LINKED_LIST_DECLARE(de_scene_t, scenes);
-	DE_LINKED_LIST_DECLARE(de_font_t, fonts);
-	de_renderer_t* renderer;
-	de_sound_context_t* sound_context;
-	de_gui_t* gui;
-	size_t alloc_count;
-	DE_ARRAY_DECLARE(de_event_t, events_queue);
 };
 
 /**
@@ -101,6 +99,11 @@ de_renderer_t* de_core_get_renderer(de_core_t* core);
  * @brief Returns current gui subsystem of the core.
  */
 de_gui_t* de_core_get_gui(de_core_t* core);
+
+/**
+ * @brief Returns current sound subsystem of the core.
+ */
+de_sound_context_t* de_core_get_sound_context(de_core_t* core);
 
 /**
  * @brief Pushes new event into event queue. Can be used to inject custom input

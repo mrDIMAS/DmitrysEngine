@@ -497,13 +497,10 @@ de_gui_draw_list_t* de_gui_render(de_gui_t* gui);
 
 void de_gui_update(de_gui_t* gui);
 
-
 bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt);
 
 de_gui_node_t* de_gui_hit_test(de_gui_t* gui, float x, float y);
 
-void de_gui_node_set_user_data(de_gui_node_t* node, void* user_data) {
-	node->user_data = user_data;
-}
+void de_gui_node_set_user_data(de_gui_node_t* node, void* user_data);
 
 void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* constraint);

@@ -176,6 +176,7 @@
   <Description/>
   <Dependencies/>
   <VirtualDirectory Name="DmitrysEngine">
+    <File Name="../../de_main.c"/>
     <File Name="../../de_main.h"/>
   </VirtualDirectory>
   <VirtualDirectory Name="input">
@@ -210,7 +211,7 @@
       <ResourceCompiler Options=""/>
     </GlobalSettings>
     <Configuration Name="Debug" CompilerType="MinGW-4.8.1" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="" C_Options="-g;-O0;-Wall;-std=c89;-pedantic;-Werror;" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+      <Compiler Options="" C_Options="-g;-O0;-Wall;-std=c99;-pedantic;-Werror;" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="."/>
         <IncludePath Value="../../."/>
         <IncludePath Value="../../external/"/>

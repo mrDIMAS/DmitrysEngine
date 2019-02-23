@@ -60,10 +60,13 @@ void de_camera_update(de_camera_t* cam) {
 	de_mat4_inverse(&cam->inv_view_proj, &cam->view_projection_matrix);
 }
 
-
 void de_camera_set_viewport(de_camera_t* c, const de_rectf_t* viewport) {
 	assert(c);
 	assert(viewport);
 	c->viewport = *viewport;
 	c->aspect = c->viewport.w / c->viewport.h;
+}
+
+void de_camera_set_fov(de_camera_t* camera, float fov) {
+	camera->fov = fov;
 }

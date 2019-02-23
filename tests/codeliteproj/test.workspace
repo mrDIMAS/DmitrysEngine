@@ -2,7 +2,7 @@
 <CodeLite_Workspace Name="test" Database="" Version="10.0.0">
   <Project Name="test" Path="test.project" Active="Yes"/>
   <BuildMatrix>
-    <WorkspaceConfiguration Name="Debug" Selected="no">
+    <WorkspaceConfiguration Name="Debug" Selected="yes">
       <Environment/>
       <Project Name="test" ConfigName="Debug"/>
     </WorkspaceConfiguration>
@@ -10,7 +10,7 @@
       <Environment/>
       <Project Name="test" ConfigName="Release"/>
     </WorkspaceConfiguration>
-    <WorkspaceConfiguration Name="Linux_Debug" Selected="yes">
+    <WorkspaceConfiguration Name="Linux_Debug" Selected="no">
       <Environment/>
       <Project Name="test" ConfigName="Linux_Debug"/>
     </WorkspaceConfiguration>

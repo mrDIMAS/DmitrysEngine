@@ -62,6 +62,4 @@ void de_camera_update(de_camera_t* c);
 */
 void de_camera_set_viewport(de_camera_t* camera, const de_rectf_t* viewport);
 
-void de_camera_set_fov(de_camera_t* camera, float fov) {
-	camera->fov = fov;
-}
+void de_camera_set_fov(de_camera_t* camera, float fov);

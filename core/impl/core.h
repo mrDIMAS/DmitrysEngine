@@ -24,7 +24,7 @@ de_core_t* de_core_init(const de_engine_params_t* params) {
 	core = DE_NEW(de_core_t);
 	de_log("Dmitry's Engine - Logging Started");
 	core->params = *params;
-	core->running = true;
+	core->is_running = true;
 	de_core_platform_init(core);
 	DE_LINKED_LIST_INIT(core->scenes);
 	core->sound_context = de_sound_context_create(core);
@@ -45,11 +45,11 @@ void de_core_shutdown(de_core_t* core) {
 }
 
 bool de_core_is_running(de_core_t* core) {
-	return core->running;
+	return core->is_running;
 }
 
 void de_core_stop(de_core_t* core) {
-	core->running = false;
+	core->is_running = false;
 }
 
 unsigned int de_core_get_window_width(de_core_t* core) {
@@ -66,6 +66,10 @@ de_renderer_t* de_core_get_renderer(de_core_t* core) {
 
 de_gui_t* de_core_get_gui(de_core_t* core) {
 	return core->gui;
+}
+
+de_sound_context_t* de_core_get_sound_context(de_core_t* core) {
+	return core->sound_context;
 }
 
 void de_core_push_event(de_core_t* core, const de_event_t* evt) {

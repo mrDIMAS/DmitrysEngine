@@ -210,9 +210,9 @@
     <ClInclude Include="..\..\core\utf32string_impl.h" />
     <ClInclude Include="..\..\core\utility.h" />
     <ClInclude Include="..\..\de_main.h" />
+    <ClInclude Include="..\..\de_main_impl.h" />
     <ClInclude Include="..\..\external\GL\glext.h" />
     <ClInclude Include="..\..\external\GL\wglext.h" />
-    <ClInclude Include="..\..\external\miniz\miniz_tinfl.h" />
     <ClInclude Include="..\..\fbx\fbx.h" />
     <ClInclude Include="..\..\fbx\fbx_ascii.h" />
     <ClInclude Include="..\..\fbx\fbx_binary.h" />
@@ -302,6 +302,7 @@
     <ClInclude Include="..\..\vg\vgraster.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\de_main.c" />
     <ClCompile Include="..\src\main.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

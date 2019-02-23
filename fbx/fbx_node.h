@@ -26,12 +26,7 @@ typedef struct de_fbx_buffer_t {
 	size_t size;
 } de_fbx_buffer_t;
 
-void de_fbx_buffer_init(de_fbx_buffer_t* buf, size_t size) {
-	buf->data = (char*)de_malloc(size);
-	buf->ptr = buf->data;
-	buf->end = (char*)buf->data + size;
-	buf->size = size;
-}
+void de_fbx_buffer_init(de_fbx_buffer_t* buf, size_t size);
 
 /**
  * @brief Performs very fast continuous memory "allocations" in fixed-size buffer
@@ -39,24 +34,9 @@ void de_fbx_buffer_init(de_fbx_buffer_t* buf, size_t size) {
  * Main purpose of this method is to reduce memory thrashing when loading FBX
  * properties so every property will be placed in the single memory block.
  */
-void* de_fbx_buffer_alloc(de_fbx_buffer_t* buf, size_t size) {
-	void* ptr;
+void* de_fbx_buffer_alloc(de_fbx_buffer_t* buf, size_t size);
 
-	ptr = buf->ptr;
-	buf->ptr += size;
-
-	if (buf->ptr >= buf->end) {
-		de_fatal_error("buffer overflow");
-	}
-
-	return ptr;
-}
-
-void de_fbx_buffer_free(de_fbx_buffer_t* buf) {
-	de_free(buf->data);
-	buf->data = NULL;
-	buf->size = 0;
-}
+void de_fbx_buffer_free(de_fbx_buffer_t* buf);
 
 typedef struct de_fbx_node_s {
 	/* Name of a node */

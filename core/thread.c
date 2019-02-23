@@ -20,7 +20,7 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 #if defined(__MINGW32__) || defined(__GNUC__)
-#  include "core/thread_impl_posix.h"
+#  include "core/thread_posix.c"
 #else
-#  include "core/thread_impl_win32.h"
+#  include "core/thread_win32.c"
 #endif

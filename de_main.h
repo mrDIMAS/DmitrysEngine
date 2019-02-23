@@ -43,12 +43,10 @@ extern "C" {
  * weird stuff. When 0 - gives absolutely zero performance impact. Very useful for debugging. */
 #define DE_MATH_CHECKS 1
 
-/* Suppress compiler-specific warnings */
+/* Compiler-specific defines */
 #ifdef _MSC_VER
 #  define _CRT_SECURE_NO_WARNINGS
-#  pragma warning(disable : 4204 4820)
 #elif defined __GNUC__
-#  pragma GCC diagnostic ignored "-Woverlength-strings" /* built-in shaders does not fit in C89 limits of 512 chars */
 #  define _POSIX_C_SOURCE 200809L
 #else
 #  error Compiler not supported

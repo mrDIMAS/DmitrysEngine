@@ -19,14 +19,8 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include "de_main.h"
-	
-#define TINFL_IMPLEMENTATION
-#include "external/miniz_tinfl_impl.h"
+#include "external/miniz_tinfl.c"
 #include "resources/image.c"
 #include "core/byteorder.c"
 #include "core/array.c"
@@ -35,10 +29,10 @@ extern "C" {
 #include "core/log.c" 
 #include "core/memmgr.c"
 #include "core/base64.c"
-#include "core/string_utils_impl.h"
-#include "core/string_impl.h"
-#include "core/utf32string_impl.h"
-#include "core/path_impl.h"
+#include "core/string_utils.c"
+#include "core/string.c"
+#include "core/utf32string.c"
+#include "core/path.c"
 #include "core/rectpack.c"
 #include "core/rect.c"
 #include "core/utility.c"
@@ -61,9 +55,5 @@ extern "C" {
 #include "resources/texture.c"
 #include "gui/gui.c" 
 #include "vg/vgraster.c"
-#include "core/thread_impl.h"
+#include "core/thread.c"
 #include "sound/sound.c"
-
-#ifdef __cplusplus
-}
-#endif

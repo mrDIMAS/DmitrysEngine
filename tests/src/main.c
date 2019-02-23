@@ -68,6 +68,7 @@ struct player_t {
 	de_vec3_t camera_position;
 	DE_ARRAY_DECLARE(weapon_t*, weapons);
 	player_controller_t controller;
+	de_sound_buffer_t* footstep_bufs[4];
 	de_sound_source_t* footsteps[4];
 };
 
@@ -181,6 +182,8 @@ bool player_process_event(player_t* p, const de_event_t* evt) {
 }
 
 player_t* player_create(level_t* level) {
+	size_t i;
+	de_sound_context_t* ctx;
 	player_t* p;
 
 	p = DE_NEW(player_t);
@@ -217,7 +220,15 @@ player_t* player_create(level_t* level) {
 	de_node_attach(p->weapon_pivot, p->camera);
 	de_node_set_local_position_xyz(p->weapon_pivot, 0.03f, -0.052f, -0.02f);
 
-	p->footsteps[0] = de_sound_source_create(de_core_get_sound_context(level->game->core), DE_SOUND_SOURCE_TYPE_3D);
+	ctx = de_core_get_sound_context(level->game->core);
+	for (i = 0; i < 4; ++i) {
+		char filename[MAX_PATH];
+		snprintf(filename, sizeof(filename), "data/sounds/footsteps/FootStep_shoe_metal_step%d.wav", i + 1);
+		p->footstep_bufs[i] = de_sound_buffer_create(ctx, 0);
+		de_sound_buffer_load_file(p->footstep_bufs[i], filename);
+		p->footsteps[i] = de_sound_source_create(ctx, DE_SOUND_SOURCE_TYPE_3D);
+		de_sound_source_set_buffer(p->footsteps[i], p->footstep_bufs[i]);
+	}
 
 #if 0
 	{

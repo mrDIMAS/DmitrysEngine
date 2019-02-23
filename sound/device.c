@@ -37,9 +37,9 @@ void de_sound_device_shutdown(de_sound_device_t* dev);
 void de_sound_device_send_data(de_sound_device_t* dev);
 
 #ifdef _WIN32
-#include "sound/device_impl_dsound.h"
+#include "sound/device_dsound.c"
 #else
-#include "sound/device_impl_alsa.h"
+#include "sound/device_alsa.c"
 #endif
 
 static int de_sound_device_mixer_thread(void* ptr) {

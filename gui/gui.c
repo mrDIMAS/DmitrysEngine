@@ -24,18 +24,18 @@ static void de_gui_node_default_layout(de_gui_node_t* n);
 static bool de_gui_node_contains_point(de_gui_node_t* node, const de_vec2_t* point);
 
 /* Insert logic of all controls */
-#include "gui/impl/draw.h"
-#include "gui/impl/button.h"
-#include "gui/impl/border.h"
-#include "gui/impl/canvas.h"
-#include "gui/impl/grid.h"
-#include "gui/impl/scroll_bar.h"
-#include "gui/impl/scroll_content_presenter.h"
-#include "gui/impl/scroll_viewer.h"
-#include "gui/impl/text.h"
-#include "gui/impl/text_box.h"
-#include "gui/impl/window.h"
-#include "gui/impl/slide_selector.h"
+#include "gui/draw.c"
+#include "gui/button.c"
+#include "gui/border.c"
+#include "gui/canvas.c"
+#include "gui/grid.c"
+#include "gui/scroll_bar.c"
+#include "gui/scroll_content_presenter.c"
+#include "gui/scroll_viewer.c"
+#include "gui/text.c"
+#include "gui/text_box.c"
+#include "gui/window.c"
+#include "gui/slide_selector.c"
 
 #define DE_DECLARE_ROUTED_EVENT_TRACER(name__, event__) \
 	static void name__(de_gui_node_t* n, de_gui_routed_event_args_t* args) { \

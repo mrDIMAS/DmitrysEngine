@@ -88,7 +88,7 @@ bool de_core_poll_event(de_core_t* core, de_event_t* evt) {
 
 /* Include platform-specific implementation */
 #  ifdef _WIN32
-#    include "platform/impl/win32.h"
+#    include "platform/win32.c"
 #  else
-#    include "platform/impl/x11.h"
+#    include "platform/x11.c"
 #  endif

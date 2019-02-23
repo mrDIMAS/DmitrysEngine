@@ -139,7 +139,6 @@ typedef struct de_sound_decoder_t de_sound_decoder_t;
 * Order is important here, because some parts depends on other
 * Modules with minimum dependencies should be placed before others.
 **/
-#include "core/bool.h"
 #include "core/log.h"
 #include "core/byteorder.h"
 #include "core/memmgr.h"

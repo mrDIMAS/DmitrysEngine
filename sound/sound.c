@@ -19,6 +19,9 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/**
-* @brief Boolean values
-*/
+#include "sound/device.c"
+#include "sound/decoder.c"
+#include "sound/listener.c"
+#include "sound/context.c"
+#include "sound/source.c"
+#include "sound/buffer.c"

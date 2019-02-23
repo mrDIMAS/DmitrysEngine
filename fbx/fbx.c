@@ -195,16 +195,14 @@ typedef struct de_fbx_t {
 	DE_ARRAY_DECLARE(de_fbx_component_t*, components);
 } de_fbx_t;
 
-#include "fbx/impl/fbx_node.h"
-#include "fbx/impl/fbx_ascii.h"
-#include "fbx/impl/fbx_binary.h"
-
+#include "fbx/fbx_node.c"
+#include "fbx/fbx_ascii.c"
+#include "fbx/fbx_binary.c"
 
 static int de_fbx_fix_index(int index) {
 	/* We have to convert last vertex index of face it’s because the original index is XOR’ed with -1 */
 	return index < 0 ? -index - 1 : index;
 }
-
 
 static de_fbx_mapping_t de_fbx_get_mapping(const char* str) {
 	if (strcmp(str, "ByPolygon") == 0) {
@@ -220,7 +218,6 @@ static de_fbx_mapping_t de_fbx_get_mapping(const char* str) {
 	}
 	return DE_FBX_MAPPING_UNKNOWN;
 }
-
 
 static void de_fbx_read_normals(de_fbx_node_t* geom_node, de_fbx_geom_t* geom) {
 	int i, k;

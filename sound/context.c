@@ -29,7 +29,11 @@ de_sound_context_t* de_sound_context_create(de_core_t* core) {
 }
 
 void de_sound_context_free(de_sound_context_t* ctx) {
+	size_t i;
 	de_sound_device_free(&ctx->dev);
+	for (i = 0; i < ctx->sounds.size; ++i) {
+		de_sound_source_free(ctx->sounds.data[i]);
+	}
 	de_mtx_destroy(&ctx->mtx);
 	de_free(ctx);
 }

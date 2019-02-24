@@ -19,6 +19,29 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+struct de_core_t {
+	/* All fields are private. Do not access directly! */
+	de_renderer_t* renderer;
+	de_sound_context_t* sound_context;
+	de_gui_t* gui;
+	DE_ARRAY_DECLARE(de_scene_t*, scenes);
+	DE_LINKED_LIST_DECLARE(de_font_t, fonts);
+	de_engine_params_t params;
+	bool is_running;
+	DE_ARRAY_DECLARE(de_event_t, events_queue);
+	struct {
+	#ifdef _WIN32
+		HGLRC gl_context;
+		HWND window;
+		HDC device_context;
+	#else
+		Display* display;
+		Window window;
+		GLXContext glContext;
+	#endif
+	} platform;
+};
+
 de_core_t* de_core_init(const de_engine_params_t* params) {
 	de_core_t* core;
 	core = DE_NEW(de_core_t);
@@ -85,6 +108,15 @@ bool de_core_poll_event(de_core_t* core, de_event_t* evt) {
 	}
 	return false;
 }
+
+size_t de_core_get_scene_count(de_core_t* core) {
+	return core->scenes.size;
+}
+
+de_scene_t* de_core_get_scene(de_core_t* core, size_t i) {
+	return core->scenes.data[i];
+}
+
 
 /* Include platform-specific implementation */
 #  ifdef _WIN32

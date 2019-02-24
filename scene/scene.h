@@ -22,8 +22,6 @@
 struct de_scene_t {
 	de_core_t* core;
 
-	DE_LINKED_LIST_ITEM(struct de_scene_t);
-
 	DE_LINKED_LIST_DECLARE(de_node_t, nodes);
 	DE_LINKED_LIST_DECLARE(de_body_t, bodies);
 	DE_LINKED_LIST_DECLARE(de_static_geometry_t, static_geometries);

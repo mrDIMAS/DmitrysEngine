@@ -37,29 +37,6 @@ typedef struct de_engine_params_t {
 	uint32_t flags;
 } de_engine_params_t;
 
-struct de_core_t {
-	/* All fields are private. Do not access directly! */
-	de_renderer_t* renderer; 
-	de_sound_context_t* sound_context;
-	de_gui_t* gui; 
-	DE_LINKED_LIST_DECLARE(de_scene_t, scenes);
-	DE_LINKED_LIST_DECLARE(de_font_t, fonts); 
-	de_engine_params_t params; 
-	bool is_running; 
-	DE_ARRAY_DECLARE(de_event_t, events_queue);
-	struct {
-	#ifdef _WIN32
-		HGLRC gl_context;
-		HWND window;
-		HDC device_context;
-	#else
-		Display* display;
-		Window window;
-		GLXContext glContext;
-	#endif
-	} platform;
-};
-
 /**
 * @brief Creates window and initializes OpenGL
 */
@@ -122,6 +99,12 @@ void de_core_push_event(de_core_t* core, const de_event_t* evt);
  * }
  */
 bool de_core_poll_event(de_core_t* core, de_event_t* evt);
+
+size_t de_core_get_scene_count(de_core_t* core);
+
+de_scene_t* de_core_get_scene(de_core_t* core, size_t i);
+
+
 
 
 /********************************************************************

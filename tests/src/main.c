@@ -456,17 +456,17 @@ static void videomode_selector_on_selection_changed(de_gui_node_t* node, int n) 
 }
 
 main_menu_t* main_menu_create(game_t* game) {
-	de_gui_t* gui = game->core->gui;
+	de_gui_t* gui = de_core_get_gui(game->core);
 	main_menu_t* menu = DE_NEW(main_menu_t);
 	menu->game = game;
 
 	{
-		menu->music_buffer = de_sound_buffer_create(de_core_get_sound_context(game->core), 0);
+		menu->music_buffer = de_sound_buffer_create(de_core_get_sound_context(game->core), DE_SOUND_BUFFER_FLAGS_STREAM);
 		de_sound_buffer_load_file(menu->music_buffer, "data/sounds/test.wav");
 
 		menu->music = de_sound_source_create(de_core_get_sound_context(game->core), DE_SOUND_SOURCE_TYPE_2D);
 		de_sound_source_set_buffer(menu->music, menu->music_buffer);
-		//de_sound_source_play(menu->music);
+		de_sound_source_play(menu->music);
 	}
 	/* main window */
 	{
@@ -615,7 +615,7 @@ game_t* game_create(void) {
 	game = DE_NEW(game_t);
 	de_log_open("dengine.log");
 
-	/* Init core */		
+	/* Init core */
 	de_zero(&params, sizeof(params));
 	params.video_mode.width = 1200;
 	params.video_mode.height = 1000;
@@ -623,23 +623,26 @@ game_t* game_create(void) {
 	params.video_mode.fullscreen = false;
 	game->core = de_core_init(&params);
 	de_renderer_set_framerate_limit(de_core_get_renderer(game->core), 0);
-	
+
 	/* Create menu */
 	game->main_menu = main_menu_create(game);
-	
-	/* Create overlay */	
-	game->fps_text = de_gui_text_create(game->core->gui);
-	
+
+	/* Create overlay */
+	game->fps_text = de_gui_text_create(de_core_get_gui(game->core));
+
 	return game;
 }
 
 void game_main_loop(game_t* game) {
+	size_t i;
 	double game_clock, fixed_fps, fixed_timestep, dt;
 	de_scene_t* scene;
 	de_event_t evt;
 	de_renderer_t* renderer;
+	de_gui_t* gui;
 
 	renderer = de_core_get_renderer(game->core);
+	gui = de_core_get_gui(game->core);
 
 	fixed_fps = 60.0;
 	fixed_timestep = 1.0f / fixed_fps;
@@ -662,7 +665,7 @@ void game_main_loop(game_t* game) {
 					processed = true;
 				}
 				if (!processed) {
-					processed = de_gui_process_event(game->core->gui, &evt);
+					processed = de_gui_process_event(gui, &evt);
 				}
 				if (!processed) {
 					if (game->level) {
@@ -672,9 +675,10 @@ void game_main_loop(game_t* game) {
 			}
 
 			de_sound_context_update(de_core_get_sound_context(game->core));
-			de_gui_update(game->core->gui);
+			de_gui_update(gui);
 			de_physics_step(game->core, fixed_timestep);
-			DE_LINKED_LIST_FOR_EACH(game->core->scenes, scene) {
+			for (i = 0; i < de_core_get_scene_count(game->core); ++i) {
+				scene = de_core_get_scene(game->core, i);
 				de_scene_update(scene, fixed_timestep);
 			}
 
@@ -766,7 +770,7 @@ void test_visitor(game_t* game) {
 		de_scene_free(scene);
 	}
 #endif
-	}
+}
 
 int main(int argc, char** argv) {
 	game_t* game;

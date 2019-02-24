@@ -270,12 +270,14 @@ void de_body_triangle_collision(de_static_triangle_t* triangle, de_body_t* spher
 }
 
 void de_physics_step(de_core_t* core, double dt) {
+	size_t i;
 	float dt2;
 	de_scene_t* scene;
 	de_body_t* body;
 	de_static_geometry_t* geom;
 	dt2 = (float)(dt * dt);
-	DE_LINKED_LIST_FOR_EACH(core->scenes, scene) {
+	for (i = 0; i < core->scenes.size; ++i) {
+		scene = core->scenes.data[i];
 		DE_LINKED_LIST_FOR_EACH(scene->bodies, body) {
 			/* Drop contact information */
 			body->contact_count = 0;

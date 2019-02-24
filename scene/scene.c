@@ -23,7 +23,7 @@ de_scene_t* de_scene_create(de_core_t* core) {
 	de_scene_t* s = DE_NEW(de_scene_t);
 	s->core = core;
 	DE_LINKED_LIST_INIT(s->nodes);
-	DE_LINKED_LIST_APPEND(core->scenes, s);
+	DE_ARRAY_APPEND(core->scenes, s);	
 	return s;
 }
 
@@ -49,7 +49,7 @@ void de_scene_free(de_scene_t* s) {
 	}
 
 	if (s->core) {
-		DE_LINKED_LIST_REMOVE(s->core->scenes, s);
+		DE_ARRAY_REMOVE(s->core->scenes, s);		
 	}
 
 	de_free(s);

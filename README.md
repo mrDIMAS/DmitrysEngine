@@ -11,6 +11,7 @@ Please note, that this engine is at very early development stage and some featur
 * Modern rendering techniques, renderer based on OpenGL 3.3 Core.
     * Deferred shading
     * Normal mapping
+	* Skeletal animation
 * Sound
 	* 2D + 3D 
 	* WAV format support 
@@ -30,12 +31,11 @@ Please note, that this engine is at very early development stage and some featur
 	* Slide selector	
 * TGA image loading
 * Position-based physics
-* Skeletal animation
 * Built-in save/load functionality via object visitor.
 * Documentation - almost every function of the engine has description in Doxygen format.
+* Easy to hack and modify
 
 ## Planned features (by priorities)
-- Sound 
 - Materials (probably PBR)
 - More GUI widgets
 - Stability

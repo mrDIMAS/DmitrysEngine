@@ -37,7 +37,7 @@ void de_sound_buffer_load_file(de_sound_buffer_t* buf, const char* file) {
 	buf->channel_count = buf->decoder->channel_count;
 	if (buf->flags & DE_SOUND_BUFFER_FLAGS_STREAM) {
 		/* 1 second streaming buffer */
-		buf->sample_per_channel = 2 * buf->ctx->dev.samples_per_channel;
+		buf->sample_per_channel = 2 * buf->ctx->dev.out_samples_count;
 	} else {
 		/* Full-length buffer */
 		buf->sample_per_channel = buf->decoder->sample_per_channel;

@@ -337,16 +337,16 @@ void player_update(player_t* p) {
 		speed_multiplier = p->run_speed_multiplier;
 	}
 
-    if(de_vec3_sqr_len(&offset) > 0) {	
-        de_vec3_normalize(&offset, &offset);
-        de_vec3_scale(&offset, &offset, speed_multiplier * p->move_speed);
-		p->path_len += 0.1f;
-		if (p->path_len > 1) {
+	if (de_vec3_sqr_len(&offset) > 0) {
+		de_vec3_normalize(&offset, &offset);
+		de_vec3_scale(&offset, &offset, speed_multiplier * p->move_speed);
+		p->path_len += 0.05f;
+		if (p->path_len >= 1) {
 			de_sound_source_play(p->footsteps[rand() % (sizeof(p->footsteps) / sizeof(*p->footsteps))]);
 			p->path_len = 0;
 		}
-    }
-	
+	}
+
 	p->yaw += (p->desired_yaw - p->yaw) * 0.22f;
 	p->pitch += (p->desired_pitch - p->pitch) * 0.22f;
 
@@ -357,6 +357,18 @@ void player_update(player_t* p) {
 
 	de_node_set_local_rotation(pivot, de_quat_from_axis_angle(&yaw_rot, &up_axis, de_deg_to_rad(p->yaw)));
 	de_node_set_local_rotation(camera, de_quat_from_axis_angle(&pitch_rot, &right_axis, de_deg_to_rad(p->pitch)));
+
+	/* listener */
+	{
+		de_sound_context_t* ctx;
+		de_listener_t* lst;
+		de_vec3_t pos;
+		ctx = de_core_get_sound_context(p->parent_level->game->core);
+		lst = de_sound_context_get_listener(ctx);
+		de_node_get_global_position(p->camera, &pos);
+		de_listener_set_orientation(lst, &look, &up_axis);
+		de_listener_set_position(lst, &pos);
+	}
 }
 
 level_t* level_create_test(game_t* game) {
@@ -454,6 +466,7 @@ main_menu_t* main_menu_create(game_t* game) {
 
 		menu->music = de_sound_source_create(de_core_get_sound_context(game->core), DE_SOUND_SOURCE_TYPE_2D);
 		de_sound_source_set_buffer(menu->music, menu->music_buffer);
+		//de_sound_source_play(menu->music);
 	}
 	/* main window */
 	{
@@ -556,7 +569,7 @@ main_menu_t* main_menu_create(game_t* game) {
 			de_gui_grid_add_row(grid, 100, DE_GUI_SIZE_MODE_STRICT);
 
 			/* videomode */
-			{				
+			{
 				de_gui_node_t* selector;
 				de_gui_node_t* videomode_text = de_gui_text_create(gui);
 				de_gui_text_set_text_utf8(videomode_text, "Video Mode");
@@ -597,39 +610,33 @@ void main_menu_free(main_menu_t* menu) {
 
 game_t* game_create(void) {
 	game_t* game;
+	de_engine_params_t params;
 
 	game = DE_NEW(game_t);
 	de_log_open("dengine.log");
-	/* Init core */
-	{
-		de_engine_params_t params;
-		de_zero(&params, sizeof(params));
-		params.video_mode.width = 1200;
-		params.video_mode.height = 1000;
-		params.video_mode.bits_per_pixel = 32;
-		params.video_mode.fullscreen = false;
-		game->core = de_core_init(&params);
-		de_renderer_set_framerate_limit(de_core_get_renderer(game->core), 0);
-	}
 
+	/* Init core */		
+	de_zero(&params, sizeof(params));
+	params.video_mode.width = 1200;
+	params.video_mode.height = 1000;
+	params.video_mode.bits_per_pixel = 32;
+	params.video_mode.fullscreen = false;
+	game->core = de_core_init(&params);
+	de_renderer_set_framerate_limit(de_core_get_renderer(game->core), 0);
+	
 	/* Create menu */
-	{
-		game->main_menu = main_menu_create(game);
-	}
-
-	/* Create overlay */
-	{
-		game->fps_text = de_gui_text_create(game->core->gui);
-	}
-
+	game->main_menu = main_menu_create(game);
+	
+	/* Create overlay */	
+	game->fps_text = de_gui_text_create(game->core->gui);
+	
 	return game;
 }
 
 void game_main_loop(game_t* game) {
-	double game_clock;
-	double fixed_fps;
-	double fixed_timestep;
-	double dt;
+	double game_clock, fixed_fps, fixed_timestep, dt;
+	de_scene_t* scene;
+	de_event_t evt;
 	de_renderer_t* renderer;
 
 	renderer = de_core_get_renderer(game->core);
@@ -640,8 +647,6 @@ void game_main_loop(game_t* game) {
 	while (de_core_is_running(game->core)) {
 		dt = de_time_get_seconds() - game_clock;
 		while (dt >= fixed_timestep) {
-			de_scene_t* scene;
-			de_event_t evt;
 			if (dt >= 4 * fixed_timestep) {
 				game_clock = de_time_get_seconds();
 				break;
@@ -652,15 +657,9 @@ void game_main_loop(game_t* game) {
 
 			while (de_core_poll_event(game->core, &evt)) {
 				bool processed = false;
-				switch (evt.type) {
-					case DE_EVENT_TYPE_KEY_DOWN:
-						if (evt.s.key.key == DE_KEY_ESC) {
-							main_menu_set_visible(game->main_menu, true);
-							processed = true;
-						}
-						break;
-					default:
-						break;
+				if (evt.type == DE_EVENT_TYPE_KEY_DOWN && evt.s.key.key == DE_KEY_ESC) {
+					main_menu_set_visible(game->main_menu, true);
+					processed = true;
 				}
 				if (!processed) {
 					processed = de_gui_process_event(game->core->gui, &evt);
@@ -671,11 +670,12 @@ void game_main_loop(game_t* game) {
 					}
 				}
 			}
+
 			de_sound_context_update(de_core_get_sound_context(game->core));
 			de_gui_update(game->core->gui);
-			de_physics_step(game->core, dt);
+			de_physics_step(game->core, fixed_timestep);
 			DE_LINKED_LIST_FOR_EACH(game->core->scenes, scene) {
-				de_scene_update(scene, dt);
+				de_scene_update(scene, fixed_timestep);
 			}
 
 			if (game->level && !game->main_menu->visible) {
@@ -746,7 +746,7 @@ void test_visitor(game_t* game) {
 
 		de_object_visitor_free(&visitor);
 		de_scene_free(scene);
-}
+	}
 #endif
 
 #if 1
@@ -766,7 +766,7 @@ void test_visitor(game_t* game) {
 		de_scene_free(scene);
 	}
 #endif
-}
+	}
 
 int main(int argc, char** argv) {
 	game_t* game;

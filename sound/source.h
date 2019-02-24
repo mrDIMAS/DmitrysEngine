@@ -42,8 +42,9 @@ struct de_sound_source_t {
 	float pitch;
 	float gain;
 	bool loop;
-	/* gain of each channel. currently mono and stereo are supported */
-	float channel_gain[DE_SOUND_MAX_CHANNELS];
+	float radius; /**< Radius of sphere around sound source at which sound volume is half of initial. */
+	float left_gain;
+	float right_gain;
 	/* spatial data for 3d sounds */
 	de_vec3_t position;
 };
@@ -68,7 +69,7 @@ void de_sound_source_set_buffer(de_sound_source_t* src, de_sound_buffer_t* buf);
  *
  * Note: Left and right channels only! 2.1, 5.1 and so on formats not supported!
  */
-void de_sound_source_sample(de_sound_source_t* src, float samples[2]);
+void de_sound_source_sample(de_sound_source_t* src, float* left, float* right);
 
 /**
  * @brief Internal. Sound mixer uses this method to ensure that source should participate in mixing.

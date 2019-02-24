@@ -57,25 +57,27 @@ static int de_sound_device_mixer_thread(void* ptr) {
 			}
 		}
 		/* mix them */
-		for (i = 0; i < dev->buffer_len / 2;) {
-			float samples[2] = { 0 };
+		for (i = 0; i < dev->out_samples_count;) {
+			float left = 0, right = 0;
 			for(k = 0; k < dev->active_sources.size; ++k) {
-				de_sound_source_sample(dev->active_sources.data[k], samples);				
+				float sleft, sright;
+				de_sound_source_sample(dev->active_sources.data[k], &sleft, &sright);				
+				left += sleft;
+				right += sright;
 			}
 			/* clamp to [-1;1] to prevent clicks */
-			if (samples[0] > 1.0f) {
-				samples[0] = 1.0f;
-			} else if (samples[0] < -1.0f) {
-				samples[0] = -1.0f;
+			if (left > 1.0f) {
+				left = 1.0f;
+			} else if (left < -1.0f) {
+				left = -1.0f;
 			}
-			if (samples[1] > 1.0f) {
-				samples[1] = 1.0f;
-			} else if (samples[1] < -1.0f) {
-				samples[1] = -1.0f ;
+			if (right > 1.0f) {
+				right = 1.0f;
+			} else if (right < -1.0f) {
+				right = -1.0f ;
 			}	
-
-			dev->out_buffer[i++] = (short)(samples[0] * (float)INT16_MAX);
-			dev->out_buffer[i++] = (short)(samples[1] * (float)INT16_MAX);
+			dev->out_buffer[i++] = (short)(left * (float)INT16_MAX);
+			dev->out_buffer[i++] = (short)(right * (float)INT16_MAX);
 		}
 		de_sound_context_unlock(dev->ctx);
 		/* send_data is locking so mutex is already unlocked here */
@@ -88,17 +90,18 @@ static int de_sound_device_mixer_thread(void* ptr) {
 }
 
 bool de_sound_device_init(de_sound_context_t* ctx, de_sound_device_t* dev) {
-	size_t bytes_per_sample;
 	de_thrd_t mixer_thread;
 
 	de_zero(dev, sizeof(*dev));
-	bytes_per_sample = 2;
 	dev->ctx = ctx;
-	dev->sample_rate = 44100;
-	dev->bits_per_sample = bytes_per_sample * 8;
-	dev->samples_per_channel = dev->sample_rate / (2 * bytes_per_sample);
-	dev->buffer_len = dev->sample_rate;
-	dev->out_buffer = de_calloc(dev->buffer_len, sizeof(*dev->out_buffer));
+	dev->sample_rate = 44100;	
+	dev->buffer_len_bytes = dev->sample_rate / 5;
+	dev->out_samples_count = dev->buffer_len_bytes / sizeof(int16_t);
+	if ((dev->out_samples_count % 2) != 0) {
+		de_fatal_error("sample count must be even!");
+	}
+	de_log("sound device feed rate: %d Hz\noutput buffer len: %f ms", dev->sample_rate / dev->out_samples_count, 1000.0f * (dev->out_samples_count / (float)dev->sample_rate));
+	dev->out_buffer = de_malloc(dev->buffer_len_bytes);
 	dev->mixer_status = DE_MIXER_STATUS_ACTIVE;
 
 	de_cnd_init(&dev->cnd);

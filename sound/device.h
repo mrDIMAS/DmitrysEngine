@@ -29,11 +29,10 @@ struct de_sound_device_t {
 	de_sound_context_t* ctx;
 	de_cnd_t cnd;
 	de_mixer_status_t mixer_status;
-	short* out_buffer;
+	int16_t* out_buffer;
 	size_t sample_rate;
-	size_t samples_per_channel;
-	size_t bits_per_sample;
-	size_t buffer_len;
+	size_t out_samples_count;
+	size_t buffer_len_bytes; /* in bytes */
 	DE_ARRAY_DECLARE(de_sound_source_t*, active_sources); /**< Array of active sound sources */
 #ifdef _WIN32
 	/* dsound */

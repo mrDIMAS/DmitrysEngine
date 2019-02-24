@@ -92,6 +92,9 @@ typedef void(*de_proc)(void);
 #  define NOMINMAX
 #  include <windows.h>
 #  include <process.h>
+#  ifndef PATH_MAX
+#    define PATH_MAX MAX_PATH
+#  endif
 #else
 #  include <linux/limits.h>
 #  include <X11/Xlib.h>

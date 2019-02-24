@@ -19,7 +19,17 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef struct de_sound_listener_t {
+typedef struct de_listener_t {
 	de_vec3_t position;
-} de_sound_listener_t;
+	de_vec3_t look;
+	de_vec3_t up;
+	de_vec3_t ear_axis;
+} de_listener_t;
 
+void de_listener_init(de_listener_t* l);
+
+void de_listener_set_position(de_listener_t* l, const de_vec3_t* pos);
+
+void de_listener_get_position(de_listener_t* l, de_vec3_t* pos);
+
+void de_listener_set_orientation(de_listener_t* l, const de_vec3_t* look, const de_vec3_t* up);

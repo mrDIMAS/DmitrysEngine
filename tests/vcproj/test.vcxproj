@@ -18,6 +18,13 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\de_main.c" />
+    <ClCompile Include="..\src\main.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\de_main.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{42833DDD-BBEE-4243-BEA1-D095CB571C4E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -100,7 +107,8 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
       <FloatingPointExceptions>false</FloatingPointExceptions>
-      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -136,7 +144,8 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../../;../../external/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <TreatWarningAsError>true</TreatWarningAsError>
-      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
+      <AssemblerOutput>NoListing</AssemblerOutput>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -167,144 +176,6 @@
       <AdditionalLibraryDirectories>../../external;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\core\array.h" />
-    <ClInclude Include="..\..\core\base64.h" />
-    <ClInclude Include="..\..\core\bool.h" />
-    <ClInclude Include="..\..\core\byteorder.h" />
-    <ClInclude Include="..\..\core\clipboard.h" />
-    <ClInclude Include="..\..\core\color.h" />
-    <ClInclude Include="..\..\core\core.h" />
-    <ClInclude Include="..\..\core\impl\array.h" />
-    <ClInclude Include="..\..\core\impl\base64.h" />
-    <ClInclude Include="..\..\core\impl\byteorder.h" />
-    <ClInclude Include="..\..\core\impl\color.h" />
-    <ClInclude Include="..\..\core\impl\core.h" />
-    <ClInclude Include="..\..\core\impl\log.h" />
-    <ClInclude Include="..\..\core\impl\memmgr.h" />
-    <ClInclude Include="..\..\core\impl\pool.h" />
-    <ClInclude Include="..\..\core\impl\rect.h" />
-    <ClInclude Include="..\..\core\impl\rectpack.h" />
-    <ClInclude Include="..\..\core\impl\serialization.h" />
-    <ClInclude Include="..\..\core\impl\string.h" />
-    <ClInclude Include="..\..\core\impl\utility.h" />
-    <ClInclude Include="..\..\core\linked_list.h" />
-    <ClInclude Include="..\..\core\log.h" />
-    <ClInclude Include="..\..\core\memmgr.h" />
-    <ClInclude Include="..\..\core\path.h" />
-    <ClInclude Include="..\..\core\path_impl.h" />
-    <ClInclude Include="..\..\core\pool.h" />
-    <ClInclude Include="..\..\core\rect.h" />
-    <ClInclude Include="..\..\core\rectpack.h" />
-    <ClInclude Include="..\..\core\serialization.h" />
-    <ClInclude Include="..\..\core\string.h" />
-    <ClInclude Include="..\..\core\string_impl.h" />
-    <ClInclude Include="..\..\core\string_utils.h" />
-    <ClInclude Include="..\..\core\string_utils_impl.h" />
-    <ClInclude Include="..\..\core\thread.h" />
-    <ClInclude Include="..\..\core\thread_impl.h" />
-    <ClInclude Include="..\..\core\thread_impl_posix.h" />
-    <ClInclude Include="..\..\core\thread_impl_win32.h" />
-    <ClInclude Include="..\..\core\time.h" />
-    <ClInclude Include="..\..\core\utf32string.h" />
-    <ClInclude Include="..\..\core\utf32string_impl.h" />
-    <ClInclude Include="..\..\core\utility.h" />
-    <ClInclude Include="..\..\de_main.h" />
-    <ClInclude Include="..\..\de_main_impl.h" />
-    <ClInclude Include="..\..\external\GL\glext.h" />
-    <ClInclude Include="..\..\external\GL\wglext.h" />
-    <ClInclude Include="..\..\fbx\fbx.h" />
-    <ClInclude Include="..\..\fbx\fbx_ascii.h" />
-    <ClInclude Include="..\..\fbx\fbx_binary.h" />
-    <ClInclude Include="..\..\fbx\fbx_node.h" />
-    <ClInclude Include="..\..\fbx\impl\fbx.h" />
-    <ClInclude Include="..\..\fbx\impl\fbx_ascii.h" />
-    <ClInclude Include="..\..\fbx\impl\fbx_binary.h" />
-    <ClInclude Include="..\..\fbx\impl\fbx_node.h" />
-    <ClInclude Include="..\..\font\font.h" />
-    <ClInclude Include="..\..\font\impl\font.h" />
-    <ClInclude Include="..\..\gui\border.h" />
-    <ClInclude Include="..\..\gui\button.h" />
-    <ClInclude Include="..\..\gui\canvas.h" />
-    <ClInclude Include="..\..\gui\draw.h" />
-    <ClInclude Include="..\..\gui\grid.h" />
-    <ClInclude Include="..\..\gui\gui.h" />
-    <ClInclude Include="..\..\gui\impl\border.h" />
-    <ClInclude Include="..\..\gui\impl\button.h" />
-    <ClInclude Include="..\..\gui\impl\canvas.h" />
-    <ClInclude Include="..\..\gui\impl\draw.h" />
-    <ClInclude Include="..\..\gui\impl\grid.h" />
-    <ClInclude Include="..\..\gui\impl\gui.h" />
-    <ClInclude Include="..\..\gui\impl\scroll_bar.h" />
-    <ClInclude Include="..\..\gui\impl\scroll_content_presenter.h" />
-    <ClInclude Include="..\..\gui\impl\scroll_viewer.h" />
-    <ClInclude Include="..\..\gui\impl\slide_selector.h" />
-    <ClInclude Include="..\..\gui\impl\text.h" />
-    <ClInclude Include="..\..\gui\impl\text_box.h" />
-    <ClInclude Include="..\..\gui\impl\window.h" />
-    <ClInclude Include="..\..\gui\scroll_bar.h" />
-    <ClInclude Include="..\..\gui\scroll_content_presenter.h" />
-    <ClInclude Include="..\..\gui\scroll_viewer.h" />
-    <ClInclude Include="..\..\gui\slide_selector.h" />
-    <ClInclude Include="..\..\gui\text.h" />
-    <ClInclude Include="..\..\gui\text_box.h" />
-    <ClInclude Include="..\..\gui\window.h" />
-    <ClInclude Include="..\..\input\input.h" />
-    <ClInclude Include="..\..\math\impl\mathlib.h" />
-    <ClInclude Include="..\..\math\impl\triangulator.h" />
-    <ClInclude Include="..\..\math\mathlib.h" />
-    <ClInclude Include="..\..\math\triangulator.h" />
-    <ClInclude Include="..\..\physics\collision.h" />
-    <ClInclude Include="..\..\physics\impl\collision.h" />
-    <ClInclude Include="..\..\physics\impl\octree.h" />
-    <ClInclude Include="..\..\physics\octree.h" />
-    <ClInclude Include="..\..\platform\impl\win32.h" />
-    <ClInclude Include="..\..\platform\impl\x11.h" />
-    <ClInclude Include="..\..\renderer\impl\renderer.h" />
-    <ClInclude Include="..\..\renderer\impl\surface.h" />
-    <ClInclude Include="..\..\renderer\renderer.h" />
-    <ClInclude Include="..\..\renderer\surface.h" />
-    <ClInclude Include="..\..\renderer\vertex.h" />
-    <ClInclude Include="..\..\resources\builtin_fonts.h" />
-    <ClInclude Include="..\..\resources\image.h" />
-    <ClInclude Include="..\..\resources\impl\image.h" />
-    <ClInclude Include="..\..\resources\impl\texture.h" />
-    <ClInclude Include="..\..\resources\texture.h" />
-    <ClInclude Include="..\..\scene\animation.h" />
-    <ClInclude Include="..\..\scene\camera.h" />
-    <ClInclude Include="..\..\scene\impl\animation.h" />
-    <ClInclude Include="..\..\scene\impl\camera.h" />
-    <ClInclude Include="..\..\scene\impl\light.h" />
-    <ClInclude Include="..\..\scene\impl\mesh.h" />
-    <ClInclude Include="..\..\scene\impl\node.h" />
-    <ClInclude Include="..\..\scene\impl\scene.h" />
-    <ClInclude Include="..\..\scene\light.h" />
-    <ClInclude Include="..\..\scene\mesh.h" />
-    <ClInclude Include="..\..\scene\node.h" />
-    <ClInclude Include="..\..\scene\scene.h" />
-    <ClInclude Include="..\..\sound\buffer.h" />
-    <ClInclude Include="..\..\sound\buffer_impl.h" />
-    <ClInclude Include="..\..\sound\context.h" />
-    <ClInclude Include="..\..\sound\context_impl.h" />
-    <ClInclude Include="..\..\sound\decoder.h" />
-    <ClInclude Include="..\..\sound\decoder_impl.h" />
-    <ClInclude Include="..\..\sound\device.h" />
-    <ClInclude Include="..\..\sound\device_impl.h" />
-    <ClInclude Include="..\..\sound\device_impl_alsa.h" />
-    <ClInclude Include="..\..\sound\device_impl_dsound.h" />
-    <ClInclude Include="..\..\sound\listener.h" />
-    <ClInclude Include="..\..\sound\listener_impl.h" />
-    <ClInclude Include="..\..\sound\sound.h" />
-    <ClInclude Include="..\..\sound\sound_impl.h" />
-    <ClInclude Include="..\..\sound\source.h" />
-    <ClInclude Include="..\..\sound\source_impl.h" />
-    <ClInclude Include="..\..\vg\impl\vgraster.h" />
-    <ClInclude Include="..\..\vg\vgraster.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\de_main.c" />
-    <ClCompile Include="..\src\main.c" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

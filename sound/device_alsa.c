@@ -43,7 +43,7 @@ bool de_sound_device_setup(de_sound_device_t* dev) {
     long unsigned int exactSize;
 	int err;
 
-	dev->frameCount = dev->buffer_len / 4; /* 16-bit stereo is 4 bytes, so frame count is bufferHalfSize / 4 */
+	dev->frameCount = dev->buffer_len_bytes / 4; /* 16-bit stereo is 4 bytes, so frame count is bufferHalfSize / 4 */
 
 	if ((err = snd_pcm_open(&dev->playbackDevice, "default", SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
 		de_log("ALSA Error unable to snd_pcm_open: %s", snd_strerror(err));

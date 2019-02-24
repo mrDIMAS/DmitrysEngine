@@ -23,6 +23,7 @@ struct de_sound_context_t {
 	de_mtx_t mtx;
 	de_core_t* core;
 	de_sound_device_t dev;
+	de_listener_t listener;
 	DE_ARRAY_DECLARE(de_sound_source_t*, sounds);
 	DE_ARRAY_DECLARE(de_sound_buffer_t*, buffers);
 };
@@ -41,7 +42,7 @@ void de_sound_context_free(de_sound_context_t* ctx);
  * @brief Applies properties of every sounds source. This function is blocking, which
  * means that mixer thread will be paused until every sound source isn't updated.
  * You should call this function at least 10 times per second to get decent
- * results.
+ * results. See sound.h to more detailed explanation.
  */
 void de_sound_context_update(de_sound_context_t* ctx);
 
@@ -54,3 +55,8 @@ void de_sound_context_lock(de_sound_context_t* ctx);
  * @brief Internal. Unlocks context, use with caution.
  */
 void de_sound_context_unlock(de_sound_context_t* ctx);
+
+/**
+ * @brief Returns pointer to current listener.
+ */
+de_listener_t* de_sound_context_get_listener(de_sound_context_t* ctx);

@@ -24,11 +24,11 @@ void de_sound_device_send_data(de_sound_device_t* dev) {
 	int size;
 	int result = WaitForMultipleObjects(2, dev->points, 0, INFINITE);
 	if (result == WAIT_OBJECT_0) {
-		IDirectSoundBuffer8_Lock(dev->buffer, dev->buffer_len, dev->buffer_len, &outputData, (LPDWORD)&size, 0, 0, 0);
+		IDirectSoundBuffer8_Lock(dev->buffer, dev->buffer_len_bytes, dev->buffer_len_bytes, &outputData, (LPDWORD)&size, 0, 0, 0);
 		memcpy(outputData, dev->out_buffer, size);
 		IDirectSoundBuffer8_Unlock(dev->buffer, outputData, size, 0, 0);
 	} if (result == (WAIT_OBJECT_0 + 1)) {
-		IDirectSoundBuffer8_Lock(dev->buffer, 0, dev->buffer_len, &outputData, (LPDWORD)&size, 0, 0, 0);
+		IDirectSoundBuffer8_Lock(dev->buffer, 0, dev->buffer_len_bytes, &outputData, (LPDWORD)&size, 0, 0, 0);
 		memcpy(outputData, dev->out_buffer, size);
 		IDirectSoundBuffer8_Unlock(dev->buffer, outputData, size, 0, 0);
 	}
@@ -55,13 +55,13 @@ bool de_sound_device_setup(de_sound_device_t* dev) {
 	bufferFormat.wFormatTag = WAVE_FORMAT_PCM;
 	bufferFormat.nChannels = 2;
 	bufferFormat.nSamplesPerSec = dev->sample_rate;
-	bufferFormat.wBitsPerSample = (WORD) dev->bits_per_sample;
+	bufferFormat.wBitsPerSample = 8 * sizeof(int16_t);
 	bufferFormat.nBlockAlign = (bufferFormat.wBitsPerSample / 8) * bufferFormat.nChannels;
 	bufferFormat.nAvgBytesPerSec = bufferFormat.nSamplesPerSec * bufferFormat.nBlockAlign;
 
 	bufferDesc.dwSize = sizeof(DSBUFFERDESC);
 	bufferDesc.dwFlags = DSBCAPS_CTRLPOSITIONNOTIFY | DSBCAPS_GLOBALFOCUS;
-	bufferDesc.dwBufferBytes = dev->buffer_len * 2;
+	bufferDesc.dwBufferBytes = 2 * dev->buffer_len_bytes; /* two sizes of mixing buffer */
 	bufferDesc.lpwfxFormat = &bufferFormat;
 
 	if (FAILED(IDirectSound8_CreateSoundBuffer(dev->dsound, &bufferDesc, &pDSB, NULL))) {
@@ -78,10 +78,12 @@ bool de_sound_device_setup(de_sound_device_t* dev) {
 	dev->points[0] = CreateEvent(0, 0, 0, 0);
 	dev->points[1] = CreateEvent(0, 0, 0, 0);
 
+	/* notify at begin */
 	pPosNotify[0].dwOffset = 0;
 	pPosNotify[0].hEventNotify = dev->points[0];
 
-	pPosNotify[1].dwOffset = dev->buffer_len;
+	/* notify on center */
+	pPosNotify[1].dwOffset = bufferDesc.dwBufferBytes / 2; 
 	pPosNotify[1].hEventNotify = dev->points[1];
 
 	IDirectSoundNotify_SetNotificationPositions(dev->notify, 2, pPosNotify);

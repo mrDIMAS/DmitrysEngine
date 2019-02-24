@@ -11,8 +11,23 @@ Please note, that this engine is at very early development stage and some featur
 * Modern rendering techniques, renderer based on OpenGL 3.3 Core.
     * Deferred shading
     * Normal mapping
+* Sound
+	* 2D + 3D 
+	* WAV format support 
+	* Streaming for large sounds 
 * TTF fonts support (compound characters support is not implemented yet)
-* GUI (inspired by WPF)
+* GUI (inspired by WPF) with these widgets
+	* Window
+	* Text box
+	* Text block
+	* Border
+	* Button
+	* Scroll bar
+	* Scroll viewer
+	* Scroll content presenter
+	* Canvas
+	* Grid
+	* Slide selector	
 * TGA image loading
 * Position-based physics
 * Skeletal animation

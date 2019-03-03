@@ -20,44 +20,15 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 /**
-* @brief Possible light types
-*/
-typedef enum de_light_type_t {
-	DE_LIGHT_TYPE_POINT,
-	DE_LIGHT_TYPE_DIRECTIONAL,
-	DE_LIGHT_TYPE_SPOT
-} de_light_type_t;
-
-/**
-* @brief Common light component.
-*
-* Can be any possible light type (point, directional, spot)
-*/
-struct de_light_t {
-	de_node_t* parent_node;
-	de_light_type_t type; /**< Actual type of light */
-	float radius;         /**< Radius of point light */
-	de_color_t color;     /**< Color of light */
-	float cone_angle;     /**< Angle at cone vertex in radians. Do not set directly! Use de_light_set_cone_angle.*/
-	float cone_angle_cos; /**< Precomputed cosine of angle at cone vertex. */
-};
-
-/**
- * @brief Specializes node as light. By default it is point light of white color and 2m emit radius.
+ * @brief Model is an isolated scene which can be instantiated multiple times, the source
+ * scene won't be rendered.
  */
-de_node_h de_light_create(de_scene_t* scene);
+typedef struct de_model_t {
+	de_resource_t* resource;
+	de_scene_t* scene;
+} de_model_t;
 
 /**
- * @brief
+ * @brief Internal. Do not call directly. Call de_core_request resource.
  */
-void de_light_set_radius(de_node_t* node, float radius);
-
-/**
- * @brief Sets angle in radians at cone vertex of a spot light.
- */
-void de_light_set_cone_angle(de_node_t* node, float angle);
-
-/**
- * @brief Returns angle in radians at cone vertex of a spot light.
- */
-float de_light_get_cone_angle(de_node_t* node);
+de_resource_t* de_model_load(de_core_t* core, const de_path_t* path);

@@ -21,10 +21,430 @@
     <ClCompile Include="..\..\de_main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\vg\vgraster.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\array.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\base64.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\byteorder.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\color.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\core.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\log.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\memmgr.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\path.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\pool.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\rect.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\rectpack.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\serialization.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\string.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\string_utils.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\thread.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\thread_posix.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\thread_win32.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\utf32string.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\core\utility.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\external\miniz_tinfl.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\fbx\fbx.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\fbx\fbx_ascii.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\fbx\fbx_binary.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\fbx\fbx_node.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\font\font.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\border.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\button.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\canvas.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\draw.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\grid.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\gui.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\scroll_bar.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\scroll_content_presenter.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\scroll_viewer.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\slide_selector.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\text.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\text_box.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gui\window.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\math\mathlib.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\math\triangulator.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\physics\collision.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\physics\octree.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\platform\win32.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\platform\x11.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\renderer\renderer.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\renderer\surface.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\resources\image.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\resources\model.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\resources\resource.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\resources\texture.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scene\animation.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scene\camera.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scene\light.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scene\mesh.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scene\node.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scene\scene.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sound\buffer.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sound\context.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sound\decoder.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sound\device.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sound\device_alsa.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sound\device_dsound.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sound\listener.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sound\sound.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\sound\source.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\physics\body.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\physics\physics.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\de_main.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\vg\vgraster.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\array.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\base64.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\byteorder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\clipboard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\color.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\event.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\linked_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\memmgr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\path.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\pool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\rect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\rectpack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\serialization.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\string.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\string_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\thread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\time.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\utf32string.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\dsound.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\GL\glext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\GL\wglext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\external\miniz_tinfl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fbx\fbx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fbx\fbx_ascii.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fbx\fbx_binary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\fbx\fbx_node.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\font\font.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\border.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\button.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\canvas.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\draw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\grid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\gui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\scroll_bar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\scroll_content_presenter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\scroll_viewer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\slide_selector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\text.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\text_box.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gui\window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\input\input.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\mathlib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\math\triangulator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\physics\collision.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\physics\octree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\renderer\renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\renderer\surface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\renderer\vertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\resources\builtin_fonts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\resources\image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\resources\model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\resources\resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\resources\texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scene\animation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scene\camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scene\light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scene\mesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scene\node.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scene\scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sound\buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sound\context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sound\decoder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sound\device.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sound\listener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sound\sound.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sound\source.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\physics\body.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\physics\physics.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

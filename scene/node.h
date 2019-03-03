@@ -33,13 +33,18 @@ typedef enum de_node_type_t {
 	if(node->type != expected_type) de_fatal_error("Scene node must be " #expected_type " type!")
 #endif
 
+typedef struct de_node_dispatch_table_t {
+	void(*deinit)(de_node_t* node);
+	void(*copy)(de_node_t* node, de_node_t* dest);
+} de_node_dispatch_table_t;
+
 /**
  * @class de_node_t
  * @brief Common scene node. Typed union.
  *
  * Actual behaviour of scene node defined by its actual type.
  *
- * Important note: please consider using special functions for nodes, intead of
+ * Important note: please consider using special functions for nodes, instead of
  * directly accessing fields of structure. Suddenly internals could be changed
  * and your game will not be compiling!
  */
@@ -68,15 +73,17 @@ struct de_node_t {
 	de_vec3_t scaling_pivot;
 
 	bool need_update; /**< Indicates that node's transform needs to be updated */
-	de_node_t* parent; /**< Pool reference to parent node */
-	DE_ARRAY_DECLARE(de_node_t*, children); /**< Array of pool references to child nodes */
+	de_node_h parent; /**< Pool reference to parent node */
+	DE_ARRAY_DECLARE(de_node_h, children); /**< Array of pool references to child nodes */
 	bool visible; /**< Local visibility. Actual visibility defined by hierarchy. So if parent node is invisible, then child node will be too */
 
 	void* user_data; /**< Non-serializable. */
 	bool is_bone;
 
 	/* Physics */
-	de_body_t* body;
+	de_body_h body;
+
+	de_resource_t* resource; /**<  */
 
 	/* Specialization. Avoid accessing these directly, use de_node_to_xxx instead. */
 	union {
@@ -85,14 +92,27 @@ struct de_node_t {
 		de_camera_t camera;
 	} s;
 
+	de_node_dispatch_table_t* dispatch_table;
+
 	DE_LINKED_LIST_ITEM(struct de_node_t);
 };
+
+void de_node_clear_pool(void);
+
+de_node_t* de_node_get_ptr(de_node_h handle);
 
 /**
 * @brief Creates new scene node. You should call de_scene_add_node to interact with node.
 * @return Pointer to new scene node
 */
-de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type);
+de_node_h de_node_create(de_scene_t* scene);
+
+/**
+ * @brief Internal. 
+ */
+de_node_h de_node_alloc(de_scene_t* scene, de_node_type_t type, de_node_dispatch_table_t* tbl);
+
+de_node_h de_node_copy(de_scene_t* dest_scene, de_node_h node_handle);
 
 /**
 * @brief Frees scene node.
@@ -100,19 +120,19 @@ de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type);
 *
 * All child nodes will be also freed. Automatically detaches self from scene.
 */
-void de_node_free(de_node_t* node);
+void de_node_free(de_node_h handle);
 
 /**
 * @brief Attaches node to parent scene node
 * @param node reference to node that will be attached to @parent
 * @param parent reference to parent node
 */
-void de_node_attach(de_node_t* node, de_node_t* parent);
+void de_node_attach(de_node_h node_handle, de_node_h parent_handle);
 
 /**
  * @brief Detaches node from current parent.
  */
-void de_node_detach(de_node_t* node);
+void de_node_detach(de_node_h node_handle);
 
 /**
 * @brief Calculates local and global transforms. Global transform takes into account node hierarchy
@@ -186,7 +206,7 @@ void de_node_move(de_node_t* node, de_vec3_t* offset);
 * @brief Sets current physical body for node.
 * @param node
 */
-void de_node_set_body(de_node_t* node, de_body_t* body);
+void de_node_set_body(de_node_t* node, de_body_h body);
 
 /**
 * @brief Performs recursive search on tree to find a specified node.

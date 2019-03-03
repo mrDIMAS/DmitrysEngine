@@ -36,10 +36,10 @@
 
 typedef int de_stamp_t;
 
-typedef struct de_ref_t {
+typedef struct de_pool_ref_t {
 	int index; /**< Index of an object in a pool. */
 	de_stamp_t stamp; /**< Unique identifier of an object in a pool. Used to check if reference is valid. */
-} de_ref_t;
+} de_pool_ref_t;
 
 #define de_null_ref { -1, 0 }
 
@@ -47,6 +47,7 @@ typedef void(*de_pool_object_destructor_t)(void*);
 
 typedef struct de_pool_t {
 	char* records;
+	bool is_init;
 	size_t item_size;
 	size_t record_size;
 	size_t capacity;
@@ -57,16 +58,18 @@ typedef struct de_pool_t {
 	de_pool_object_destructor_t destructor;
 } de_pool_t;
 
+bool de_ref_eq(de_pool_ref_t a, de_pool_ref_t b);
+
 void de_pool_init(de_pool_t* pool, size_t item_size, size_t initial_capacity, de_pool_object_destructor_t obj_destructor);
 
 void de_pool_realloc_memory(de_pool_t* pool, size_t old_capacity);
 
-de_ref_t de_pool_spawn(de_pool_t* pool);
+de_pool_ref_t de_pool_spawn(de_pool_t* pool);
 
-void de_pool_return(de_pool_t* pool, de_ref_t ref);
+void de_pool_return(de_pool_t* pool, de_pool_ref_t ref);
 
 void de_pool_clear(de_pool_t* pool);
 
-bool de_pool_is_valid_ref(de_pool_t* pool, de_ref_t ref);
+bool de_pool_is_valid_ref(de_pool_t* pool, de_pool_ref_t ref);
 
-void* de_pool_get_ptr(de_pool_t* pool, de_ref_t ref);
+void* de_pool_get_ptr(de_pool_t* pool, de_pool_ref_t ref);

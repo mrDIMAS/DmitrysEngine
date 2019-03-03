@@ -36,15 +36,9 @@ typedef struct de_camera_t {
 } de_camera_t;
 
 /**
- * @brief Specializes node as camera.
+ * @brief Creates camera node.
  */
-void de_camera_init(de_node_t* node);
-
-/**
- * @brief
- * @param
- */
-void de_camera_deinit(de_camera_t* c);
+de_node_h de_camera_create(de_scene_t* scene);
 
 /**
 * @brief Builds camera matrices. Camera have to be attached to some node.

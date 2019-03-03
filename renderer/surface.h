@@ -19,11 +19,10 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef struct de_vertex_weight_t {
-	/* Pointer to real bone node (de_node_t) which affects vertex. It is multifunctional pointer.
-	 * For example in FBX loader at first step it contains pointer to fbx model (de_fbx_model_t)
-	 * after conversion it will contain pointer to bone node (de_node_t) */
-	void* node;
+typedef struct de_vertex_weight_t {	
+	void* fbx_model;
+	/* Handle of node affecting a vertex */
+	de_node_h node;
 	/* Actual weight of a node in total transform */
 	float weight;
 } de_vertex_weight_t;
@@ -50,7 +49,7 @@ struct de_surface_t {
 	GLuint ebo;      /**< Element buffer object id */
 	bool need_upload;    /**< Indicates that surface needs to be uploaded to GPU */
 	DE_ARRAY_DECLARE(de_vertex_weight_group_t, vertex_weights); /**< Additional skinning data */
-	DE_ARRAY_DECLARE(de_node_t*, weights); /**< List of bones that affects this surface */
+	DE_ARRAY_DECLARE(de_node_h, weights); /**< List of bones that affects this surface */
 };
 
 /**
@@ -108,14 +107,14 @@ bool de_surface_prepare_vertices_for_skinning(de_surface_t* surf);
  *
  * Notes: amortized O(n)
  */
-bool de_surface_add_bone(de_surface_t* surf, de_node_t* bone);
+bool de_surface_add_bone(de_surface_t* surf, de_node_h bone);
 
 /**
  * @brief Returns bone index in array of surface's bones. If no bone was found, returns -1.
  *
  * Notes: O(n)
  */
-int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone);
+int de_surface_get_bone_index(de_surface_t* surf, de_node_h bone);
 
 /**
  * @brief Fills matrices for each bone. Matrices array will be filled so each vertex will

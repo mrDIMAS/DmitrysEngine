@@ -19,33 +19,6 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/**
-* @brief Mesh.
-*
-* Described as set of surfaces
-*/
-struct de_mesh_t {
-	de_node_t* parent_node;
-	DE_ARRAY_DECLARE(de_surface_t*, surfaces); /**< Array of pointer to surfaces */
-};
-
-/**
-* @brief Specializes node as empty mesh (without any surface)
-*/
-de_node_h de_mesh_create(de_scene_t* scene);
-
-/**
- * @brief Calculates normals of each surface. Normals are per-face and not smooth.
- */
-void de_mesh_calculate_normals(de_mesh_t * mesh);
-
-/**
-* @brief Adds surface to mesh
-* @param mesh
-* @param surf
-*
-* Uploads surface to gpu if needed
-*/
-void de_mesh_add_surface(de_mesh_t* mesh, de_surface_t* surf);
-
-bool de_mesh_is_skinned(de_mesh_t* mesh);
+#include "physics/octree.c"
+#include "physics/body.c"
+#include "physics/collision.c"

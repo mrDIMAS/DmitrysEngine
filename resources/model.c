@@ -19,33 +19,28 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/**
-* @brief Mesh.
-*
-* Described as set of surfaces
-*/
-struct de_mesh_t {
-	de_node_t* parent_node;
-	DE_ARRAY_DECLARE(de_surface_t*, surfaces); /**< Array of pointer to surfaces */
-};
+static void de_model_deinit(de_resource_t* res) {
+	DE_ASSERT(res->type == DE_RESOURCE_TYPE_MODEL);
+	de_model_t* mdl = &res->s.model;
+	de_scene_free(mdl->scene);
+}
 
-/**
-* @brief Specializes node as empty mesh (without any surface)
-*/
-de_node_h de_mesh_create(de_scene_t* scene);
+static de_resource_dispatch_table_t* de_model_get_dispatch_table(void) {
+	static bool init;
+	static de_resource_dispatch_table_t tbl;
+	if (!init) {
+		tbl.deinit = de_model_deinit;
+		init = true;
+	}
+	return &tbl;
+}
 
-/**
- * @brief Calculates normals of each surface. Normals are per-face and not smooth.
- */
-void de_mesh_calculate_normals(de_mesh_t * mesh);
-
-/**
-* @brief Adds surface to mesh
-* @param mesh
-* @param surf
-*
-* Uploads surface to gpu if needed
-*/
-void de_mesh_add_surface(de_mesh_t* mesh, de_surface_t* surf);
-
-bool de_mesh_is_skinned(de_mesh_t* mesh);
+de_resource_t* de_model_load(de_core_t* core, const de_path_t* path) {
+	de_resource_t* res = de_resource_alloc(core, DE_RESOURCE_TYPE_MODEL, de_model_get_dispatch_table());
+	de_model_t* mdl = &res->s.model;
+	mdl->scene = de_scene_create(core);
+	DE_ARRAY_REMOVE(core->scenes, mdl->scene);
+	de_fbx_load_to_scene(mdl->scene, de_path_cstr(path));
+	mdl->resource = res;
+	return res;
+}

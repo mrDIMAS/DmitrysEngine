@@ -19,45 +19,48 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+#include "resources/model.c"
+
+const char* de_resource_type_to_cstr(de_resource_type_t type) {
+	switch (type) {
+		case DE_RESOURCE_TYPE_MODEL: return "model";
+		case DE_RESOURCE_TYPE_TEXTURE: return "texture";
+		case DE_RESOURCE_TYPE_SOUND_BUFFER: return "sound buffer";
+	}
+	return "<unknown>";
+}
+
 /**
-* @brief Possible light types
+* @brief Internal. Use specializations for concrete type.
 */
-typedef enum de_light_type_t {
-	DE_LIGHT_TYPE_POINT,
-	DE_LIGHT_TYPE_DIRECTIONAL,
-	DE_LIGHT_TYPE_SPOT
-} de_light_type_t;
+de_resource_t* de_resource_alloc(de_core_t* core, de_resource_type_t type, de_resource_dispatch_table_t* tbl) {
+	de_resource_t* res = DE_NEW(de_resource_t);
+	res->core = core;
+	res->type = type;
+	res->dispatch_table = tbl;
+	res->ref_count = 1;
+	DE_ARRAY_APPEND(core->resources, res);
+	return res;
+}
 
 /**
-* @brief Common light component.
-*
-* Can be any possible light type (point, directional, spot)
+* @brief Increases reference counter of resource. You must call de_resource_release when you do not
+* need resource anymore.
 */
-struct de_light_t {
-	de_node_t* parent_node;
-	de_light_type_t type; /**< Actual type of light */
-	float radius;         /**< Radius of point light */
-	de_color_t color;     /**< Color of light */
-	float cone_angle;     /**< Angle at cone vertex in radians. Do not set directly! Use de_light_set_cone_angle.*/
-	float cone_angle_cos; /**< Precomputed cosine of angle at cone vertex. */
-};
+void de_resource_add_ref(de_resource_t* res) {
+	++res->ref_count;
+}
 
 /**
- * @brief Specializes node as light. By default it is point light of white color and 2m emit radius.
- */
-de_node_h de_light_create(de_scene_t* scene);
-
-/**
- * @brief
- */
-void de_light_set_radius(de_node_t* node, float radius);
-
-/**
- * @brief Sets angle in radians at cone vertex of a spot light.
- */
-void de_light_set_cone_angle(de_node_t* node, float angle);
-
-/**
- * @brief Returns angle in radians at cone vertex of a spot light.
- */
-float de_light_get_cone_angle(de_node_t* node);
+* @brief Frees resource
+*/
+void de_resource_release(de_resource_t* res) {
+	DE_ASSERT(res->ref_count >= 0);
+	--res->ref_count;
+	if (res->ref_count == 0) {
+		if (res->dispatch_table->deinit) {
+			res->dispatch_table->deinit(res);
+		}
+		de_free(res);
+	}
+}

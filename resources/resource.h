@@ -19,45 +19,45 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/**
-* @brief Possible light types
-*/
-typedef enum de_light_type_t {
-	DE_LIGHT_TYPE_POINT,
-	DE_LIGHT_TYPE_DIRECTIONAL,
-	DE_LIGHT_TYPE_SPOT
-} de_light_type_t;
+typedef enum de_resource_type_t {
+	DE_RESOURCE_TYPE_MODEL,
+	DE_RESOURCE_TYPE_TEXTURE,
+	DE_RESOURCE_TYPE_SOUND_BUFFER,
+} de_resource_type_t;
 
-/**
-* @brief Common light component.
-*
-* Can be any possible light type (point, directional, spot)
-*/
-struct de_light_t {
-	de_node_t* parent_node;
-	de_light_type_t type; /**< Actual type of light */
-	float radius;         /**< Radius of point light */
-	de_color_t color;     /**< Color of light */
-	float cone_angle;     /**< Angle at cone vertex in radians. Do not set directly! Use de_light_set_cone_angle.*/
-	float cone_angle_cos; /**< Precomputed cosine of angle at cone vertex. */
+#include "resources/model.h"
+
+typedef struct de_resource_dispatch_table_t {
+	void(*deinit)(de_resource_t*);
+} de_resource_dispatch_table_t;
+
+struct de_resource_t {
+	de_core_t* core;
+	de_resource_type_t type; /**< Actual resource type. */
+	int ref_count;
+	de_path_t source; /**< Path for external resource. */
+	bool external; /**< true if resource needs to be loaded from external source, false for dynamic resources. */
+	union {
+		de_texture_t texture;
+		de_model_t model;
+	} s;
+	de_resource_dispatch_table_t* dispatch_table;
 };
 
-/**
- * @brief Specializes node as light. By default it is point light of white color and 2m emit radius.
- */
-de_node_h de_light_create(de_scene_t* scene);
+const char* de_resource_type_to_cstr(de_resource_type_t type);
 
 /**
- * @brief
+ * @brief Internal. Use specializations for concrete type.
  */
-void de_light_set_radius(de_node_t* node, float radius);
+de_resource_t* de_resource_alloc(de_core_t* core, de_resource_type_t type, de_resource_dispatch_table_t* tbl);
 
 /**
- * @brief Sets angle in radians at cone vertex of a spot light.
+ * @brief Increases reference counter of resource. You must call de_resource_release when you do not
+ * need resource anymore.
  */
-void de_light_set_cone_angle(de_node_t* node, float angle);
+void de_resource_add_ref(de_resource_t* res);
 
 /**
- * @brief Returns angle in radians at cone vertex of a spot light.
+ * @brief Frees resource
  */
-float de_light_get_cone_angle(de_node_t* node);
+void de_resource_release(de_resource_t* res);

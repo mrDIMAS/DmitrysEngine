@@ -20,13 +20,12 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 struct de_scene_t {
+	de_resource_t* res; /**< Resource which contains this scene. When not NULL, scene will be ignored in all calculations. */
 	de_core_t* core;
-
-	DE_LINKED_LIST_DECLARE(de_node_t, nodes);
-	DE_LINKED_LIST_DECLARE(de_body_t, bodies);
+	DE_ARRAY_DECLARE(de_node_h, nodes);
+	DE_ARRAY_DECLARE(de_body_h, bodies);	
 	DE_LINKED_LIST_DECLARE(de_static_geometry_t, static_geometries);
 	DE_LINKED_LIST_DECLARE(de_animation_t, animations);
-
 	de_node_t* active_camera;
 };
 
@@ -39,18 +38,6 @@ de_scene_t* de_scene_create(de_core_t* core);
  * @brief Destroys all scene resources and deallocates memory.
  */
 void de_scene_free(de_scene_t* s);
-
-/**
- * @brief Creates new body with radius 1.0
- * @return pointer to new body
- */
-de_body_t* de_scene_create_body(de_scene_t* s);
-
-/**
- * @brief Frees all resources associated with body
- * @param body pointer to body
- */
-void de_scene_free_body(de_scene_t* s, de_body_t* body);
 
 /**
  * @brief Creates new empty static geometry
@@ -66,18 +53,18 @@ void de_scene_free_static_geometry(de_scene_t* s, de_static_geometry_t* geom);
 /**
  * @brief Adds node to scene. Only attached nodes can interact and be renderered.
  */
-void de_scene_add_node(de_scene_t* s, de_node_t* node);
+void de_scene_add_node(de_scene_t* s, de_node_h handle);
 
 /**
  * @brief Removes node from scene (does not frees node!). Node will not be renderered and
  *        interaction will be suspended.
  */
-void de_scene_remove_node(de_scene_t* s, de_node_t* node);
+void de_scene_remove_node(de_scene_t* s, de_node_h handle);
 
 /**
  * @brief Tries to find a node with specified name. Performs linear search O(n).
  */
-de_node_t* de_scene_find_node(const de_scene_t* s, const char* name);
+de_node_h de_scene_find_node(const de_scene_t* s, const char* name);
 
 /**
  * @brief Update scene components (i.e. animations)

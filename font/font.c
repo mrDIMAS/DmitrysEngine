@@ -45,7 +45,7 @@ enum {
 	Y_IS_SAME_OR_POSITIVE_Y_SHORT_VECTOR = 32
 };
 
-typedef struct true_type_t {
+typedef struct de_true_type_t {
 	/* memory-mapped font file */
 	uint8_t* data;
 	uint8_t* cmap_table;
@@ -55,9 +55,10 @@ typedef struct true_type_t {
 	uint8_t* glyf_table;
 	uint8_t* hhea_table;
 	uint8_t* hmtx_table;
+	uint8_t* kern_table;
 	uint16_t num_glyphs;
 	de_ttf_glyph_t* glyphs;
-} true_type_t;
+} de_true_type_t;
 
 static uint16_t ToU16(uint16_t p) {
 	return de_byte_order_swap_u16(p);
@@ -77,7 +78,7 @@ static uint32_t de_ptr_to_u32(uint8_t *p) {
 
 #define DE_FOURCC(d,c,b,a) ((uint32_t) (((d)<<24) | ((c)<<16) | ((b)<<8) | (a)))
 
-static void de_ttf_find_tables(true_type_t* ttf) {
+static void de_ttf_find_tables(de_true_type_t* ttf) {
 	int i;
 	uint16_t num_tables = de_ptr_to_u16(ttf->data + 4);
 
@@ -94,6 +95,7 @@ static void de_ttf_find_tables(true_type_t* ttf) {
 			case DE_FOURCC('g', 'l', 'y', 'f'): ttf->glyf_table = table_location; break;
 			case DE_FOURCC('h', 'h', 'e', 'a'): ttf->hhea_table = table_location; break;
 			case DE_FOURCC('h', 'm', 't', 'x'): ttf->hmtx_table = table_location; break;
+			case DE_FOURCC('k', 'e', 'r', 'n'): ttf->kern_table = table_location; break;
 		}
 	}
 
@@ -152,7 +154,7 @@ static uint32_t de_ttf_dense_mapping(uint8_t* subtable, uint32_t unicode) {
 	return 0;
 }
 
-static uint32_t de_ttf_unicode_to_glyph_index(true_type_t* ttf, uint32_t unicode) {
+static uint32_t de_ttf_unicode_to_glyph_index(de_true_type_t* ttf, uint32_t unicode) {
 	int i;
 
 	uint16_t subtable_count = de_ptr_to_u16(ttf->cmap_table + 2);
@@ -165,6 +167,7 @@ static uint32_t de_ttf_unicode_to_glyph_index(true_type_t* ttf, uint32_t unicode
 			case 0: return de_ttf_direct_mapping(subtable, unicode);
 			case 4: return de_ttf_segmented_mapping(subtable, unicode);
 			case 6: return de_ttf_dense_mapping(subtable, unicode);
+				/* todo: add more mappings */
 		}
 	}
 
@@ -175,7 +178,7 @@ static void de_polygon_add_vertex(de_polygon_t *poly, de_point_t* v) {
 	DE_ARRAY_APPEND(poly->points, *v);
 }
 
-uint32_t de_ttf_get_glyph_offset(true_type_t* ttf, uint32_t index) {
+uint32_t de_ttf_get_glyph_offset(de_true_type_t* ttf, uint32_t index) {
 	int16_t index_to_loc_format = de_ptr_to_i16(ttf->head_table + 50);
 
 	if (index_to_loc_format & 1) {
@@ -282,7 +285,7 @@ static void de_ttf_prepare_contours(de_ttf_glyph_t * glyph, de_point_t* points) 
 	}
 }
 
-static void de_ttf_get_glyph_horizontal_metrics(true_type_t* ttf, int glyph_index, de_ttf_glyph_t* glyph) {
+static void de_ttf_get_glyph_horizontal_metrics(de_true_type_t* ttf, int glyph_index, de_ttf_glyph_t* glyph) {
 	uint16_t numOfLongHorMetrics;
 
 	assert(ttf);
@@ -298,7 +301,20 @@ static void de_ttf_get_glyph_horizontal_metrics(true_type_t* ttf, int glyph_inde
 	}
 }
 
-void de_ttf_read_glyphs(true_type_t * ttf) {
+#ifdef DE_KERNING
+void de_ttf_read_kern(de_true_type_t* ttf) {
+	uint32_t version = de_ptr_to_u32(ttf->kern_table + 0);
+	uint32_t num_tables = de_ptr_to_u32(ttf->kern_table + 4);
+	for (uint32_t i = 0; i < num_tables; ++i) {
+		uint8_t* sub_table = ttf->kern_table + 8;
+		uint32_t length = de_ptr_to_u32(sub_table);
+		uint16_t coverage = de_ptr_to_u16(sub_table + 4);
+		uint16_t tuple_index = de_ptr_to_u16(sub_table + 2);
+	}
+}
+#endif
+
+void de_ttf_read_glyphs(de_true_type_t * ttf) {
 	int i, j, k;
 
 	/* Allocate glyphs */
@@ -405,7 +421,7 @@ void de_ttf_read_glyphs(true_type_t * ttf) {
 	}
 }
 
-static float de_em_to_pixels(true_type_t* ttf, float pixels) {
+static float de_em_to_pixels(de_true_type_t* ttf, float pixels) {
 	uint16_t units_per_em = de_ptr_to_u16(ttf->head_table + 18);
 	return pixels / units_per_em;
 }
@@ -451,7 +467,7 @@ static void de_convert_curves_to_line_set(de_ttf_glyph_t * glyph) {
 	}
 }
 
-static void de_ttf_render_glyph(true_type_t* ttf, int glyph_index, de_glyph_t* out_glyph, float scaler) {
+static void de_ttf_render_glyph(de_true_type_t* ttf, int glyph_index, de_glyph_t* out_glyph, float scaler) {
 	de_bitmap_t bitmap, final_bitmap;
 	line_array_t lines;
 	de_ttf_glyph_t * ttf_glyph;
@@ -479,8 +495,7 @@ static void de_ttf_render_glyph(true_type_t* ttf, int glyph_index, de_glyph_t* o
 		(float)(ttf_glyph->yMax - ttf_glyph->yMin),
 		scaler
 	);
-
-
+	
 	de_bitmap_create(&bitmap, width, height);
 	final_bitmap = de_vg_raster_scanlines(&bitmap, lines);
 	de_free(bitmap.pixels);
@@ -504,7 +519,7 @@ static void de_ttf_render_glyph(true_type_t* ttf, int glyph_index, de_glyph_t* o
 	de_free(final_bitmap.pixels);
 }
 
-void de_ttf_clear(true_type_t* ttf) {
+void de_ttf_clear(de_true_type_t* ttf) {
 	int i, j;
 	for (i = 0; i < ttf->num_glyphs; ++i) {
 		de_ttf_glyph_t* glyph = ttf->glyphs + i;
@@ -617,7 +632,7 @@ static int de_compare_charmap_entry(const void* a, const void* b) {
 
 de_font_t* de_font_load_ttf_from_memory(de_core_t* core, void* data, float height, const int* char_set, int char_count) {
 	int i;
-	true_type_t ttf;
+	de_true_type_t ttf;
 	float oversample_height;
 	float scaler;
 	float back_scaler;
@@ -632,6 +647,10 @@ de_font_t* de_font_load_ttf_from_memory(de_core_t* core, void* data, float heigh
 
 	de_ttf_find_tables(&ttf);
 	de_ttf_read_glyphs(&ttf);
+
+#ifdef DE_KERNING
+	de_ttf_read_kern(&ttf);
+#endif
 
 	oversample_height = height * DE_TTF_DOWNSCALE_FACTOR;
 	scaler = de_em_to_pixels(&ttf, oversample_height);

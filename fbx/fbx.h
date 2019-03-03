@@ -78,6 +78,6 @@ typedef enum de_fbx_reference_t {
 * @param file
 * @return
 */
-de_node_t* de_fbx_load_to_scene(de_scene_t* scene, const char* file);
+de_node_h de_fbx_load_to_scene(de_scene_t* scene, const char* file);
 
 bool de_fbx_is_binary(const char* filename);

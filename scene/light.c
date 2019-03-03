@@ -19,8 +19,14 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+static de_node_dispatch_table_t* de_light_get_dispatch_table(void) {
+	static de_node_dispatch_table_t tbl;
+	return &tbl;
+}
 
-void de_light_init(de_node_t* node) {
+de_node_h de_light_create(de_scene_t* scene) {
+	de_node_h handle = de_node_alloc(scene, DE_NODE_TYPE_LIGHT, de_light_get_dispatch_table());
+	de_node_t* node = de_node_get_ptr(handle);
 	de_light_t* light = &node->s.light;
 	de_color_set(&light->color, 255, 255, 255, 255);
 	light->radius = 2.0f;
@@ -28,28 +34,21 @@ void de_light_init(de_node_t* node) {
 	light->cone_angle = (float)M_PI;
 	light->cone_angle_cos = -1.0f;
 	light->parent_node = node;
+	return handle;
 }
-
-
-void de_light_deinit(de_light_t* light) {
-	DE_UNUSED(light);
-}
-
 
 void de_light_set_radius(de_node_t * node, float radius) {
 	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_LIGHT);
 	node->s.light.radius = de_maxf(FLT_EPSILON, radius);
 }
 
-
 void de_light_set_cone_angle(de_node_t* node, float angle) {
-    de_light_t* light;
+	de_light_t* light;
 	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_LIGHT);
 	light = &node->s.light;
 	light->cone_angle = angle;
 	light->cone_angle_cos = (float)cos(angle);
 }
-
 
 float de_light_get_cone_angle(de_node_t* node) {
 	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_LIGHT);

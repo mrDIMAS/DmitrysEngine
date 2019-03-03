@@ -34,6 +34,7 @@ void de_sound_context_free(de_sound_context_t* ctx) {
 	for (i = 0; i < ctx->sounds.size; ++i) {
 		de_sound_source_free(ctx->sounds.data[i]);
 	}
+	DE_ARRAY_FREE(ctx->sounds);
 	de_mtx_destroy(&ctx->mtx);
 	de_free(ctx);
 }

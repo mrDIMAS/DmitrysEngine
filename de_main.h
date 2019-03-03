@@ -27,6 +27,22 @@
   * - Engine uses right-handed coordinate system which means Z axis points towards
   *   screen, Y axis points up, and X axis points right.
   * - Vectors are single-column matrices.
+  * 
+  * VERY IMPORTANT: Engine heavily uses object pools to store objects of the same type.
+  * To make memory management more easy and safe engine returns handles for new objects,
+  * not pointers. Each handle can be converted into a pointer via special function, and 
+  * then passed to any function you need. *BUT* you must NEVER EVER store raw pointers 
+  * for objects which lives in pools. Pointers must be used in-place, otherwise you will
+  * get UNDEFINED BEHAVIOUR!
+  * 
+  * Why not to use handles everywhere, you may ask. Answer is simple: performance. Imagine
+  * situation when you need to do some chain of action on some object via special functions,
+  * if you would using handles everywhere, then in each function you'll need to convert handle
+  * into a point and then do some action, this is too costly and must be avoided. Thats why
+  * most of function still needs pointers to objects, not handles.
+  * 
+  * Putting all together: creation and deletion of object uses handles, manupulation - pointers.
+  * 
   **/
 
 #ifndef DE_DENGINE_H
@@ -46,6 +62,10 @@ extern "C" {
 /* Compiler-specific defines */
 #ifdef _MSC_VER
 #  define _CRT_SECURE_NO_WARNINGS
+/* nonstandard extension used: non-constant aggregate initializer. 
+ * useless warning, because project is C99, where this limitation
+ * was dropped */
+#  pragma warning(disable: 4204) 
 #elif defined __GNUC__
 #  define _POSIX_C_SOURCE 200809L
 #else
@@ -117,11 +137,12 @@ typedef void(*de_proc)(void);
 #  include "GL/glx.h"
 #endif
 
+#include "core/pool.h"
+
 /* Forward declarations */
 typedef struct de_renderer_t de_renderer_t;
 typedef struct de_node_t de_node_t;
 typedef struct de_surface_t de_surface_t;
-typedef struct de_body_t de_body_t;
 typedef struct de_animation_track_t de_animation_track_t;
 typedef struct de_texture_t de_texture_t;
 typedef struct de_static_triangle_t de_static_triangle_t;
@@ -136,6 +157,9 @@ typedef struct de_sound_source_t de_sound_source_t;
 typedef struct de_sound_buffer_t de_sound_buffer_t;
 typedef struct de_sound_context_t de_sound_context_t;
 typedef struct de_sound_decoder_t de_sound_decoder_t;
+typedef struct de_resource_t de_resource_t;
+typedef struct de_node_h { de_pool_ref_t ref; } de_node_h;
+typedef struct de_body_h { de_pool_ref_t ref; } de_body_h;
 
 /**
 * Order is important here, because some parts depends on other
@@ -154,7 +178,6 @@ typedef struct de_sound_decoder_t de_sound_decoder_t;
 #include "core/linked_list.h"
 #include "core/time.h"
 #include "core/color.h"
-#include "core/pool.h"
 #include "input/input.h"
 #include "core/event.h"
 #include "resources/builtin_fonts.h"
@@ -172,8 +195,7 @@ typedef struct de_sound_decoder_t de_sound_decoder_t;
 #include "scene/node.h"
 #include "scene/animation.h"
 #include "scene/scene.h"
-#include "physics/octree.h"
-#include "physics/collision.h"
+#include "physics/physics.h"
 #include "renderer/surface.h"
 #include "fbx/fbx.h"
 #include "renderer/renderer.h"
@@ -182,6 +204,7 @@ typedef struct de_sound_decoder_t de_sound_decoder_t;
 #include "core/utility.h"
 #include "gui/gui.h"
 #include "sound/sound.h"
+#include "resources/resource.h"
 #include "core/core.h" 
 #include "external/miniz_tinfl.h"
 

@@ -19,28 +19,32 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-
-void de_mesh_init(de_node_t* node) {
+static void de_mesh_deinit(de_node_t* node) {
 	de_mesh_t* mesh = &node->s.mesh;
-
-	DE_ARRAY_INIT(mesh->surfaces);
-
-	mesh->parent_node = node;
-}
-
-
-void de_mesh_deinit(de_mesh_t* mesh) {
-	size_t i;
-
 	/* Free surfaces */
-	for (i = 0; i < mesh->surfaces.size; ++i) {
+	for (size_t i = 0; i < mesh->surfaces.size; ++i) {
 		de_renderer_free_surface(mesh->surfaces.data[i]);
 	}
 	DE_ARRAY_FREE(mesh->surfaces);
 }
 
+static de_node_dispatch_table_t* de_mesh_get_dispatch_table(void) {
+	static de_node_dispatch_table_t tbl;
+	static bool init;
+	if (!init) {
+		tbl.deinit = de_mesh_deinit;
+	}
+	return &tbl;
+}
 
-
+de_node_h de_mesh_create(de_scene_t* scene) {
+	de_node_h handle = de_node_alloc(scene, DE_NODE_TYPE_MESH, de_mesh_get_dispatch_table());
+	de_node_t* node = de_node_get_ptr(handle);
+	de_mesh_t* mesh = &node->s.mesh;
+	DE_ARRAY_INIT(mesh->surfaces);
+	mesh->parent_node = node;	
+	return handle;
+}
 
 void de_mesh_calculate_normals(de_mesh_t * mesh) {
 	size_t n;
@@ -50,7 +54,6 @@ void de_mesh_calculate_normals(de_mesh_t * mesh) {
 	}
 }
 
-
 void de_mesh_add_surface(de_mesh_t* mesh, de_surface_t* surf) {
 	if (!mesh || !surf) {
 		return;
@@ -58,8 +61,6 @@ void de_mesh_add_surface(de_mesh_t* mesh, de_surface_t* surf) {
 
 	DE_ARRAY_APPEND(mesh->surfaces, surf);
 }
-
-
 
 bool de_mesh_is_skinned(de_mesh_t* mesh) {
 	size_t i;
@@ -72,8 +73,6 @@ bool de_mesh_is_skinned(de_mesh_t* mesh) {
 
 	return false;
 }
-
-
 
 void de_mesh_set_texture(de_mesh_t* mesh, de_texture_t* texture) {
 	size_t i;

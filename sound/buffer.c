@@ -67,13 +67,15 @@ void de_sound_buffer_load_file(de_sound_buffer_t* buf, const char* file) {
 }
 
 void de_sound_buffer_free(de_sound_buffer_t* buf) {
-	de_sound_context_lock(buf->ctx);
+	de_sound_context_t* ctx = buf->ctx;
+	de_sound_context_lock(ctx);
 	if (buf->decoder) {
 		de_sound_decoder_free(buf->decoder);
 	}
-	DE_ARRAY_REMOVE(buf->ctx->buffers, buf);
+	DE_ARRAY_REMOVE(ctx->buffers, buf);	
+	de_free(buf->data);
 	de_free(buf);
-	de_sound_context_unlock(buf->ctx);
+	de_sound_context_unlock(ctx);	
 }
 
 void de_sound_buffer_update(de_sound_buffer_t* buf) {

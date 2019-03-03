@@ -19,40 +19,6 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-#define DE_MAX_CONTACTS (8)
-#define DE_AIR_FRICTION (0.003f)
-
-/**
-* @class de_contact_s
-* @brief Physical contact
-*/
-typedef struct de_contact_s {
-	de_body_t* body;                /**< Pointer to body with which contact is appeared */
-	de_vec3_t position;             /**< Position of contact */
-	de_vec3_t normal;               /**< Normal vector in contact point */
-	de_static_triangle_t* triangle; /**< Pointer to triangle of static geometry */
-} de_contact_t;
-
-/**
-* @class de_body_s
-* @brief Body type for position-based physics.
-*
-* Each body is a sphere (particle). But can represent capsule too.
-*/
-struct de_body_t {
-	DE_LINKED_LIST_ITEM(struct de_body_t);
-	de_scene_t* scene;
-	de_vec3_t gravity;
-	de_vec3_t position;                     /**< Global position of body */
-	de_vec3_t last_position;                /**< Global position of previous frame */
-	de_vec3_t acceleration;                 /**< Acceleration of a body in m/s^2 */
-	float radius;                           /**< Radius of a body */
-	float friction;                         /**< Friction coefficient [0; 1]. Zero means no friction */
-	de_contact_t contacts[DE_MAX_CONTACTS]; /**< Array of contacts. */
-	int contact_count;                      /**< Actual count of physical contacts */
-	de_vec3_t scale;                        /**< Scaling coefficients. When != (1, 1, 1) - body is ellipsoid */
-};
-
 /**
 * @class de_static_triangle_t
 * @brief Static triangle for static collision geometry
@@ -90,41 +56,6 @@ struct de_static_geometry_t {
 };
 
 /**
-* @brief Changes actual position of a body by velocity vector. After this routine,
-* body will be moving with passed velocity.
-* @param body
-* @param velocity
-*/
-void de_body_move(de_body_t* body, const de_vec3_t* velocity);
-
-/**
-* @brief Sets actual velocity of a body.
-* @param body
-* @param velocity
-*/
-void de_body_set_velocity(de_body_t* body, const de_vec3_t* velocity);
-
-/**
-* @brief Sets X parts of velocity independently
-*/
-void de_body_set_x_velocity(de_body_t* body, float x_velocity);
-
-/**
-* @brief Sets Y parts of velocity independently
-*/
-void de_body_set_y_velocity(de_body_t* body, float y_velocity);
-
-/**
-* @brief Sets Z parts of velocity independently
-*/
-void de_body_set_z_velocity(de_body_t* body, float z_velocity);
-
-/**
-* @brief Write out current velocity of the body.
-*/
-void de_body_get_velocity(de_body_t* body, de_vec3_t* velocity);
-
-/**
 * @brief Fills static geometry using faces from mesh
 * @param geom pointer to geometry
 * @param mesh pointer to mesh
@@ -145,26 +76,4 @@ void de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t
 */
 void de_physics_step(de_core_t* core, double dt);
 
-/**
- * @brief Sets gravity vector for a body.
- */
-void de_body_set_gravity(de_body_t* body, const de_vec3_t* gravity);
-
-/**
- * @brief Sets actual position of a body, velocity will be set to zero.
- */
-void de_body_set_position(de_body_t* body, const de_vec3_t* pos);
-
-/**
- * @brief Sets actual body radius.
- */
-void de_body_set_radius(de_body_t* body, float radius);
-
-/**
- * @brief Returns actual body radius.
- */
-float de_body_get_radius(de_body_t* body);
-
-size_t de_body_get_contact_count(de_body_t* body);
-
-de_contact_t* de_body_get_contact(de_body_t* body, size_t i);
+bool de_static_triangle_contains_point(const de_static_triangle_t* triangle, const de_vec3_t* point);

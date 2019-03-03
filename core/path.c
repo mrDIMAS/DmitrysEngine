@@ -54,6 +54,10 @@ void de_path_append_str_view(de_path_t* path, const de_str8_view_t* view) {
 	de_str8_append_str_view(&path->str, view);
 }
 
+bool de_path_eq(const de_path_t* a, const de_path_t* b) {
+	return de_str8_eq_str8(&a->str, &b->str);
+}
+
 void de_path_extension(const de_path_t* p, de_str8_view_t* ext) {
 	const char* dot_pos = strrchr(de_path_cstr(p), '.');
 	if (dot_pos) {

@@ -19,7 +19,9 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-
+bool de_ref_eq(de_pool_ref_t a, de_pool_ref_t b) {
+	return a.index == b.index && a.stamp == b.stamp;
+}
 
 void de_pool_init(de_pool_t* pool, size_t item_size, size_t initial_capacity, de_pool_object_destructor_t obj_destructor) {
 	pool->records = NULL;
@@ -27,6 +29,7 @@ void de_pool_init(de_pool_t* pool, size_t item_size, size_t initial_capacity, de
 	pool->free_stack_top = 0;
 	pool->spawned_count = 0;
 	pool->item_size = item_size;
+	pool->is_init = true;
 	pool->record_size = item_size + sizeof(de_stamp_t);
 	pool->capacity = initial_capacity;
 	pool->global_stamp = DE_POOL_STAMP_FREE + 1;
@@ -34,11 +37,10 @@ void de_pool_init(de_pool_t* pool, size_t item_size, size_t initial_capacity, de
 	de_pool_realloc_memory(pool, 0);
 }
 
-
 void de_pool_realloc_memory(de_pool_t* pool, size_t old_capacity) {
 	int i;
 	pool->records = (char*)de_realloc(pool->records, pool->record_size * pool->capacity);
-	memset(pool->records + old_capacity, 0, pool->record_size * (pool->capacity - old_capacity));
+	memset(pool->records + old_capacity * pool->record_size, 0, pool->record_size * (pool->capacity - old_capacity));
 	pool->free_stack = (size_t*)de_realloc(pool->free_stack, pool->capacity * sizeof(size_t));
 	for (i = pool->capacity - 1; i >= (int)old_capacity; --i) {
 		assert((unsigned)pool->free_stack_top < pool->capacity);
@@ -46,25 +48,21 @@ void de_pool_realloc_memory(de_pool_t* pool, size_t old_capacity) {
 	}
 }
 
-
 static de_stamp_t de_pool_internal_get_stamp(de_pool_t* pool, int index) {
 	return *((de_stamp_t*)(pool->records + pool->record_size * index));
 }
-
 
 static void de_pool_internal_set_stamp(de_pool_t* pool, int index, de_stamp_t stamp) {
 	*((de_stamp_t*)(pool->records + pool->record_size * index)) = stamp;
 }
 
-
 static void* de_pool_internal_get_object(de_pool_t* pool, int index) {
 	return pool->records + pool->record_size * index + sizeof(de_stamp_t);
 }
 
-
-de_ref_t de_pool_spawn(de_pool_t* pool) {
+de_pool_ref_t de_pool_spawn(de_pool_t* pool) {
 	void* obj;
-	de_ref_t ref;
+	de_pool_ref_t ref;
 	if (pool->spawned_count >= pool->capacity) {
 		size_t old_capacity = pool->capacity;
 		pool->capacity = pool->capacity * 2 + 1;
@@ -80,8 +78,7 @@ de_ref_t de_pool_spawn(de_pool_t* pool) {
 	return ref;
 }
 
-
-void de_pool_return(de_pool_t* pool, de_ref_t ref) {
+void de_pool_return(de_pool_t* pool, de_pool_ref_t ref) {
 	if (de_pool_is_valid_ref(pool, ref)) {
 		if (de_pool_internal_get_stamp(pool, ref.index) != DE_POOL_STAMP_FREE) {
 			if (pool->destructor) {
@@ -94,7 +91,6 @@ void de_pool_return(de_pool_t* pool, de_ref_t ref) {
 		}
 	}
 }
-
 
 void de_pool_clear(de_pool_t* pool) {
 	if (pool->destructor) {
@@ -111,15 +107,21 @@ void de_pool_clear(de_pool_t* pool) {
 	pool->records = NULL;
 	pool->capacity = 0;
 	pool->spawned_count = 0;
+	pool->is_init = false;
 	pool->global_stamp = DE_POOL_STAMP_FREE + 1;
 }
 
-
-bool de_pool_is_valid_ref(de_pool_t* pool, de_ref_t ref) {
-	return (unsigned)ref.index < pool->capacity && de_pool_internal_get_stamp(pool, ref.index) == ref.stamp;
+bool de_pool_is_valid_ref(de_pool_t* pool, de_pool_ref_t ref) {
+	if ((unsigned)ref.index >= pool->capacity) {
+		return false;
+	}
+	const de_stamp_t stamp = de_pool_internal_get_stamp(pool, ref.index);
+	if (stamp == DE_POOL_STAMP_FREE) {
+		return false;
+	}
+	return stamp == ref.stamp;
 }
 
-
-void* de_pool_get_ptr(de_pool_t* pool, de_ref_t ref) {
+void* de_pool_get_ptr(de_pool_t* pool, de_pool_ref_t ref) {
 	return de_pool_is_valid_ref(pool, ref) ? de_pool_internal_get_object(pool, ref.index) : NULL;
 }

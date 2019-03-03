@@ -121,12 +121,12 @@ size_t de_str8_length(const de_str8_t* str);
 /**
  * @brief Checks strings for equality.
  */
-bool de_str8_eq(de_str8_t* str, const char* utf8str);
+bool de_str8_eq(const de_str8_t* str, const char* utf8str);
 
 /**
  * @brief Checks two utf8 strings for equality
  */
-bool de_str8_eq_str8(de_str8_t* str, de_str8_t* other);
+bool de_str8_eq_str8(const de_str8_t* str, const de_str8_t* other);
 
 /**
  * @brief Returns internal data as plain C string.

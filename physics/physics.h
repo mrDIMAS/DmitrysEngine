@@ -19,45 +19,20 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+#define DE_MAX_CONTACTS (8)
+#define DE_AIR_FRICTION (0.003f)
+
 /**
-* @brief Possible light types
+* @class de_contact_s
+* @brief Physical contact
 */
-typedef enum de_light_type_t {
-	DE_LIGHT_TYPE_POINT,
-	DE_LIGHT_TYPE_DIRECTIONAL,
-	DE_LIGHT_TYPE_SPOT
-} de_light_type_t;
+typedef struct de_contact_s {
+	de_body_h body;                 /**< Handle of body with which contact is appeared */
+	de_vec3_t position;             /**< Position of contact */
+	de_vec3_t normal;               /**< Normal vector in contact point */
+	de_static_triangle_t* triangle; /**< Pointer to triangle of static geometry */
+} de_contact_t;
 
-/**
-* @brief Common light component.
-*
-* Can be any possible light type (point, directional, spot)
-*/
-struct de_light_t {
-	de_node_t* parent_node;
-	de_light_type_t type; /**< Actual type of light */
-	float radius;         /**< Radius of point light */
-	de_color_t color;     /**< Color of light */
-	float cone_angle;     /**< Angle at cone vertex in radians. Do not set directly! Use de_light_set_cone_angle.*/
-	float cone_angle_cos; /**< Precomputed cosine of angle at cone vertex. */
-};
-
-/**
- * @brief Specializes node as light. By default it is point light of white color and 2m emit radius.
- */
-de_node_h de_light_create(de_scene_t* scene);
-
-/**
- * @brief
- */
-void de_light_set_radius(de_node_t* node, float radius);
-
-/**
- * @brief Sets angle in radians at cone vertex of a spot light.
- */
-void de_light_set_cone_angle(de_node_t* node, float angle);
-
-/**
- * @brief Returns angle in radians at cone vertex of a spot light.
- */
-float de_light_get_cone_angle(de_node_t* node);
+#include "physics/octree.h"
+#include "physics/body.h"
+#include "physics/collision.h"

@@ -29,6 +29,7 @@ struct de_core_t {
 	de_engine_params_t params;
 	bool is_running;
 	DE_ARRAY_DECLARE(de_event_t, events_queue);
+	DE_ARRAY_DECLARE(de_resource_t*, resources);
 	struct {
 	#ifdef _WIN32
 		HGLRC gl_context;
@@ -62,6 +63,8 @@ void de_core_shutdown(de_core_t* core) {
 	de_gui_shutdown(core->gui);
 	de_renderer_free(core->renderer);
 	de_core_platform_shutdown(core);
+	de_body_clear_pool();
+	de_node_clear_pool();
 	de_free(core);
 	de_log("Engine shutdown successful!");
 	de_log_close();
@@ -117,6 +120,51 @@ de_scene_t* de_core_get_scene(de_core_t* core, size_t i) {
 	return core->scenes.data[i];
 }
 
+void de_core_add_resource(de_core_t* core, de_resource_t* resource) {
+	for (size_t i = 0; i < core->resources.size; ++i) {
+		if (core->resources.data[i] == resource) {
+			de_log("trying to add already registered resource!");
+			return;
+		}
+	}
+	DE_ARRAY_APPEND(core->resources, resource);
+}
+
+de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type, const de_path_t* path) {
+	for (size_t i = 0; i < core->resources.size; ++i) {
+		de_resource_t* res = core->resources.data[i];
+		if (de_path_eq(&res->source, path)) {
+			if (res->type != type) {
+				de_log("warning: resource %s is found but types mismatch: requested '%s' got '%s'",
+					de_path_cstr(path), de_resource_type_to_cstr(type), de_resource_type_to_cstr(res->type));
+			}
+			return res;
+		}
+	}
+	de_str8_view_t ext;
+	de_path_extension(path, &ext);
+	switch (type) {
+		case DE_RESOURCE_TYPE_TEXTURE:
+			if (de_str8_view_eq_cstr(&ext, ".tga")) {
+
+			}
+			break;
+		case DE_RESOURCE_TYPE_SOUND_BUFFER:
+			if (de_str8_view_eq_cstr(&ext, ".wav")) {
+
+			}
+			break;
+		case DE_RESOURCE_TYPE_MODEL:
+			if (de_str8_view_eq_cstr(&ext, ".fbx")) {
+
+			}
+			break;
+		default:
+			de_log("unsupported resource type");
+			return NULL;
+	}
+	return NULL;
+}
 
 /* Include platform-specific implementation */
 #  ifdef _WIN32

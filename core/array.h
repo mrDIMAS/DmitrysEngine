@@ -104,11 +104,16 @@
 		} \
 	} while(0)
 
-/* Tries to find and remove specified item */
+/* Tries to find and remove specified item.  */
 #define DE_ARRAY_REMOVE(a, item) \
 	do { \
+        DE_STATIC_ASSERT(sizeof(item) == sizeof(*(a).data), sizes_must_be_equal); \
 		size_t itemIndex; \
-		DE_ARRAY_FIND(a, item, itemIndex); \
+		for(itemIndex = 0; itemIndex < a.size; ++itemIndex) { \
+			if(memcmp(&a.data[itemIndex], &(item), sizeof(item)) == 0) { \
+				break; \
+			} \
+		} \
 		DE_ARRAY_REMOVE_AT(a, itemIndex); \
 	} while(0)
 

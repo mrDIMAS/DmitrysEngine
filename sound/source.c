@@ -40,9 +40,11 @@ de_sound_source_t* de_sound_source_create(de_sound_context_t* ctx, de_sound_sour
 }
 
 void de_sound_source_free(de_sound_source_t* src) {
-	de_sound_context_lock(src->ctx);
-	DE_ARRAY_REMOVE(src->ctx->sounds, src);
-	de_sound_context_unlock(src->ctx);
+	de_sound_context_t* ctx = src->ctx;
+	de_sound_context_lock(ctx);
+	DE_ARRAY_REMOVE(ctx->sounds, src);
+	de_free(src);
+	de_sound_context_unlock(ctx);	
 }
 
 void de_sound_source_set_buffer(de_sound_source_t* src, de_sound_buffer_t* buf) {

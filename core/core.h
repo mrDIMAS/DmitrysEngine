@@ -104,7 +104,17 @@ size_t de_core_get_scene_count(de_core_t* core);
 
 de_scene_t* de_core_get_scene(de_core_t* core, size_t i);
 
+/**
+ * @brief Registers new resource. Useful to register dynamic resource. Every registered
+ * resource will be automatically serialized.
+ */
+void de_core_add_resource(de_core_t* core, de_resource_t* resource);
 
+/**
+ * @brief Request external resource of specified type. If resource was loaded previously, 
+ * increases reference count and returns pointer to resource, if not - loads resource.
+ */
+de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type, const de_path_t* path);
 
 
 /********************************************************************
@@ -158,8 +168,6 @@ void de_core_set_video_mode(de_core_t* core, const de_video_mode_t* vm);
 void de_get_desktop_video_mode(de_video_mode_t* vm);
 
 /**
- * @brief Enumerates available video modes.
- *
- * Note: Function may return duplicated videomodes! You have to filter them by yourself.
+ * @brief Enumerates available video modes. Result array must be freed.
  */
 de_video_mode_array_t de_enum_video_modes();

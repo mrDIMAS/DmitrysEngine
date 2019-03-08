@@ -76,6 +76,7 @@ Options for linker: `-lGL -lpthread -lasound -lX11 -lXrandr`
 * Very fast compilation compared to C++
 * Very simple - what you have is just plain memory and procedures that operates on it.
 * Strict ABI
+* Why not one of those other fancy languages? Let Benjamin Franklin says for me: "He who sacrifices freedom for security deserves neither."
 
 And of course:
 ![Why](pics/why.png?raw=true "Why")

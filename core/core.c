@@ -24,10 +24,11 @@ struct de_core_t {
 	de_renderer_t* renderer;
 	de_sound_context_t* sound_context;
 	de_gui_t* gui;
-	DE_ARRAY_DECLARE(de_scene_t*, scenes);
+	DE_LINKED_LIST_DECLARE(de_scene_t, scenes);
 	DE_LINKED_LIST_DECLARE(de_font_t, fonts);
 	de_engine_params_t params;
 	bool is_running;
+	void* user_pointer;
 	DE_ARRAY_DECLARE(de_event_t, events_queue);
 	DE_ARRAY_DECLARE(de_resource_t*, resources);
 	struct {
@@ -42,6 +43,21 @@ struct de_core_t {
 	#endif
 	} platform;
 };
+
+static void de_core_clean(de_core_t* core) {
+	DE_UNUSED(core);
+}
+
+bool de_core_visit(de_object_visitor_t* visitor, de_core_t* core) {
+	bool result = true;
+	if (visitor->is_reading) {
+		/* clean up */
+		de_core_clean(core);
+	}
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Resources", core->resources, de_resource_visit);
+	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Scenes", core->scenes, de_scene_t, de_scene_visit);
+	return result;
+}
 
 de_core_t* de_core_init(const de_engine_params_t* params) {
 	de_core_t* core;
@@ -84,6 +100,14 @@ unsigned int de_core_get_window_height(de_core_t* core) {
 	return core->params.video_mode.height;
 }
 
+void* de_core_get_user_pointer(de_core_t* core) {
+	return core->user_pointer;
+}
+
+void de_core_set_user_pointer(de_core_t* core, void* ptr) {
+	core->user_pointer = ptr;
+}
+
 de_renderer_t* de_core_get_renderer(de_core_t* core) {
 	return core->renderer;
 }
@@ -110,12 +134,8 @@ bool de_core_poll_event(de_core_t* core, de_event_t* evt) {
 	return false;
 }
 
-size_t de_core_get_scene_count(de_core_t* core) {
-	return core->scenes.size;
-}
-
-de_scene_t* de_core_get_scene(de_core_t* core, size_t i) {
-	return core->scenes.data[i];
+de_scene_t* de_core_get_first_scene(de_core_t* core) {
+	return core->scenes.head;
 }
 
 void de_core_add_resource(de_core_t* core, de_resource_t* resource) {
@@ -140,7 +160,9 @@ de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type
 		}
 	}
 	de_str8_view_t ext;
-	de_path_extension(path, &ext);
+	de_path_extension(path, &ext);	
+	de_resource_t* res = de_resource_create(core, type);	
+	de_path_copy(path, &res->source);
 	switch (type) {
 		case DE_RESOURCE_TYPE_TEXTURE:
 			if (de_str8_view_eq_cstr(&ext, ".tga")) {
@@ -153,8 +175,9 @@ de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type
 			}
 			break;
 		case DE_RESOURCE_TYPE_MODEL:
-			if (de_str8_view_eq_cstr(&ext, ".fbx")) {
-
+			if (de_str8_view_eq_cstr(&ext, ".fbx")) {				
+				de_model_load(&res->s.model, path);
+				return res;
 			}
 			break;
 		default:

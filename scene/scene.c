@@ -23,7 +23,7 @@ de_scene_t* de_scene_create(de_core_t* core) {
 	de_scene_t* s = DE_NEW(de_scene_t);
 	s->core = core;
 	DE_LINKED_LIST_INIT(s->nodes);
-	DE_ARRAY_APPEND(core->scenes, s);
+	DE_LINKED_LIST_APPEND(core->scenes, s);
 	return s;
 }
 
@@ -49,7 +49,7 @@ void de_scene_free(de_scene_t* s) {
 	}
 
 	if (s->core) {
-		DE_ARRAY_REMOVE(s->core->scenes, s);
+		DE_LINKED_LIST_REMOVE(s->core->scenes, s);
 	}
 
 	de_free(s);
@@ -127,12 +127,10 @@ void de_scene_update(de_scene_t* s, double dt) {
 
 bool de_scene_visit(de_object_visitor_t* visitor, de_scene_t* scene) {
 	bool result = true;
-
-	//result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Nodes", scene->nodes, de_node_t, de_node_visit);
-	/*result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Bodies", scene->bodies, de_node_visit);
-	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "StaticGeometries", scene->static_geometries, de_node_visit);
-	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Animations", scene->animations, de_node_visit);*/
+	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Nodes", scene->nodes, de_node_t, de_node_visit);
+	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Bodies", scene->bodies, de_body_t, de_body_visit);
+	//result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "StaticGeometries", scene->static_geometries, de_node_visit);
+	//result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Animations", scene->animations, de_node_visit);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "ActiveCamera", &scene->active_camera, de_node_visit);
-
 	return result;
 }

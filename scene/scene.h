@@ -27,6 +27,7 @@ struct de_scene_t {
 	DE_LINKED_LIST_DECLARE(de_static_geometry_t, static_geometries);
 	DE_LINKED_LIST_DECLARE(de_animation_t, animations);
 	de_node_t* active_camera;
+	DE_LINKED_LIST_ITEM(de_scene_t);
 };
 
 /**

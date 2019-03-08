@@ -24,11 +24,15 @@
  * scene won't be rendered.
  */
 typedef struct de_model_t {
-	de_resource_t* resource;
 	de_scene_t* scene;
+	de_node_t* root;
 } de_model_t;
 
 /**
  * @brief Internal. Do not call directly. Call de_core_request resource.
  */
-de_resource_t* de_model_load(de_core_t* core, const de_path_t* path);
+bool de_model_load(de_model_t* mdl, const de_path_t* path);
+
+de_node_t* de_model_instantiate(de_model_t* mdl, de_scene_t* dest_scene);
+
+bool de_model_visit(de_object_visitor_t* visitor, de_model_t* mdl);

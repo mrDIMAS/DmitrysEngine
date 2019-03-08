@@ -19,7 +19,6 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-
 de_animation_t* de_animation_create(de_scene_t* s) {
 	de_animation_t* animation;
 
@@ -35,7 +34,6 @@ de_animation_t* de_animation_create(de_scene_t* s) {
 	return animation;
 }
 
-
 de_animation_track_t* de_animation_track_create(de_animation_t* anim) {
 	de_animation_track_t* track;
 
@@ -45,13 +43,27 @@ de_animation_track_t* de_animation_track_create(de_animation_t* anim) {
 	return track;
 }
 
-
 void de_animation_track_free(de_animation_track_t* track) {
 	DE_ARRAY_FREE(track->keyframes);
 
 	de_free(track);
 }
 
+void de_animation_track_set_node(de_animation_track_t* track, de_node_t* node) {	
+	track->node = node;
+}
+
+de_animation_track_t* de_animation_track_copy(de_animation_track_t* track, de_animation_t* dest_anim) {
+	de_animation_track_t* copy = DE_NEW(de_animation_track_t);
+	copy->parent_animation = dest_anim;
+	for (size_t i = 0; i < track->keyframes.size; ++i) {
+		DE_ARRAY_APPEND(copy->keyframes, track->keyframes.data[i]);
+	}
+	copy->enabled = track->enabled;
+	copy->max_time = track->max_time;	
+	de_animation_track_set_node(copy, track->node);	
+	return copy;
+}
 
 void de_animation_track_add_keyframe(de_animation_track_t* track, const de_keyframe_t* keyframe) {
 	size_t i;
@@ -73,7 +85,6 @@ void de_animation_track_add_keyframe(de_animation_track_t* track, const de_keyfr
 	}
 }
 
-
 void de_animation_free(de_animation_t* anim) {
 	size_t i;
 
@@ -87,6 +98,12 @@ void de_animation_free(de_animation_t* anim) {
 	de_free(anim);
 }
 
+de_animation_t* de_animation_copy(de_animation_t* anim, de_scene_t* dest_scene) {
+	de_animation_t* copy = DE_NEW(de_animation_t);
+	copy->fade_step = anim->fade_step;
+	DE_LINKED_LIST_APPEND(dest_scene->animations, copy);
+	return copy;
+}
 
 void de_animation_track_get_keyframe(de_animation_track_t* track, float time, de_keyframe_t* out_keyframe) {
 	size_t i;
@@ -138,11 +155,9 @@ void de_animation_track_get_keyframe(de_animation_track_t* track, float time, de
 	}
 }
 
-
 void de_animation_add_track(de_animation_t* anim, de_animation_track_t* track) {
 	DE_ARRAY_APPEND(anim->tracks, track);
 }
-
 
 void de_animation_update(de_animation_t* anim, float dt) {
 	size_t i;
@@ -191,7 +206,6 @@ void de_animation_update(de_animation_t* anim, float dt) {
 	}
 }
 
-
 void de_animation_set_time_position(de_animation_t* anim, float time) {
 	if (anim->flags & DE_ANIMATION_FLAG_LOOPED) {
 		anim->time_position = de_fwrap(time, 0.0f, anim->length);
@@ -200,21 +214,17 @@ void de_animation_set_time_position(de_animation_t* anim, float time) {
 	}
 }
 
-
 bool de_animation_is_flags_set(de_animation_t* anim, int flags) {
 	return (anim->flags & flags) == flags;
 }
-
 
 void de_animation_set_flags(de_animation_t* anim, int flags) {
 	anim->flags |= flags;
 }
 
-
 void de_animation_reset_flags(de_animation_t* anim, int flags) {
 	anim->flags &= ~flags;
 }
-
 
 void de_animation_clamp_length(de_animation_t* anim) {
 	size_t i;
@@ -227,7 +237,6 @@ void de_animation_clamp_length(de_animation_t* anim) {
 		}
 	}
 }
-
 
 de_animation_t* de_animation_extract(de_animation_t* anim, float from, float to) {
 	size_t i;

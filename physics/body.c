@@ -19,25 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/**
-* @class de_body_s
-* @brief Body type for position-based physics.
-*
-* Each body is a sphere (particle). But can represent capsule too.
-*/
-struct de_body_t {
-	de_scene_t* scene;
-	de_vec3_t gravity;
-	de_vec3_t position;                     /**< Global position of body */
-	de_vec3_t last_position;                /**< Global position of previous frame */
-	de_vec3_t acceleration;                 /**< Acceleration of a body in m/s^2 */
-	float radius;                           /**< Radius of a body */
-	float friction;                         /**< Friction coefficient [0; 1]. Zero means no friction */
-	de_contact_t contacts[DE_MAX_CONTACTS]; /**< Array of contacts. */
-	int contact_count;                      /**< Actual count of physical contacts */
-	de_vec3_t scale;                        /**< Scaling coefficients. When != (1, 1, 1) - body is ellipsoid */
-	DE_LINKED_LIST_ITEM(de_body_t);
-};
+
 
 static void de_project_point_on_line(const de_vec3_t* point, const de_ray_t* ray, de_vec3_t* out) {
 	float sqr_len;
@@ -292,6 +274,19 @@ de_body_t* de_body_create(de_scene_t* s) {
 	de_vec3_set(&body->scale, 1, 1, 1);
 	de_vec3_set(&body->gravity, 0, -9.81f, 0);
 	return body;
+}
+
+bool de_body_visit(de_object_visitor_t* visitor, de_body_t* body) {
+	bool result = true;
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Scene", &body->scene, de_scene_visit);
+	result &= de_object_visitor_visit_vec3(visitor, "Gravity", &body->gravity);
+	result &= de_object_visitor_visit_vec3(visitor, "Position", &body->position);
+	result &= de_object_visitor_visit_vec3(visitor, "LastPosition", &body->last_position);
+	result &= de_object_visitor_visit_vec3(visitor, "Acceleration", &body->acceleration);
+	result &= de_object_visitor_visit_float(visitor, "Radius", &body->radius);
+	result &= de_object_visitor_visit_float(visitor, "Friction", &body->friction);
+	result &= de_object_visitor_visit_vec3(visitor, "Scale", &body->scale);
+	return result;
 }
 
 de_body_t* de_body_copy(de_scene_t* dest_scene, de_body_t* body) {

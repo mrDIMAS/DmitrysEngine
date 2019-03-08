@@ -20,6 +20,26 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 /**
+* @class de_body_s
+* @brief Body type for position-based physics.
+*
+* Each body is a sphere (particle). But can represent capsule too.
+*/
+struct de_body_t {
+	de_scene_t* scene;
+	de_vec3_t gravity;
+	de_vec3_t position;                     /**< Global position of body */
+	de_vec3_t last_position;                /**< Global position of previous frame */
+	de_vec3_t acceleration;                 /**< Acceleration of a body in m/s^2 */
+	float radius;                           /**< Radius of a body */
+	float friction;                         /**< Friction coefficient [0; 1]. Zero means no friction */
+	de_contact_t contacts[DE_MAX_CONTACTS]; /**< Array of contacts. */
+	int contact_count;                      /**< Actual count of physical contacts */
+	de_vec3_t scale;                        /**< Scaling coefficients. When != (1, 1, 1) - body is ellipsoid */
+	DE_LINKED_LIST_ITEM(de_body_t);
+};
+
+/**
 * @brief Frees all resources associated with body
 * @param body pointer to body
 */
@@ -29,6 +49,8 @@ void de_body_free(de_body_t* body);
 * @brief Creates new body with radius 1.0
 */
 de_body_t* de_body_create(de_scene_t* s);
+
+bool de_body_visit(de_object_visitor_t* visitor, de_body_t* body);
 
 /**
 * @brief Changes actual position of a body by velocity vector. After this routine,

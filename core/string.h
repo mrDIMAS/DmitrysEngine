@@ -89,6 +89,11 @@ void de_str8_set(de_str8_t* str, const char* cstr);
 void de_str8_clear(de_str8_t* str);
 
 /**
+ * @brief Returns true if string is empty.
+ */
+bool de_str8_is_empty(de_str8_t* str);
+
+/**
  * @brief Moves @src string to @dest string. @src string will be empty!
  */
 void de_str8_move(de_str8_t* src, de_str8_t* dest);

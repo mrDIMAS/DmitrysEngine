@@ -1216,7 +1216,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 
 	renderer = scene->core->renderer;
 
-	root = de_node_create(scene);
+	root = de_node_create(scene, DE_NODE_TYPE_BASE);
 	de_scene_add_node(scene, root);
 
 	/* Each scene has animation */
@@ -1238,11 +1238,11 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 
 		de_node_t* node;
 		if (mdl->light) {
-			node = de_light_create(scene);
+			node = de_node_create(scene, DE_NODE_TYPE_LIGHT);
 		} else if (mdl->geoms.size) {
-			node = de_mesh_create(scene);
+			node = de_node_create(scene, DE_NODE_TYPE_MESH);
 		} else {
-			node = de_node_create(scene);
+			node = de_node_create(scene, DE_NODE_TYPE_BASE);
 		}
 
 		de_scene_add_node(scene, node);
@@ -1254,9 +1254,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 		mdl->engine_node = node;
 
 		de_str8_copy(&mdl->name, &node->name);
-
-		de_log("%s", de_str8_cstr(&mdl->name));
-
+		
 		node->position = mdl->translation;
 		node->rotation_offset = mdl->rotation_offset;
 		node->rotation_pivot = mdl->rotation_pivot;
@@ -1508,8 +1506,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 			/* convert to engine format */
 			track = de_animation_track_create(anim);
 			de_animation_add_track(anim, track);
-
-			track->node = node;
+			de_animation_track_set_node(track, node);
 
 		#if DE_FBX_VERBOSE
 			de_log("FBX: === new anim track ===\n");

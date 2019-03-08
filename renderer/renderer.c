@@ -985,7 +985,6 @@ void de_renderer_render(de_renderer_t* r) {
 	int current_time_ms;
 	int time_limit_ms;
 	size_t i;
-	de_scene_t* scene;
 	de_mat4_t y_flip_ortho, ortho;
 	de_mat4_t identity;
 	de_rectf_t gui_viewport = { 0, 0, 1, 1 };
@@ -999,7 +998,7 @@ void de_renderer_render(de_renderer_t* r) {
 
 	de_mat4_identity(&identity);
 
-	if (core->scenes.size) {
+	if (core->scenes.head) {
 		DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, r->gbuffer.fbo));
 		DE_GL_CALL(glDrawBuffers(3, buffers));
 	} else {
@@ -1016,12 +1015,10 @@ void de_renderer_render(de_renderer_t* r) {
 	DE_GL_CALL(glEnable(GL_CULL_FACE));
 
 	/* render each scene */
-	for (i = 0; i < core->scenes.size; ++i) {		
+	DE_LINKED_LIST_FOR_EACH_T(de_scene_t*, scene, core->scenes) {	
 		de_camera_t* camera;
 		de_vec3_t camera_position;
-
-		scene = core->scenes.data[i];
-
+		
 		de_vec3_zero(&camera_position);
 
 		if (!scene->active_camera) {
@@ -1030,7 +1027,7 @@ void de_renderer_render(de_renderer_t* r) {
 
 		camera = &scene->active_camera->s.camera;
 
-		de_node_get_global_position(camera->parent_node, &camera_position);
+		de_node_get_global_position(de_node_from_camera(camera), &camera_position);
 
 		de_camera_update(camera);
 

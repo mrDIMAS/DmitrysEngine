@@ -25,8 +25,11 @@
 typedef enum de_light_type_t {
 	DE_LIGHT_TYPE_POINT,
 	DE_LIGHT_TYPE_DIRECTIONAL,
-	DE_LIGHT_TYPE_SPOT
+	DE_LIGHT_TYPE_SPOT,
+	DE_LIGHT_TYPE_FORCE_SIZE = 0xFFFFFFFF,
 } de_light_type_t;
+
+DE_STATIC_ASSERT(sizeof(de_light_type_t) == sizeof(uint32_t), invalid_light_size);
 
 /**
 * @brief Common light component.
@@ -34,7 +37,6 @@ typedef enum de_light_type_t {
 * Can be any possible light type (point, directional, spot)
 */
 struct de_light_t {
-	de_node_t* parent_node;
 	de_light_type_t type; /**< Actual type of light */
 	float radius;         /**< Radius of point light */
 	de_color_t color;     /**< Color of light */
@@ -45,7 +47,13 @@ struct de_light_t {
 /**
  * @brief Specializes node as light. By default it is point light of white color and 2m emit radius.
  */
-de_node_t* de_light_create(de_scene_t* scene);
+void de_light_init(de_light_t* light);
+
+void de_light_deinit(de_light_t* light);
+
+void de_light_copy(de_light_t* src, de_light_t* dest);
+
+bool de_light_visit(de_object_visitor_t* visitor, de_light_t* light);
 
 /**
  * @brief

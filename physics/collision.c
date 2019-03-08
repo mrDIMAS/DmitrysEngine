@@ -103,10 +103,9 @@ bool de_static_triangle_contains_point(const de_static_triangle_t* triangle, con
 	return (u >= 0.0f) && (v >= 0.0f) && (u + v < 1.0f);
 }
 
-void de_physics_step(de_core_t* core, double dt) {		
+void de_physics_step(de_core_t* core, double dt) {
 	const float dt2 = (float)(dt * dt);
-	for (size_t i = 0; i < core->scenes.size; ++i) {
-		de_scene_t* scene = core->scenes.data[i];
+	DE_LINKED_LIST_FOR_EACH_T(de_scene_t*, scene, core->scenes) {
 		DE_LINKED_LIST_FOR_EACH_T(de_body_t*, body, scene->bodies) {
 			/* Drop contact information */
 			body->contact_count = 0;
@@ -116,7 +115,7 @@ void de_physics_step(de_core_t* core, double dt) {
 			de_body_verlet(body, dt2);
 			/* Solve collisions */
 			de_static_geometry_t* geom;
-			DE_LINKED_LIST_FOR_EACH(scene->static_geometries, geom) {				
+			DE_LINKED_LIST_FOR_EACH(scene->static_geometries, geom) {
 				for (size_t j = 0; j < geom->triangles.size; ++j) {
 					de_body_triangle_collision(&geom->triangles.data[j], body);
 				}

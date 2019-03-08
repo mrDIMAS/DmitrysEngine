@@ -32,6 +32,10 @@ void de_path_clear(de_path_t* path) {
 	de_str8_clear(&path->str);
 }
 
+void de_path_copy(const de_path_t* src, de_path_t* dest) {
+	de_str8_copy(&src->str, &dest->str);
+}
+
 void de_path_as_str8_view(de_path_t* path, de_str8_t* str) {
 	path->str.str.data = str->str.data;
 	path->str.str.size = str->str.size;

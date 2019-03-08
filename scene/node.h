@@ -23,8 +23,11 @@ typedef enum de_node_type_t {
 	DE_NODE_TYPE_BASE,
 	DE_NODE_TYPE_LIGHT,
 	DE_NODE_TYPE_MESH,
-	DE_NODE_TYPE_CAMERA
+	DE_NODE_TYPE_CAMERA,
+	DE_NODE_TYPE_FORCE_SIZE = 0xFFFFFFFF,
 } de_node_type_t;
+
+DE_STATIC_ASSERT(sizeof(de_node_type_t) == sizeof(uint32_t), invalid_node_type_size);
 
 #if DE_DISABLE_ASSERTS
 #  define DE_ASSERT_SCENE_NODE_TYPE(node, expected_type)
@@ -32,11 +35,6 @@ typedef enum de_node_type_t {
 #  define DE_ASSERT_SCENE_NODE_TYPE(node, expected_type) \
 	if(node->type != expected_type) de_fatal_error("Scene node must be " #expected_type " type!")
 #endif
-
-typedef struct de_node_dispatch_table_t {
-	void(*deinit)(de_node_t* node);
-	void(*copy)(de_node_t* node, de_node_t* dest);
-} de_node_dispatch_table_t;
 
 /**
  * @class de_node_t
@@ -83,7 +81,7 @@ struct de_node_t {
 	/* Physics */
 	de_body_t* body;
 
-	de_resource_t* resource; /**<  */
+	de_resource_t* model_resource; /**< Pointer to model from which this node was instantiated.  */
 
 	/* Specialization. Avoid accessing these directly, use de_node_to_xxx instead. */
 	union {
@@ -92,21 +90,15 @@ struct de_node_t {
 		de_camera_t camera;
 	} s;
 
-	de_node_dispatch_table_t* dispatch_table;
-
 	DE_LINKED_LIST_ITEM(struct de_node_t);
 };
+
 
 /**
 * @brief Creates new scene node. You should call de_scene_add_node to interact with node.
 * @return Pointer to new scene node
 */
-de_node_t* de_node_create(de_scene_t* scene);
-
-/**
- * @brief Internal. 
- */
-de_node_t* de_node_alloc(de_scene_t* scene, de_node_type_t type, de_node_dispatch_table_t* tbl);
+de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type);
 
 de_node_t* de_node_copy(de_scene_t* dest_scene, de_node_t* node_handle);
 
@@ -218,14 +210,29 @@ de_node_t* de_node_find(de_node_t* node, const char* name);
 de_mesh_t* de_node_to_mesh(de_node_t* node);
 
 /**
+ * @brief Restores node pointer by given mesh pointer.
+ */
+de_node_t* de_node_from_mesh(de_mesh_t* mesh);
+
+/**
  * @brief Tries to get light component out of the node, will throw an error if node is not a light!
  */
 de_light_t* de_node_to_light(de_node_t* node);
 
 /**
+ * @brief Restores node pointer by given light pointer.
+ */
+de_node_t* de_node_from_light(de_mesh_t* light);
+
+/**
  * @brief Tries to get camera component out of the node, will throw an error if node is not a camera!
  */
 de_camera_t* de_node_to_camera(de_node_t* node);
+
+/**
+ * @brief Restores node pointer by given camera pointer.
+ */
+de_node_t* de_node_from_camera(de_camera_t* camera);
 
 /**
  * @brief Serializes scene node.

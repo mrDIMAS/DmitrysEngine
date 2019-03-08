@@ -25,7 +25,6 @@ struct main_menu_t {
 struct level_t {
 	game_t* game;
 	de_scene_t* scene;
-	de_node_t* test_fbx;
 	player_t* player;
 };
 
@@ -198,24 +197,24 @@ player_t* player_create(level_t* level) {
 	de_vec3_set(&p->camera_position, 0, p->stand_body_radius, 0);
 
 	p->body = de_body_create(level->scene);
-	de_body_set_gravity(p->body, &(de_vec3_t) { .y = -20 });	
+	de_body_set_gravity(p->body, &(de_vec3_t) {.y = -20 });
 	de_body_set_radius(p->body, p->stand_body_radius);
-		
-	p->pivot = de_node_create(level->scene);	
+
+	p->pivot = de_node_create(level->scene, DE_NODE_TYPE_BASE);
 	de_scene_add_node(level->scene, p->pivot);
 	de_node_set_body(p->pivot, p->body);
 
-	p->camera = de_camera_create(level->scene);
+	p->camera = de_node_create(level->scene, DE_NODE_TYPE_CAMERA);
 	de_scene_add_node(level->scene, p->camera);
 	de_node_set_local_position(p->camera, &p->camera_position);
 	de_node_attach(p->camera, p->pivot);
 
-	p->flash_light = de_light_create(level->scene);
+	p->flash_light = de_node_create(level->scene, DE_NODE_TYPE_LIGHT);
 	de_light_set_radius(p->flash_light, 4);
 	de_scene_add_node(level->scene, p->flash_light);
 	de_node_attach(p->flash_light, p->camera);
 
-	p->weapon_pivot = de_node_create(level->scene);
+	p->weapon_pivot = de_node_create(level->scene, DE_NODE_TYPE_BASE);
 	de_scene_add_node(level->scene, p->weapon_pivot);
 	de_node_attach(p->weapon_pivot, p->camera);
 	de_node_set_local_position_xyz(p->weapon_pivot, 0.03f, -0.052f, -0.02f);
@@ -241,14 +240,83 @@ player_t* player_create(level_t* level) {
 	return p;
 }
 
-void player_free(player_t* p) {	
+bool level_visit(de_object_visitor_t* visitor, level_t* level);
+
+bool player_visit(de_object_visitor_t* visitor, player_t* player) {
+	bool result = true;
+	if (visitor->is_reading) {
+		game_t* game = de_core_get_user_pointer(visitor->core);
+		player->parent_level = game->level;
+	}
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Level", &player->parent_level, level_visit);
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Pivot", &player->pivot, de_node_visit);
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Camera", &player->camera, de_node_visit);
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "FlashLight", &player->flash_light, de_node_visit);
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Body", &player->body, de_body_visit);
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "WeaponPivot", &player->weapon_pivot, de_node_visit);
+	result &= de_object_visitor_visit_float(visitor, "Pitch", &player->pitch);
+	result &= de_object_visitor_visit_float(visitor, "DesiredPitch", &player->desired_pitch);
+	result &= de_object_visitor_visit_float(visitor, "Yaw", &player->yaw);
+	result &= de_object_visitor_visit_float(visitor, "DesiredYaw", &player->desired_yaw);
+	result &= de_object_visitor_visit_float(visitor, "MoveSpeed", &player->move_speed);
+	result &= de_object_visitor_visit_float(visitor, "StandBodyRadius", &player->stand_body_radius);
+	result &= de_object_visitor_visit_float(visitor, "CrouchBodyRadius", &player->crouch_body_radius);
+	result &= de_object_visitor_visit_float(visitor, "StandUpSpeed", &player->stand_up_speed);
+	result &= de_object_visitor_visit_float(visitor, "SitDownSpeed", &player->sit_down_speed);
+	result &= de_object_visitor_visit_float(visitor, "RunSpeedMultiplier", &player->run_speed_multiplier);
+	result &= de_object_visitor_visit_float(visitor, "CameraWobble", &player->camera_wobble);
+	result &= de_object_visitor_visit_float(visitor, "PathLength", &player->path_len);
+	result &= de_object_visitor_visit_vec3(visitor, "CameraOffset", &player->camera_offset);
+	result &= de_object_visitor_visit_vec3(visitor, "CameraDestOffset", &player->camera_dest_offset);
+	result &= de_object_visitor_visit_vec3(visitor, "CameraPosition", &player->camera_position);
+
+	/*
+	TODO: visit these
+
+	DE_ARRAY_DECLARE(weapon_t*, weapons);
+	de_sound_buffer_t* footstep_bufs[4];
+	de_sound_source_t* footsteps[4];
+	*/
+
+	return result;
+}
+
+void level_create_collider(level_t* level) {
+	de_node_t* polygon = de_scene_find_node(level->scene, "Polygon");
+	if (polygon) {
+		de_static_geometry_t* map_collider;
+		assert(polygon->type == DE_NODE_TYPE_MESH);
+		map_collider = de_scene_create_static_geometry(level->scene);
+		de_node_calculate_transforms(polygon);
+		de_static_geometry_fill(map_collider, de_node_to_mesh(polygon), polygon->global_matrix);
+	}
+}
+
+bool level_visit(de_object_visitor_t* visitor, level_t* level) {
+	bool result = true;
+	if (visitor->is_reading) {
+		level->game = de_core_get_user_pointer(visitor->core);
+	}
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Scene", &level->scene, de_scene_visit);
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Player", &level->player, player_visit);
+	if (visitor->is_reading) {
+		level_create_collider(level);
+	}
+	return result;
+}
+
+void player_free(player_t* p) {
 	for (size_t i = 0; i < p->weapons.size; ++i) {
 		weapon_free(p->weapons.data[i]);
 	}
 	DE_ARRAY_FREE(p->weapons);
 	for (size_t i = 0; i < 4; ++i) {
-		de_sound_source_free(p->footsteps[i]);
-		de_sound_buffer_free(p->footstep_bufs[i]);		
+		if (p->footsteps[i]) {
+			de_sound_source_free(p->footsteps[i]);
+		}
+		if (p->footstep_bufs[i]) {
+			de_sound_buffer_free(p->footstep_bufs[i]);
+		}
 	}
 	de_node_free(p->pivot);
 	de_free(p);
@@ -289,7 +357,7 @@ void player_update(player_t* p) {
 		de_vec3_add(&offset, &offset, &side);
 		is_moving = true;
 	}
-	
+
 	/* crouch */
 	if (p->controller.crouch) {
 		float radius = de_body_get_radius(p->body);
@@ -343,7 +411,10 @@ void player_update(player_t* p) {
 		de_vec3_scale(&offset, &offset, speed_multiplier * p->move_speed);
 		p->path_len += 0.05f;
 		if (p->path_len >= 1) {
-			de_sound_source_play(p->footsteps[rand() % (sizeof(p->footsteps) / sizeof(*p->footsteps))]);
+			de_sound_source_t* src = p->footsteps[rand() % (sizeof(p->footsteps) / sizeof(*p->footsteps))];
+			if (src) {
+				de_sound_source_play(src);
+			}
 			p->path_len = 0;
 		}
 	}
@@ -370,26 +441,33 @@ void player_update(player_t* p) {
 
 level_t* level_create_test(game_t* game) {
 	level_t* level;
-	de_node_t* polygon;
 	de_vec3_t rp = { -1, 1, 1 };
 
 	level = DE_NEW(level_t);
 	level->game = game;
 	level->scene = de_scene_create(game->core);
 
-	level->test_fbx = de_fbx_load_to_scene(level->scene, "data/models/ripper.fbx");
-	de_node_set_local_position(level->test_fbx, &rp);
-
-	de_fbx_load_to_scene(level->scene, "data/models/map2_bin.fbx");
-	polygon = de_scene_find_node(level->scene, "Polygon");
-
-	if (polygon) {
-		de_static_geometry_t* map_collider;
-		assert(polygon->type == DE_NODE_TYPE_MESH);
-		map_collider = de_scene_create_static_geometry(level->scene);
-		de_node_calculate_transforms(polygon);
-		de_static_geometry_fill(map_collider, de_node_to_mesh(polygon), polygon->global_matrix);
+	/* Ripper */
+	{
+		de_path_t res_path;
+		de_path_init(&res_path);
+		de_path_append_cstr(&res_path, "data/models/ripper.fbx");
+		de_model_t* mdl = de_resource_to_model(de_core_request_resource(game->core, DE_RESOURCE_TYPE_MODEL, &res_path));
+		de_node_t* ripper = de_model_instantiate(mdl, level->scene);
+		de_node_set_local_position(ripper, &rp);
+		de_path_free(&res_path);
 	}
+
+	{
+		de_path_t res_path;
+		de_path_init(&res_path);
+		de_path_append_cstr(&res_path, "data/models/map2_bin.fbx");
+		de_model_t* mdl = de_resource_to_model(de_core_request_resource(game->core, DE_RESOURCE_TYPE_MODEL, &res_path));
+		de_model_instantiate(mdl, level->scene);
+		de_path_free(&res_path);
+	}
+
+	level_create_collider(level);
 
 	level->player = player_create(level);
 	{
@@ -435,6 +513,49 @@ void main_menu_on_new_game_click(de_gui_node_t* node, void* user_data) {
 	}
 
 	main_menu_set_visible(game->main_menu, false);
+}
+
+bool game_save(game_t* game) {
+	bool result = false;
+	if (game->level) {
+		result = true;
+		de_object_visitor_t visitor;
+		de_object_visitor_init(game->core, &visitor);
+		result &= de_core_visit(&visitor, game->core);
+		result &= DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Level", &game->level, level_visit);
+		/* debug output */
+		{
+			FILE* temp = fopen("save1.txt", "w");
+			de_object_visitor_print_tree(&visitor, temp);
+			fclose(temp);
+		}
+		de_object_visitor_save_binary(&visitor, "save1.bin");
+		de_object_visitor_free(&visitor);
+	}
+	return result;
+}
+
+bool game_load(game_t* game) {
+	de_object_visitor_t visitor;
+	bool result = true;
+	de_object_visitor_load_binary(game->core, &visitor, "save1.bin");
+	result &= de_core_visit(&visitor, game->core);
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Level", &game->level, level_visit);
+	de_object_visitor_free(&visitor);
+	main_menu_set_visible(game->main_menu, false);
+	return result;
+}
+
+void main_menu_on_save_click(de_gui_node_t* node, void* user_data) {
+	game_t* game = (game_t*)user_data;
+	DE_UNUSED(node);
+	game_save(game);
+}
+
+void main_menu_on_load_click(de_gui_node_t* node, void* user_data) {
+	game_t* game = (game_t*)user_data;
+	DE_UNUSED(node);
+	game_load(game);
 }
 
 static void videomode_selector_item_getter(void* items, int n, char* out_buffer, int out_buffer_size) {
@@ -515,6 +636,7 @@ main_menu_t* main_menu_create(game_t* game) {
 			de_gui_node_set_row(save, 2);
 			de_gui_node_attach(save, grid);
 			de_gui_node_set_margin_uniform(save, 10);
+			de_gui_button_set_click(save, main_menu_on_save_click, game);
 		}
 
 		/* load game */
@@ -524,6 +646,7 @@ main_menu_t* main_menu_create(game_t* game) {
 			de_gui_node_set_row(load, 3);
 			de_gui_node_attach(load, grid);
 			de_gui_node_set_margin_uniform(load, 10);
+			de_gui_button_set_click(load, main_menu_on_load_click, game);
 		}
 
 		/* settings */
@@ -618,6 +741,7 @@ game_t* game_create(void) {
 	params.video_mode.bits_per_pixel = 32;
 	params.video_mode.fullscreen = false;
 	game->core = de_core_init(&params);
+	de_core_set_user_pointer(game->core, game);
 	de_renderer_set_framerate_limit(de_core_get_renderer(game->core), 0);
 
 	/* Create menu */
@@ -630,9 +754,7 @@ game_t* game_create(void) {
 }
 
 void game_main_loop(game_t* game) {
-	size_t i;
 	double game_clock, fixed_fps, fixed_timestep, dt;
-	de_scene_t* scene;
 	de_event_t evt;
 	de_renderer_t* renderer;
 	de_gui_t* gui;
@@ -673,8 +795,7 @@ void game_main_loop(game_t* game) {
 			de_sound_context_update(de_core_get_sound_context(game->core));
 			de_gui_update(gui);
 			de_physics_step(game->core, fixed_timestep);
-			for (i = 0; i < de_core_get_scene_count(game->core); ++i) {
-				scene = de_core_get_scene(game->core, i);
+			DE_LINKED_LIST_FOR_EACH_H(de_scene_t*, scene, de_core_get_first_scene(game->core)) {
 				de_scene_update(scene, fixed_timestep);
 			}
 
@@ -715,71 +836,13 @@ void game_close(game_t* game) {
 	de_free(game);
 }
 
-void test_visitor(game_t* game) {
-	DE_UNUSED(game);
-
-#if 0
-	{
-		de_object_visitor_t visitor;
-		de_object_visitor_init(&visitor);
-
-		de_scene_t* scene = de_scene_create(game->core);
-
-		de_node_t* node = de_node_create(scene, DE_NODE_TYPE_BASE);
-		de_scene_add_node(scene, node);
-		de_node_set_name(node, "FooNode");
-
-		de_node_t* node2 = de_node_create(scene, DE_NODE_TYPE_BASE);
-		de_scene_add_node(scene, node2);
-		de_node_set_name(node2, "Node");
-		de_node_attach(node2, node);
-
-		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Scene", &scene, de_scene_visit);
-		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Node", &node, de_node_visit);
-		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Node2", &node2, de_node_visit);
-
-		FILE* temp = fopen("save.txt", "w");
-		de_object_visitor_print_tree(&visitor, temp);
-		fclose(temp);
-
-		de_object_visitor_save_binary(&visitor, "save.bin");
-
-		de_object_visitor_free(&visitor);
-		de_scene_free(scene);
-	}
-#endif
-
-#if 1
-	{
-		de_object_visitor_t visitor;
-		de_scene_t* scene = NULL;
-		de_node_t* node = NULL;
-		de_node_t* node2 = NULL;
-
-		de_object_visitor_load_binary(&visitor, "save.bin");
-
-		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Scene", &scene, de_scene_visit);
-		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Node", &node, de_node_visit);
-		DE_OBJECT_VISITOR_VISIT_POINTER(&visitor, "Node2", &node2, de_node_visit);
-
-		de_object_visitor_free(&visitor);
-		de_scene_free(scene);
-	}
-#endif
-}
-
 int main(int argc, char** argv) {
 	game_t* game;
-
-	de_str8_tests();
-
-
+	
 	DE_UNUSED(argc);
 	DE_UNUSED(argv);
 
 	game = game_create();
-
-	//test_visitor(game);
 
 	game_main_loop(game);
 

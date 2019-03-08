@@ -34,48 +34,49 @@ void de_node_free(de_node_t* node) {
 	}
 
 	de_str8_free(&node->name);
-
-	if (node->dispatch_table && node->dispatch_table->deinit) {
-		node->dispatch_table->deinit(node);
+	switch (node->type) {
+		case DE_NODE_TYPE_BASE: break; /* handled already */
+		case DE_NODE_TYPE_CAMERA: de_camera_deinit(&node->s.camera); break;
+		case DE_NODE_TYPE_LIGHT: de_light_deinit(&node->s.light); break;
+		case DE_NODE_TYPE_MESH: de_mesh_deinit(&node->s.mesh); break;
+		default: de_fatal_error("unhandled node type!"); break;
 	}
 
+	if (node->model_resource) {
+		de_resource_release(node->model_resource);
+		node->model_resource = NULL;
+	}
 	de_free(node);
 }
 
-/**
- * Stub dispatch table for simple nodes (DE_NODE_TYPE_BASE).
- */
-static de_node_dispatch_table_t* de_node_get_dispatch_table(void) {
-	static de_node_dispatch_table_t tbl;
-	return &tbl;
-}
-
-de_node_t* de_node_create(de_scene_t* scene) {
-	return de_node_alloc(scene, DE_NODE_TYPE_BASE, de_node_get_dispatch_table());
-}
-
-de_node_t* de_node_alloc(de_scene_t* scene, de_node_type_t type, de_node_dispatch_table_t* tbl) {
-	DE_ASSERT(tbl);
+de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type) {
 	de_node_t* node = DE_NEW(de_node_t);
 	node->type = type;
 	node->scene = scene;
-	node->dispatch_table = tbl;
 	de_mat4_identity(&node->global_matrix);
 	de_mat4_identity(&node->local_matrix);
 	de_vec3_set(&node->scale, 1, 1, 1);
 	de_quat_set(&node->rotation, 0, 0, 0, 1);
 	de_quat_set(&node->pre_rotation, 0, 0, 0, 1);
 	de_quat_set(&node->post_rotation, 0, 0, 0, 1);
+	switch (node->type) {
+		case DE_NODE_TYPE_BASE: break; /* handled already */
+		case DE_NODE_TYPE_CAMERA: de_camera_init(&node->s.camera); break;
+		case DE_NODE_TYPE_LIGHT: de_light_init(&node->s.light); break;
+		case DE_NODE_TYPE_MESH: de_mesh_init(&node->s.mesh); break;
+		default: de_fatal_error("unhandled node type!"); break;
+	}
 	return node;
 }
 
-de_node_t* de_node_copy(de_scene_t* dest_scene, de_node_t* node) {
+de_node_t* de_node_copy(de_scene_t* dest_scene, de_node_t* node) {	
 	de_node_t* copy = DE_NEW(de_node_t);
 	copy->type = node->type;
 	de_str8_copy(&node->name, &copy->name);
 	copy->scene = dest_scene;
 	copy->inv_bind_pose_matrix = node->inv_bind_pose_matrix;
 	copy->position = node->position;
+	copy->scale = node->scale;
 	copy->scene = node->scene;
 	copy->rotation = node->rotation;
 	copy->pre_rotation = node->pre_rotation;
@@ -83,12 +84,13 @@ de_node_t* de_node_copy(de_scene_t* dest_scene, de_node_t* node) {
 	copy->rotation_offset = node->rotation_offset;
 	copy->rotation_pivot = node->rotation_pivot;
 	copy->scaling_offset = node->scaling_offset;
-	copy->scaling_pivot = node->scaling_pivot;
+	copy->scaling_pivot = node->scaling_pivot;	
 	copy->need_update = true;
 	copy->parent = NULL;
 	copy->visible = node->visible;
 	copy->is_bone = node->is_bone;
-	copy->resource = node->resource;
+	copy->model_resource = node->model_resource;
+	de_scene_add_node(dest_scene, copy);
 	de_body_t* body = node->body;
 	if (body) {
 		copy->body = de_body_copy(dest_scene, body);
@@ -96,8 +98,12 @@ de_node_t* de_node_copy(de_scene_t* dest_scene, de_node_t* node) {
 	for (size_t i = 0; i < node->children.size; ++i) {
 		de_node_attach(de_node_copy(dest_scene, node->children.data[i]), copy);
 	}
-	if (node->dispatch_table && node->dispatch_table->copy) {
-		node->dispatch_table->copy(node, copy);
+	switch (node->type) {
+		case DE_NODE_TYPE_BASE: break; /* handled already */ 
+		case DE_NODE_TYPE_CAMERA: de_camera_copy(&node->s.camera, &copy->s.camera); break;
+		case DE_NODE_TYPE_LIGHT: de_light_copy(&node->s.light, &copy->s.light); break;
+		case DE_NODE_TYPE_MESH: de_mesh_copy(&node->s.mesh, &copy->s.mesh); break;
+		default: de_fatal_error("unhandled node type!"); break;
 	}
 	de_node_calculate_transforms(copy);
 	return copy;
@@ -300,9 +306,17 @@ de_mesh_t* de_node_to_mesh(de_node_t* node) {
 	return &node->s.mesh;
 }
 
+de_node_t* de_node_from_mesh(de_mesh_t* mesh) {
+	return (de_node_t*)((char*)mesh - offsetof(de_node_t, s.mesh));
+}
+
 de_light_t* de_node_to_light(de_node_t* node) {
 	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_LIGHT);
 	return &node->s.light;
+}
+
+de_node_t* de_node_from_light(de_mesh_t* light) {
+	return (de_node_t*)((char*)light - offsetof(de_node_t, s.light));
 }
 
 de_camera_t* de_node_to_camera(de_node_t* node) {
@@ -310,9 +324,14 @@ de_camera_t* de_node_to_camera(de_node_t* node) {
 	return &node->s.camera;
 }
 
+de_node_t* de_node_from_camera(de_camera_t* camera) {
+	return (de_node_t*)((char*)camera - offsetof(de_node_t, s.camera));
+}
+
 bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node) {
 	bool result = true;
-	/*result &= de_object_visitor_visit_heap_string(visitor, "Name", &node->name);*/
+	result &= de_object_visitor_visit_uint32(visitor, "Type", (uint32_t*)&node->type);
+	result &= de_object_visitor_visit_string(visitor, "Name", &node->name);
 	result &= de_object_visitor_visit_mat4(visitor, "LocalTransform", &node->local_matrix);
 	result &= de_object_visitor_visit_mat4(visitor, "GlobalTransform", &node->global_matrix);
 	result &= de_object_visitor_visit_mat4(visitor, "InvBindPoseTransform", &node->inv_bind_pose_matrix);
@@ -326,10 +345,24 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node) {
 	result &= de_object_visitor_visit_vec3(visitor, "RotationPivot", &node->rotation_pivot);
 	result &= de_object_visitor_visit_vec3(visitor, "ScalingOffset", &node->scaling_offset);
 	result &= de_object_visitor_visit_vec3(visitor, "ScalingPivot", &node->scaling_pivot);
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "ModelResource", &node->model_resource, de_resource_visit);
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Body", &node->body, de_body_visit);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Scene", &node->scene, de_scene_visit);
-	//result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Parent", &node->parent, de_node_visit);
-	//result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Children", node->children, de_node_visit);
-
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Parent", &node->parent, de_node_visit);
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Children", node->children, de_node_visit);
+	switch (node->type) {
+		case DE_NODE_TYPE_BASE: break;/* handled already */
+		case DE_NODE_TYPE_CAMERA: result &= de_camera_visit(visitor, &node->s.camera); break;
+		case DE_NODE_TYPE_LIGHT: result &= de_light_visit(visitor, &node->s.light); break;
+		case DE_NODE_TYPE_MESH: result &= de_mesh_visit(visitor, &node->s.mesh); break;
+		default: de_fatal_error("unhandled node type!"); break;
+	}
+	if (visitor->is_reading) {
+		if (node->model_resource) {
+			/* acquire resource */
+			de_resource_add_ref(node->model_resource);
+		}
+	}
 	return result;
 }
 

@@ -44,6 +44,8 @@ void de_path_append_str_view(de_path_t* path, const de_str8_view_t* view);
 
 bool de_path_eq(const de_path_t* a, const de_path_t* b);
 
+void de_path_copy(const de_path_t* src, de_path_t* dest);
+
 /**
  * @brief Extracts extension from file path with dot.
  *

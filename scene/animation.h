@@ -102,10 +102,16 @@ void de_animation_track_free(de_animation_track_t* track);
  */
 void de_animation_track_add_keyframe(de_animation_track_t* track, const de_keyframe_t* keyframe);
 
+void de_animation_track_set_node(de_animation_track_t* track, de_node_t* node);
+
+de_animation_track_t* de_animation_track_copy(de_animation_track_t* track, de_animation_t* dest_anim);
+
 /**
  * @brief Frees memory.
  */
 void de_animation_free(de_animation_t* anim);
+
+de_animation_t* de_animation_copy(de_animation_t* anim, de_scene_t* dest_scene);
 
 /**
  * @brief Updates animation. No need to call directly!

@@ -33,13 +33,18 @@ const char* de_resource_type_to_cstr(de_resource_type_t type) {
 /**
 * @brief Internal. Use specializations for concrete type.
 */
-de_resource_t* de_resource_alloc(de_core_t* core, de_resource_type_t type, de_resource_dispatch_table_t* tbl) {
+de_resource_t* de_resource_create(de_core_t* core, de_resource_type_t type) {
 	de_resource_t* res = DE_NEW(de_resource_t);
 	res->core = core;
 	res->type = type;
-	res->dispatch_table = tbl;
 	res->ref_count = 1;
 	DE_ARRAY_APPEND(core->resources, res);
+	switch (res->type) {
+		case DE_RESOURCE_TYPE_MODEL: break;
+		case DE_RESOURCE_TYPE_TEXTURE: break;
+		case DE_RESOURCE_TYPE_SOUND_BUFFER: break;
+		default: de_fatal_error("unhandled resource type"); break;
+	}
 	return res;
 }
 
@@ -58,9 +63,36 @@ void de_resource_release(de_resource_t* res) {
 	DE_ASSERT(res->ref_count >= 0);
 	--res->ref_count;
 	if (res->ref_count == 0) {
-		if (res->dispatch_table->deinit) {
-			res->dispatch_table->deinit(res);
+		switch (res->type) {
+			case DE_RESOURCE_TYPE_MODEL: break;
+			case DE_RESOURCE_TYPE_TEXTURE: break;
+			case DE_RESOURCE_TYPE_SOUND_BUFFER: break;
+			default: de_fatal_error("unhandled resource type"); break;
 		}
 		de_free(res);
 	}
+}
+
+bool de_resource_visit(de_object_visitor_t* visitor, de_resource_t* res) {
+	bool result = true;
+	if (visitor->is_reading) {
+		res->core = visitor->core;
+	}
+	result &= de_object_visitor_visit_uint32(visitor, "Type", (uint32_t*)&res->type);
+	result &= de_object_visitor_visit_path(visitor, "Source", &res->source);	
+	switch (res->type) {
+		case DE_RESOURCE_TYPE_MODEL: result &= de_model_visit(visitor, &res->s.model); break;
+		case DE_RESOURCE_TYPE_TEXTURE: break;
+		case DE_RESOURCE_TYPE_SOUND_BUFFER: break;
+		default: de_fatal_error("unhandled resource type"); break;
+	}
+	return result;
+}
+
+de_model_t* de_resource_to_model(de_resource_t* res) {
+	return &res->s.model;
+}
+
+de_resource_t* de_resource_from_model(de_model_t* mdl) {
+	return (de_resource_t*)((char*)mdl - offsetof(de_resource_t, s.model));
 }

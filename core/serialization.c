@@ -299,8 +299,19 @@ bool de_object_visitor_visit_mat4(de_object_visitor_t* visitor, const char* name
 	return de_object_visitor_visit_data(visitor, name, mat4, sizeof(*mat4), DE_OBJECT_VISITOR_DATA_TYPE_MATRIX4);
 }
 
+bool de_object_visitor_visit_rectf(de_object_visitor_t* visitor, const char* name, de_rectf_t* rect) {
+	return de_object_visitor_visit_data(visitor, name, rect, sizeof(*rect), DE_OBJECT_VISITOR_DATA_TYPE_RECTF);
+}
 
-bool de_object_visitor_visit_heap_string(de_object_visitor_t* visitor, const char* name, char** heap_str) {
+bool de_object_visitor_visit_color(de_object_visitor_t* visitor, const char* name, de_color_t* clr) {
+	return de_object_visitor_visit_data(visitor, name, clr, sizeof(*clr), DE_OBJECT_VISITOR_DATA_TYPE_COLOR);
+}
+
+bool de_object_visitor_visit_path(de_object_visitor_t* visitor, const char* name, de_path_t* path) {
+	return de_object_visitor_visit_string(visitor, name, &path->str);
+}
+
+bool de_object_visitor_visit_string(de_object_visitor_t* visitor, const char* name, de_str8_t* str) {
 	uint32_t length;
 
 	if (!de_object_visitor_enter_node(visitor, name)) {
@@ -309,23 +320,27 @@ bool de_object_visitor_visit_heap_string(de_object_visitor_t* visitor, const cha
 
 	/* Visit length */
 	if (!visitor->is_reading) {
-		length = *heap_str ? strlen(*heap_str) : 0;
+		length = str->str.size;
 	}
 	if (!de_object_visitor_visit_uint32(visitor, "Length", &length)) {
 		return false;
 	}
+	if (visitor->is_reading) {
+		str->str.size = length ? length - 1 : 0;
+		str->str._capacity = length;
+	}
 
 	/* Visit data */
 	if (visitor->is_reading) {
-		*heap_str = (char*)de_malloc(length + 1);
+		str->str.data = (char*)de_malloc(length + 1);
 	}
-	if (!de_object_visitor_visit_data(visitor, "Data", *heap_str, length, DE_OBJECT_VISITOR_DATA_TYPE_DATA)) {
+	if (!de_object_visitor_visit_data(visitor, "Data", str->str.data, length, DE_OBJECT_VISITOR_DATA_TYPE_DATA)) {
 		return false;
 	}
 
 	/* Add null-terminator when reading */
 	if (visitor->is_reading) {
-		(*heap_str)[length] = '\0';
+		str->str.data[length] = '\0';
 	}
 
 	de_object_visitor_leave_node(visitor);
@@ -334,11 +349,12 @@ bool de_object_visitor_visit_heap_string(de_object_visitor_t* visitor, const cha
 }
 
 
-void de_object_visitor_init(de_object_visitor_t* visitor) {
+void de_object_visitor_init(de_core_t* core, de_object_visitor_t* visitor) {
 	memset(visitor, 0, sizeof(*visitor));
 	visitor->root = de_object_visitor_node_create("root");
 	visitor->current_node = visitor->root;
 	visitor->version = DE_OBJECT_VISITOR_VERSION;
+	visitor->core = core;
 }
 
 
@@ -448,7 +464,7 @@ static void de_object_visitor_node_load_binary(de_object_visitor_node_t* node, F
 }
 
 
-void de_object_visitor_load_binary(de_object_visitor_t* visitor, const char* file_path) {
+void de_object_visitor_load_binary(de_core_t* core, de_object_visitor_t* visitor, const char* file_path) {
 	char magic[7];
 	FILE* file = fopen(file_path, "rb");
 
@@ -458,7 +474,7 @@ void de_object_visitor_load_binary(de_object_visitor_t* visitor, const char* fil
 	}
 
 	memset(visitor, 0, sizeof(*visitor));
-
+	visitor->core = core;
 	visitor->is_reading = true;
 	fread(magic, 7, 1, file);
 	if (strncmp(magic, DE_OBJECT_VISITOR_MAGIC, 7) != 0) {

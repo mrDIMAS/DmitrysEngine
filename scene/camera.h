@@ -23,7 +23,6 @@
 * @brief Camera component.
 */
 typedef struct de_camera_t {
-	de_node_t* parent_node;
 	float fov;                        /**< Field-of-view in degrees. Read-only. */
 	float aspect;                     /**< Aspect ratio of camera viewport. Read-only. */
 	float z_near;                     /**< Distance to near clipping plane */
@@ -35,10 +34,16 @@ typedef struct de_camera_t {
 	de_rectf_t viewport;               /**< Viewport rectangle in ratio. Default: 0,0,1,1 */
 } de_camera_t;
 
+void de_camera_copy(de_camera_t* src_camera, de_camera_t* dest_camera);
+
+bool de_camera_visit(de_object_visitor_t* visitor, de_camera_t* camera);
+
 /**
  * @brief Creates camera node.
  */
-de_node_t* de_camera_create(de_scene_t* scene);
+void de_camera_init(de_camera_t* camera);
+
+void de_camera_deinit(de_camera_t* camera);
 
 /**
 * @brief Builds camera matrices. Camera have to be attached to some node.

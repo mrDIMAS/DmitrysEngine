@@ -25,14 +25,19 @@
 * Described as set of surfaces
 */
 struct de_mesh_t {
-	de_node_t* parent_node;
 	DE_ARRAY_DECLARE(de_surface_t*, surfaces); /**< Array of pointer to surfaces */
 };
 
 /**
 * @brief Specializes node as empty mesh (without any surface)
 */
-de_node_t* de_mesh_create(de_scene_t* scene);
+void de_mesh_init(de_mesh_t* mesh);
+
+void de_mesh_deinit(de_mesh_t* mesh);
+
+void de_mesh_copy(de_mesh_t* src, de_mesh_t* dest);
+
+bool de_mesh_visit(de_object_visitor_t* visitor, de_mesh_t* mesh);
 
 /**
  * @brief Calculates normals of each surface. Normals are per-face and not smooth.

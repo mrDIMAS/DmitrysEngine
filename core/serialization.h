@@ -47,6 +47,8 @@ typedef enum de_object_visitor_data_type_t {
 	DE_OBJECT_VISITOR_DATA_TYPE_MATRIX3,    /**< 36 bytes */
 	DE_OBJECT_VISITOR_DATA_TYPE_MATRIX4,    /**< 64 bytes */
 	DE_OBJECT_VISITOR_DATA_TYPE_QUATERNION, /**< 16 bytes */
+	DE_OBJECT_VISITOR_DATA_TYPE_RECTF,      /**< 16 bytes */
+	DE_OBJECT_VISITOR_DATA_TYPE_COLOR,      /**< 4 bytes */
 	DE_OBJECT_VISITOR_DATA_TYPE_DATA        /**< Size defined by leading field "Length", see notes below. */
 
 	/**
@@ -97,6 +99,7 @@ typedef struct de_pointer_pair_t {
 } de_pointer_pair_t;
 
 typedef struct de_object_visitor_t {
+	de_core_t* core;
 	char* data;
 	uint32_t version;
 	uint32_t data_size;
@@ -108,7 +111,7 @@ typedef struct de_object_visitor_t {
 
 typedef bool(*de_visit_callback_t)(de_object_visitor_t* visitor, void* pointer);
 
-void de_object_visitor_init(de_object_visitor_t* visitor);
+void de_object_visitor_init(de_core_t* core, de_object_visitor_t* visitor);
 
 void de_object_visitor_free(de_object_visitor_t* visitor);
 
@@ -134,7 +137,7 @@ void de_object_visitor_save_binary(de_object_visitor_t* visitor, const char* fil
 /**
  * @brief Saves object visitor data tree into binary file.
  */
-void de_object_visitor_load_binary(de_object_visitor_t* visitor, const char* file_path);
+void de_object_visitor_load_binary(de_core_t* core, de_object_visitor_t* visitor, const char* file_path);
 
 /**
  * @brief Visits pointer and pointee (once).
@@ -243,11 +246,26 @@ bool de_object_visitor_visit_mat3(de_object_visitor_t* visitor, const char* name
 bool de_object_visitor_visit_mat4(de_object_visitor_t* visitor, const char* name, de_mat4_t* mat4);
 
 /**
- * @brief Visits string allocated in heap. String must be null-terminated!
+ * @brief Visits rectangle.
+ */
+bool de_object_visitor_visit_rectf(de_object_visitor_t* visitor, const char* name, de_rectf_t* rect);
+
+/**
+ * @brief Visits color.
+ */
+bool de_object_visitor_visit_color(de_object_visitor_t* visitor, const char* name, de_color_t* clr);
+
+/**
+ * @brief Visits string.
  *
  * Notes: Creates new node called 'name' to exclude fields name collisions.
  */
-bool de_object_visitor_visit_heap_string(de_object_visitor_t* visitor, const char* name, char** heap_str);
+bool de_object_visitor_visit_string(de_object_visitor_t* visitor, const char* name, de_str8_t* str);
+
+/**
+ * @brief Visits path as string.
+ */
+bool de_object_visitor_visit_path(de_object_visitor_t* visitor, const char* name, de_path_t* path);
 
 /**
  * @brief Visits array. For engine arrays use macro DE_OBJECT_VISITOR_VISIT_ARRAY.

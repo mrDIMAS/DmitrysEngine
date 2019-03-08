@@ -23,13 +23,12 @@ typedef enum de_resource_type_t {
 	DE_RESOURCE_TYPE_MODEL,
 	DE_RESOURCE_TYPE_TEXTURE,
 	DE_RESOURCE_TYPE_SOUND_BUFFER,
+	DE_RESOURCE_TYPE_FORCE_SIZE = 0xFFFFFFFF,
 } de_resource_type_t;
 
-#include "resources/model.h"
+DE_STATIC_ASSERT(sizeof(de_resource_type_t) == sizeof(uint32_t), invalid_resource_type_size);
 
-typedef struct de_resource_dispatch_table_t {
-	void(*deinit)(de_resource_t*);
-} de_resource_dispatch_table_t;
+#include "resources/model.h"
 
 struct de_resource_t {
 	de_core_t* core;
@@ -41,15 +40,11 @@ struct de_resource_t {
 		de_texture_t texture;
 		de_model_t model;
 	} s;
-	de_resource_dispatch_table_t* dispatch_table;
 };
 
 const char* de_resource_type_to_cstr(de_resource_type_t type);
 
-/**
- * @brief Internal. Use specializations for concrete type.
- */
-de_resource_t* de_resource_alloc(de_core_t* core, de_resource_type_t type, de_resource_dispatch_table_t* tbl);
+de_resource_t* de_resource_create(de_core_t* core, de_resource_type_t type);
 
 /**
  * @brief Increases reference counter of resource. You must call de_resource_release when you do not
@@ -61,3 +56,9 @@ void de_resource_add_ref(de_resource_t* res);
  * @brief Frees resource
  */
 void de_resource_release(de_resource_t* res);
+
+bool de_resource_visit(de_object_visitor_t* visitor, de_resource_t* res);
+
+de_model_t* de_resource_to_model(de_resource_t* res);
+
+de_resource_t* de_resource_from_model(de_model_t* mdl);

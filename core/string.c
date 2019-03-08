@@ -178,7 +178,14 @@ bool de_str8_eq(const de_str8_t* str, const char* utf8str) {
 	return strcmp(str->str.data, utf8str) == 0;
 }
 
+bool de_str8_is_empty(de_str8_t* str) {
+	return de_str8_length(str) == 0;
+}
+
 bool de_str8_eq_str8(const de_str8_t* str, const de_str8_t* other) {
+	if (!str->str.data || !other->str.data) {
+		return false;
+	}
 	return strcmp(str->str.data, other->str.data) == 0;
 }
 

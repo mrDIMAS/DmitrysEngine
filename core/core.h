@@ -72,6 +72,10 @@ unsigned int de_core_get_window_height(de_core_t* core);
  */
 de_renderer_t* de_core_get_renderer(de_core_t* core);
 
+void* de_core_get_user_pointer(de_core_t* core);
+
+void de_core_set_user_pointer(de_core_t* core, void* ptr);
+
 /**
  * @brief Returns current gui subsystem of the core.
  */
@@ -100,9 +104,7 @@ void de_core_push_event(de_core_t* core, const de_event_t* evt);
  */
 bool de_core_poll_event(de_core_t* core, de_event_t* evt);
 
-size_t de_core_get_scene_count(de_core_t* core);
-
-de_scene_t* de_core_get_scene(de_core_t* core, size_t i);
+de_scene_t* de_core_get_first_scene(de_core_t* core);
 
 /**
  * @brief Registers new resource. Useful to register dynamic resource. Every registered
@@ -116,6 +118,7 @@ void de_core_add_resource(de_core_t* core, de_resource_t* resource);
  */
 de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type, const de_path_t* path);
 
+bool de_core_visit(de_object_visitor_t* visitor, de_core_t* core);
 
 /********************************************************************
 * Platform-specific function prototypes.                            *

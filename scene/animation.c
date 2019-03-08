@@ -155,7 +155,7 @@ void de_animation_update(de_animation_t* anim, float dt) {
 
 		track = anim->tracks.data[i];
 				
-		node = de_node_get_ptr(track->node);
+		node = track->node;
 
 		if (!node) {
 			continue;

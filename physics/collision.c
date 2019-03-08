@@ -107,8 +107,7 @@ void de_physics_step(de_core_t* core, double dt) {
 	const float dt2 = (float)(dt * dt);
 	for (size_t i = 0; i < core->scenes.size; ++i) {
 		de_scene_t* scene = core->scenes.data[i];
-		for(size_t k = 0; k < scene->bodies.size; ++k) {
-			struct de_body* body = de_body_get_ptr(scene->bodies.data[k]);
+		DE_LINKED_LIST_FOR_EACH_T(de_body_t*, body, scene->bodies) {
 			/* Drop contact information */
 			body->contact_count = 0;
 			/* Apply gravity */

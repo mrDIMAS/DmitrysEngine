@@ -19,33 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/**
-* @brief Internal. Returns pointer to pool for physical bodies.
-*/
-static de_pool_t* de_node_get_pool(void) {
-	static de_pool_t pool;
-	if (!pool.is_init) {
-		de_pool_init(&pool, sizeof(de_node_t), 64, NULL);
-	}
-	return &pool;
-}
-
-void de_node_clear_pool(void) {
-	de_pool_clear(de_node_get_pool());
-}
-
-de_node_t* de_node_get_ptr(de_node_h handle) {
-	return de_pool_get_ptr(de_node_get_pool(), handle.ref);
-}
-
-static void de_node_return(de_node_h handle) {
-	de_pool_return(de_node_get_pool(), handle.ref);
-}
-
-void de_node_free(de_node_h handle) {
-	de_node_t* node = de_node_get_ptr(handle);
-	DE_ASSERT(node);
-
+void de_node_free(de_node_t* node) {
 	/* Free children first */
 	while (node->children.size) {
 		de_node_free(node->children.data[0]);
@@ -53,10 +27,10 @@ void de_node_free(de_node_h handle) {
 	DE_ARRAY_FREE(node->children);
 
 	/* Free the node */
-	de_node_detach(handle);
+	de_node_detach(node);
 
 	if (node->scene) {
-		de_scene_remove_node(node->scene, handle);
+		de_scene_remove_node(node->scene, node);
 	}
 
 	de_str8_free(&node->name);
@@ -65,25 +39,24 @@ void de_node_free(de_node_h handle) {
 		node->dispatch_table->deinit(node);
 	}
 
-	de_pool_return(de_node_get_pool(), handle.ref);
+	de_free(node);
 }
 
 /**
  * Stub dispatch table for simple nodes (DE_NODE_TYPE_BASE).
- */ 
+ */
 static de_node_dispatch_table_t* de_node_get_dispatch_table(void) {
 	static de_node_dispatch_table_t tbl;
 	return &tbl;
 }
 
-de_node_h de_node_create(de_scene_t* scene) {
+de_node_t* de_node_create(de_scene_t* scene) {
 	return de_node_alloc(scene, DE_NODE_TYPE_BASE, de_node_get_dispatch_table());
 }
 
-de_node_h de_node_alloc(de_scene_t* scene, de_node_type_t type, de_node_dispatch_table_t* tbl) {
+de_node_t* de_node_alloc(de_scene_t* scene, de_node_type_t type, de_node_dispatch_table_t* tbl) {
 	DE_ASSERT(tbl);
-	de_node_h handle = (de_node_h) { .ref = de_pool_spawn(de_node_get_pool()) };
-	de_node_t* node = de_node_get_ptr(handle);
+	de_node_t* node = DE_NEW(de_node_t);
 	node->type = type;
 	node->scene = scene;
 	node->dispatch_table = tbl;
@@ -93,14 +66,11 @@ de_node_h de_node_alloc(de_scene_t* scene, de_node_type_t type, de_node_dispatch
 	de_quat_set(&node->rotation, 0, 0, 0, 1);
 	de_quat_set(&node->pre_rotation, 0, 0, 0, 1);
 	de_quat_set(&node->post_rotation, 0, 0, 0, 1);
-	return handle;
+	return node;
 }
 
-de_node_h de_node_copy(de_scene_t* dest_scene, de_node_h node_handle) {
-	de_node_t* node = de_node_get_ptr(node_handle);
-	DE_ASSERT(node);
-	de_node_h copy_handle = (de_node_h) { .ref = de_pool_spawn(de_node_get_pool()) };
-	de_node_t* copy = de_node_get_ptr(copy_handle);
+de_node_t* de_node_copy(de_scene_t* dest_scene, de_node_t* node) {
+	de_node_t* copy = DE_NEW(de_node_t);
 	copy->type = node->type;
 	de_str8_copy(&node->name, &copy->name);
 	copy->scene = dest_scene;
@@ -115,41 +85,34 @@ de_node_h de_node_copy(de_scene_t* dest_scene, de_node_h node_handle) {
 	copy->scaling_offset = node->scaling_offset;
 	copy->scaling_pivot = node->scaling_pivot;
 	copy->need_update = true;
-	copy->parent = (de_node_h) { .ref = de_null_ref };
+	copy->parent = NULL;
 	copy->visible = node->visible;
 	copy->is_bone = node->is_bone;
 	copy->resource = node->resource;
-	struct de_body* body = de_body_get_ptr(node->body);
+	de_body_t* body = node->body;
 	if (body) {
 		copy->body = de_body_copy(dest_scene, body);
 	}
 	for (size_t i = 0; i < node->children.size; ++i) {
-		de_node_attach(de_node_copy(dest_scene, node->children.data[i]), copy_handle);		
+		de_node_attach(de_node_copy(dest_scene, node->children.data[i]), copy);
 	}
 	if (node->dispatch_table && node->dispatch_table->copy) {
 		node->dispatch_table->copy(node, copy);
 	}
 	de_node_calculate_transforms(copy);
-	return copy_handle;
+	return copy;
 }
 
-void de_node_attach(de_node_h node_handle, de_node_h parent_handle) {
-	de_node_t* node = de_node_get_ptr(node_handle);
-	DE_ASSERT(node);
-	de_node_t* parent = de_node_get_ptr(parent_handle);
-	DE_ASSERT(parent);
-	de_node_detach(node_handle);
-	DE_ARRAY_APPEND(parent->children, node_handle);
-	node->parent = parent_handle;
+void de_node_attach(de_node_t* node, de_node_t* parent) {
+	de_node_detach(node);
+	DE_ARRAY_APPEND(parent->children, node);
+	node->parent = parent;
 }
 
-void de_node_detach(de_node_h node_handle) {
-	de_node_t* node = de_node_get_ptr(node_handle);
-	DE_ASSERT(node);
-	de_node_t* parent = de_node_get_ptr(node->parent);
-	if (parent) {
-		DE_ARRAY_REMOVE(parent->children, node_handle);
-		node->parent = (de_node_h) { .ref = de_null_ref };
+void de_node_detach(de_node_t* node) {
+	if (node->parent) {
+		DE_ARRAY_REMOVE(node->parent->children, node);
+		node->parent = NULL;
 	}
 }
 
@@ -170,7 +133,7 @@ de_mat4_t* de_node_calculate_transforms(de_node_t* node) {
 		return NULL;
 	}
 
-	const struct de_body* body = de_body_get_ptr(node->body);
+	const de_body_t* body = node->body;
 	if (body) {
 		de_body_get_position(body, &node->position);
 	}
@@ -217,7 +180,7 @@ de_mat4_t* de_node_calculate_transforms(de_node_t* node) {
 	de_mat4_mul(&node->local_matrix, &node->local_matrix, &scale);
 	de_mat4_mul(&node->local_matrix, &node->local_matrix, &scale_pivot_inv);
 
-	de_node_t* parent = de_node_get_ptr(node->parent);
+	de_node_t* parent = node->parent;
 	if (parent) {
 		de_mat4_mul(&node->global_matrix, de_node_calculate_transforms(parent), &node->local_matrix);
 	} else {
@@ -266,7 +229,7 @@ void de_node_set_local_position(de_node_t* node, de_vec3_t* pos) {
 		return;
 	}
 
-	struct de_body* body = de_body_get_ptr(node->body);
+	de_body_t* body = node->body;
 	if (body) {
 		de_body_set_position(body, pos);
 	} else {
@@ -282,7 +245,7 @@ void de_node_set_local_position_xyz(de_node_t* node, float x, float y, float z) 
 	de_node_set_local_position(node, &p);
 }
 
-void de_node_set_body(de_node_t* node, de_body_h body) {
+void de_node_set_body(de_node_t* node, de_body_t* body) {
 	if (!node) {
 		return;
 	}
@@ -320,12 +283,10 @@ de_node_t* de_node_find(de_node_t* node, const char* name) {
 			return node;
 		} else {
 			for (size_t i = 0; i < node->children.size; ++i) {
-				de_node_t* child = de_node_get_ptr(node->children.data[i]);
-				if (child) {
-					de_node_t* result = de_node_find(child, name);
-					if (result) {
-						return result;
-					}
+				de_node_t* child = node->children.data[i];
+				de_node_t* result = de_node_find(child, name);
+				if (result) {
+					return result;
 				}
 			}
 		}
@@ -373,5 +334,5 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node) {
 }
 
 void de_node_set_name(de_node_t* node, const char* name) {
-	de_str8_set(&node->name, name);	
+	de_str8_set(&node->name, name);
 }

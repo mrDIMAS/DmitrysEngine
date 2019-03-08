@@ -24,10 +24,9 @@ static de_node_dispatch_table_t* de_camera_get_dispatch_table(void) {
 	return &tbl;
 }
 
-de_node_h de_camera_create(de_scene_t* scene) {
-	de_node_h handle =de_node_alloc(scene, DE_NODE_TYPE_CAMERA, de_camera_get_dispatch_table()); 
-	de_node_t* node = de_node_get_ptr(handle);
-	de_core_t* core = node->scene->core;	
+de_node_t* de_camera_create(de_scene_t* scene) {
+	de_node_t* node = de_node_alloc(scene, DE_NODE_TYPE_CAMERA, de_camera_get_dispatch_table());
+	de_core_t* core = node->scene->core;
 	de_camera_t* c = &node->s.camera;
 	de_rectf_t viewport = { 0, 0, 1, 1 };
 	de_camera_set_viewport(c, &viewport);
@@ -36,7 +35,7 @@ de_node_h de_camera_create(de_scene_t* scene) {
 	c->z_far = 1024.0f;
 	c->z_near = 0.05f;
 	c->aspect = core->params.video_mode.width / (float)core->params.video_mode.height;
-	return handle;
+	return node;
 }
 
 void de_camera_update(de_camera_t* cam) {

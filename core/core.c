@@ -63,8 +63,6 @@ void de_core_shutdown(de_core_t* core) {
 	de_gui_shutdown(core->gui);
 	de_renderer_free(core->renderer);
 	de_core_platform_shutdown(core);
-	de_body_clear_pool();
-	de_node_clear_pool();
 	de_free(core);
 	de_log("Engine shutdown successful!");
 	de_log_close();

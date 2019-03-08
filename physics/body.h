@@ -20,25 +20,15 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 /**
-* @brief Removes all physical bodies.
-*/
-void de_body_clear_pool(void);
-
-/**
- * @brief Convers handle into a pointer. Returns NULL when handle is invalid.
- */
-struct de_body* de_body_get_ptr(de_body_h handle);
-
-/**
 * @brief Frees all resources associated with body
 * @param body pointer to body
 */
-void de_body_free(de_body_h body);
+void de_body_free(de_body_t* body);
 
 /**
 * @brief Creates new body with radius 1.0
 */
-de_body_h de_body_create(de_scene_t* s);
+de_body_t* de_body_create(de_scene_t* s);
 
 /**
 * @brief Changes actual position of a body by velocity vector. After this routine,
@@ -46,71 +36,71 @@ de_body_h de_body_create(de_scene_t* s);
 * @param body
 * @param velocity
 */
-void de_body_move(struct de_body* body, const de_vec3_t* velocity);
+void de_body_move(de_body_t* body, const de_vec3_t* velocity);
 
 /**
 * @brief Creates full copy of physical body.
 */
-de_body_h de_body_copy(de_scene_t* dest_scene, struct de_body* body);
+de_body_t* de_body_copy(de_scene_t* dest_scene, de_body_t* body);
 
 /**
 * @brief Sets actual velocity of a body.
 * @param body
 * @param velocity
 */
-void de_body_set_velocity(struct de_body* body, const de_vec3_t* velocity);
+void de_body_set_velocity(de_body_t* body, const de_vec3_t* velocity);
 
 /**
 * @brief Sets X parts of velocity independently
 */
-void de_body_set_x_velocity(struct de_body* body, float x_velocity);
+void de_body_set_x_velocity(de_body_t* body, float x_velocity);
 
 /**
 * @brief Sets Y parts of velocity independently
 */
-void de_body_set_y_velocity(struct de_body* body, float y_velocity);
+void de_body_set_y_velocity(de_body_t* body, float y_velocity);
 
 /**
 * @brief Sets Z parts of velocity independently
 */
-void de_body_set_z_velocity(struct de_body* body, float z_velocity);
+void de_body_set_z_velocity(de_body_t* body, float z_velocity);
 
 /**
 * @brief Write out current velocity of the body.
 */
-void de_body_get_velocity(struct de_body* body, de_vec3_t* velocity);
+void de_body_get_velocity(de_body_t* body, de_vec3_t* velocity);
 
 /**
 * @brief Sets gravity vector for a body.
 */
-void de_body_set_gravity(struct de_body* body, const de_vec3_t* gravity);
+void de_body_set_gravity(de_body_t* body, const de_vec3_t* gravity);
 
 /**
 * @brief Sets actual position of a body, velocity will be set to zero.
 */
-void de_body_set_position(struct de_body* body, const de_vec3_t* pos);
+void de_body_set_position(de_body_t* body, const de_vec3_t* pos);
 
 /**
  * @brief Returns position of a body.
  */
-void de_body_get_position(const struct de_body* body, de_vec3_t* pos);
+void de_body_get_position(const de_body_t* body, de_vec3_t* pos);
 
 /**
 * @brief Sets actual body radius.
 */
-void de_body_set_radius(struct de_body* body, float radius);
+void de_body_set_radius(de_body_t* body, float radius);
 
 /**
 * @brief Returns actual body radius.
 */
-float de_body_get_radius(struct de_body* body);
+float de_body_get_radius(de_body_t* body);
 
 /**
  * @brief Returns total amount of physical contacts.
  */
-size_t de_body_get_contact_count(struct de_body* body);
+size_t de_body_get_contact_count(de_body_t* body);
 
 /**
  * @brief Returns pointer to physical contact.
  */
-de_contact_t* de_body_get_contact(struct de_body* body, size_t i);
+de_contact_t* de_body_get_contact(de_body_t* body, size_t i);

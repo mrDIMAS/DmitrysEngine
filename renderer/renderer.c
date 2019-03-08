@@ -644,11 +644,11 @@ static void de_renderer_draw_surface_bones(de_renderer_t* r, de_surface_t* surfa
 	DE_ARRAY_CLEAR(r->test_surface->indices);
 
 	for (i = 0; i < surface->weights.size; ++i) {
-		de_node_t* bone = de_node_get_ptr(surface->weights.data[i]);
+		de_node_t* bone = surface->weights.data[i];
 		de_vertex_t begin, end;
 
 		for (j = 0; j < bone->children.size; ++j) {
-			de_node_t* next_bone = de_node_get_ptr(bone->children.data[j]);
+			de_node_t* next_bone = bone->children.data[j];
 
 			if (!next_bone->is_bone) {
 				continue;
@@ -1037,8 +1037,7 @@ void de_renderer_render(de_renderer_t* r) {
 		de_renderer_set_viewport(&camera->viewport, core->params.video_mode.width, core->params.video_mode.height);
 
 		/* Render each node */
-		for (size_t k = 0; k < scene->nodes.size; ++k) {
-			de_node_t* node = de_node_get_ptr(scene->nodes.data[k]);
+		DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes) {
 			if (node->type == DE_NODE_TYPE_MESH) {
 				de_mat4_t wvp_matrix;
 				bool is_skinned;
@@ -1097,8 +1096,7 @@ void de_renderer_render(de_renderer_t* r) {
 		DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.normal_texture));
 		DE_GL_CALL(glUniform1i(r->lighting_shader.normal_sampler, 2));
 
-		for (size_t k = 0; k < scene->nodes.size; ++k) {
-			de_node_t* node = de_node_get_ptr(scene->nodes.data[k]);
+		DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes) {
 			if (node->type == DE_NODE_TYPE_LIGHT) {
 				de_vec3_t pos, dir;
 				de_light_t* light;
@@ -1136,8 +1134,7 @@ void de_renderer_render(de_renderer_t* r) {
 			de_renderer_set_viewport(&camera->viewport, core->params.video_mode.width, core->params.video_mode.height);
 
 			/* Render each node */
-			for (size_t k = 0; k < scene->nodes.size; ++k) {
-				de_node_t* node = de_node_get_ptr(scene->nodes.data[k]);
+			DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes) {
 				de_mat4_t wvp_matrix;
 
 				de_mat4_mul(&wvp_matrix, &camera->view_projection_matrix, &node->global_matrix);
@@ -1155,8 +1152,7 @@ void de_renderer_render(de_renderer_t* r) {
 			de_renderer_set_viewport(&camera->viewport, core->params.video_mode.width, core->params.video_mode.height);
 
 			/* Render each node */
-			for (size_t k = 0; k < scene->nodes.size; ++k) {
-				de_node_t* node = de_node_get_ptr(scene->nodes.data[k]);
+			DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes) {
 				de_mat4_t wvp_matrix;
 
 				de_mat4_mul(&wvp_matrix, &camera->view_projection_matrix, &identity);

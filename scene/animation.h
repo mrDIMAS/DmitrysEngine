@@ -43,7 +43,7 @@ struct de_animation_track_t {
 	DE_ARRAY_DECLARE(de_keyframe_t, keyframes); /**< Array of keyframes */
 	bool enabled;       /**< Is track enabled? */
 	float max_time;       /**< Private. Length of animation. */
-	de_node_h node;
+	de_node_t* node;
 };
 
 typedef enum de_animation_flags_t {

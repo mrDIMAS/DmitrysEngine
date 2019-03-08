@@ -142,11 +142,11 @@ bool de_surface_prepare_vertices_for_skinning(de_surface_t* surf) {
 }
 
 
-bool de_surface_add_bone(de_surface_t* surf, de_node_h bone) {
+bool de_surface_add_bone(de_surface_t* surf, de_node_t* bone) {
 	size_t i;
 
 	for (i = 0; i < surf->weights.size; ++i) {
-		if (de_ref_eq(surf->weights.data[i].ref, bone.ref)) {
+		if (surf->weights.data[i] == bone) {
 			return false;
 		}
 	}
@@ -157,21 +157,16 @@ bool de_surface_add_bone(de_surface_t* surf, de_node_h bone) {
 }
 
 
-int de_surface_get_bone_index(de_surface_t* surf, de_node_h bone) {
+int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone) {
 	size_t i;
 
 	for (i = 0; i < surf->weights.size; ++i) {
-		if (de_ref_eq(surf->weights.data[i].ref, bone.ref)) {
+		if (surf->weights.data[i] == bone) {
 			return i;
 		}
 	}
 
-	de_node_t* node = de_node_get_ptr(bone);
-	if (node != NULL) {
-		de_log("error: no such bone %s found in surface's bones!", de_str8_cstr(&node->name));
-	} else {
-		de_log("dead ref");
-	}
+	de_log("error: no such bone %s found in surface's bones!", de_str8_cstr(&bone->name));
 
 	return -1;
 }
@@ -181,11 +176,9 @@ void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* out_matrice
 	size_t i;
 
 	for (i = 0; i < surf->weights.size && i < max_matrices; ++i) {
-		de_node_t* bone_node = de_node_get_ptr(surf->weights.data[i]);
+		de_node_t* bone_node = surf->weights.data[i];
 		de_mat4_t* m = out_matrices + i;
-		if (bone_node != NULL) {
-			de_mat4_mul(m, &bone_node->global_matrix, &bone_node->inv_bind_pose_matrix);
-		}
+		de_mat4_mul(m, &bone_node->global_matrix, &bone_node->inv_bind_pose_matrix);
 	}
 }
 

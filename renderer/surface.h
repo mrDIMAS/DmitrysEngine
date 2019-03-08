@@ -22,7 +22,7 @@
 typedef struct de_vertex_weight_t {	
 	void* fbx_model;
 	/* Handle of node affecting a vertex */
-	de_node_h node;
+	de_node_t* node;
 	/* Actual weight of a node in total transform */
 	float weight;
 } de_vertex_weight_t;
@@ -49,7 +49,7 @@ struct de_surface_t {
 	GLuint ebo;      /**< Element buffer object id */
 	bool need_upload;    /**< Indicates that surface needs to be uploaded to GPU */
 	DE_ARRAY_DECLARE(de_vertex_weight_group_t, vertex_weights); /**< Additional skinning data */
-	DE_ARRAY_DECLARE(de_node_h, weights); /**< List of bones that affects this surface */
+	DE_ARRAY_DECLARE(de_node_t*, weights); /**< List of bones that affects this surface */
 };
 
 /**
@@ -107,14 +107,14 @@ bool de_surface_prepare_vertices_for_skinning(de_surface_t* surf);
  *
  * Notes: amortized O(n)
  */
-bool de_surface_add_bone(de_surface_t* surf, de_node_h bone);
+bool de_surface_add_bone(de_surface_t* surf, de_node_t* bone);
 
 /**
  * @brief Returns bone index in array of surface's bones. If no bone was found, returns -1.
  *
  * Notes: O(n)
  */
-int de_surface_get_bone_index(de_surface_t* surf, de_node_h bone);
+int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone);
 
 /**
  * @brief Fills matrices for each bone. Matrices array will be filled so each vertex will

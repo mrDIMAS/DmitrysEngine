@@ -38,7 +38,7 @@ typedef struct de_camera_t {
 /**
  * @brief Creates camera node.
  */
-de_node_h de_camera_create(de_scene_t* scene);
+de_node_t* de_camera_create(de_scene_t* scene);
 
 /**
 * @brief Builds camera matrices. Camera have to be attached to some node.

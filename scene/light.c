@@ -24,9 +24,8 @@ static de_node_dispatch_table_t* de_light_get_dispatch_table(void) {
 	return &tbl;
 }
 
-de_node_h de_light_create(de_scene_t* scene) {
-	de_node_h handle = de_node_alloc(scene, DE_NODE_TYPE_LIGHT, de_light_get_dispatch_table());
-	de_node_t* node = de_node_get_ptr(handle);
+de_node_t* de_light_create(de_scene_t* scene) {
+	de_node_t* node = de_node_alloc(scene, DE_NODE_TYPE_LIGHT, de_light_get_dispatch_table());	
 	de_light_t* light = &node->s.light;
 	de_color_set(&light->color, 255, 255, 255, 255);
 	light->radius = 2.0f;
@@ -34,7 +33,7 @@ de_node_h de_light_create(de_scene_t* scene) {
 	light->cone_angle = (float)M_PI;
 	light->cone_angle_cos = -1.0f;
 	light->parent_node = node;
-	return handle;
+	return node;
 }
 
 void de_light_set_radius(de_node_t * node, float radius) {

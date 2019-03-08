@@ -27,7 +27,7 @@
 * @brief Physical contact
 */
 typedef struct de_contact_s {
-	de_body_h body;                 /**< Handle of body with which contact is appeared */
+	de_body_t* body;                 /**< Handle of body with which contact is appeared */
 	de_vec3_t position;             /**< Position of contact */
 	de_vec3_t normal;               /**< Normal vector in contact point */
 	de_static_triangle_t* triangle; /**< Pointer to triangle of static geometry */

@@ -37,13 +37,12 @@ static de_node_dispatch_table_t* de_mesh_get_dispatch_table(void) {
 	return &tbl;
 }
 
-de_node_h de_mesh_create(de_scene_t* scene) {
-	de_node_h handle = de_node_alloc(scene, DE_NODE_TYPE_MESH, de_mesh_get_dispatch_table());
-	de_node_t* node = de_node_get_ptr(handle);
+de_node_t* de_mesh_create(de_scene_t* scene) {
+	de_node_t* node = de_node_alloc(scene, DE_NODE_TYPE_MESH, de_mesh_get_dispatch_table());	
 	de_mesh_t* mesh = &node->s.mesh;
 	DE_ARRAY_INIT(mesh->surfaces);
 	mesh->parent_node = node;	
-	return handle;
+	return node;
 }
 
 void de_mesh_calculate_normals(de_mesh_t * mesh) {

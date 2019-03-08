@@ -32,7 +32,7 @@ struct de_mesh_t {
 /**
 * @brief Specializes node as empty mesh (without any surface)
 */
-de_node_h de_mesh_create(de_scene_t* scene);
+de_node_t* de_mesh_create(de_scene_t* scene);
 
 /**
  * @brief Calculates normals of each surface. Normals are per-face and not smooth.

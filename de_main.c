@@ -25,7 +25,6 @@
 #include "core/byteorder.c"
 #include "core/array.c"
 #include "core/color.c"
-#include "core/pool.c"
 #include "core/log.c" 
 #include "core/memmgr.c"
 #include "core/base64.c"

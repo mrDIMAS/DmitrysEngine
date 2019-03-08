@@ -151,7 +151,7 @@ struct de_fbx_model_t {
 	de_mat4_t inv_bind_transform;
 
 	/* Used to link fbx node with engine node */
-	de_node_h engine_node;
+	de_node_t* engine_node;
 
 	DE_ARRAY_DECLARE(de_fbx_geom_t*, geoms);
 	DE_ARRAY_DECLARE(de_fbx_material_t*, materials);
@@ -1204,20 +1204,20 @@ void de_fbx_prepare_deformer(de_fbx_geom_t* geom, de_vertex_weight_group_t* out_
  * @param fbx
  * @return
  */
-static de_node_h de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
+static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 	size_t i, k, j;
 	int n, m;
 	int material_index;
-	de_node_h root_handle;
+	de_node_t* root;
 	de_animation_t* anim;
 	de_renderer_t* renderer;
 	int temp_indices[8192], relative_indices[8192];
-	DE_ARRAY_DECLARE(de_node_h, created_nodes);
+	DE_ARRAY_DECLARE(de_node_t*, created_nodes);
 
 	renderer = scene->core->renderer;
 
-	root_handle = de_node_create(scene);
-	de_scene_add_node(scene, root_handle);
+	root = de_node_create(scene);
+	de_scene_add_node(scene, root);
 
 	/* Each scene has animation */
 	anim = de_animation_create(scene);
@@ -1236,24 +1236,22 @@ static de_node_h de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 
 		de_fbx_model_t* mdl = &comp->s.model;
 
-		de_node_h node_handle;
+		de_node_t* node;
 		if (mdl->light) {
-			node_handle = de_light_create(scene);
+			node = de_light_create(scene);
 		} else if (mdl->geoms.size) {
-			node_handle = de_mesh_create(scene);
+			node = de_mesh_create(scene);
 		} else {
-			node_handle = de_node_create(scene);
+			node = de_node_create(scene);
 		}
 
-		de_scene_add_node(scene, node_handle);
+		de_scene_add_node(scene, node);
 
-		de_node_t* node = de_node_get_ptr(node_handle);
-
-		DE_ARRAY_APPEND(created_nodes, node_handle);
+		DE_ARRAY_APPEND(created_nodes, node);
 
 		/* save pointer to fbx struct to make further linking easier */
 		node->user_data = mdl;
-		mdl->engine_node = node_handle;
+		mdl->engine_node = node;
 
 		de_str8_copy(&mdl->name, &node->name);
 
@@ -1511,7 +1509,7 @@ static de_node_h de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 			track = de_animation_track_create(anim);
 			de_animation_add_track(anim, track);
 
-			track->node = node_handle;
+			track->node = node;
 
 		#if DE_FBX_VERBOSE
 			de_log("FBX: === new anim track ===\n");
@@ -1536,22 +1534,21 @@ static de_node_h de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 			}
 		}
 
-		de_node_attach(node_handle, root_handle);
+		de_node_attach(node, root);
 	}
 
 	/* Link nodes according to hierarchy */
-	for (i = 0; i < created_nodes.size; ++i) {
-		de_node_h node_handle = created_nodes.data[i];
-		de_node_t* node = de_node_get_ptr(node_handle);
+	for (i = 0; i < created_nodes.size; ++i) {		
+		de_node_t* node = created_nodes.data[i];
 		de_fbx_model_t* fbx_model = (de_fbx_model_t*)node->user_data;
 		for (k = 0; k < fbx_model->children.size; ++k) {
-			de_node_h child_handle = fbx_model->children.data[k]->engine_node;
-			de_node_attach(child_handle, node_handle);
+			de_node_t* child = fbx_model->children.data[k]->engine_node;
+			de_node_attach(child, node);
 		}
 	}
 
 	for (i = 0; i < created_nodes.size; ++i) {
-		de_node_t* node = de_node_get_ptr(created_nodes.data[i]);
+		de_node_t* node = created_nodes.data[i];
 		de_node_calculate_transforms(node);
 	}
 
@@ -1559,7 +1556,7 @@ static de_node_h de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 	 * We can't set corrent pointers to nodes when filling surface, because not all nodes
 	 * are were created.  */
 	for (i = 0; i < created_nodes.size; ++i) {
-		de_node_t* node = de_node_get_ptr(created_nodes.data[i]);
+		de_node_t* node = created_nodes.data[i];
 
 		if (node->type == DE_NODE_TYPE_MESH) {
 			de_mesh_t* mesh = &node->s.mesh;
@@ -1573,7 +1570,7 @@ static de_node_h de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 					for (n = 0; n < (int)bone_group->weight_count; ++n) {
 						de_vertex_weight_t* vertex_weight = bone_group->bones + n;
 						de_fbx_model_t* fbx_model = (de_fbx_model_t*)vertex_weight->fbx_model;
-						de_node_t* bone_node = de_node_get_ptr(fbx_model->engine_node);
+						de_node_t* bone_node = fbx_model->engine_node;
 						vertex_weight->node = fbx_model->engine_node;
 						bone_node->is_bone = true;
 						de_surface_add_bone(surface, vertex_weight->node);
@@ -1585,8 +1582,7 @@ static de_node_h de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 
 	/* Finally, prepare vertices for skinning */
 	for (i = 0; i < created_nodes.size; ++i) {
-		de_node_t* node = de_node_get_ptr(created_nodes.data[i]);
-
+		de_node_t* node = created_nodes.data[i];
 		if (node->type == DE_NODE_TYPE_MESH) {
 			de_mesh_t* mesh = &node->s.mesh;
 
@@ -1602,14 +1598,14 @@ static de_node_h de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 
 	de_animation_clamp_length(anim);
 
-	return root_handle;
+	return root;
 }
 
 
-de_node_h de_fbx_load_to_scene(de_scene_t* scene, const char* file) {
+de_node_t* de_fbx_load_to_scene(de_scene_t* scene, const char* file) {
 	de_fbx_node_t* root;
 	de_fbx_t* fbx;
-	de_node_h root_node;
+	de_node_t* root_node;
 	double last_time;
 	de_fbx_buffer_t data_buf;
 
@@ -1623,7 +1619,7 @@ de_node_h de_fbx_load_to_scene(de_scene_t* scene, const char* file) {
 
 	if (!root) {
 		de_log("FBX: Unable to load FBX from %s", file);
-		return (de_node_h) { .ref = de_null_ref };
+		return NULL;
 	}
 
 	de_log("FBX: %s parsed in %f seconds!", file, de_time_get_seconds() - last_time);
@@ -1632,7 +1628,7 @@ de_node_h de_fbx_load_to_scene(de_scene_t* scene, const char* file) {
 
 	if (!fbx) {
 		de_fbx_node_free(root);
-		return (de_node_h) { .ref = de_null_ref };
+		return NULL;
 	}
 
 	de_fbx_node_free(root);

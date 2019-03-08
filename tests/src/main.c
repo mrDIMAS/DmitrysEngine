@@ -25,7 +25,7 @@ struct main_menu_t {
 struct level_t {
 	game_t* game;
 	de_scene_t* scene;
-	de_node_h test_fbx;
+	de_node_t* test_fbx;
 	player_t* player;
 };
 
@@ -35,7 +35,7 @@ typedef enum weapon_type_t {
 
 struct weapon_t {
 	weapon_type_t type;
-	de_node_h model;
+	de_node_t* model;
 };
 
 typedef struct player_controller_t {
@@ -46,11 +46,11 @@ typedef struct player_controller_t {
 
 struct player_t {
 	level_t* parent_level;
-	de_node_h pivot;
-	de_node_h camera;
-	de_node_h flash_light;
-	de_body_h body;
-	de_node_h weapon_pivot;
+	de_node_t* pivot;
+	de_node_t* camera;
+	de_node_t* flash_light;
+	de_body_t* body;
+	de_node_t* weapon_pivot;
 	float pitch;
 	float desired_pitch;
 	float yaw;
@@ -128,12 +128,11 @@ bool player_process_event(player_t* p, const de_event_t* evt) {
 				case DE_KEY_Space:
 					if (!p->controller.jumped) {
 						size_t k, contact_count;
-						struct de_body* body = de_body_get_ptr(p->body);
-						contact_count = de_body_get_contact_count(body);
+						contact_count = de_body_get_contact_count(p->body);
 						for (k = 0; k < contact_count; ++k) {
-							de_contact_t* contact = de_body_get_contact(body, k);
+							de_contact_t* contact = de_body_get_contact(p->body, k);
 							if (contact->normal.y > 0.7f) {
-								de_body_set_y_velocity(body, 0.075f);
+								de_body_set_y_velocity(p->body, 0.075f);
 								break;
 							}
 						}
@@ -199,28 +198,27 @@ player_t* player_create(level_t* level) {
 	de_vec3_set(&p->camera_position, 0, p->stand_body_radius, 0);
 
 	p->body = de_body_create(level->scene);
-	struct de_body* body = de_body_get_ptr(p->body);
-	de_body_set_gravity(body, &(de_vec3_t) { .y = -20 });	
-	de_body_set_radius(body, p->stand_body_radius);
+	de_body_set_gravity(p->body, &(de_vec3_t) { .y = -20 });	
+	de_body_set_radius(p->body, p->stand_body_radius);
 		
 	p->pivot = de_node_create(level->scene);	
 	de_scene_add_node(level->scene, p->pivot);
-	de_node_set_body(de_node_get_ptr(p->pivot), p->body);
+	de_node_set_body(p->pivot, p->body);
 
 	p->camera = de_camera_create(level->scene);
 	de_scene_add_node(level->scene, p->camera);
-	de_node_set_local_position(de_node_get_ptr(p->camera), &p->camera_position);
+	de_node_set_local_position(p->camera, &p->camera_position);
 	de_node_attach(p->camera, p->pivot);
 
 	p->flash_light = de_light_create(level->scene);
-	de_light_set_radius(de_node_get_ptr(p->flash_light), 4);
+	de_light_set_radius(p->flash_light, 4);
 	de_scene_add_node(level->scene, p->flash_light);
 	de_node_attach(p->flash_light, p->camera);
 
 	p->weapon_pivot = de_node_create(level->scene);
 	de_scene_add_node(level->scene, p->weapon_pivot);
 	de_node_attach(p->weapon_pivot, p->camera);
-	de_node_set_local_position_xyz(de_node_get_ptr(p->weapon_pivot), 0.03f, -0.052f, -0.02f);
+	de_node_set_local_position_xyz(p->weapon_pivot, 0.03f, -0.052f, -0.02f);
 
 	ctx = de_core_get_sound_context(level->game->core);
 	for (i = 0; i < 4; ++i) {
@@ -265,8 +263,8 @@ void player_update(player_t* p) {
 	float speed_multiplier = 1.0f;
 	bool is_moving = false;
 
-	pivot = de_node_get_ptr(p->pivot);
-	camera = de_node_get_ptr(p->camera);
+	pivot = p->pivot;
+	camera = p->camera;
 
 	de_vec3_zero(&offset);
 	de_vec3_zero(&look);
@@ -291,31 +289,29 @@ void player_update(player_t* p) {
 		de_vec3_add(&offset, &offset, &side);
 		is_moving = true;
 	}
-
-	struct de_body* body = de_body_get_ptr(p->body);
-
+	
 	/* crouch */
 	if (p->controller.crouch) {
-		float radius = de_body_get_radius(body);
+		float radius = de_body_get_radius(p->body);
 		radius -= p->sit_down_speed;
 		if (radius < p->crouch_body_radius) {
 			radius = p->crouch_body_radius;
 		}
-		de_body_set_radius(body, radius);
+		de_body_set_radius(p->body, radius);
 	} else {
-		float radius = de_body_get_radius(body);
+		float radius = de_body_get_radius(p->body);
 		radius += p->stand_up_speed;
 		if (radius > p->stand_body_radius) {
 			radius = p->stand_body_radius;
 		}
-		de_body_set_radius(body, radius);
+		de_body_set_radius(p->body, radius);
 	}
 
 	/* make sure that camera will be always at the top of the body */
-	p->camera_position.y = de_body_get_radius(body);
+	p->camera_position.y = de_body_get_radius(p->body);
 
 	/* apply camera wobbling */
-	if (is_moving && de_body_get_contact_count(body) > 0) {
+	if (is_moving && de_body_get_contact_count(p->body) > 0) {
 		p->camera_dest_offset.x = 0.05f * (float)cos(p->camera_wobble * 0.5f);
 		p->camera_dest_offset.y = 0.1f * (float)sin(p->camera_wobble);
 
@@ -334,7 +330,7 @@ void player_update(player_t* p) {
 	{
 		de_vec3_t combined_position;
 		de_vec3_add(&combined_position, &p->camera_position, &p->camera_offset);
-		de_node_set_local_position(de_node_get_ptr(p->camera), &combined_position);
+		de_node_set_local_position(p->camera, &combined_position);
 	}
 
 	/* run */
@@ -355,10 +351,10 @@ void player_update(player_t* p) {
 	p->yaw += (p->desired_yaw - p->yaw) * 0.22f;
 	p->pitch += (p->desired_pitch - p->pitch) * 0.22f;
 
-	de_body_set_x_velocity(body, 0);
-	de_body_set_z_velocity(body, 0);
+	de_body_set_x_velocity(p->body, 0);
+	de_body_set_z_velocity(p->body, 0);
 
-	de_body_move(body, &offset);
+	de_body_move(p->body, &offset);
 
 	de_node_set_local_rotation(pivot, de_quat_from_axis_angle(&yaw_rot, &up_axis, de_deg_to_rad(p->yaw)));
 	de_node_set_local_rotation(camera, de_quat_from_axis_angle(&pitch_rot, &right_axis, de_deg_to_rad(p->pitch)));
@@ -367,7 +363,7 @@ void player_update(player_t* p) {
 	de_vec3_t pos;
 	de_sound_context_t* ctx = de_core_get_sound_context(p->parent_level->game->core);
 	de_listener_t* lst = de_sound_context_get_listener(ctx);
-	de_node_get_global_position(de_node_get_ptr(p->camera), &pos);
+	de_node_get_global_position(p->camera, &pos);
 	de_listener_set_orientation(lst, &look, &up_axis);
 	de_listener_set_position(lst, &pos);
 }
@@ -382,10 +378,10 @@ level_t* level_create_test(game_t* game) {
 	level->scene = de_scene_create(game->core);
 
 	level->test_fbx = de_fbx_load_to_scene(level->scene, "data/models/ripper.fbx");
-	de_node_set_local_position(de_node_get_ptr(level->test_fbx), &rp);
+	de_node_set_local_position(level->test_fbx, &rp);
 
 	de_fbx_load_to_scene(level->scene, "data/models/map2_bin.fbx");
-	polygon = de_node_get_ptr(de_scene_find_node(level->scene, "Polygon"));
+	polygon = de_scene_find_node(level->scene, "Polygon");
 
 	if (polygon) {
 		de_static_geometry_t* map_collider;
@@ -397,11 +393,11 @@ level_t* level_create_test(game_t* game) {
 
 	level->player = player_create(level);
 	{
-		de_node_t* pp = de_node_get_ptr(de_scene_find_node(level->scene, "PlayerPosition"));
+		de_node_t* pp = de_scene_find_node(level->scene, "PlayerPosition");
 		if (pp) {
 			de_vec3_t pos;
 			de_node_get_global_position(pp, &pos);
-			de_node_set_local_position(de_node_get_ptr(level->player->pivot), &pos);
+			de_node_set_local_position(level->player->pivot, &pos);
 		}
 	}
 

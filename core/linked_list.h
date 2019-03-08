@@ -110,6 +110,11 @@
 
 /********************************************/
 
+#define DE_LINKED_LIST_FOR_EACH_T(t, n, list)\
+	for(t n = (list).head; n; n = n->next)
+
+/********************************************/
+
 #define DE_LINKED_LIST_FOR_EACH_REV(list, i) \
 	for(i = (list).tail; i; i = i->prev)
 

@@ -69,13 +69,14 @@ de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type) {
 	return node;
 }
 
-de_node_t* de_node_copy(de_scene_t* dest_scene, de_node_t* node) {	
+static de_node_t* de_node_copy_internal(de_scene_t* dest_scene, de_node_t* node) {	
 	de_node_t* copy = DE_NEW(de_node_t);
 	copy->type = node->type;
 	de_str8_copy(&node->name, &copy->name);
 	copy->scene = dest_scene;
 	copy->inv_bind_pose_matrix = node->inv_bind_pose_matrix;
 	copy->position = node->position;
+	copy->original = node;
 	copy->scale = node->scale;
 	copy->scene = node->scene;
 	copy->rotation = node->rotation;
@@ -90,13 +91,16 @@ de_node_t* de_node_copy(de_scene_t* dest_scene, de_node_t* node) {
 	copy->visible = node->visible;
 	copy->is_bone = node->is_bone;
 	copy->model_resource = node->model_resource;
+	if (copy->model_resource) {
+		de_resource_add_ref(copy->model_resource);
+	}
 	de_scene_add_node(dest_scene, copy);
 	de_body_t* body = node->body;
 	if (body) {
 		copy->body = de_body_copy(dest_scene, body);
 	}
 	for (size_t i = 0; i < node->children.size; ++i) {
-		de_node_attach(de_node_copy(dest_scene, node->children.data[i]), copy);
+		de_node_attach(de_node_copy_internal(dest_scene, node->children.data[i]), copy);
 	}
 	switch (node->type) {
 		case DE_NODE_TYPE_BASE: break; /* handled already */ 
@@ -107,6 +111,32 @@ de_node_t* de_node_copy(de_scene_t* dest_scene, de_node_t* node) {
 	}
 	de_node_calculate_transforms(copy);
 	return copy;
+}
+
+void de_node_resolve(de_node_t* node) {
+	switch (node->type) {
+		case DE_NODE_TYPE_BASE: 
+			break; 
+		case DE_NODE_TYPE_CAMERA: 
+			break;
+		case DE_NODE_TYPE_LIGHT: 
+			break;
+		case DE_NODE_TYPE_MESH: 
+			de_mesh_resolve_bones(&node->s.mesh);
+			break;
+		default: de_fatal_error("unhandled node type!"); break;
+	}
+
+	for (size_t i = 0; i < node->children.size; ++i) {
+		de_node_resolve(node->children.data[i]);
+	}
+}
+
+de_node_t* de_node_copy(de_scene_t* dest_scene, de_node_t* node) {
+	de_node_t* root = de_node_copy_internal(dest_scene, node);
+	/* Resolve after copy */
+	de_node_resolve(root);
+	return root;
 }
 
 void de_node_attach(de_node_t* node, de_node_t* parent) {
@@ -368,4 +398,20 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node) {
 
 void de_node_set_name(de_node_t* node, const char* name) {
 	de_str8_set(&node->name, name);
+}
+
+static void de_node_find_copy_of_internal(de_node_t* root, de_node_t* node, de_node_t** out) {
+	if (root->original == node) {
+		*out = root;		
+	} else {
+		for (size_t i = 0; i < root->children.size; ++i) {
+			de_node_find_copy_of_internal(root->children.data[i], node, out);
+		}
+	}
+}
+
+de_node_t* de_node_find_copy_of(de_node_t* root, de_node_t* node) {
+	de_node_t* result = NULL;
+	de_node_find_copy_of_internal(root, node, &result);
+	return result;
 }

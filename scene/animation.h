@@ -61,18 +61,26 @@ struct de_animation_t {
 	DE_LINKED_LIST_ITEM(struct de_animation_t);
 	de_scene_t* scene;
 	DE_ARRAY_DECLARE(de_animation_track_t*, tracks);  /**< Array of pointers to animation tracks */
-	int flags;                  /**< Bitset of flags (de_animation_flags_t) */
+	uint32_t flags;             /**< Bitset of flags (de_animation_flags_t) */
 	float speed;                /**< Animation playback speed */
 	float length;               /**< Total animation length */
 	float time_position;        /**< Current time of animation (playback position) */
 	float weight;               /**< Weight of animation [0; 1]. Used for animation blending */
 	float fade_step;            /**< Speed of weight fading. Used for animation blending */
+	/* Pointer to resource from which this animation was instantiated. 
+	 * For now resource type can be only DE_RESOURCE_TYPE_MODEL, because models
+	 * are the only source of animations. In future there can be added more types */
+	de_resource_t* resource; 
 };
 
 /**
  * @brief Creates new empty animation and attaches it to scene
  */
 de_animation_t* de_animation_create(de_scene_t* s);
+
+bool de_animation_visit(de_object_visitor_t* visitor, de_animation_t* anim);
+
+bool de_animation_track_visit(de_object_visitor_t* visitor, de_animation_track_t* track);
 
 /**
 * @brief Writes out intepolated keyframe from animation track at specified time
@@ -126,17 +134,17 @@ void de_animation_set_time_position(de_animation_t* anim, float time);
 /**
  * @brief Returns true if all specified flags are set.
  */
-bool de_animation_is_flags_set(de_animation_t* anim, int flags);
+bool de_animation_is_flags_set(de_animation_t* anim, uint32_t flags);
 
 /**
  * @brief Sets given animation flags.
  */
-void de_animation_set_flags(de_animation_t* anim, int flags);
+void de_animation_set_flags(de_animation_t* anim, uint32_t flags);
 
 /**
  * @brief Resets given animation flags.
  */
-void de_animation_reset_flags(de_animation_t* anim, int flags);
+void de_animation_reset_flags(de_animation_t* anim, uint32_t flags);
 
 /**
  * @brief Clamps length of animation to longest track.

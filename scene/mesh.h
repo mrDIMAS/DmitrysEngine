@@ -37,6 +37,8 @@ void de_mesh_deinit(de_mesh_t* mesh);
 
 void de_mesh_copy(de_mesh_t* src, de_mesh_t* dest);
 
+void de_mesh_resolve_bones(de_mesh_t* mesh);
+
 bool de_mesh_visit(de_object_visitor_t* visitor, de_mesh_t* mesh);
 
 /**

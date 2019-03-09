@@ -31,6 +31,7 @@
 
 typedef enum de_object_visitor_data_type_t {
 	DE_OBJECT_VISITOR_DATA_TYPE_UNKNOWN,
+	DE_OBJECT_VISITOR_DATA_TYPE_BOOL,       /**< 1 byte */
 	DE_OBJECT_VISITOR_DATA_TYPE_INT8,       /**< 1 byte */
 	DE_OBJECT_VISITOR_DATA_TYPE_UINT8,      /**< 1 byte */
 	DE_OBJECT_VISITOR_DATA_TYPE_INT16,      /**< 2 bytes */
@@ -189,6 +190,11 @@ bool de_object_visitor_visit_int16(de_object_visitor_t* visitor, const char* nam
  * @brief Visits 8-bit signed integer.
  */
 bool de_object_visitor_visit_int8(de_object_visitor_t* visitor, const char* name, int8_t* integer);
+
+/**
+ * @brief Visits bool.
+ */
+bool de_object_visitor_visit_bool(de_object_visitor_t* visitor, const char* name, bool* boolean);
 
 /**
  * @brief Visits 32-bit unsigned integer.

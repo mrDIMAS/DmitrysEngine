@@ -19,7 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef struct de_vertex_weight_t {	
+typedef struct de_vertex_weight_t {
 	void* fbx_model;
 	/* Handle of node affecting a vertex */
 	de_node_t* node;
@@ -32,6 +32,32 @@ typedef struct de_vertex_weight_group_t {
 	size_t weight_count; /**< Actual count of bones in group */
 } de_vertex_weight_group_t;
 
+typedef struct de_vertex_weight_data_t {
+	float weights[4];
+} de_vertex_weight_data_t;
+
+typedef struct de_vertex_index_data_t {
+	uint8_t indices[4];
+} de_vertex_index_data_t;
+
+typedef struct de_surface_shared_data_t {
+	size_t vertex_count;
+	size_t vertex_capacity;
+	de_vec3_t* positions;
+	de_vec3_t* normals;
+	de_vec2_t* tex_coords;
+	de_vec4_t* tangents;
+	de_vertex_weight_data_t* bone_weights;
+	de_vertex_index_data_t* bone_indices;
+	size_t index_count;
+	size_t index_capacity;
+	int* indices;
+	int ref_count; /* Count of surfaces that sharing this data. */
+	GLuint vao; /**< Vertex array object id */
+	GLuint vbo; /**< Shared GPU vertex-data buffer */
+	GLuint ebo; /**< Shared GPU indices buffer object id */
+} de_surface_shared_data_t;
+
 /**
 * @brief Surface
 *
@@ -42,15 +68,37 @@ struct de_surface_t {
 	de_renderer_t* renderer;
 	de_texture_t* diffuse_map; /**< Pointer to texture */
 	de_texture_t* normal_map;
-	DE_ARRAY_DECLARE(de_vertex_t, vertices);   /**< Array of vertices, will be directly uploaded to GPU */
-	DE_ARRAY_DECLARE(int, indices);    /**< Array of faces */
-	GLuint vbo;      /**< Vertex buffer object id */
-	GLuint vao;      /**< Vertex array object id */
-	GLuint ebo;      /**< Element buffer object id */
-	bool need_upload;    /**< Indicates that surface needs to be uploaded to GPU */
+	bool need_upload; /**< Indicates that surface needs to be uploaded to GPU */
 	DE_ARRAY_DECLARE(de_vertex_weight_group_t, vertex_weights); /**< Additional skinning data */
-	DE_ARRAY_DECLARE(de_node_t*, weights); /**< List of bones that affects this surface */
+	DE_ARRAY_DECLARE(de_node_t*, bones); /**< List of bones that affects this surface */
+	de_surface_shared_data_t* shared_data; /* Common vertices shared between instances. */
 };
+
+/**
+ * @brief Allocates buffers of specified capacity. Vertex and index count remains zero.
+ */
+de_surface_shared_data_t* de_surface_shared_data_create(size_t vertex_capacity, size_t index_capacity);
+
+void de_surface_shared_data_grow_vertices(de_surface_shared_data_t* data, size_t vertex_inc);
+
+void de_surface_shared_data_grow_indices(de_surface_shared_data_t* data, size_t index_inc);
+
+/**
+ * @brief Reallocates buffers to make them exact size to store given vertex and index count.
+ * In other words, reduces memory consumption of surface data.
+ *
+ * Notes: Its worth to allocate excess data in de_surface_shared_data_create, fill vertices and
+ * indices and then shrink memory to fit. It is much faster than increasing buffer size by small
+ * portions like engine arrays does.
+ */
+void de_surface_data_shrink_to_fit(de_surface_shared_data_t* data);
+
+/**
+ * @brief Frees all allocated memory.
+ */
+void de_surface_shared_data_free(de_surface_shared_data_t* data);
+
+de_surface_t* de_surface_copy(de_surface_t* surf);
 
 /**
 * @brief Applies texture to each surface of mesh
@@ -62,7 +110,7 @@ void de_mesh_set_texture(de_mesh_t* mesh, de_texture_t* texture);
 /**
  * @brief Fills in new vertices and indices. Removes previous data
  */
-void de_surface_load_data(de_surface_t* surf, de_vertex_t* vertices, size_t vertex_count, int* indices, size_t index_count);
+void de_surface_set_data(de_surface_t* surf, de_surface_shared_data_t* data);
 
 /**
  * @brief Applies diffuse texture to surface. Increases ref counter of texture
@@ -136,6 +184,8 @@ bool de_surface_is_skinned(de_surface_t* surf);
  */
 void de_surface_calculate_tangents(de_surface_t* surf);
 
+/* TODO */
 void de_surface_make_cube(de_surface_t* surf);
 
+/* TODO */
 void de_surface_make_sphere(de_surface_t* surf, int slices, int stacks, float r);

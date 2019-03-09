@@ -55,7 +55,7 @@ void de_resource_add_ref(de_resource_t* res);
 /**
  * @brief Frees resource
  */
-void de_resource_release(de_resource_t* res);
+int de_resource_release(de_resource_t* res);
 
 bool de_resource_visit(de_object_visitor_t* visitor, de_resource_t* res);
 

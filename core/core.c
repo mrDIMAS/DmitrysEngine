@@ -74,6 +74,15 @@ de_core_t* de_core_init(const de_engine_params_t* params) {
 }
 
 void de_core_shutdown(de_core_t* core) {
+	while (core->scenes.head) {
+		de_scene_free(core->scenes.head);
+	}
+	for (size_t i = 0; i < core->resources.size; ++i) {
+		de_resource_t* res = core->resources.data[i];
+		if (de_resource_release(res) != 0) {
+			de_log("unrealeased resource found -> mem leaks");
+		}
+	}
 	DE_ARRAY_FREE(core->events_queue);
 	de_sound_context_free(core->sound_context);
 	de_gui_shutdown(core->gui);

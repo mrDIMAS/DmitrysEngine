@@ -73,7 +73,8 @@ struct de_node_t {
 	bool need_update; /**< Indicates that node's transform needs to be updated */
 	de_node_t* parent; /**< Pool reference to parent node */
 	DE_ARRAY_DECLARE(de_node_t*, children); /**< Array of pool references to child nodes */
-	bool visible; /**< Local visibility. Actual visibility defined by hierarchy. So if parent node is invisible, then child node will be too */
+	bool visible; /**< Local visibility. Actual visibility defined by hierarchy. So if parent node is invisible, then child node will be too */	
+	de_node_t* original; /**< Pointer to original node in resource from which this node copied. */
 
 	void* user_data; /**< Non-serializable. */
 	bool is_bone;
@@ -155,6 +156,11 @@ void de_node_get_side_vector(de_node_t* node, de_vec3_t* side);
 * @param pos pointer to position
 */
 void de_node_get_global_position(de_node_t* node, de_vec3_t* pos);
+
+/**
+ * @brief Internal. Resolves type-specific dependencies after copying or deserialization.
+ */
+void de_node_resolve(de_node_t* node);
 
 /**
 * @brief Sets local position of node. Sets "need_update" flag
@@ -240,3 +246,8 @@ de_node_t* de_node_from_camera(de_camera_t* camera);
 bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node);
 
 void de_node_set_name(de_node_t* node, const char* name);
+
+/**
+ * @brief Tries to find a copy of specified node in whole hierarchy of other node defined by root.
+ */
+de_node_t* de_node_find_copy_of(de_node_t* root, de_node_t* node);

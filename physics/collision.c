@@ -65,22 +65,18 @@ void de_static_geometry_fill(de_static_geometry_t* geom, const de_mesh_t* mesh, 
 
 		surf = mesh->surfaces.data[i];
 
-		for (k = 0; k < surf->indices.size; k += 3) {
-			de_vertex_t va, vb, vc;
+		de_surface_shared_data_t* data = surf->shared_data;
+		for (k = 0; k < data->index_count; k += 3) {			
 			de_vec3_t pa, pb, pc;
 			int a, b, c;
 
-			a = surf->indices.data[k];
-			b = surf->indices.data[k + 1];
-			c = surf->indices.data[k + 2];
+			a = data->indices[k];
+			b = data->indices[k + 1];
+			c = data->indices[k + 2];
 
-			va = surf->vertices.data[a];
-			vb = surf->vertices.data[b];
-			vc = surf->vertices.data[c];
-
-			pa = va.position;
-			pb = vb.position;
-			pc = vc.position;
+			pa = data->positions[a];
+			pb = data->positions[b];
+			pc = data->positions[c];
 
 			de_vec3_transform(&pa, &pa, &transform);
 			de_vec3_transform(&pb, &pb, &transform);

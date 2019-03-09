@@ -19,24 +19,42 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-void de_mesh_copy(de_mesh_t* src, de_mesh_t* dest) {
-	for (size_t i = 0; i < src->surfaces.size; ++i) {
-		DE_ARRAY_APPEND(dest->surfaces, src->surfaces.data[i]);
-	}
-}
-
 /**
- * @brief Searches for root node that was instantiated from model resource.
- */
+* @brief Searches for root node that was instantiated from model resource.
+*/
 static de_node_t* de_mesh_get_model_root(de_node_t* node) {
 	do {
-		if (node->parent && !node->parent->model_resource) {
+		if (!node->parent && node->model_resource) {
 			/* node is root */
 			return node;
 		}
 		node = node->parent;
 	} while (node);
 	return node;
+}
+
+void de_mesh_copy(de_mesh_t* src, de_mesh_t* dest) {
+	for (size_t i = 0; i < src->surfaces.size; ++i) {
+		DE_ARRAY_APPEND(dest->surfaces, de_surface_copy(src->surfaces.data[i]));
+	}
+}
+
+void de_mesh_resolve_bones(de_mesh_t* mesh) {
+	de_node_t* node = de_node_from_mesh(mesh);
+	de_node_t* root = de_mesh_get_model_root(node);
+	if (!root) {
+		return;
+	}
+	for (size_t i = 0; i < mesh->surfaces.size; ++i) {
+		de_surface_t* surf = mesh->surfaces.data[i];
+		for (size_t j = 0; j < surf->bones.size; ++j) {
+			de_node_t* old_bone = surf->bones.data[j];
+			de_node_t* instance = de_node_find_copy_of(root, old_bone);
+			
+				surf->bones.data[j] = instance;
+			
+		}
+	}
 }
 
 bool de_mesh_visit(de_object_visitor_t* visitor, de_mesh_t* mesh) {
@@ -47,10 +65,10 @@ bool de_mesh_visit(de_object_visitor_t* visitor, de_mesh_t* mesh) {
 			de_model_t* mdl = de_resource_to_model(node->model_resource);
 			de_node_t* ref_node = de_scene_find_node(mdl->scene, de_str8_cstr(&node->name));
 			if (ref_node != NULL) {
-				/* resolve surface changes */
+				/* resolve surface changes: just copy surfaces from source model */
 				de_mesh_t* ref_mesh = de_node_to_mesh(ref_node);
 				for (size_t i = 0; i < ref_mesh->surfaces.size; ++i) {
-					DE_ARRAY_APPEND(mesh->surfaces, ref_mesh->surfaces.data[i]);
+					DE_ARRAY_APPEND(mesh->surfaces, de_surface_copy(ref_mesh->surfaces.data[i]));
 				}
 
 				/* resolve hierarchy changes */
@@ -76,6 +94,7 @@ bool de_mesh_visit(de_object_visitor_t* visitor, de_mesh_t* mesh) {
 		}
 	}
 	bool result = true;
+	/* todo: add dynamic surfaces saving */
 	return result;
 }
 

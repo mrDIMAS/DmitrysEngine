@@ -37,7 +37,7 @@ de_resource_t* de_resource_create(de_core_t* core, de_resource_type_t type) {
 	de_resource_t* res = DE_NEW(de_resource_t);
 	res->core = core;
 	res->type = type;
-	res->ref_count = 1;
+	res->ref_count = 0;
 	DE_ARRAY_APPEND(core->resources, res);
 	switch (res->type) {
 		case DE_RESOURCE_TYPE_MODEL: break;
@@ -59,18 +59,20 @@ void de_resource_add_ref(de_resource_t* res) {
 /**
 * @brief Frees resource
 */
-void de_resource_release(de_resource_t* res) {
+int de_resource_release(de_resource_t* res) {
 	DE_ASSERT(res->ref_count >= 0);
 	--res->ref_count;
 	if (res->ref_count == 0) {
 		switch (res->type) {
-			case DE_RESOURCE_TYPE_MODEL: break;
+			case DE_RESOURCE_TYPE_MODEL: de_model_deinit(&res->s.model); break;
 			case DE_RESOURCE_TYPE_TEXTURE: break;
 			case DE_RESOURCE_TYPE_SOUND_BUFFER: break;
 			default: de_fatal_error("unhandled resource type"); break;
 		}
 		de_free(res);
+		return 0;
 	}
+	return res->ref_count;
 }
 
 bool de_resource_visit(de_object_visitor_t* visitor, de_resource_t* res) {

@@ -43,6 +43,39 @@ de_animation_track_t* de_animation_track_create(de_animation_t* anim) {
 	return track;
 }
 
+bool de_animation_visit(de_object_visitor_t* visitor, de_animation_t* anim) {
+	bool result = true;
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Resource", &anim->resource, de_resource_visit);
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Scene", &anim->scene, de_scene_visit);
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Tracks", anim->tracks, de_animation_track_visit);
+	result &= de_object_visitor_visit_uint32(visitor, "Flags", &anim->flags);
+	result &= de_object_visitor_visit_float(visitor, "Speed", &anim->speed);
+	result &= de_object_visitor_visit_float(visitor, "Length", &anim->length);
+	result &= de_object_visitor_visit_float(visitor, "TimePosition", &anim->time_position);
+	result &= de_object_visitor_visit_float(visitor, "Weight", &anim->weight);
+	result &= de_object_visitor_visit_float(visitor, "FadeStep", &anim->fade_step);		
+	return result;
+}
+
+static bool de_keyframe_visit(de_object_visitor_t* visitor, de_keyframe_t* key) {
+	bool result = true;
+	result &= de_object_visitor_visit_vec3(visitor, "Position", &key->position);
+	result &= de_object_visitor_visit_vec3(visitor, "Scale", &key->scale);
+	result &= de_object_visitor_visit_quat(visitor, "Rotation", &key->rotation);
+	result &= de_object_visitor_visit_float(visitor, "Time", &key->time);	
+	return result;
+}
+
+bool de_animation_track_visit(de_object_visitor_t* visitor, de_animation_track_t* track) {
+	bool result = true;
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Animation", &track->parent_animation, de_animation_visit);
+	result &= DE_OBJECT_VISITOR_VISIT_ARRAY(visitor, "Keyframes", track->keyframes, de_keyframe_visit);
+	result &= de_object_visitor_visit_bool(visitor, "Enabled", &track->enabled);
+	result &= de_object_visitor_visit_float(visitor, "MaxTime", &track->max_time);
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Node", &track->node, de_node_visit);	
+	return result;
+}
+
 void de_animation_track_free(de_animation_track_t* track) {
 	DE_ARRAY_FREE(track->keyframes);
 
@@ -61,6 +94,7 @@ de_animation_track_t* de_animation_track_copy(de_animation_track_t* track, de_an
 	}
 	copy->enabled = track->enabled;
 	copy->max_time = track->max_time;	
+	/* Track copy will point on same node for further remapping. */
 	de_animation_track_set_node(copy, track->node);	
 	return copy;
 }
@@ -100,6 +134,15 @@ void de_animation_free(de_animation_t* anim) {
 
 de_animation_t* de_animation_copy(de_animation_t* anim, de_scene_t* dest_scene) {
 	de_animation_t* copy = DE_NEW(de_animation_t);
+	copy->scene = dest_scene;
+	for (size_t i = 0; i < anim->tracks.size; ++i) {
+		DE_ARRAY_APPEND(copy->tracks, de_animation_track_copy(anim->tracks.data[i], copy));
+	}
+	copy->flags = anim->flags;
+	copy->speed = anim->speed;
+	copy->length = anim->length;
+	copy->time_position = anim->time_position;
+	copy->weight = anim->weight;
 	copy->fade_step = anim->fade_step;
 	DE_LINKED_LIST_APPEND(dest_scene->animations, copy);
 	return copy;
@@ -214,15 +257,15 @@ void de_animation_set_time_position(de_animation_t* anim, float time) {
 	}
 }
 
-bool de_animation_is_flags_set(de_animation_t* anim, int flags) {
+bool de_animation_is_flags_set(de_animation_t* anim, uint32_t flags) {
 	return (anim->flags & flags) == flags;
 }
 
-void de_animation_set_flags(de_animation_t* anim, int flags) {
+void de_animation_set_flags(de_animation_t* anim, uint32_t flags) {
 	anim->flags |= flags;
 }
 
-void de_animation_reset_flags(de_animation_t* anim, int flags) {
+void de_animation_reset_flags(de_animation_t* anim, uint32_t flags) {
 	anim->flags &= ~flags;
 }
 

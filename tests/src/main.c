@@ -441,7 +441,6 @@ void player_update(player_t* p) {
 
 level_t* level_create_test(game_t* game) {
 	level_t* level;
-	de_vec3_t rp = { -1, 1, 1 };
 
 	level = DE_NEW(level_t);
 	level->game = game;
@@ -452,17 +451,26 @@ level_t* level_create_test(game_t* game) {
 		de_path_t res_path;
 		de_path_init(&res_path);
 		de_path_append_cstr(&res_path, "data/models/ripper.fbx");
-		de_model_t* mdl = de_resource_to_model(de_core_request_resource(game->core, DE_RESOURCE_TYPE_MODEL, &res_path));
-		de_node_t* ripper = de_model_instantiate(mdl, level->scene);
-		de_node_set_local_position(ripper, &rp);
+		de_resource_t* mdl_res = de_core_request_resource(game->core, DE_RESOURCE_TYPE_MODEL, &res_path);		
+		de_model_t* mdl = de_resource_to_model(mdl_res);
+		de_node_t* ripper1 = de_model_instantiate(mdl, level->scene);
+		de_node_set_local_position(ripper1, &(de_vec3_t){ -1, 0, -1 });
+		de_node_t* ripper2 = de_model_instantiate(mdl, level->scene);
+		de_node_set_local_position(ripper2, &(de_vec3_t){ 1, 0, -1 });
+		de_node_t* ripper3 = de_model_instantiate(mdl, level->scene);
+		de_node_set_local_position(ripper3, &(de_vec3_t){ 1, 0, 1 });
+		de_node_t* ripper4 = de_model_instantiate(mdl, level->scene);
+		de_node_set_local_position(ripper4, &(de_vec3_t){ -1, 0, 1 });
 		de_path_free(&res_path);
 	}
 
+	/* Level */
 	{
 		de_path_t res_path;
 		de_path_init(&res_path);
 		de_path_append_cstr(&res_path, "data/models/map2_bin.fbx");
-		de_model_t* mdl = de_resource_to_model(de_core_request_resource(game->core, DE_RESOURCE_TYPE_MODEL, &res_path));
+		de_resource_t* res = de_core_request_resource(game->core, DE_RESOURCE_TYPE_MODEL, &res_path);	
+		de_model_t* mdl = de_resource_to_model(res);
 		de_model_instantiate(mdl, level->scene);
 		de_path_free(&res_path);
 	}

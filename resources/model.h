@@ -33,6 +33,8 @@ typedef struct de_model_t {
  */
 bool de_model_load(de_model_t* mdl, const de_path_t* path);
 
+void de_model_deinit(de_model_t* mdl);
+
 de_node_t* de_model_instantiate(de_model_t* mdl, de_scene_t* dest_scene);
 
 bool de_model_visit(de_object_visitor_t* visitor, de_model_t* mdl);

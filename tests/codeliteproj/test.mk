@@ -5,18 +5,18 @@
 ## Linux_Debug
 ProjectName            :=test
 ConfigurationName      :=Linux_Debug
-WorkspacePath          :=/home/dmitry/DmitrysEngine/tests/codeliteproj
-ProjectPath            :=/home/dmitry/DmitrysEngine/tests/codeliteproj
+WorkspacePath          :=C:/DmitrysEngine/DmitrysEngine/tests/codeliteproj
+ProjectPath            :=C:/DmitrysEngine/DmitrysEngine/tests/codeliteproj
 IntermediateDirectory  :=./Debug
 OutDir                 := $(IntermediateDirectory)
 CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
-User                   :=dmitry
-Date                   :=23/02/19
-CodeLitePath           :=/home/dmitry/.codelite
-LinkerName             :=/usr/bin/g++
-SharedObjectLinkerName :=/usr/bin/g++ -shared -fPIC
+User                   :=mrDIMAS
+Date                   :=09/03/2019
+CodeLitePath           :="C:/Program Files/CodeLite"
+LinkerName             :=C:/MinGW-8.1.0/bin/g++.exe
+SharedObjectLinkerName :=C:/MinGW-8.1.0/bin/g++.exe -shared -fPIC
 ObjectSuffix           :=.o
 DependSuffix           :=.o.d
 PreprocessSuffix       :=.i
@@ -34,7 +34,9 @@ ArchiveOutputSwitch    :=
 PreprocessOnlySwitch   :=-E
 ObjectsFileList        :="test.txt"
 PCHCompileFlags        :=
-MakeDirCommand         :=mkdir -p
+MakeDirCommand         :=makedir
+RcCmpOptions           := 
+RcCompilerName         :=C:/MinGW-8.1.0/bin/windres.exe
 LinkOptions            :=  
 IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch). $(IncludeSwitch)../../. $(IncludeSwitch)../../external/ 
 IncludePCH             := 
@@ -47,20 +49,20 @@ LibPath                := $(LibraryPathSwitch).
 ## Common variables
 ## AR, CXX, CC, AS, CXXFLAGS and CFLAGS can be overriden using an environment variables
 ##
-AR       := /usr/bin/ar rcu
-CXX      := /usr/bin/g++
-CC       := /usr/bin/gcc
+AR       := C:/MinGW-8.1.0/bin/ar.exe rcu
+CXX      := C:/MinGW-8.1.0/bin/g++.exe
+CC       := C:/MinGW-8.1.0/bin/gcc.exe
 CXXFLAGS :=   $(Preprocessors)
 CFLAGS   :=  -g -O0 -Wall -std=c99 -pedantic -Werror  $(Preprocessors)
 ASFLAGS  := 
-AS       := /usr/bin/as
+AS       := C:/MinGW-8.1.0/bin/as.exe
 
 
 ##
 ## User defined environment variables
 ##
-CodeLiteDir:=/usr/share/codelite
-Objects0=$(IntermediateDirectory)/up_up_de_main.c$(ObjectSuffix) $(IntermediateDirectory)/up_src_main.c$(ObjectSuffix) 
+CodeLiteDir:=C:\Program Files\CodeLite
+Objects0=$(IntermediateDirectory)/up_src_main.c$(ObjectSuffix) $(IntermediateDirectory)/up_up_de_main.c$(ObjectSuffix) 
 
 
 
@@ -79,11 +81,11 @@ $(OutputFile): $(IntermediateDirectory)/.d $(Objects)
 	$(LinkerName) $(OutputSwitch)$(OutputFile) @$(ObjectsFileList) $(LibPath) $(Libs) $(LinkOptions)
 
 MakeIntermediateDirs:
-	@test -d ./Debug || $(MakeDirCommand) ./Debug
+	@$(MakeDirCommand) "./Debug"
 
 
 $(IntermediateDirectory)/.d:
-	@test -d ./Debug || $(MakeDirCommand) ./Debug
+	@$(MakeDirCommand) "./Debug"
 
 PreBuild:
 
@@ -91,21 +93,21 @@ PreBuild:
 ##
 ## Objects
 ##
-$(IntermediateDirectory)/up_up_de_main.c$(ObjectSuffix): ../../de_main.c $(IntermediateDirectory)/up_up_de_main.c$(DependSuffix)
-	$(CC) $(SourceSwitch) "/home/dmitry/DmitrysEngine/de_main.c" $(CFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/up_up_de_main.c$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/up_up_de_main.c$(DependSuffix): ../../de_main.c
-	@$(CC) $(CFLAGS) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/up_up_de_main.c$(ObjectSuffix) -MF$(IntermediateDirectory)/up_up_de_main.c$(DependSuffix) -MM ../../de_main.c
-
-$(IntermediateDirectory)/up_up_de_main.c$(PreprocessSuffix): ../../de_main.c
-	$(CC) $(CFLAGS) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/up_up_de_main.c$(PreprocessSuffix) ../../de_main.c
-
 $(IntermediateDirectory)/up_src_main.c$(ObjectSuffix): ../src/main.c $(IntermediateDirectory)/up_src_main.c$(DependSuffix)
-	$(CC) $(SourceSwitch) "/home/dmitry/DmitrysEngine/tests/src/main.c" $(CFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/up_src_main.c$(ObjectSuffix) $(IncludePath)
+	$(CC) $(SourceSwitch) "C:/DmitrysEngine/DmitrysEngine/tests/src/main.c" $(CFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/up_src_main.c$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/up_src_main.c$(DependSuffix): ../src/main.c
 	@$(CC) $(CFLAGS) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/up_src_main.c$(ObjectSuffix) -MF$(IntermediateDirectory)/up_src_main.c$(DependSuffix) -MM ../src/main.c
 
 $(IntermediateDirectory)/up_src_main.c$(PreprocessSuffix): ../src/main.c
 	$(CC) $(CFLAGS) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/up_src_main.c$(PreprocessSuffix) ../src/main.c
+
+$(IntermediateDirectory)/up_up_de_main.c$(ObjectSuffix): ../../de_main.c $(IntermediateDirectory)/up_up_de_main.c$(DependSuffix)
+	$(CC) $(SourceSwitch) "C:/DmitrysEngine/DmitrysEngine/de_main.c" $(CFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/up_up_de_main.c$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/up_up_de_main.c$(DependSuffix): ../../de_main.c
+	@$(CC) $(CFLAGS) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/up_up_de_main.c$(ObjectSuffix) -MF$(IntermediateDirectory)/up_up_de_main.c$(DependSuffix) -MM ../../de_main.c
+
+$(IntermediateDirectory)/up_up_de_main.c$(PreprocessSuffix): ../../de_main.c
+	$(CC) $(CFLAGS) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/up_up_de_main.c$(PreprocessSuffix) ../../de_main.c
 
 
 -include $(IntermediateDirectory)/*$(DependSuffix)

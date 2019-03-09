@@ -66,6 +66,7 @@ static void de_renderer_load_extensions() {
 	GET_GL_EXT(PFNGLBINDBUFFERPROC, glBindBuffer);
 	GET_GL_EXT(PFNGLDELETEBUFFERSPROC, glDeleteBuffers);
 	GET_GL_EXT(PFNGLBUFFERDATAPROC, glBufferData);
+	GET_GL_EXT(PFNGLBUFFERSUBDATAPROC, glBufferSubData);
 
 	GET_GL_EXT(PFNGLVERTEXATTRIBPOINTERPROC, glVertexAttribPointer);
 	GET_GL_EXT(PFNGLENABLEVERTEXATTRIBARRAYPROC, glEnableVertexAttribArray);
@@ -539,27 +540,24 @@ de_renderer_t* de_renderer_init(de_core_t* core) {
 		float w = (float)core->params.video_mode.width;
 		float h = (float)core->params.video_mode.height;
 
-		int faces[] = {
-			0, 1, 2,
-			0, 2, 3,
-		};
+		de_surface_shared_data_t* data = de_surface_shared_data_create(4, 6);
 
-		de_vertex_t vertices[4];
+		int faces[] = { 0, 1, 2, 0, 2, 3 };
+		memcpy(data->indices, faces, sizeof(faces));
+		data->index_count = 6;
 
-		memset(vertices, 0, sizeof(vertices));
-
-		de_vec3_set(&vertices[0].position, 0, 0, 0);
-		de_vec3_set(&vertices[1].position, w, 0, 0);
-		de_vec3_set(&vertices[2].position, w, h, 0);
-		de_vec3_set(&vertices[3].position, 0, h, 0);
-
-		de_vec2_set(&vertices[0].tex_coord, 0, 0);
-		de_vec2_set(&vertices[1].tex_coord, 1, 0);
-		de_vec2_set(&vertices[2].tex_coord, 1, 1);
-		de_vec2_set(&vertices[3].tex_coord, 0, 1);
+		data->positions[0] = (de_vec3_t) { 0, 0, 0 };
+		data->positions[1] = (de_vec3_t) { w, 0, 0 };
+		data->positions[2] = (de_vec3_t) { w, h, 0 };
+		data->positions[3] = (de_vec3_t) { 0, h, 0 };
+		data->tex_coords[0] = (de_vec2_t) { 0, 0 };
+		data->tex_coords[1] = (de_vec2_t) { 1, 0 };
+		data->tex_coords[2] = (de_vec2_t) { 1, 1 };
+		data->tex_coords[3] = (de_vec2_t) { 0, 1 };
+		data->vertex_count = 4;
 
 		r->quad = de_renderer_create_surface(r);
-		de_surface_load_data(r->quad, vertices, DE_ARRAY_SIZE(vertices), faces, DE_ARRAY_SIZE(faces));
+		de_surface_set_data(r->quad, data);
 		de_renderer_upload_surface(r->quad);
 	}
 
@@ -604,7 +602,7 @@ void de_renderer_free(de_renderer_t* r) {
 	de_free(r);
 }
 
-
+#if 0
 static void de_render_surface_normals(de_renderer_t* r, de_surface_t* surface) {
 	size_t i;
 
@@ -667,9 +665,9 @@ static void de_renderer_draw_surface_bones(de_renderer_t* r, de_surface_t* surfa
 	de_renderer_upload_surface(r->test_surface);
 
 	DE_GL_CALL(glBindVertexArray(r->test_surface->vao));
-	DE_GL_CALL(glDrawElements(GL_LINES, r->test_surface->indices.size, GL_UNSIGNED_INT, NULL));
+	DE_GL_CALL(glDrawElements(GL_LINES, r->test_surface->shared_data->index_count, GL_UNSIGNED_INT, NULL));
 }
-
+#endif
 
 GLuint de_renderer_create_shader(GLenum type, const char* source) {
 	GLint compiled;
@@ -721,67 +719,110 @@ GLuint de_renderer_create_gpu_program(const char* vertexSource, const char* frag
 
 
 static void de_renderer_upload_surface(de_surface_t* s) {
-	glBindVertexArray(s->vao);
+	de_surface_shared_data_t* data = s->shared_data;
 
-	glBindBuffer(GL_ARRAY_BUFFER, s->vbo);
-	glBufferData(GL_ARRAY_BUFFER, DE_ARRAY_SIZE_BYTES(s->vertices), s->vertices.data, GL_STATIC_DRAW);
+	if (!data->vbo) {
+		glGenBuffers(1, &data->vbo);
+	}
+	if (!data->ebo) {
+		glGenBuffers(1, &data->ebo);
+	}
+	if (!data->vao) {
+		glGenVertexArrays(1, &data->vao);
+	}
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, s->ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, DE_ARRAY_SIZE_BYTES(s->indices), s->indices.data, GL_STATIC_DRAW);
+	DE_GL_CALL(glBindVertexArray(data->vao));
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(de_vertex_t), (void*)0);
-	glEnableVertexAttribArray(0);
+	/* Upload indices */
+	DE_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->ebo));
+	DE_GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(*data->indices) * data->index_count, data->indices, GL_STATIC_DRAW));
 
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, tex_coord));
-	glEnableVertexAttribArray(1);
+	/* Upload vertices */
+	size_t total_size_bytes = data->vertex_count * (
+		sizeof(*data->positions) +
+		sizeof(*data->tex_coords) +
+		sizeof(*data->normals) +
+		sizeof(*data->tangents) + 
+		sizeof(*data->bone_weights) +
+		sizeof(*data->bone_indices));
 
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, normal));
-	glEnableVertexAttribArray(2);
+	DE_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, data->vbo));
+	DE_GL_CALL(glBufferData(GL_ARRAY_BUFFER, total_size_bytes, NULL, GL_STATIC_DRAW));
 
-	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, tangent));
-	glEnableVertexAttribArray(3);
+	/* Upload parts */
+	size_t pos_offset = 0;
+	size_t size = sizeof(*data->positions) * data->vertex_count;
+	DE_GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, pos_offset, size, data->positions));
 
-	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, bone_weights));
-	glEnableVertexAttribArray(4);
+	size_t tex_coord_offset = pos_offset + size;
+	size = sizeof(*data->tex_coords) * data->vertex_count;
+	DE_GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, tex_coord_offset, size, data->tex_coords));
 
-	glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(de_vertex_t), (void*)offsetof(de_vertex_t, bone_indices));
-	glEnableVertexAttribArray(5);
+	size_t normals_offset = tex_coord_offset + size;
+	size = sizeof(*data->normals) * data->vertex_count;
+	DE_GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, normals_offset, size, data->normals));
 
-	glBindVertexArray(0);
+	size_t tangents_offset = normals_offset + size;
+	size = sizeof(*data->tangents) * data->vertex_count;
+	DE_GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, tangents_offset, size, data->tangents));
+
+	size_t weights_offset = tangents_offset + size;
+	size = sizeof(*data->bone_weights) * data->vertex_count;
+	DE_GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, weights_offset, size, data->bone_weights));
+
+	size_t indices_offset = weights_offset + size;
+	size = sizeof(*data->bone_indices) * data->vertex_count;
+	DE_GL_CALL(glBufferSubData(GL_ARRAY_BUFFER, indices_offset, size, data->bone_indices));
+
+	/* Setup attribute locations for shared data */
+	DE_GL_CALL(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(*data->positions), (void*)pos_offset));
+	DE_GL_CALL(glEnableVertexAttribArray(0));
+
+	DE_GL_CALL(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(*data->tex_coords), (void*)tex_coord_offset));
+	DE_GL_CALL(glEnableVertexAttribArray(1));
+
+	DE_GL_CALL(glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(*data->normals), (void*)normals_offset));
+	DE_GL_CALL(glEnableVertexAttribArray(2));
+
+	DE_GL_CALL(glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(*data->tangents), (void*)tangents_offset));
+	DE_GL_CALL(glEnableVertexAttribArray(3));
+
+	DE_GL_CALL(glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(*data->bone_weights), (void*)weights_offset));
+	DE_GL_CALL(glEnableVertexAttribArray(4));
+
+	DE_GL_CALL(glVertexAttribPointer(5, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(*data->bone_indices), (void*)indices_offset));
+	DE_GL_CALL(glEnableVertexAttribArray(5));
+
+	DE_GL_CALL(glBindVertexArray(0));
 
 	s->need_upload = false;
 }
 
-
 de_surface_t* de_renderer_create_surface(de_renderer_t* r) {
 	de_surface_t* surf = DE_NEW(de_surface_t);
-
 	surf->renderer = r;
 	surf->need_upload = true;
-
-	/* Create gpu-side buffers */
-	glGenVertexArrays(1, &surf->vao);
-	glGenBuffers(1, &surf->vbo);
-	glGenBuffers(1, &surf->ebo);
-
 	return surf;
 }
-
 
 void de_renderer_free_surface(de_surface_t* surf) {
 	/* Unref texture */
 	de_texture_release(surf->diffuse_map);
 
-	/* Delete gpu buffers */
-	glDeleteBuffers(1, &surf->vbo);
-	glDeleteBuffers(1, &surf->ebo);
-	glDeleteVertexArrays(1, &surf->vao);
-
 	/* Delete buffers */
-	DE_ARRAY_FREE(surf->indices);
-	DE_ARRAY_FREE(surf->vertices);
+	de_surface_shared_data_t* data = surf->shared_data;
+	if (data) {
+		--data->ref_count;
+		if (data->ref_count <= 0) {
+			glDeleteBuffers(1, &data->vbo);
+			glDeleteBuffers(1, &data->ebo);
+			glDeleteVertexArrays(1, &data->vao);
+			de_surface_shared_data_free(data);
+		}
+	}
+
 	DE_ARRAY_FREE(surf->vertex_weights);
-	DE_ARRAY_FREE(surf->weights);
+	DE_ARRAY_FREE(surf->bones);
 
 	de_free(surf);
 }
@@ -898,20 +939,23 @@ static void de_renderer_upload_texture(de_texture_t* texture) {
 	texture->need_upload = false;
 }
 
+static void de_renderer_render_surface(de_renderer_t* r, de_surface_t* surf) {
+	DE_UNUSED(r);
+	DE_GL_CALL(glBindVertexArray(surf->shared_data->vao));
+	DE_GL_CALL(glDrawElements(GL_TRIANGLES, surf->shared_data->index_count, GL_UNSIGNED_INT, NULL));
+}
 
 static void de_renderer_draw_fullscreen_quad(de_renderer_t* r) {
-	DE_GL_CALL(glBindVertexArray(r->quad->vao));
-	DE_GL_CALL(glDrawElements(GL_TRIANGLES, r->quad->indices.size, GL_UNSIGNED_INT, NULL));
+	de_renderer_render_surface(r, r->quad);
 }
-
 
 static void de_renderer_draw_mesh_bones(de_renderer_t* r, de_mesh_t* mesh) {
+	DE_UNUSED(r);
 	size_t i;
 	for (i = 0; i < mesh->surfaces.size; ++i) {
-		de_renderer_draw_surface_bones(r, mesh->surfaces.data[i]);
+		//		de_renderer_draw_surface_bones(r, mesh->surfaces.data[i]);
 	}
 }
-
 
 static void de_renderer_draw_mesh(de_renderer_t* r, de_mesh_t* mesh) {
 	size_t i;
@@ -948,15 +992,15 @@ static void de_renderer_draw_mesh(de_renderer_t* r, de_mesh_t* mesh) {
 			glUniformMatrix4fv(r->gbuffer_shader.bone_matrices, DE_RENDERER_MAX_SKINNING_MATRICES, GL_FALSE, (const float*)&matrices[0]);
 		}
 
-		DE_GL_CALL(glBindVertexArray(surf->vao));
-		DE_GL_CALL(glDrawElements(GL_TRIANGLES, surf->indices.size, GL_UNSIGNED_INT, NULL));
+		de_renderer_render_surface(r, surf);
 	}
 }
 
 static void de_renderer_draw_mesh_normals(de_renderer_t* r, de_mesh_t* mesh) {
+	DE_UNUSED(r);
 	size_t i;
 	for (i = 0; i < mesh->surfaces.size; ++i) {
-		de_render_surface_normals(r, mesh->surfaces.data[i]);
+		//de_render_surface_normals(r, mesh->surfaces.data[i]);
 	}
 }
 
@@ -1015,10 +1059,10 @@ void de_renderer_render(de_renderer_t* r) {
 	DE_GL_CALL(glEnable(GL_CULL_FACE));
 
 	/* render each scene */
-	DE_LINKED_LIST_FOR_EACH_T(de_scene_t*, scene, core->scenes) {	
+	DE_LINKED_LIST_FOR_EACH_T(de_scene_t*, scene, core->scenes) {
 		de_camera_t* camera;
 		de_vec3_t camera_position;
-		
+
 		de_vec3_zero(&camera_position);
 
 		if (!scene->active_camera) {

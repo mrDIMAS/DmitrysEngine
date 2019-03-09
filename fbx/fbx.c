@@ -894,35 +894,46 @@ static void de_fbx_free(de_fbx_t* fbx) {
  *
  * If surface already has vertex, adds index to face list.
  */
-static void de_fbx_add_vertex_to_surface(de_surface_t* surf, de_vertex_t* new_vertex, de_vertex_weight_group_t* vertex_weights) {
+static void de_fbx_add_vertex_to_surface(de_surface_t* surf,
+	de_vec3_t* pos,
+	de_vec3_t* normal,
+	de_vec2_t* tex_coord,
+	de_vec4_t* tangent,
+	de_vertex_weight_group_t* vertex_weights) {
 	int i;
 	bool found_identic = false;
 
-	/* reverse search is much faster, because it most likely that we'll find indentic vertex nearby current in the list */
-	for (i = (int)surf->vertices.size - 1; i >= 0; --i) {
-		de_vertex_t* other_vertex = (de_vertex_t*)surf->vertices.data + i;
-		if (de_vec3_equals(&other_vertex->position, &new_vertex->position) &&
-			de_vec3_equals(&other_vertex->normal, &new_vertex->normal) &&
-			de_vec2_equals(&other_vertex->tex_coord, &new_vertex->tex_coord)) {
+	de_surface_shared_data_t* data = surf->shared_data;
+	/* reverse search is much faster, because it most likely that we'll find identic 
+	 * vertex nearby current in the list */
+	for (i = (int)data->vertex_count - 1; i >= 0; --i) {
+		if (de_vec3_equals(&data->positions[i], pos) &&
+			de_vec3_equals(&data->normals[i], normal) &&
+			de_vec2_equals(&data->tex_coords[i], tex_coord)) {
 			found_identic = true;
 			break;
 		}
 	}
 
 	if (!found_identic) {
-		i = surf->vertices.size;
-		DE_ARRAY_APPEND(surf->vertices, *new_vertex);
+		i = data->vertex_count;
+		size_t k = data->vertex_count;
+		de_surface_shared_data_grow_vertices(data, 1);
+		data->positions[k] = *pos;
+		data->normals[k] = *normal;
+		data->tangents[k] = *tangent;
+		data->tex_coords[k] = *tex_coord;
 		if (vertex_weights) {
 			DE_ARRAY_APPEND(surf->vertex_weights, *vertex_weights);
 		}
+		++data->vertex_count;
 	}
 
-	DE_ARRAY_APPEND(surf->indices, i);
-
+	de_surface_shared_data_grow_indices(data, 1);
+	data->indices[data->index_count++] = i;
+	
 	surf->need_upload = true;
 }
-
-
 
 /**
  * @brief Searches for next closest time to given. When 'current_time' is end time - returns FLT_MAX
@@ -1198,6 +1209,12 @@ void de_fbx_prepare_deformer(de_fbx_geom_t* geom, de_vertex_weight_group_t* out_
 	}
 }
 
+static de_surface_t* de_fbx_create_surface(de_renderer_t* renderer, de_fbx_geom_t* geom) {
+	de_surface_t* surf = de_renderer_create_surface(renderer);	
+	de_surface_shared_data_t* data = de_surface_shared_data_create(geom->vertex_count, geom->index_count);
+	de_surface_set_data(surf, data);
+	return surf;
+}
 
 /**
  * @brief Converts FBX to scene engine's scene nodes hierarchy
@@ -1254,7 +1271,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 		mdl->engine_node = node;
 
 		de_str8_copy(&mdl->name, &node->name);
-		
+
 		node->position = mdl->translation;
 		node->rotation_offset = mdl->rotation_offset;
 		node->rotation_pivot = mdl->rotation_pivot;
@@ -1324,10 +1341,10 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 
 			/* Create surfaces per material */
 			if (mdl->materials.size == 0) {
-				de_mesh_add_surface(mesh, de_renderer_create_surface(renderer));
+				de_mesh_add_surface(mesh, de_fbx_create_surface(renderer, geom));
 			} else {
 				for (k = 0; k < mdl->materials.size; ++k) {
-					de_surface_t* surf = de_renderer_create_surface(renderer);
+					de_surface_t* surf = de_fbx_create_surface(renderer, geom);
 					de_fbx_material_t* mat = mdl->materials.data[k];
 					if (mat->diffuse_tex) {
 						de_path_t path, path_view;
@@ -1370,68 +1387,77 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 				}
 
 				for (m = 0; m < index_per_face; ++m) {
-					de_vertex_t v = { { 0 } };
+					de_vec3_t vertex_position;
+					de_vec3_t vertex_normal;
+					de_vec4_t vertex_tangent;
+					de_vec2_t vertex_tex_coord;
 					int index = temp_indices[m];
 					int surface_index = 0;
 					de_vec3_t* tangent;
 
-					v.position = geom->vertices[index];
-					de_vec3_transform(&v.position, &v.position, &geometric_transform);
+					vertex_position = geom->vertices[index];
+					de_vec3_transform(&vertex_position, &vertex_position, &geometric_transform);
 
 					/* Extract normals */
 					switch (geom->normal_mapping) {
 						case DE_FBX_MAPPING_BY_POLYGON_VERTEX:
-							v.normal = geom->normals[origin + relative_indices[m]];
+							vertex_normal = geom->normals[origin + relative_indices[m]];
 							break;
 						case DE_FBX_MAPPING_BY_VERTEX:
-							v.normal = geom->normals[index];
+							vertex_normal = geom->normals[index];
 							break;
 						default:
-							de_fatal_error("FBX: Normal mapping is not supported");
+							vertex_normal = (de_vec3_t) { 0, 1, 0 };
+							de_log("FBX: Normal mapping is not supported");
+							break;
 					}
-					de_vec3_transform_normal(&v.normal, &v.normal, &geometric_transform);
+					de_vec3_transform_normal(&vertex_normal, &vertex_normal, &geometric_transform);
 
 					/* Extract tangents */
 					switch (geom->tangent_mapping) {
 						case DE_FBX_MAPPING_BY_POLYGON_VERTEX:
 							tangent = &geom->tangents[origin + relative_indices[m]];
-							v.tangent.x = tangent->x;
-							v.tangent.y = tangent->y;
-							v.tangent.z = tangent->z;
+							vertex_tangent.x = tangent->x;
+							vertex_tangent.y = tangent->y;
+							vertex_tangent.z = tangent->z;
 							/* TODO: handedness, maybe wrong. Here we should use fbx bitangents to compute handedness! */
-							v.tangent.w = 1.0f;
+							vertex_tangent.w = 1.0f;
 							break;
 						case DE_FBX_MAPPING_BY_VERTEX:
 							tangent = &geom->tangents[index];
-							v.tangent.x = tangent->x;
-							v.tangent.y = tangent->y;
-							v.tangent.z = tangent->z;
+							vertex_tangent.x = tangent->x;
+							vertex_tangent.y = tangent->y;
+							vertex_tangent.z = tangent->z;
 							/* TODO: handedness, maybe wrong. Here we should use fbx bitangents to compute handedness! */
-							v.tangent.w = 1.0f;
+							vertex_tangent.w = 1.0f;
 							break;
 						case DE_FBX_MAPPING_UNKNOWN:
 							/* means that there is no tangents and we'll have to generate them */
 							break;
 						default:
-							de_fatal_error("FBX: Tangent mapping is not supported");
+							vertex_tangent = (de_vec4_t) { 0, 1, 0, 1 };
+							de_log("FBX: Tangent mapping is not supported");
+							break;
 					}
 					/* transform only xyz of tangent, keep w untouched */
-					de_vec3_transform_normal((de_vec3_t*)&v.tangent, (de_vec3_t*)&v.tangent, &geometric_transform);
+					de_vec3_transform_normal((de_vec3_t*)&vertex_tangent, (de_vec3_t*)&vertex_tangent, &geometric_transform);
 
 					/* Extract texture coordinates */
 					switch (geom->uv_mapping) {
 						case DE_FBX_MAPPING_BY_POLYGON_VERTEX:
 							if (geom->uv_reference == DE_FBX_REFERENCE_DIRECT) {
-								v.tex_coord = geom->uvs[origin + relative_indices[m]];
+								vertex_tex_coord = geom->uvs[origin + relative_indices[m]];
 							} else if (geom->uv_reference == DE_FBX_REFERENCE_INDEX_TO_DIRECT) {
-								v.tex_coord = geom->uvs[geom->uv_index[origin + relative_indices[m]]];
+								vertex_tex_coord = geom->uvs[geom->uv_index[origin + relative_indices[m]]];
 							}
 							break;
 						case DE_FBX_MAPPING_UNKNOWN:
 							/* means that there is no uvs */
 							break;
 						default:
-							de_fatal_error("FBX: UV mapping is not supported");
+							vertex_tex_coord = (de_vec2_t) { 0 };
+							de_log("FBX: UV mapping is not supported");
+							break;
 					}
 
 					/* Extract material index. It's used as index of surface in the mesh */
@@ -1444,12 +1470,15 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 								surface_index = geom->materials[material_index];
 								break;
 							default:
-								de_fatal_error("FBX: Material mapping is not supported");
+								surface_index = 0;
+								de_log("FBX: Material mapping is not supported");
+								break;
 						}
 					}
 
 					/* Put vertex into correct surface */
-					de_fbx_add_vertex_to_surface(mesh->surfaces.data[surface_index], &v,
+					de_fbx_add_vertex_to_surface(mesh->surfaces.data[surface_index],
+						&vertex_position, &vertex_normal, &vertex_tex_coord, &vertex_tangent,
 						geom->deformers.size ? &bone_vertices[index] : NULL);
 				}
 
@@ -1459,6 +1488,11 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 			}
 
 			de_free(bone_vertices);
+
+			/* trim excess memory from surfaces */
+			for (m = 0; m < (int) mesh->surfaces.size; ++m) {
+				de_surface_data_shrink_to_fit(mesh->surfaces.data[m]->shared_data);
+			}
 
 			/* if we do not have precomputed tangets, calculate our own */
 			if (geom->tangent_mapping == DE_FBX_MAPPING_UNKNOWN) {
@@ -1535,7 +1569,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 	}
 
 	/* Link nodes according to hierarchy */
-	for (i = 0; i < created_nodes.size; ++i) {		
+	for (i = 0; i < created_nodes.size; ++i) {
 		de_node_t* node = created_nodes.data[i];
 		de_fbx_model_t* fbx_model = (de_fbx_model_t*)node->user_data;
 		for (k = 0; k < fbx_model->children.size; ++k) {

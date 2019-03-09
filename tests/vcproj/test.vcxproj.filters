@@ -377,9 +377,6 @@
     <ClInclude Include="..\..\renderer\surface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\renderer\vertex.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\resources\builtin_fonts.h">
       <Filter>Header Files</Filter>
     </ClInclude>

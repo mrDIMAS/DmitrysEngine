@@ -244,6 +244,9 @@ bool de_object_visitor_visit_int8(de_object_visitor_t* visitor, const char* name
 	return de_object_visitor_visit_data(visitor, name, integer, sizeof(*integer), DE_OBJECT_VISITOR_DATA_TYPE_INT8);
 }
 
+bool de_object_visitor_visit_bool(de_object_visitor_t* visitor, const char* name, bool* boolean) {
+	return de_object_visitor_visit_data(visitor, name, boolean, sizeof(*boolean), DE_OBJECT_VISITOR_DATA_TYPE_BOOL);
+}
 
 bool de_object_visitor_visit_uint32(de_object_visitor_t* visitor, const char* name, uint32_t* integer) {
 	return de_object_visitor_visit_data(visitor, name, integer, sizeof(*integer), DE_OBJECT_VISITOR_DATA_TYPE_UINT32);

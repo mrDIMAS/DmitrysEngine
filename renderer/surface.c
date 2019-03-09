@@ -19,37 +19,108 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-#define DE_MAKE_VERTEX( surf, cx, cy, cz, tx, ty )	\
-	v = surf->AddVertex();						\
-	v->position.x = cx;							\
-	v->position.y = cy;							\
-	v->position.z = cz;							\
-	v->texCoord.x = tx;							\
-	v->texCoord.y = ty;							\
+de_surface_shared_data_t* de_surface_shared_data_create(size_t vertex_capacity, size_t index_capacity) {
+	de_surface_shared_data_t* data = DE_NEW(de_surface_shared_data_t);
 
+	data->vertex_count = 0;
+	data->vertex_capacity = vertex_capacity;
+	data->positions = de_malloc(vertex_capacity * sizeof(*data->positions));
+	data->normals = de_malloc(vertex_capacity * sizeof(*data->normals));
+	data->tex_coords = de_malloc(vertex_capacity * sizeof(*data->tex_coords));
+	data->tangents = de_malloc(vertex_capacity * sizeof(*data->tangents));
+	data->bone_indices = de_malloc(vertex_capacity * sizeof(*data->bone_indices));
+	data->bone_weights = de_malloc(vertex_capacity * sizeof(*data->bone_weights));
 
-void de_surface_load_data(de_surface_t* surf, de_vertex_t* vertices, size_t vertex_count, int* indices, size_t index_count) {
-	size_t i;
+	data->index_count = 0;
+	data->index_capacity = index_capacity;
+	data->indices = de_malloc(index_capacity * sizeof(*data->indices));
 
-	DE_ARRAY_FREE(surf->indices);
-	DE_ARRAY_FREE(surf->vertices);
-
-	for (i = 0; i < index_count; ++i) {
-		DE_ARRAY_APPEND(surf->indices, indices[i]);
-	}
-
-	for (i = 0; i < vertex_count; ++i) {
-		DE_ARRAY_APPEND(surf->vertices, vertices[i]);
-	}
-
-	surf->need_upload = true;
+	return data;
 }
 
+void de_surface_shared_data_grow_vertices(de_surface_shared_data_t* data, size_t vertex_inc) {
+	if (data->vertex_count + vertex_inc >= data->vertex_capacity) {
+		data->vertex_capacity = 2 * data->vertex_capacity + 1;
+		data->positions = de_realloc(data->positions, sizeof(*data->positions) * data->vertex_capacity);
+		data->normals = de_realloc(data->normals, sizeof(*data->normals) * data->vertex_capacity);
+		data->tex_coords = de_realloc(data->tex_coords, sizeof(*data->tex_coords) * data->vertex_capacity);
+		data->tangents = de_realloc(data->tangents, sizeof(*data->tangents) * data->vertex_capacity);
+		data->bone_indices = de_realloc(data->bone_indices, sizeof(*data->bone_indices) * data->vertex_capacity);
+		data->bone_weights = de_realloc(data->bone_weights, sizeof(*data->bone_weights) * data->vertex_capacity);
+	}
+}
+
+void de_surface_shared_data_grow_indices(de_surface_shared_data_t* data, size_t index_inc) {
+	if (data->index_count + index_inc >= data->index_capacity) {
+		data->index_capacity = 2 * data->index_capacity + 1;
+		data->indices = de_realloc(data->indices, sizeof(*data->indices) * data->index_capacity);
+	}
+}
+
+void de_surface_data_shrink_to_fit(de_surface_shared_data_t* data) {
+	if (data->vertex_capacity != data->vertex_count) {
+		data->vertex_capacity = data->vertex_count;
+		data->positions = de_realloc(data->positions, sizeof(*data->positions) * data->vertex_capacity);
+		data->normals = de_realloc(data->normals, sizeof(*data->normals) * data->vertex_capacity);
+		data->tex_coords = de_realloc(data->tex_coords, sizeof(*data->tex_coords) * data->vertex_capacity);
+		data->tangents = de_realloc(data->tangents, sizeof(*data->tangents) * data->vertex_capacity);
+		data->bone_indices = de_realloc(data->bone_indices, sizeof(*data->bone_indices) * data->vertex_capacity);
+		data->bone_weights = de_realloc(data->bone_weights, sizeof(*data->bone_weights) * data->vertex_capacity);
+	}
+
+	if (data->index_capacity != data->index_count) {
+		data->index_capacity = data->index_count;
+		data->indices = de_realloc(data->indices, sizeof(*data->indices) * data->index_count);
+	}
+}
+
+void de_surface_shared_data_free(de_surface_shared_data_t* data) {
+	de_free(data->positions);
+	de_free(data->normals);
+	de_free(data->tex_coords);
+	de_free(data->tangents);
+	de_free(data->indices);
+	de_free(data->bone_indices);
+	de_free(data->bone_weights);
+}
+
+de_surface_t* de_surface_copy(de_surface_t* surf) {
+	de_surface_t* copy = DE_NEW(de_surface_t);
+	copy->renderer = surf->renderer;
+	if (surf->diffuse_map) {
+		de_texture_add_ref(surf->diffuse_map);
+		copy->diffuse_map = surf->diffuse_map;
+	}
+	if (surf->normal_map) {
+		de_texture_add_ref(surf->normal_map);
+		copy->normal_map = surf->normal_map;
+	}
+	copy->need_upload = true;
+	de_surface_set_data(copy, surf->shared_data);
+	/* Raw copy, needs further bone nodes remapping */
+	DE_ARRAY_COPY(surf->bones, copy->bones);
+	return copy;
+}
+
+void de_surface_shared_data_release(de_surface_shared_data_t* data) {
+	if (data) {
+		--data->ref_count;
+		if (data->ref_count <= 0) {
+			de_surface_shared_data_free(data);
+		}
+	}
+}
+
+void de_surface_set_data(de_surface_t* surf, de_surface_shared_data_t* data) {
+	de_surface_shared_data_release(surf->shared_data);
+	++data->ref_count;
+	surf->shared_data = data;
+	surf->need_upload = true;
+}
 
 void de_surface_upload(de_surface_t* surf) {
 	surf->need_upload = true;
 }
-
 
 void de_surface_set_diffuse_texture(de_surface_t * surf, de_texture_t *tex) {
 	if (!surf || !tex) {
@@ -65,7 +136,6 @@ void de_surface_set_diffuse_texture(de_surface_t * surf, de_texture_t *tex) {
 	surf->diffuse_map = tex;
 }
 
-
 void de_surface_set_normal_texture(de_surface_t * surf, de_texture_t *tex) {
 	if (!surf || !tex) {
 		return;
@@ -80,42 +150,39 @@ void de_surface_set_normal_texture(de_surface_t * surf, de_texture_t *tex) {
 	surf->normal_map = tex;
 }
 
-
 void de_surface_calculate_normals(de_surface_t * surf) {
-	size_t m;
-
-	for (m = 0; m < surf->indices.size; m += 3) {
+	de_surface_shared_data_t* data = surf->shared_data;
+	for (size_t m = 0; m < data->index_count; m += 3) {
 		int ia, ib, ic;
-		de_vertex_t *a, *b, *c;
+		de_vec3_t *a, *b, *c;
 		de_vec3_t ab, ac;
 		de_vec3_t normal;
 
-		ia = surf->indices.data[m];
-		ib = surf->indices.data[m + 1];
-		ic = surf->indices.data[m + 2];
+		ia = data->indices[m];
+		ib = data->indices[m + 1];
+		ic = data->indices[m + 2];
 
-		a = surf->vertices.data + ia;
-		b = surf->vertices.data + ib;
-		c = surf->vertices.data + ic;
+		a = &data->positions[ia];
+		b = &data->positions[ib];
+		c = &data->positions[ic];
 
-		de_vec3_sub(&ab, &b->position, &a->position);
-		de_vec3_sub(&ac, &c->position, &a->position);
+		de_vec3_sub(&ab, b, a);
+		de_vec3_sub(&ac, c, a);
 
 		de_vec3_cross(&normal, &ab, &ac);
 		de_vec3_normalize(&normal, &normal);
 
-		a->normal = normal;
-		b->normal = normal;
-		c->normal = normal;
+		data->normals[ia] = normal;
+		data->normals[ib] = normal;
+		data->normals[ic] = normal;
 	}
 }
 
-
 bool de_surface_prepare_vertices_for_skinning(de_surface_t* surf) {
-	size_t i, k;
+	de_surface_shared_data_t* data = surf->shared_data;
 
 	/* ensure that surface can be skinned */
-	if (surf->vertex_weights.size != surf->vertices.size) {
+	if (surf->vertex_weights.size != data->vertex_count) {
 		return false;
 	}
 
@@ -126,42 +193,38 @@ bool de_surface_prepare_vertices_for_skinning(de_surface_t* surf) {
 	 * */
 
 	 /* map bone nodes to bone indices */
-	for (i = 0; i < surf->vertices.size; ++i) {
-		de_vertex_t* v = surf->vertices.data + i;
+	memset(data->bone_weights, 0, data->vertex_count * sizeof(*data->bone_weights));
+	for (size_t i = 0; i < data->vertex_count; ++i) {
 		de_vertex_weight_group_t* weight_group = surf->vertex_weights.data + i;
-
-		for (k = 0; k < weight_group->weight_count; ++k) {
+		for (size_t k = 0; k < weight_group->weight_count; ++k) {
 			de_vertex_weight_t* vertex_weight = weight_group->bones + k;
-
-			v->bone_weights[k] = vertex_weight->weight;
-			v->bone_indices[k] = (uint8_t)de_surface_get_bone_index(surf, vertex_weight->node);
+			data->bone_indices[i].indices[k] = (uint8_t)de_surface_get_bone_index(surf, vertex_weight->node);
+			data->bone_weights[i].weights[k] = vertex_weight->weight;
 		}
 	}
 
 	return true;
 }
-
 
 bool de_surface_add_bone(de_surface_t* surf, de_node_t* bone) {
 	size_t i;
 
-	for (i = 0; i < surf->weights.size; ++i) {
-		if (surf->weights.data[i] == bone) {
+	for (i = 0; i < surf->bones.size; ++i) {
+		if (surf->bones.data[i] == bone) {
 			return false;
 		}
 	}
 
-	DE_ARRAY_APPEND(surf->weights, bone);
+	DE_ARRAY_APPEND(surf->bones, bone);
 
 	return true;
 }
 
-
 int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone) {
 	size_t i;
 
-	for (i = 0; i < surf->weights.size; ++i) {
-		if (surf->weights.data[i] == bone) {
+	for (i = 0; i < surf->bones.size; ++i) {
+		if (surf->bones.data[i] == bone) {
 			return i;
 		}
 	}
@@ -171,42 +234,43 @@ int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone) {
 	return -1;
 }
 
-
 void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* out_matrices, size_t max_matrices) {
 	size_t i;
 
-	for (i = 0; i < surf->weights.size && i < max_matrices; ++i) {
-		de_node_t* bone_node = surf->weights.data[i];
+	for (i = 0; i < surf->bones.size && i < max_matrices; ++i) {
+		de_node_t* bone_node = surf->bones.data[i];
 		de_mat4_t* m = out_matrices + i;
-		de_mat4_mul(m, &bone_node->global_matrix, &bone_node->inv_bind_pose_matrix);
+		if (bone_node) {
+			de_mat4_mul(m, &bone_node->global_matrix, &bone_node->inv_bind_pose_matrix);
+		} else {
+			de_mat4_identity(m);
+		}
 	}
 }
 
-
 bool de_surface_is_skinned(de_surface_t* surf) {
-	return surf->vertex_weights.size > 0;
+	return surf->bones.size > 0;
 }
 
-
 void de_surface_calculate_tangents(de_surface_t* surf) {
-	size_t i;
-	de_vec3_t *tan1 = (de_vec3_t *)de_calloc(surf->vertices.size * 2, sizeof(de_vec3_t));
-	de_vec3_t *tan2 = tan1 + surf->vertices.size;
+	de_surface_shared_data_t* data = surf->shared_data;
+	de_vec3_t *tan1 = (de_vec3_t *)de_calloc(data->vertex_count * 2, sizeof(de_vec3_t));
+	de_vec3_t *tan2 = tan1 + data->vertex_count;
 
-	for (i = 0; i < surf->indices.size; i += 3) {
+	for (size_t i = 0; i < data->index_count; i += 3) {
 		de_vec3_t sdir, tdir;
 
-		int i1 = surf->indices.data[i + 0];
-		int i2 = surf->indices.data[i + 1];
-		int i3 = surf->indices.data[i + 2];
+		int i1 = data->indices[i + 0];
+		int i2 = data->indices[i + 1];
+		int i3 = data->indices[i + 2];
 
-		const de_vec3_t* v1 = &surf->vertices.data[i1].position;
-		const de_vec3_t* v2 = &surf->vertices.data[i2].position;
-		const de_vec3_t* v3 = &surf->vertices.data[i3].position;
+		const de_vec3_t* v1 = &data->positions[i1];
+		const de_vec3_t* v2 = &data->positions[i2];
+		const de_vec3_t* v3 = &data->positions[i3];
 
-		const de_vec2_t* w1 = &surf->vertices.data[i1].tex_coord;
-		const de_vec2_t* w2 = &surf->vertices.data[i2].tex_coord;
-		const de_vec2_t* w3 = &surf->vertices.data[i3].tex_coord;
+		const de_vec2_t* w1 = &data->tex_coords[i1];
+		const de_vec2_t* w2 = &data->tex_coords[i2];
+		const de_vec2_t* w3 = &data->tex_coords[i3];
 
 		float x1 = v2->x - v1->x;
 		float x2 = v3->x - v1->x;
@@ -255,9 +319,8 @@ void de_surface_calculate_tangents(de_surface_t* surf) {
 		tan2[i3].z += tdir.z;
 	}
 
-	for (i = 0; i < surf->vertices.size; ++i) {
-		de_vertex_t* v = surf->vertices.data + i;
-		const de_vec3_t* n = &v->normal;
+	for (size_t i = 0; i < data->vertex_count; ++i) {
+		const de_vec3_t* n = &data->normals[i];
 		const de_vec3_t* t = tan1 + i;
 		de_vec3_t tangent, temp;
 
@@ -266,19 +329,16 @@ void de_surface_calculate_tangents(de_surface_t* surf) {
 		de_vec3_sub(&tangent, t, &temp);
 		de_vec3_normalize(&tangent, &tangent);
 
-		v->tangent.x = tangent.x;
-		v->tangent.y = tangent.y;
-		v->tangent.z = tangent.z;
-
 		/* Calculate handedness */
 		de_vec3_cross(&temp, n, t);
-		v->tangent.w = (de_vec3_dot(&temp, &tan2[i]) < 0.0F) ? -1.0F : 1.0F;
+		float w = (de_vec3_dot(&temp, &tan2[i]) < 0.0F) ? -1.0F : 1.0F;
+		data->tangents[i] = (de_vec4_t) { .x = tangent.x, .y = tangent.y, .z = tangent.z, .w = w };
 	}
 
 	de_free(tan1);
 }
 
-
+#if 0
 void de_surface_make_cube(de_surface_t* surf) {
 	static de_vertex_t vertices[] = {
 		/* front */
@@ -338,10 +398,11 @@ void de_surface_make_cube(de_surface_t* surf) {
 		20, 22, 23
 	};
 
-	de_surface_load_data(surf, vertices, DE_ARRAY_SIZE(vertices), faces, DE_ARRAY_SIZE(faces));
+	de_surface_set_data(surf, vertices, DE_ARRAY_SIZE(vertices), faces, DE_ARRAY_SIZE(faces));
 	de_surface_calculate_normals(surf);
 	de_surface_calculate_tangents(surf);
 }
+#endif
 
 
 void de_surface_make_sphere(de_surface_t* surf, int slices, int stacks, float r) {

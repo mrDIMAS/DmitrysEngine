@@ -128,9 +128,35 @@ void de_scene_update(de_scene_t* s, double dt) {
 bool de_scene_visit(de_object_visitor_t* visitor, de_scene_t* scene) {
 	bool result = true;
 	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Nodes", scene->nodes, de_node_t, de_node_visit);
-	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Bodies", scene->bodies, de_body_t, de_body_visit);
-	//result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "StaticGeometries", scene->static_geometries, de_node_visit);
-	//result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Animations", scene->animations, de_node_visit);
+	if (visitor->is_reading) {
+		scene->core = visitor->core;
+		/* resolve pointers to original nodes from model resources using names of nodes
+		 * notes: this is unreliable mechanism, because if name will be changed, resolving 
+		 * will fail. at this moment of time I do not know better way of resolving pointers. */
+		DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes) {
+			if (!node->original) {
+				for (size_t i = 0; i < visitor->core->resources.size; ++i) {
+					de_resource_t* res = visitor->core->resources.data[i];
+					if (res->type == DE_RESOURCE_TYPE_MODEL && res == node->model_resource) {
+						de_model_t* model = &res->s.model;
+						DE_LINKED_LIST_FOR_EACH_T(de_node_t*, ref_node, model->scene->nodes) {
+							if (de_str8_eq_str8(&ref_node->name, &node->name)) {
+								node->original = ref_node;
+							}
+						}
+					}
+				}
+			}
+		}
+		/* resolve rest recursively starting from root nodes */
+		DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes) {
+			if (!node->parent) {
+				de_node_resolve(node);
+			}
+		}
+	}
+	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Bodies", scene->bodies, de_body_t, de_body_visit);	
+	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Animations", scene->animations, de_animation_t, de_animation_visit);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "ActiveCamera", &scene->active_camera, de_node_visit);
 	return result;
 }

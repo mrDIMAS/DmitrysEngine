@@ -114,16 +114,30 @@ static de_node_t* de_node_copy_internal(de_scene_t* dest_scene, de_node_t* node)
 }
 
 void de_node_resolve(de_node_t* node) {
+	/* resolve hierarchy changes */
+	de_node_t* original = node->original;
+	if (original && original->parent && node->parent) {
+		/* parent has changed if names of parents in both model resource and
+		* current node are different */
+		if (!de_str8_is_empty(&node->parent->name) && !de_str8_is_empty(&original->parent->name)) {
+			if (!de_str8_eq_str8(&node->parent->name, &original->parent->name)) {
+				/* search will be performed from root of instantiated node */
+				de_node_t* root = de_mesh_get_model_root(node);
+				/* find new parent */
+				de_node_t* new_parent = de_node_find(root, de_str8_cstr(&original->parent->name));
+				/* resolve hierarchy */
+				de_node_attach(node, new_parent);
+			}
+		}
+	}
+
+	/* todo: resolve transform changes */
+
 	switch (node->type) {
-		case DE_NODE_TYPE_BASE: 
-			break; 
-		case DE_NODE_TYPE_CAMERA: 
-			break;
-		case DE_NODE_TYPE_LIGHT: 
-			break;
-		case DE_NODE_TYPE_MESH: 
-			de_mesh_resolve_bones(&node->s.mesh);
-			break;
+		case DE_NODE_TYPE_BASE: break;  /* handled already */			
+		case DE_NODE_TYPE_CAMERA: break;
+		case DE_NODE_TYPE_LIGHT: break;
+		case DE_NODE_TYPE_MESH: de_mesh_resolve(&node->s.mesh); break;
 		default: de_fatal_error("unhandled node type!"); break;
 	}
 

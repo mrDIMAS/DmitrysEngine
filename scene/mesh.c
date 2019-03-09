@@ -39,7 +39,7 @@ void de_mesh_copy(de_mesh_t* src, de_mesh_t* dest) {
 	}
 }
 
-void de_mesh_resolve_bones(de_mesh_t* mesh) {
+void de_mesh_resolve(de_mesh_t* mesh) {
 	de_node_t* node = de_node_from_mesh(mesh);
 	de_node_t* root = de_mesh_get_model_root(node);
 	if (!root) {
@@ -50,9 +50,7 @@ void de_mesh_resolve_bones(de_mesh_t* mesh) {
 		for (size_t j = 0; j < surf->bones.size; ++j) {
 			de_node_t* old_bone = surf->bones.data[j];
 			de_node_t* instance = de_node_find_copy_of(root, old_bone);
-			
-				surf->bones.data[j] = instance;
-			
+			surf->bones.data[j] = instance;
 		}
 	}
 }
@@ -70,24 +68,6 @@ bool de_mesh_visit(de_object_visitor_t* visitor, de_mesh_t* mesh) {
 				for (size_t i = 0; i < ref_mesh->surfaces.size; ++i) {
 					DE_ARRAY_APPEND(mesh->surfaces, de_surface_copy(ref_mesh->surfaces.data[i]));
 				}
-
-				/* resolve hierarchy changes */
-				if (ref_node->parent && node->parent) {
-					/* parent has changed if names of parents in both model resource and
-					 * current node are different */
-					if (!de_str8_is_empty(&node->parent->name) && !de_str8_is_empty(&ref_node->parent->name)) {
-						if (!de_str8_eq_str8(&node->parent->name, &ref_node->parent->name)) {
-							/* search will be performed from root of instantiated node */
-							de_node_t* root = de_mesh_get_model_root(node);
-							/* find new parent */
-							de_node_t* new_parent = de_node_find(root, de_str8_cstr(&ref_node->parent->name));
-							/* resolve hierarchy */
-							de_node_attach(node, new_parent);
-						}
-					}
-				}
-
-				/* todo: resolve transform changes */
 			} else {
 				de_log("unable to resolve mesh: model reference node was not found!");
 			}

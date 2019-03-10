@@ -71,7 +71,7 @@ bool de_animation_track_visit(de_object_visitor_t* visitor, de_animation_track_t
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Animation", &track->parent_animation, de_animation_visit);
 	if (track->parent_animation && !track->parent_animation->resource) {
 		/* visit keyframes only if this animation was created during runtime, not from external resource */
-		result &= DE_OBJECT_VISITOR_VISIT_ARRAY(visitor, "Keyframes", track->keyframes, de_keyframe_visit);	
+		result &= DE_OBJECT_VISITOR_VISIT_ARRAY(visitor, "Keyframes", track->keyframes, (de_visit_callback_t)de_keyframe_visit);	
 	}	
 	result &= de_object_visitor_visit_bool(visitor, "Enabled", &track->enabled);
 	result &= de_object_visitor_visit_float(visitor, "MaxTime", &track->max_time);

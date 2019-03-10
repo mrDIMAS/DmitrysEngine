@@ -68,6 +68,7 @@ extern "C" {
 #  pragma warning(disable: 4204) 
 #elif defined __GNUC__
 #  define _POSIX_C_SOURCE 200809L
+#  pragma GCC diagnostic ignored "-Wunused-local-typedefs"
 #else
 #  error Compiler not supported
 #endif

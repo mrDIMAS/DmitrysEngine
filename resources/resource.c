@@ -26,6 +26,7 @@ const char* de_resource_type_to_cstr(de_resource_type_t type) {
 		case DE_RESOURCE_TYPE_MODEL: return "model";
 		case DE_RESOURCE_TYPE_TEXTURE: return "texture";
 		case DE_RESOURCE_TYPE_SOUND_BUFFER: return "sound buffer";
+        default: break;
 	}
 	return "<unknown>";
 }

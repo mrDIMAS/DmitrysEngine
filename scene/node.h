@@ -24,7 +24,7 @@ typedef enum de_node_type_t {
 	DE_NODE_TYPE_LIGHT,
 	DE_NODE_TYPE_MESH,
 	DE_NODE_TYPE_CAMERA,
-	DE_NODE_TYPE_FORCE_SIZE = 0xFFFFFFFF,
+	DE_NODE_TYPE_FORCE_SIZE = INT32_MAX,
 } de_node_type_t;
 
 DE_STATIC_ASSERT(sizeof(de_node_type_t) == sizeof(uint32_t), invalid_node_type_size);

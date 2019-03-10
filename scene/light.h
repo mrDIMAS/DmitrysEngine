@@ -26,7 +26,7 @@ typedef enum de_light_type_t {
 	DE_LIGHT_TYPE_POINT,
 	DE_LIGHT_TYPE_DIRECTIONAL,
 	DE_LIGHT_TYPE_SPOT,
-	DE_LIGHT_TYPE_FORCE_SIZE = 0xFFFFFFFF,
+	DE_LIGHT_TYPE_FORCE_SIZE = INT32_MAX,
 } de_light_type_t;
 
 DE_STATIC_ASSERT(sizeof(de_light_type_t) == sizeof(uint32_t), invalid_light_size);

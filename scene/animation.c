@@ -69,11 +69,36 @@ static bool de_keyframe_visit(de_object_visitor_t* visitor, de_keyframe_t* key) 
 bool de_animation_track_visit(de_object_visitor_t* visitor, de_animation_track_t* track) {
 	bool result = true;
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Animation", &track->parent_animation, de_animation_visit);
-	result &= DE_OBJECT_VISITOR_VISIT_ARRAY(visitor, "Keyframes", track->keyframes, de_keyframe_visit);
+	if (track->parent_animation && !track->parent_animation->resource) {
+		/* visit keyframes only if this animation was created during runtime, not from external resource */
+		result &= DE_OBJECT_VISITOR_VISIT_ARRAY(visitor, "Keyframes", track->keyframes, de_keyframe_visit);	
+	}	
 	result &= de_object_visitor_visit_bool(visitor, "Enabled", &track->enabled);
 	result &= de_object_visitor_visit_float(visitor, "MaxTime", &track->max_time);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Node", &track->node, de_node_visit);	
 	return result;
+}
+
+void de_animation_resolve(de_animation_t* anim) {
+	/* no need to resolve resource dependencies if there is no resource */
+	/* TODO: support more resource types */
+	if (anim->resource && anim->resource->type == DE_RESOURCE_TYPE_MODEL) { 
+		de_model_t* model = de_resource_to_model(anim->resource);
+		for (size_t i = 0; i < anim->tracks.size; ++i) {
+			de_animation_track_t* track = anim->tracks.data[i];
+			DE_LINKED_LIST_FOR_EACH_T(de_animation_t*, ref_anim, model->scene->animations) {
+				for (size_t k = 0; k < ref_anim->tracks.size; ++k) {
+					de_animation_track_t* ref_track = ref_anim->tracks.data[k];
+					if (ref_track->node && track->node && track->node->original == ref_track->node) {
+						/* copy keyframes from ref track */
+						DE_ARRAY_COPY(ref_track->keyframes, track->keyframes);
+					} else {
+						de_log("unable to resolve track resource dependencies");
+					}
+				}
+			}
+		}
+	}
 }
 
 void de_animation_track_free(de_animation_track_t* track) {
@@ -129,6 +154,10 @@ void de_animation_free(de_animation_t* anim) {
 	}
 	DE_ARRAY_FREE(anim->tracks);
 
+	if (anim->resource) {
+		de_resource_release(anim->resource);
+	}
+
 	de_free(anim);
 }
 
@@ -137,6 +166,10 @@ de_animation_t* de_animation_copy(de_animation_t* anim, de_scene_t* dest_scene) 
 	copy->scene = dest_scene;
 	for (size_t i = 0; i < anim->tracks.size; ++i) {
 		DE_ARRAY_APPEND(copy->tracks, de_animation_track_copy(anim->tracks.data[i], copy));
+	}
+	copy->resource = anim->resource;
+	if (copy->resource) {
+		de_resource_add_ref(copy->resource);
 	}
 	copy->flags = anim->flags;
 	copy->speed = anim->speed;

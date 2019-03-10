@@ -51,7 +51,7 @@
 
 /* Copies array @a to array @b.
  *
- * IMPORTANT. Will NEVER decrease size of dest array @b, only increase. To storage fix exactly to data
+ * IMPORTANT. Will NEVER decrease size of dest array @b, only increase. To fit storage exactly to data
  * size use DE_ARRAY_COMPACT after. */
 #define DE_ARRAY_COPY(a, b) \
 	do { \

@@ -157,6 +157,12 @@ bool de_scene_visit(de_object_visitor_t* visitor, de_scene_t* scene) {
 	}
 	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Bodies", scene->bodies, de_body_t, de_body_visit);	
 	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Animations", scene->animations, de_animation_t, de_animation_visit);
+	if (visitor->is_reading) {
+		/* resolve animations */
+		DE_LINKED_LIST_FOR_EACH_T(de_animation_t*, anim, scene->animations) {
+			de_animation_resolve(anim);
+		}
+	}
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "ActiveCamera", &scene->active_camera, de_node_visit);
 	return result;
 }

@@ -23,11 +23,11 @@ void de_model_deinit(de_model_t* mdl) {
 	de_scene_free(mdl->scene);
 }
 
-static void de_model_set_node_model(de_node_t* node, de_resource_t* res) {
+static void de_model_set_node_resouce(de_node_t* node, de_resource_t* res) {
 	node->model_resource = res;
 	de_resource_add_ref(node->model_resource);
 	for (size_t i = 0; i < node->children.size; ++i) {
-		de_model_set_node_model(node->children.data[i], res);
+		de_model_set_node_resouce(node->children.data[i], res);
 	}
 }
 
@@ -37,7 +37,14 @@ bool de_model_load(de_model_t* mdl, const de_path_t* path) {
 	mdl->scene = de_scene_create(core);
 	DE_LINKED_LIST_REMOVE(core->scenes, mdl->scene);
 	mdl->root = de_fbx_load_to_scene(mdl->scene, de_path_cstr(path));
-	de_model_set_node_model(mdl->root, res);
+	if (mdl->root) {
+		de_model_set_node_resouce(mdl->root, res);
+		DE_LINKED_LIST_FOR_EACH_T(de_animation_t*, anim, mdl->scene->animations) {
+			anim->resource = res;
+		}
+	} else {
+		de_log("failed to load model %s", de_path_cstr(path));
+	}
 	return mdl->root != NULL;
 }
 

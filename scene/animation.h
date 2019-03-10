@@ -78,9 +78,20 @@ struct de_animation_t {
  */
 de_animation_t* de_animation_create(de_scene_t* s);
 
+/**
+ * @brief Visits specified animation.
+ */
 bool de_animation_visit(de_object_visitor_t* visitor, de_animation_t* anim);
 
+/**
+ * @brief Visits specified animation track.
+ */
 bool de_animation_track_visit(de_object_visitor_t* visitor, de_animation_track_t* track);
+
+/**
+ * @brief Resolves resource dependencies.
+ */
+void de_animation_resolve(de_animation_t* anim);
 
 /**
 * @brief Writes out intepolated keyframe from animation track at specified time

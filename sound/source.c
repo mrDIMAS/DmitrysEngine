@@ -42,14 +42,23 @@ de_sound_source_t* de_sound_source_create(de_sound_context_t* ctx, de_sound_sour
 void de_sound_source_free(de_sound_source_t* src) {
 	de_sound_context_t* ctx = src->ctx;
 	de_sound_context_lock(ctx);
+	if (src->buffer) {
+		de_resource_release(de_resource_from_sound_buffer(src->buffer));
+	}
 	DE_ARRAY_REMOVE(ctx->sounds, src);
 	de_free(src);
-	de_sound_context_unlock(ctx);	
+	de_sound_context_unlock(ctx);
 }
 
 void de_sound_source_set_buffer(de_sound_source_t* src, de_sound_buffer_t* buf) {
 	de_sound_context_lock(src->ctx);
+	if (src->buffer) {
+		de_resource_release(de_resource_from_sound_buffer(src->buffer));
+	}
 	src->buffer = buf;
+	if (src->buffer) {
+		de_resource_add_ref(de_resource_from_sound_buffer(src->buffer));
+	}
 	src->playback_pos = 0;
 	src->buf_read_pos = 0;
 	de_sound_context_unlock(src->ctx);
@@ -151,8 +160,41 @@ void de_sound_source_update(de_sound_source_t* src) {
 			de_vec3_normalize(&dir, &dir);
 			src->pan = de_vec3_dot(&dir, &lst->ear_axis);
 		}
-		dist_gain = 1.0f / (1.0f + (sqr_distance / (src->radius * src->radius)));		
+		dist_gain = 1.0f / (1.0f + (sqr_distance / (src->radius * src->radius)));
 	}
 	src->left_gain = dist_gain * (1.0f + src->pan);
 	src->right_gain = dist_gain * (1.0f - src->pan);
+}
+
+bool de_sound_source_visit(de_object_visitor_t* visitor, de_sound_source_t* src) {
+	bool result = true;
+	if (visitor->is_reading) {
+		src->ctx = visitor->core->sound_context;
+	}		
+	result &= de_object_visitor_visit_uint32(visitor, "Type", (uint32_t*)&src->type);
+	if (visitor->is_reading) {
+		de_resource_t* res_buf;
+		result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Buffer", &res_buf, de_resource_visit);
+		src->buffer = de_resource_to_sound_buffer(res_buf);
+		if (res_buf) {
+			de_resource_add_ref(res_buf);
+		}
+	} else {
+		de_resource_t* res_buf = de_resource_from_sound_buffer(src->buffer);
+		result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Buffer", &res_buf, de_resource_visit);		
+	}
+	result &= de_object_visitor_visit_uint32(visitor, "Status", (uint32_t*)&src->status);
+	result &= de_object_visitor_visit_double(visitor, "BufReadPos", &src->buf_read_pos);
+	result &= de_object_visitor_visit_double(visitor, "PlaybackPos", &src->playback_pos);
+	result &= de_object_visitor_visit_float(visitor, "Pan", &src->pan);
+	result &= de_object_visitor_visit_float(visitor, "Pitch", &src->pitch);
+	result &= de_object_visitor_visit_float(visitor, "Gain", &src->gain);
+	result &= de_object_visitor_visit_bool(visitor, "Loop", &src->loop);
+	result &= de_object_visitor_visit_float(visitor, "Radius", &src->radius);
+	result &= de_object_visitor_visit_float(visitor, "LeftGain", &src->left_gain);
+	result &= de_object_visitor_visit_float(visitor, "RightGain", &src->right_gain);
+	result &= de_object_visitor_visit_vec3(visitor, "Position", &src->position);
+
+	src->current_sample_rate = 1.0f;
+	return result;
 }

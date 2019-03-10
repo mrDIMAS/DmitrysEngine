@@ -35,7 +35,6 @@ void de_sound_context_free(de_sound_context_t* ctx) {
 		de_sound_source_free(ctx->sounds.data[i]);
 	}
 	DE_ARRAY_FREE(ctx->sounds);
-	DE_ARRAY_FREE(ctx->buffers);
 	de_mtx_destroy(&ctx->mtx);
 	de_free(ctx);
 }
@@ -49,10 +48,14 @@ void de_sound_context_update(de_sound_context_t* ctx) {
 		de_sound_source_update(src);
 	}
 
-	for (i = 0; i < ctx->buffers.size; ++i) {
-		de_sound_buffer_t* buf = ctx->buffers.data[i];
-		de_sound_buffer_update(buf);
+	for (i = 0; i < ctx->core->resources.size; ++i) {
+		de_resource_t* res = ctx->core->resources.data[i];
+		if (res->type == DE_RESOURCE_TYPE_SOUND_BUFFER) {
+			de_sound_buffer_t* buf = de_resource_to_sound_buffer(res);
+			de_sound_buffer_update(buf);
+		}
 	}
+
 	de_sound_context_unlock(ctx);
 }
 
@@ -66,4 +69,10 @@ void de_sound_context_unlock(de_sound_context_t* ctx) {
 
 de_listener_t* de_sound_context_get_listener(de_sound_context_t* ctx) {
 	return &ctx->listener;
+}
+
+bool de_sound_context_visit(de_object_visitor_t* visitor, de_sound_context_t* ctx) {
+	bool result = true;
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Sources", ctx->sounds, de_sound_source_visit);	
+	return result;
 }

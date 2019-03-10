@@ -25,7 +25,6 @@ struct de_sound_context_t {
 	de_sound_device_t dev;
 	de_listener_t listener;
 	DE_ARRAY_DECLARE(de_sound_source_t*, sounds);
-	DE_ARRAY_DECLARE(de_sound_buffer_t*, buffers);
 };
 
 /**
@@ -60,3 +59,5 @@ void de_sound_context_unlock(de_sound_context_t* ctx);
  * @brief Returns pointer to current listener.
  */
 de_listener_t* de_sound_context_get_listener(de_sound_context_t* ctx);
+
+bool de_sound_context_visit(de_object_visitor_t* visitor, de_sound_context_t* ctx);

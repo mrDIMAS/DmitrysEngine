@@ -37,8 +37,9 @@ struct de_resource_t {
 	de_path_t source; /**< Path for external resource. */
 	bool external; /**< true if resource needs to be loaded from external source, false for dynamic resources. */
 	union {
+		de_sound_buffer_t sound_buffer;
 		de_texture_t texture;
-		de_model_t model;
+		de_model_t model;		
 	} s;
 };
 
@@ -62,3 +63,7 @@ bool de_resource_visit(de_object_visitor_t* visitor, de_resource_t* res);
 de_model_t* de_resource_to_model(de_resource_t* res);
 
 de_resource_t* de_resource_from_model(de_model_t* mdl);
+
+de_sound_buffer_t* de_resource_to_sound_buffer(de_resource_t* res);
+
+de_resource_t* de_resource_from_sound_buffer(de_sound_buffer_t* buf);

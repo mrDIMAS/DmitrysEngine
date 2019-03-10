@@ -14,7 +14,6 @@ struct game_t {
 };
 
 struct main_menu_t {
-	de_sound_buffer_t* music_buffer;
 	de_sound_source_t* music;
 	game_t* game;
 	de_gui_node_t* window;
@@ -67,8 +66,7 @@ struct player_t {
 	de_vec3_t camera_position;
 	DE_ARRAY_DECLARE(weapon_t*, weapons);
 	player_controller_t controller;
-	de_sound_buffer_t* footstep_bufs[4];
-	de_sound_source_t* footsteps[4];
+	DE_ARRAY_DECLARE(de_sound_source_t*, footsteps);	
 };
 
 weapon_t* weapon_create(level_t* level, weapon_type_t type) {
@@ -220,13 +218,16 @@ player_t* player_create(level_t* level) {
 	de_node_set_local_position_xyz(p->weapon_pivot, 0.03f, -0.052f, -0.02f);
 
 	ctx = de_core_get_sound_context(level->game->core);
-	for (i = 0; i < 4; ++i) {
-		char filename[PATH_MAX];
-		snprintf(filename, sizeof(filename), "data/sounds/footsteps/FootStep_shoe_metal_step%d.wav", i + 1);
-		p->footstep_bufs[i] = de_sound_buffer_create(ctx, 0);
-		de_sound_buffer_load_file(p->footstep_bufs[i], filename);
-		p->footsteps[i] = de_sound_source_create(ctx, DE_SOUND_SOURCE_TYPE_3D);
-		de_sound_source_set_buffer(p->footsteps[i], p->footstep_bufs[i]);
+			
+	for (i = 0; i < 4; ++i) {	
+		char buf[PATH_MAX];
+		snprintf(buf, sizeof(buf), "data/sounds/footsteps/FootStep_shoe_metal_step%d.wav", i + 1);
+		de_path_t path;		
+		de_path_from_cstr_as_view(&path, buf);
+		de_resource_t* res = de_core_request_resource(level->game->core, DE_RESOURCE_TYPE_SOUND_BUFFER, &path);		
+		de_sound_source_t* src = de_sound_source_create(ctx, DE_SOUND_SOURCE_TYPE_3D);
+		de_sound_source_set_buffer(src, de_resource_to_sound_buffer(res));		
+		DE_ARRAY_APPEND(p->footsteps, src);		
 	}
 
 #if 0
@@ -269,7 +270,7 @@ bool player_visit(de_object_visitor_t* visitor, player_t* player) {
 	result &= de_object_visitor_visit_vec3(visitor, "CameraOffset", &player->camera_offset);
 	result &= de_object_visitor_visit_vec3(visitor, "CameraDestOffset", &player->camera_dest_offset);
 	result &= de_object_visitor_visit_vec3(visitor, "CameraPosition", &player->camera_position);
-
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Footsteps", player->footsteps, de_sound_source_visit);
 	/*
 	TODO: visit these
 
@@ -310,13 +311,8 @@ void player_free(player_t* p) {
 		weapon_free(p->weapons.data[i]);
 	}
 	DE_ARRAY_FREE(p->weapons);
-	for (size_t i = 0; i < 4; ++i) {
-		if (p->footsteps[i]) {
-			de_sound_source_free(p->footsteps[i]);
-		}
-		if (p->footstep_bufs[i]) {
-			de_sound_buffer_free(p->footstep_bufs[i]);
-		}
+	for (size_t i = 0; i < p->footsteps.size; ++i) {		
+		de_sound_source_free(p->footsteps.data[i]);		
 	}
 	de_node_free(p->pivot);
 	de_free(p);
@@ -411,7 +407,7 @@ void player_update(player_t* p) {
 		de_vec3_scale(&offset, &offset, speed_multiplier * p->move_speed);
 		p->path_len += 0.05f;
 		if (p->path_len >= 1) {
-			de_sound_source_t* src = p->footsteps[rand() % (sizeof(p->footsteps) / sizeof(*p->footsteps))];
+			de_sound_source_t* src = p->footsteps.data[rand() % p->footsteps.size];
 			if (src) {
 				de_sound_source_play(src);
 			}
@@ -584,12 +580,12 @@ main_menu_t* main_menu_create(game_t* game) {
 	menu->game = game;
 
 	{
-		menu->music_buffer = de_sound_buffer_create(de_core_get_sound_context(game->core), DE_SOUND_BUFFER_FLAGS_STREAM);
-		de_sound_buffer_load_file(menu->music_buffer, "data/sounds/test.wav");
-
+		de_path_t path;
+		de_path_from_cstr_as_view(&path, "data/sounds/test.wav");
+		de_resource_t* res = de_core_request_resource(game->core, DE_RESOURCE_TYPE_SOUND_BUFFER, &path);	
 		menu->music = de_sound_source_create(de_core_get_sound_context(game->core), DE_SOUND_SOURCE_TYPE_2D);
-		de_sound_source_set_buffer(menu->music, menu->music_buffer);
-		//de_sound_source_play(menu->music);
+		de_sound_source_set_buffer(menu->music, de_resource_to_sound_buffer(res));
+		///de_sound_source_play(menu->music);
 	}
 	/* main window */
 	{
@@ -730,7 +726,6 @@ main_menu_t* main_menu_create(game_t* game) {
 
 void main_menu_free(main_menu_t* menu) {
 	DE_ARRAY_FREE(menu->video_modes);
-	de_sound_buffer_free(menu->music_buffer);
 	de_sound_source_free(menu->music);
 	de_free(menu);
 }

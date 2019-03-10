@@ -686,7 +686,7 @@ static void de_object_visitor_node_print(de_object_visitor_t* visitor, de_object
 				fprintf(stream, "<%s|u32:%" PRIu32 ">", de_str8_cstr(&field->name), *((uint32_t*)field_data));
 				break;
 /* temporarily suppress annoying GCC warning about unsupported format. PRIi64/PRIu64 are absolutely safe, 
- * bug GCC whines about them */
+ * but GCC whines about them */
 #ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wformat"
 #endif

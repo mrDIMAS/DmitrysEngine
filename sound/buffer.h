@@ -66,7 +66,7 @@ struct de_sound_buffer_t {
 /**
  * @brief Creates new sound buffer. Thread-safe.
  */
-de_sound_buffer_t* de_sound_buffer_create(de_sound_context_t* ctx, uint32_t flags);
+void de_sound_buffer_init(de_sound_buffer_t* buf, de_sound_context_t* ctx, uint32_t flags);
 
 /**
  * @brief Uploads content of file into buffer. Thread-safe.
@@ -81,7 +81,7 @@ void de_sound_buffer_load_file(de_sound_buffer_t* buf, const char* file);
 /**
  * @brief Destroys sound buffer. Thread-safe.
  */
-void de_sound_buffer_free(de_sound_buffer_t* buf);
+void de_sound_buffer_deinit(de_sound_buffer_t* buf);
 
 /**
  * @brief Internal. Performs streaming for streaming buffers.
@@ -107,3 +107,5 @@ void de_sound_buffer_reset_flags(de_sound_buffer_t* buf, uint32_t flags);
  * @brief Rewinds streaming buffer. Immediately uploads two blocks of data.
  */
 void de_sound_buffer_rewind(de_sound_buffer_t* buf);
+
+bool de_sound_buffer_visit(de_object_visitor_t* visitor, de_sound_buffer_t* buf);

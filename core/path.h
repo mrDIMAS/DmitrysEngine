@@ -30,6 +30,12 @@ void de_path_free(de_path_t* path);
 void de_path_clear(de_path_t* path);
 
 /**
+ * @brief Initializes path as view of c-string. !!! Do NOT call de_path_free or any path_append function
+ * on such path, this is very dangerous, only read operations are allowed !!!
+ */
+void de_path_from_cstr_as_view(de_path_t* path, const char* cstr);
+
+/**
  * @brief Initializes path as string view. Useful to temporarily use existing string as path.
  */
 void de_path_as_str8_view(de_path_t* path, de_str8_t* str);

@@ -69,7 +69,7 @@ de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type) {
 	return node;
 }
 
-static de_node_t* de_node_copy_internal(de_scene_t* dest_scene, de_node_t* node) {	
+static de_node_t* de_node_copy_internal(de_scene_t* dest_scene, de_node_t* node) {
 	de_node_t* copy = DE_NEW(de_node_t);
 	copy->type = node->type;
 	de_str8_copy(&node->name, &copy->name);
@@ -85,7 +85,7 @@ static de_node_t* de_node_copy_internal(de_scene_t* dest_scene, de_node_t* node)
 	copy->rotation_offset = node->rotation_offset;
 	copy->rotation_pivot = node->rotation_pivot;
 	copy->scaling_offset = node->scaling_offset;
-	copy->scaling_pivot = node->scaling_pivot;	
+	copy->scaling_pivot = node->scaling_pivot;
 	copy->need_update = true;
 	copy->parent = NULL;
 	copy->visible = node->visible;
@@ -103,7 +103,7 @@ static de_node_t* de_node_copy_internal(de_scene_t* dest_scene, de_node_t* node)
 		de_node_attach(de_node_copy_internal(dest_scene, node->children.data[i]), copy);
 	}
 	switch (node->type) {
-		case DE_NODE_TYPE_BASE: break; /* handled already */ 
+		case DE_NODE_TYPE_BASE: break; /* handled already */
 		case DE_NODE_TYPE_CAMERA: de_camera_copy(&node->s.camera, &copy->s.camera); break;
 		case DE_NODE_TYPE_LIGHT: de_light_copy(&node->s.light, &copy->s.light); break;
 		case DE_NODE_TYPE_MESH: de_mesh_copy(&node->s.mesh, &copy->s.mesh); break;
@@ -134,7 +134,7 @@ void de_node_resolve(de_node_t* node) {
 	/* todo: resolve transform changes */
 
 	switch (node->type) {
-		case DE_NODE_TYPE_BASE: break;  /* handled already */			
+		case DE_NODE_TYPE_BASE: break;  /* handled already */
 		case DE_NODE_TYPE_CAMERA: break;
 		case DE_NODE_TYPE_LIGHT: break;
 		case DE_NODE_TYPE_MESH: de_mesh_resolve(&node->s.mesh); break;
@@ -167,25 +167,12 @@ void de_node_detach(de_node_t* node) {
 }
 
 de_mat4_t* de_node_calculate_transforms(de_node_t* node) {
-	de_mat4_t pre_rotation;
-	de_mat4_t post_rotation;
-	de_mat4_t rotation;
-	de_mat4_t scale;
-	de_mat4_t translation;
-	de_mat4_t rotation_offset;
-	de_mat4_t rotation_pivot;
-	de_mat4_t rotation_pivot_inv;
-	de_mat4_t scale_offset;
-	de_mat4_t scale_pivot;
-	de_mat4_t scale_pivot_inv;
-
 	if (!node) {
 		return NULL;
 	}
 
-	const de_body_t* body = node->body;
-	if (body) {
-		de_body_get_position(body, &node->position);
+	if (node->body) {
+		de_body_get_position(node->body, &node->position);
 	}
 
 	/**
@@ -202,21 +189,38 @@ de_mat4_t* de_node_calculate_transforms(de_node_t* node) {
 	 * TODO: OPTIMIZE THIS ASAP!
 	 */
 
+	de_mat4_t pre_rotation;
 	de_mat4_rotation(&pre_rotation, &node->pre_rotation);
 
+	de_mat4_t post_rotation;
 	de_mat4_rotation(&post_rotation, &node->post_rotation);
 	de_mat4_inverse(&post_rotation, &post_rotation);
 
+	de_mat4_t rotation;
 	de_mat4_rotation(&rotation, &node->rotation);
+
+	de_mat4_t scale;
 	de_mat4_scale(&scale, &node->scale);
+
+	de_mat4_t translation;
 	de_mat4_translation(&translation, &node->position);
 
+	de_mat4_t rotation_offset;
 	de_mat4_translation(&rotation_offset, &node->rotation_offset);
+
+	de_mat4_t rotation_pivot;
 	de_mat4_translation(&rotation_pivot, &node->rotation_pivot);
+
+	de_mat4_t rotation_pivot_inv;
 	de_mat4_inverse(&rotation_pivot_inv, &rotation_pivot);
 
+	de_mat4_t scale_offset;
 	de_mat4_translation(&scale_offset, &node->scaling_offset);
+
+	de_mat4_t scale_pivot;
 	de_mat4_translation(&scale_pivot, &node->scaling_pivot);
+
+	de_mat4_t scale_pivot_inv;
 	de_mat4_inverse(&scale_pivot_inv, &scale_pivot);
 
 	de_mat4_mul(&node->local_matrix, &translation, &rotation_offset);
@@ -230,9 +234,8 @@ de_mat4_t* de_node_calculate_transforms(de_node_t* node) {
 	de_mat4_mul(&node->local_matrix, &node->local_matrix, &scale);
 	de_mat4_mul(&node->local_matrix, &node->local_matrix, &scale_pivot_inv);
 
-	de_node_t* parent = node->parent;
-	if (parent) {
-		de_mat4_mul(&node->global_matrix, de_node_calculate_transforms(parent), &node->local_matrix);
+	if (node->parent) {
+		de_mat4_mul(&node->global_matrix, de_node_calculate_transforms(node->parent), &node->local_matrix);
 	} else {
 		node->global_matrix = node->local_matrix;
 	}
@@ -416,7 +419,7 @@ void de_node_set_name(de_node_t* node, const char* name) {
 
 static void de_node_find_copy_of_internal(de_node_t* root, de_node_t* node, de_node_t** out) {
 	if (root->original == node) {
-		*out = root;		
+		*out = root;
 	} else {
 		for (size_t i = 0; i < root->children.size; ++i) {
 			de_node_find_copy_of_internal(root->children.data[i], node, out);

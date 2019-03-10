@@ -67,9 +67,10 @@ int de_resource_release(de_resource_t* res) {
 		switch (res->type) {
 			case DE_RESOURCE_TYPE_MODEL: de_model_deinit(&res->s.model); break;
 			case DE_RESOURCE_TYPE_TEXTURE: break;
-			case DE_RESOURCE_TYPE_SOUND_BUFFER: break;
+			case DE_RESOURCE_TYPE_SOUND_BUFFER: de_sound_buffer_deinit(&res->s.sound_buffer); break;
 			default: de_fatal_error("unhandled resource type"); break;
 		}
+		DE_ARRAY_REMOVE(res->core->resources, res);
 		de_free(res);
 		return 0;
 	}
@@ -86,7 +87,7 @@ bool de_resource_visit(de_object_visitor_t* visitor, de_resource_t* res) {
 	switch (res->type) {
 		case DE_RESOURCE_TYPE_MODEL: result &= de_model_visit(visitor, &res->s.model); break;
 		case DE_RESOURCE_TYPE_TEXTURE: break;
-		case DE_RESOURCE_TYPE_SOUND_BUFFER: break;
+		case DE_RESOURCE_TYPE_SOUND_BUFFER: result &= de_sound_buffer_visit(visitor, &res->s.sound_buffer); break;
 		default: de_fatal_error("unhandled resource type"); break;
 	}
 	return result;
@@ -98,4 +99,12 @@ de_model_t* de_resource_to_model(de_resource_t* res) {
 
 de_resource_t* de_resource_from_model(de_model_t* mdl) {
 	return (de_resource_t*)((char*)mdl - offsetof(de_resource_t, s.model));
+}
+
+de_sound_buffer_t* de_resource_to_sound_buffer(de_resource_t* res) {
+	return &res->s.sound_buffer;
+}
+
+de_resource_t* de_resource_from_sound_buffer(de_sound_buffer_t* buf) {
+	return (de_resource_t*)((char*)buf - offsetof(de_resource_t, s.sound_buffer));
 }

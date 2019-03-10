@@ -50,12 +50,15 @@ static void de_core_clean(de_core_t* core) {
 
 bool de_core_visit(de_object_visitor_t* visitor, de_core_t* core) {
 	bool result = true;
+	de_sound_context_lock(core->sound_context);
 	if (visitor->is_reading) {
 		/* clean up */
 		de_core_clean(core);
 	}
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Resources", core->resources, de_resource_visit);
+	result &= de_sound_context_visit(visitor, core->sound_context);
 	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Scenes", core->scenes, de_scene_t, de_scene_visit);
+	de_sound_context_unlock(core->sound_context);
 	return result;
 }
 
@@ -77,6 +80,7 @@ void de_core_shutdown(de_core_t* core) {
 	while (core->scenes.head) {
 		de_scene_free(core->scenes.head);
 	}
+	de_sound_context_free(core->sound_context);
 	for (size_t i = 0; i < core->resources.size; ++i) {
 		de_resource_t* res = core->resources.data[i];
 		if (de_resource_release(res) != 0) {
@@ -84,7 +88,6 @@ void de_core_shutdown(de_core_t* core) {
 		}
 	}
 	DE_ARRAY_FREE(core->events_queue);
-	de_sound_context_free(core->sound_context);
 	de_gui_shutdown(core->gui);
 	de_renderer_free(core->renderer);
 	de_core_platform_shutdown(core);
@@ -180,7 +183,9 @@ de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type
 			break;
 		case DE_RESOURCE_TYPE_SOUND_BUFFER:
 			if (de_str8_view_eq_cstr(&ext, ".wav")) {
-
+				de_sound_buffer_init(&res->s.sound_buffer, core->sound_context, 0);
+				de_sound_buffer_load_file(&res->s.sound_buffer, de_path_cstr(path));
+				return res;
 			}
 			break;
 		case DE_RESOURCE_TYPE_MODEL:

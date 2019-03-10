@@ -19,15 +19,11 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-de_sound_buffer_t* de_sound_buffer_create(de_sound_context_t* ctx, uint32_t flags) {
-	de_sound_buffer_t* buf;
+void de_sound_buffer_init(de_sound_buffer_t* buf, de_sound_context_t* ctx, uint32_t flags) {
 	de_sound_context_lock(ctx);
-	buf = DE_NEW(de_sound_buffer_t);
 	buf->ctx = ctx;
 	buf->flags = flags;
-	DE_ARRAY_APPEND(ctx->buffers, buf);
-	de_sound_context_unlock(ctx);
-	return buf;
+	de_sound_context_unlock(ctx);	
 }
 
 void de_sound_buffer_load_file(de_sound_buffer_t* buf, const char* file) {
@@ -66,15 +62,13 @@ void de_sound_buffer_load_file(de_sound_buffer_t* buf, const char* file) {
 	de_sound_context_unlock(buf->ctx);
 }
 
-void de_sound_buffer_free(de_sound_buffer_t* buf) {
+void de_sound_buffer_deinit(de_sound_buffer_t* buf) {
 	de_sound_context_t* ctx = buf->ctx;
 	de_sound_context_lock(ctx);
 	if (buf->decoder) {
 		de_sound_decoder_free(buf->decoder);
 	}
-	DE_ARRAY_REMOVE(ctx->buffers, buf);	
 	de_free(buf->data);
-	de_free(buf);
 	de_sound_context_unlock(ctx);	
 }
 
@@ -122,4 +116,15 @@ void de_sound_buffer_rewind(de_sound_buffer_t* buf) {
 		de_sound_decoder_read(buf->decoder, buf->data, buf->sample_per_channel, 0, buf->sample_per_channel);
 		de_sound_decoder_read(buf->decoder, buf->stream_write_ptr, buf->sample_per_channel, 0, buf->sample_per_channel);
 	}
+}
+
+bool de_sound_buffer_visit(de_object_visitor_t* visitor, de_sound_buffer_t* buf) {
+	de_resource_t* res = de_resource_from_sound_buffer(buf);
+	bool result = true;
+	result &= de_object_visitor_visit_uint32(visitor, "Flags", &buf->flags);
+	if (visitor->is_reading) {
+		buf->ctx = visitor->core->sound_context;
+		de_sound_buffer_load_file(buf, de_path_cstr(&res->source));
+	}
+	return result;
 }

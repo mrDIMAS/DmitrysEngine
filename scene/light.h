@@ -58,14 +58,14 @@ bool de_light_visit(de_object_visitor_t* visitor, de_light_t* light);
 /**
  * @brief
  */
-void de_light_set_radius(de_node_t* node, float radius);
+void de_light_set_radius(de_light_t* light, float radius);
 
 /**
  * @brief Sets angle in radians at cone vertex of a spot light.
  */
-void de_light_set_cone_angle(de_node_t* node, float angle);
+void de_light_set_cone_angle(de_light_t* light, float angle);
 
 /**
  * @brief Returns angle in radians at cone vertex of a spot light.
  */
-float de_light_get_cone_angle(de_node_t* node);
+float de_light_get_cone_angle(const de_light_t* light);

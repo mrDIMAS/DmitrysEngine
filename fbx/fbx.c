@@ -398,8 +398,8 @@ static de_fbx_component_t* de_fbx_read_model(de_fbx_node_t* model_node) {
 
 	model = &comp->s.model;
 
-	de_vec3_set(&model->scale, 1, 1, 1);
-	de_vec3_set(&model->geometric_scale, 1, 1, 1);
+	model->scale = (de_vec3_t) { 1, 1, 1 };
+	model->geometric_scale = (de_vec3_t) { 1, 1, 1 };
 	de_mat4_identity(&model->inv_bind_transform);
 
 	/* Extract node name */
@@ -1318,7 +1318,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 					break;
 				case DE_FBX_LIGHT_TYPE_SPOT:
 					light->type = DE_LIGHT_TYPE_SPOT;
-					de_light_set_cone_angle(node, fbx_light->cone_angle);
+					de_light_set_cone_angle(light, fbx_light->cone_angle);
 					break;
 				default:
 					de_log("FBX: light type is not supported %d.", fbx_light->type);

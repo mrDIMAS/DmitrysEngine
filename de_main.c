@@ -26,6 +26,7 @@
 #include "core/array.c"
 #include "core/color.c"
 #include "core/log.c" 
+#include "core/config.c"
 #include "core/memmgr.c"
 #include "core/base64.c"
 #include "core/string_utils.c"

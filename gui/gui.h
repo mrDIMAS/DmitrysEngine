@@ -219,6 +219,10 @@ typedef struct de_gui_dispatch_table_t {
 	bool(*parse_property)(de_gui_node_t* n, const char* name, const char* value);/* optional */	
 } de_gui_dispatch_table_t;
 
+typedef struct de_gui_node_descriptor_t {
+	de_vec2_t position;
+} de_gui_node_descriptor_t;
+
 /**
  * @brief GUI node. Tagged union (https://en.wikipedia.org/wiki/Tagged_union)
  */
@@ -242,7 +246,7 @@ struct de_gui_node_t {
 	struct de_gui_node_t* parent;                       /**< Pointer to parent node */
 	DE_ARRAY_DECLARE(struct de_gui_node_t*, children);  /**< Array of children nodes */
 	DE_ARRAY_DECLARE(int, geometry);                    /**< Array of indices to draw command in draw list */
-	bool is_hit_test_visible;                      /**< Will this control participate in hit-test */
+	bool is_hit_test_visible;                      /**< Will this control participate in hit-test? */
 	void* user_data; /**< Pointer to any data. Useful to pass data to callbacks */
 
 	/* Specialization (type-specific data) */

@@ -20,10 +20,13 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 void de_model_deinit(de_model_t* mdl) {		
+	DE_ASSERT(mdl);
 	de_scene_free(mdl->scene);
 }
 
 static void de_model_set_node_resouce(de_node_t* node, de_resource_t* res) {
+	DE_ASSERT(node);
+	DE_ASSERT(res);
 	node->model_resource = res;
 	de_resource_add_ref(node->model_resource);
 	for (size_t i = 0; i < node->children.size; ++i) {
@@ -32,6 +35,8 @@ static void de_model_set_node_resouce(de_node_t* node, de_resource_t* res) {
 }
 
 bool de_model_load(de_model_t* mdl, const de_path_t* path) {
+	DE_ASSERT(path);
+	DE_ASSERT(mdl);
 	de_resource_t* res = de_resource_from_model(mdl);
 	de_core_t* core = res->core;
 	mdl->scene = de_scene_create(core);
@@ -49,6 +54,9 @@ bool de_model_load(de_model_t* mdl, const de_path_t* path) {
 }
 
 bool de_model_visit(de_object_visitor_t* visitor, de_model_t* mdl) {
+	DE_ASSERT(visitor);
+	DE_ASSERT(mdl);
+
 	bool result = true;
 	if (visitor->is_reading) {
 		de_resource_t* res = de_resource_from_model(mdl);
@@ -58,6 +66,13 @@ bool de_model_visit(de_object_visitor_t* visitor, de_model_t* mdl) {
 }
 
 de_node_t* de_model_instantiate(de_model_t* mdl, de_scene_t* dest_scene) {
+	DE_ASSERT(mdl);
+	DE_ASSERT(dest_scene);
+
+	if (!mdl->root) {
+		return NULL;
+	}
+
 	/* Instantiate nodes. */
 	de_node_t* copy = de_node_copy(dest_scene, mdl->root);
 

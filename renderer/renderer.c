@@ -1063,7 +1063,7 @@ void de_renderer_render(de_renderer_t* r) {
 		de_camera_t* camera;
 		de_vec3_t camera_position;
 
-		de_vec3_zero(&camera_position);
+		camera_position = (de_vec3_t) { 0 };
 
 		if (!scene->active_camera) {
 			continue;

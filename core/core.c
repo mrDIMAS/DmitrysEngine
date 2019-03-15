@@ -44,15 +44,28 @@ struct de_core_t {
 	} platform;
 };
 
-static void de_core_clean(de_core_t* core) {
-	DE_UNUSED(core);
+static void de_core_clean(de_core_t* core) {	
+	/* destroy every scene with all their contents */
+	while (core->scenes.head) {
+		de_scene_free(core->scenes.head);
+	}
+	for (size_t i = 0; i < core->resources.size; ++i) {
+		de_resource_t* res = core->resources.data[i];
+		if (!(res->flags & DE_RESOURCE_FLAG_PERSISTENT) && !(res->flags & DE_RESOURCE_FLAG_INTERNAL)) {
+			/* force destroy a resource, at this moment we do not care if some still owns it
+			 * because at this time owner is already dead. */
+			while (res->ref_count) {
+				de_resource_release(res);
+			}
+		}
+	}
 }
 
 bool de_core_visit(de_object_visitor_t* visitor, de_core_t* core) {
 	bool result = true;
 	de_sound_context_lock(core->sound_context);
-	if (visitor->is_reading) {
-		/* clean up */
+	/* make sure to deserialize everything on "clean" core */
+	if (visitor->is_reading) {		
 		de_core_clean(core);
 	}
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Resources", core->resources, de_resource_visit);
@@ -173,7 +186,7 @@ de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type
 	}
 	de_str8_view_t ext;
 	de_path_extension(path, &ext);	
-	de_resource_t* res = de_resource_create(core, type);	
+	de_resource_t* res = de_resource_create(core, type, 0);	
 	de_path_copy(path, &res->source);
 	switch (type) {
 		case DE_RESOURCE_TYPE_TEXTURE:

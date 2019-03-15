@@ -31,8 +31,7 @@ void de_light_deinit(de_light_t* light) {
 	DE_UNUSED(light);
 }
 
-void de_light_copy(de_light_t* src, de_light_t* dest) {
-	DE_STATIC_ASSERT(sizeof(de_light_t) == 20, fix_light_copy);
+void de_light_copy(de_light_t* src, de_light_t* dest) {	
 	dest->color = src->color;
 	dest->cone_angle = src->cone_angle;
 	dest->cone_angle_cos = src->cone_angle_cos;
@@ -40,8 +39,7 @@ void de_light_copy(de_light_t* src, de_light_t* dest) {
 	dest->type = src->type;
 }
 
-bool de_light_visit(de_object_visitor_t* visitor, de_light_t* light) {
-	DE_STATIC_ASSERT(sizeof(de_light_t) == 20, fix_light_visiting);
+bool de_light_visit(de_object_visitor_t* visitor, de_light_t* light) {	
 	bool result = true;
 	result &= de_object_visitor_visit_uint32(visitor, "Type", (uint32_t*)&light->type);
 	result &= de_object_visitor_visit_color(visitor, "Color", &light->color);
@@ -51,20 +49,15 @@ bool de_light_visit(de_object_visitor_t* visitor, de_light_t* light) {
 	return result;
 }
 
-void de_light_set_radius(de_node_t * node, float radius) {
-	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_LIGHT);
-	node->s.light.radius = de_maxf(FLT_EPSILON, radius);
+void de_light_set_radius(de_light_t* light, float radius) {
+	light->radius = de_maxf(FLT_EPSILON, radius);
 }
 
-void de_light_set_cone_angle(de_node_t* node, float angle) {
-	de_light_t* light;
-	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_LIGHT);
-	light = &node->s.light;
+void de_light_set_cone_angle(de_light_t* light, float angle) {
 	light->cone_angle = angle;
 	light->cone_angle_cos = (float)cos(angle);
 }
 
-float de_light_get_cone_angle(de_node_t* node) {
-	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_LIGHT);
-	return node->s.light.cone_angle;
+float de_light_get_cone_angle(const de_light_t* light) {
+	return light->cone_angle;
 }

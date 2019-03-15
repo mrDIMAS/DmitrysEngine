@@ -42,79 +42,47 @@ float de_mat4_at(const de_mat4_t * m, unsigned int row, unsigned int column) {
 }
 
 void de_mat4_identity(de_mat4_t * out) {
-	out->f[0] = 1.0f;
-	out->f[1] = 0.0f;
-	out->f[2] = 0.0f;
-	out->f[3] = 0.0f;
-	out->f[4] = 0.0f;
-	out->f[5] = 1.0f;
-	out->f[6] = 0.0f;
-	out->f[7] = 0.0f;
-	out->f[8] = 0.0f;
-	out->f[9] = 0.0f;
-	out->f[10] = 1.0f;
-	out->f[11] = 0.0f;
-	out->f[12] = 0.0f;
-	out->f[13] = 0.0f;
-	out->f[14] = 0.0f;
-	out->f[15] = 1.0f;
+	*out = (de_mat4_t) { 
+		.f[0] = 1.0f, .f[5] = 1.0f, .f[10] = 1.0f, .f[15] = 1.0f
+	};
 }
 
-void de_mat4_transpose(de_mat4_t * out, const de_mat4_t * m) {
-	int i, j;
-	for (j = 0; j < 4; ++j) {
-		for (i = 0; i < 4; ++i) {
+void de_mat4_transpose(de_mat4_t * out, const de_mat4_t * m) {	
+	for (int j = 0; j < 4; ++j) {
+		for (int i = 0; i < 4; ++i) {
 			out->f[(j * 4) + i] = m->f[(i * 4) + j];
 		}
 	}
 }
 
 void de_mat4_mul(de_mat4_t * out, const de_mat4_t * a, const de_mat4_t * b) {
-	de_mat4_t temp;
+	*out = (de_mat4_t) {
+		a->f[0] * b->f[0] + a->f[4] * b->f[1] + a->f[8] * b->f[2] + a->f[12] * b->f[3],
+		a->f[1] * b->f[0] + a->f[5] * b->f[1] + a->f[9] * b->f[2] + a->f[13] * b->f[3],
+		a->f[2] * b->f[0] + a->f[6] * b->f[1] + a->f[10] * b->f[2] + a->f[14] * b->f[3],
+		a->f[3] * b->f[0] + a->f[7] * b->f[1] + a->f[11] * b->f[2] + a->f[15] * b->f[3],
 
-	temp.f[0] = a->f[0] * b->f[0] + a->f[4] * b->f[1] + a->f[8] * b->f[2] + a->f[12] * b->f[3];
-	temp.f[1] = a->f[1] * b->f[0] + a->f[5] * b->f[1] + a->f[9] * b->f[2] + a->f[13] * b->f[3];
-	temp.f[2] = a->f[2] * b->f[0] + a->f[6] * b->f[1] + a->f[10] * b->f[2] + a->f[14] * b->f[3];
-	temp.f[3] = a->f[3] * b->f[0] + a->f[7] * b->f[1] + a->f[11] * b->f[2] + a->f[15] * b->f[3];
+		a->f[0] * b->f[4] + a->f[4] * b->f[5] + a->f[8] * b->f[6] + a->f[12] * b->f[7],
+		a->f[1] * b->f[4] + a->f[5] * b->f[5] + a->f[9] * b->f[6] + a->f[13] * b->f[7],
+		a->f[2] * b->f[4] + a->f[6] * b->f[5] + a->f[10] * b->f[6] + a->f[14] * b->f[7],
+		a->f[3] * b->f[4] + a->f[7] * b->f[5] + a->f[11] * b->f[6] + a->f[15] * b->f[7],
 
-	temp.f[4] = a->f[0] * b->f[4] + a->f[4] * b->f[5] + a->f[8] * b->f[6] + a->f[12] * b->f[7];
-	temp.f[5] = a->f[1] * b->f[4] + a->f[5] * b->f[5] + a->f[9] * b->f[6] + a->f[13] * b->f[7];
-	temp.f[6] = a->f[2] * b->f[4] + a->f[6] * b->f[5] + a->f[10] * b->f[6] + a->f[14] * b->f[7];
-	temp.f[7] = a->f[3] * b->f[4] + a->f[7] * b->f[5] + a->f[11] * b->f[6] + a->f[15] * b->f[7];
+		a->f[0] * b->f[8] + a->f[4] * b->f[9] + a->f[8] * b->f[10] + a->f[12] * b->f[11],
+		a->f[1] * b->f[8] + a->f[5] * b->f[9] + a->f[9] * b->f[10] + a->f[13] * b->f[11],
+		a->f[2] * b->f[8] + a->f[6] * b->f[9] + a->f[10] * b->f[10] + a->f[14] * b->f[11],
+		a->f[3] * b->f[8] + a->f[7] * b->f[9] + a->f[11] * b->f[10] + a->f[15] * b->f[11],
 
-	temp.f[8] = a->f[0] * b->f[8] + a->f[4] * b->f[9] + a->f[8] * b->f[10] + a->f[12] * b->f[11];
-	temp.f[9] = a->f[1] * b->f[8] + a->f[5] * b->f[9] + a->f[9] * b->f[10] + a->f[13] * b->f[11];
-	temp.f[10] = a->f[2] * b->f[8] + a->f[6] * b->f[9] + a->f[10] * b->f[10] + a->f[14] * b->f[11];
-	temp.f[11] = a->f[3] * b->f[8] + a->f[7] * b->f[9] + a->f[11] * b->f[10] + a->f[15] * b->f[11];
-
-	temp.f[12] = a->f[0] * b->f[12] + a->f[4] * b->f[13] + a->f[8] * b->f[14] + a->f[12] * b->f[15];
-	temp.f[13] = a->f[1] * b->f[12] + a->f[5] * b->f[13] + a->f[9] * b->f[14] + a->f[13] * b->f[15];
-	temp.f[14] = a->f[2] * b->f[12] + a->f[6] * b->f[13] + a->f[10] * b->f[14] + a->f[14] * b->f[15];
-	temp.f[15] = a->f[3] * b->f[12] + a->f[7] * b->f[13] + a->f[11] * b->f[14] + a->f[15] * b->f[15];
-
-	*out = temp;
+		a->f[0] * b->f[12] + a->f[4] * b->f[13] + a->f[8] * b->f[14] + a->f[12] * b->f[15],
+		a->f[1] * b->f[12] + a->f[5] * b->f[13] + a->f[9] * b->f[14] + a->f[13] * b->f[15],
+		a->f[2] * b->f[12] + a->f[6] * b->f[13] + a->f[10] * b->f[14] + a->f[14] * b->f[15],
+		a->f[3] * b->f[12] + a->f[7] * b->f[13] + a->f[11] * b->f[14] + a->f[15] * b->f[15]
+	};
 }
 
 void de_mat4_scale(de_mat4_t * out, const de_vec3_t * v) {
-	out->f[0] = v->x;
-	out->f[1] = 0.0f;
-	out->f[2] = 0.0f;
-	out->f[3] = 0.0f;
-
-	out->f[4] = 0.0f;
-	out->f[5] = v->y;
-	out->f[6] = 0.0f;
-	out->f[7] = 0.0f;
-
-	out->f[8] = 0.0f;
-	out->f[9] = 0.0f;
-	out->f[10] = v->z;
-	out->f[11] = 0.0f;
-
-	out->f[12] = 0.0f;
-	out->f[13] = 0.0f;
-	out->f[14] = 0.0f;
-	out->f[15] = 1.0f;
+	*out = (de_mat4_t) { 
+		.f[0] = v->x, .f[5] = v->y, .f[10] = v->z, .f[15] = 1.0f
+	};
 }
 
 void de_mat4_perspective(de_mat4_t * out, float fov_radians, float aspect, float zNear, float zFar) {
@@ -421,22 +389,6 @@ de_quat_t * de_mat4_to_quat(const de_mat4_t * m, de_quat_t * quat) {
 	return quat;
 }
 
-
-
-de_vec3_t* de_vec3_set(de_vec3_t* out, float x, float y, float z) {
-	out->x = x;
-	out->y = y;
-	out->z = z;
-	return out;
-}
-
-de_vec3_t* de_vec3_zero(de_vec3_t* out) {
-	out->x = 0.0f;
-	out->y = 0.0f;
-	out->z = 0.0f;
-	return out;
-}
-
 de_vec3_t* de_vec3_add(de_vec3_t* out, const de_vec3_t* a, const de_vec3_t* b) {
 	out->x = a->x + b->x;
 	out->y = a->y + b->y;
@@ -503,7 +455,7 @@ float de_vec3_sqr_len(const de_vec3_t* a) {
 }
 
 de_vec3_t* de_vec3_normalize(de_vec3_t* out, const de_vec3_t* a) {
-    float k;
+	float k;
 	float len = de_vec3_len(a);
 #if DE_MATH_CHECKS
 	DE_CHECK_DENOMINATOR(len);
@@ -516,7 +468,7 @@ de_vec3_t* de_vec3_normalize(de_vec3_t* out, const de_vec3_t* a) {
 }
 
 de_vec3_t* de_vec3_normalize_ex(de_vec3_t* out, const de_vec3_t* a, float* length) {
-    float k;
+	float k;
 	*length = de_vec3_len(a);
 #if DE_MATH_CHECKS
 	DE_CHECK_DENOMINATOR(*length);
@@ -524,7 +476,7 @@ de_vec3_t* de_vec3_normalize_ex(de_vec3_t* out, const de_vec3_t* a, float* lengt
 	k = 1.0f / *length;
 	out->x = a->x * k;
 	out->y = a->y * k;
-	out->z = a->z * k;	
+	out->z = a->z * k;
 	return out;
 }
 
@@ -1050,10 +1002,10 @@ de_quat_t* de_quat_normalize(de_quat_t* out, de_quat_t* a) {
 de_vec3_t* de_quat_get_axis(const de_quat_t* q, de_vec3_t* out_axis) {
 	float s_squared = 1.0f - q->w * q->w;
 	if (s_squared < 0.0001f) {
-		de_vec3_set(out_axis, 1.0f, 0.0f, 0.0f);
+		*out_axis = (de_vec3_t) { 1.0f, 0.0f, 0.0f };
 	} else {
 		float s = 1.0f / (float)sqrt(s_squared);
-		de_vec3_set(out_axis, q->x * s, q->y * s, q->z * s);
+		*out_axis = (de_vec3_t) { q->x * s, q->y * s, q->z * s };
 	}
 	return out_axis;
 }
@@ -1163,14 +1115,14 @@ de_aabb_t* de_aabb_set(de_aabb_t* aabb, const de_vec3_t* min, const de_vec3_t* m
 }
 
 de_aabb_t* de_aabb_recompute_corners(de_aabb_t* aabb) {
-	de_vec3_set(&aabb->corners[0], aabb->min.x, aabb->min.y, aabb->min.z);
-	de_vec3_set(&aabb->corners[1], aabb->min.x, aabb->min.y, aabb->max.z);
-	de_vec3_set(&aabb->corners[2], aabb->max.x, aabb->min.y, aabb->max.z);
-	de_vec3_set(&aabb->corners[3], aabb->max.x, aabb->min.y, aabb->min.z);
-	de_vec3_set(&aabb->corners[4], aabb->min.x, aabb->max.y, aabb->min.z);
-	de_vec3_set(&aabb->corners[5], aabb->min.x, aabb->max.y, aabb->max.z);
-	de_vec3_set(&aabb->corners[6], aabb->max.x, aabb->max.y, aabb->max.z);
-	de_vec3_set(&aabb->corners[7], aabb->max.x, aabb->max.y, aabb->min.z);
+	aabb->corners[0] = (de_vec3_t) { aabb->min.x, aabb->min.y, aabb->min.z };
+	aabb->corners[1] = (de_vec3_t) { aabb->min.x, aabb->min.y, aabb->max.z };
+	aabb->corners[2] = (de_vec3_t) { aabb->max.x, aabb->min.y, aabb->max.z };
+	aabb->corners[3] = (de_vec3_t) { aabb->max.x, aabb->min.y, aabb->min.z };
+	aabb->corners[4] = (de_vec3_t) { aabb->min.x, aabb->max.y, aabb->min.z };
+	aabb->corners[5] = (de_vec3_t) { aabb->min.x, aabb->max.y, aabb->max.z };
+	aabb->corners[6] = (de_vec3_t) { aabb->max.x, aabb->max.y, aabb->max.z };
+	aabb->corners[7] = (de_vec3_t) { aabb->max.x, aabb->max.y, aabb->min.z };
 	return aabb;
 }
 
@@ -1255,8 +1207,8 @@ de_vec3_t* de_aabb_get_center(const de_aabb_t* aabb, de_vec3_t* center) {
 }
 
 de_aabb_t* de_aabb_invalidate(de_aabb_t* aabb) {
-	de_vec3_set(&aabb->max, -FLT_MAX, -FLT_MAX, -FLT_MAX);
-	de_vec3_set(&aabb->min, FLT_MAX, FLT_MAX, FLT_MAX);
+	aabb->max = (de_vec3_t) { -FLT_MAX, -FLT_MAX, -FLT_MAX };
+	aabb->min = (de_vec3_t) { FLT_MAX, FLT_MAX, FLT_MAX };
 	return de_aabb_recompute_corners(aabb);
 }
 
@@ -1304,8 +1256,8 @@ unsigned int de_ceil_pow2(unsigned int v) {
 }
 
 float de_fwrap(float n, float min_limit, float max_limit) {
-    float offset, num_of_max;
-    
+	float offset, num_of_max;
+
 	if (n >= min_limit && n <= max_limit) {
 		return n;
 	}
@@ -1334,7 +1286,7 @@ float de_fwrap(float n, float min_limit, float max_limit) {
 
 void de_get_polygon_normal(const de_vec3_t* points, size_t count, de_vec3_t* normal) {
 	size_t i, j;
-	de_vec3_zero(normal);
+	*normal = (de_vec3_t) { 0 };
 	for (i = 0; i < count; ++i) {
 		j = (i + 1) % count;
 		normal->x += (points[i].y - points[j].y) * (points[i].z + points[j].z);

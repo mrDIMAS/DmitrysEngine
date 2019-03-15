@@ -118,6 +118,15 @@ void de_core_add_resource(de_core_t* core, de_resource_t* resource);
  */
 de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type, const de_path_t* path);
 
+/**
+ * @brief Visit core with specified object visitor.
+ * 
+ * Important notes: When visitor is set for read, then call of this function will
+ * destroy every scene, every scene node, every resource (unless it marked 
+ * DE_RESOURCE_FLAG_PERSISTENT) and then will load everything into clean core. In 
+ * other words in this case core will be purged and then filled in with data from
+ * specified file.
+ */
 bool de_core_visit(de_object_visitor_t* visitor, de_core_t* core);
 
 /********************************************************************

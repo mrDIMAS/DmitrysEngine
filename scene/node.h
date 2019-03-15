@@ -29,13 +29,6 @@ typedef enum de_node_type_t {
 
 DE_STATIC_ASSERT(sizeof(de_node_type_t) == sizeof(uint32_t), invalid_node_type_size);
 
-#if DE_DISABLE_ASSERTS
-#  define DE_ASSERT_SCENE_NODE_TYPE(node, expected_type)
-#else
-#  define DE_ASSERT_SCENE_NODE_TYPE(node, expected_type) \
-	if(node->type != expected_type) de_fatal_error("Scene node must be " #expected_type " type!")
-#endif
-
 /**
  * @class de_node_t
  * @brief Common scene node. Typed union.
@@ -134,28 +127,28 @@ de_mat4_t* de_node_calculate_transforms(de_node_t* node);
 * @param node pointer to node
 * @param look pointer to look vector
 */
-void de_node_get_look_vector(de_node_t* node, de_vec3_t* look);
+void de_node_get_look_vector(const de_node_t* node, de_vec3_t* look);
 
 /**
 * @brief Writes out up vector from node's global transform
 * @param node pointer to node
 * @param up pointer to up vector
 */
-void de_node_get_up_vector(de_node_t* node, de_vec3_t* up);
+void de_node_get_up_vector(const de_node_t* node, de_vec3_t* up);
 
 /**
 * @brief Writes out side vector from node's global transform
 * @param node pointer to node
 * @param side pointer to side vector
 */
-void de_node_get_side_vector(de_node_t* node, de_vec3_t* side);
+void de_node_get_side_vector(const de_node_t* node, de_vec3_t* side);
 
 /**
 * @brief Writes out node global position
 * @param node pointer to node
 * @param pos pointer to position
 */
-void de_node_get_global_position(de_node_t* node, de_vec3_t* pos);
+void de_node_get_global_position(const de_node_t* node, de_vec3_t* pos);
 
 /**
  * @brief Internal. Resolves type-specific dependencies after copying or deserialization.
@@ -168,12 +161,6 @@ void de_node_resolve(de_node_t* node);
 * @param pos new position of node
 */
 void de_node_set_local_position(de_node_t* node, de_vec3_t* pos);
-
-/**
-* @brief Sets local position of node. Sets "need_update" flag
-* @param node pointer to node
-*/
-void de_node_set_local_position_xyz(de_node_t* node, float x, float y, float z);
 
 /**
 * @brief Sets local rotation of node. Sets "need_update" flag

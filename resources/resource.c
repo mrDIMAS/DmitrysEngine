@@ -34,11 +34,12 @@ const char* de_resource_type_to_cstr(de_resource_type_t type) {
 /**
 * @brief Internal. Use specializations for concrete type.
 */
-de_resource_t* de_resource_create(de_core_t* core, de_resource_type_t type) {
+de_resource_t* de_resource_create(de_core_t* core, de_resource_type_t type, uint32_t flags) {
 	de_resource_t* res = DE_NEW(de_resource_t);
 	res->core = core;
 	res->type = type;
 	res->ref_count = 0;
+	res->flags = flags;
 	DE_ARRAY_APPEND(core->resources, res);
 	switch (res->type) {
 		case DE_RESOURCE_TYPE_MODEL: break;

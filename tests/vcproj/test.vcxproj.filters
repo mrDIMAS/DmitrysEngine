@@ -222,6 +222,9 @@
     <ClCompile Include="..\..\physics\physics.c">
       <Filter>Header Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\core\config.c">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\de_main.h">
@@ -435,6 +438,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\physics\physics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\core\config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

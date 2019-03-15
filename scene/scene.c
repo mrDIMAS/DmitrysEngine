@@ -106,9 +106,9 @@ void de_scene_update(de_scene_t* s, double dt) {
 				de_animation_track_t* track = anim->tracks.data[i];
 				de_node_t* node = track->node;
 				if (node) {
-					de_vec3_zero(&node->position);
+					node->position = (de_vec3_t) { 0 };
 					de_quat_set(&node->rotation, 0, 0, 0, 1);
-					de_vec3_set(&node->scale, 1, 1, 1);
+					node->scale = (de_vec3_t) { 1, 1, 1 };
 				}
 			}
 		}
@@ -131,7 +131,7 @@ bool de_scene_visit(de_object_visitor_t* visitor, de_scene_t* scene) {
 	if (visitor->is_reading) {
 		scene->core = visitor->core;
 		/* resolve pointers to original nodes from model resources using names of nodes
-		 * notes: this is unreliable mechanism, because if name will be changed, resolving 
+		 * notes: this is unreliable mechanism, because if name will be changed, resolving
 		 * will fail. at this moment of time I do not know better way of resolving pointers. */
 		DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes) {
 			if (!node->original) {
@@ -155,7 +155,7 @@ bool de_scene_visit(de_object_visitor_t* visitor, de_scene_t* scene) {
 			}
 		}
 	}
-	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Bodies", scene->bodies, de_body_t, de_body_visit);	
+	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Bodies", scene->bodies, de_body_t, de_body_visit);
 	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Animations", scene->animations, de_animation_t, de_animation_visit);
 	if (visitor->is_reading) {
 		/* resolve animations */

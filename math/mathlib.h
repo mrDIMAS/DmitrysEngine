@@ -263,23 +263,6 @@ de_vec3_t* de_mat4_look(const de_mat4_t* m, de_vec3_t* look);
 de_quat_t* de_mat4_to_quat(const de_mat4_t* m, de_quat_t* quat);
 
 /**
- * @brief Initializes vector
- * @param out output vector
- * @param x coordinate
- * @param y coordinate
- * @param z coordinate
- * @return @out
- */
-de_vec3_t* de_vec3_set(de_vec3_t* out, float x, float y, float z);
-
-/**
- * @brief Sets vector to zero (degenerated vector)
- * @param out vector
- * @return @out
- */
-de_vec3_t* de_vec3_zero(de_vec3_t* out);
-
-/**
  * @brief Adds two vectors ( @a + @b ), stores result into @out
  * @param out output vector
  * @param a input vector

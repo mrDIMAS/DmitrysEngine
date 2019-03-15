@@ -19,8 +19,6 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-
-
 static void de_project_point_on_line(const de_vec3_t* point, const de_ray_t* ray, de_vec3_t* out) {
 	float sqr_len;
 	de_vec3_t pa, offset;
@@ -28,7 +26,7 @@ static void de_project_point_on_line(const de_vec3_t* point, const de_ray_t* ray
 	sqr_len = de_vec3_sqr_len(&ray->dir);
 
 	if (sqr_len < 0.0001f) {
-		de_vec3_zero(out);
+		*out = (de_vec3_t) { 0 };
 	}
 
 	de_vec3_sub(&pa, point, &ray->origin);
@@ -135,7 +133,7 @@ static void de_body_verlet(de_body_t* body, float dt2) {
 	body->last_position = last_position;
 
 	/* Drop acceleration */
-	de_vec3_zero(&body->acceleration);
+	body->acceleration = (de_vec3_t) { 0 };
 
 	/* Velocity limiting */
 	de_vec3_sub(&velocity, &body->last_position, &body->position);
@@ -271,8 +269,8 @@ de_body_t* de_body_create(de_scene_t* s) {
 	body->scene = s;
 	body->radius = 1.0f;
 	body->friction = 0.985f;
-	de_vec3_set(&body->scale, 1, 1, 1);
-	de_vec3_set(&body->gravity, 0, -9.81f, 0);
+	body->scale = (de_vec3_t) { 1, 1, 1 };
+	body->gravity = (de_vec3_t) { 0, -9.81f, 0 };
 	return body;
 }
 

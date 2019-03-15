@@ -19,10 +19,10 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-void de_listener_init(de_listener_t* l) {	
-	de_vec3_zero(&l->position);
-	de_vec3_set(&l->look, 0, 0, 1);
-	de_vec3_set(&l->up, 0, 1, 0);
+void de_listener_init(de_listener_t* l) {
+	l->position = (de_vec3_t) { 0 };
+	l->look = (de_vec3_t) { 0, 0, 1 };
+	l->up = (de_vec3_t) { 0, 1, 0 };
 }
 
 void de_listener_set_position(de_listener_t* l, const de_vec3_t* pos) {
@@ -42,5 +42,5 @@ void de_listener_set_orientation(de_listener_t* l, const de_vec3_t* look, const 
 	de_vec3_cross(&l->ear_axis, look, up);
 	de_vec3_normalize(&l->ear_axis, &l->ear_axis);
 	de_vec3_normalize(&l->look, look);
-	de_vec3_normalize(&l->up, up);	
+	de_vec3_normalize(&l->up, up);
 }

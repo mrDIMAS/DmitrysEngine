@@ -26,7 +26,7 @@ typedef struct de_face_aabb_t {
 
 
 static void de_octree_count_leafs_recursive(de_octree_node_t* node, int* counter) {
-    int i;
+	int i;
 	if (node->split) {
 		for (i = 0; i < 8; ++i) {
 			de_octree_count_leafs_recursive(node->children[i], counter);
@@ -52,7 +52,7 @@ static void de_octree_create_trace_buffers(de_octree_t* octree) {
 
 
 static void de_octree_split_node(de_octree_node_t* node) {
-    int i;
+	int i;
 	de_vec3_t center;
 
 	de_vec3_middle(&center, &node->min, &node->max);
@@ -61,29 +61,29 @@ static void de_octree_split_node(de_octree_node_t* node) {
 		node->children[i] = DE_NEW(de_octree_node_t);
 	}
 
-	de_vec3_set(&node->children[0]->min, node->min.x, node->min.y, node->min.z);
-	de_vec3_set(&node->children[0]->max, center.x, center.y, center.z);
+	node->children[0]->min = (de_vec3_t) { node->min.x, node->min.y, node->min.z };
+	node->children[0]->max = (de_vec3_t) { center.x, center.y, center.z };
 
-	de_vec3_set(&node->children[1]->min, center.x, node->min.y, node->min.z);
-	de_vec3_set(&node->children[1]->max, node->max.x, center.y, center.z);
+	node->children[1]->min = (de_vec3_t) { center.x, node->min.y, node->min.z };
+	node->children[1]->max = (de_vec3_t) { node->max.x, center.y, center.z };
 
-	de_vec3_set(&node->children[2]->min, node->min.x, node->min.y, center.z);
-	de_vec3_set(&node->children[2]->max, center.x, center.y, node->max.z);
+	node->children[2]->min = (de_vec3_t) { node->min.x, node->min.y, center.z };
+	node->children[2]->max = (de_vec3_t) { center.x, center.y, node->max.z };
 
-	de_vec3_set(&node->children[3]->min, center.x, node->min.y, center.z);
-	de_vec3_set(&node->children[3]->max, node->max.x, center.y, node->max.z);
+	node->children[3]->min = (de_vec3_t) { center.x, node->min.y, center.z };
+	node->children[3]->max = (de_vec3_t) { node->max.x, center.y, node->max.z };
 
-	de_vec3_set(&node->children[4]->min, node->min.x, center.y, node->min.z);
-	de_vec3_set(&node->children[4]->max, center.x, node->max.y, center.z);
+	node->children[4]->min = (de_vec3_t) { node->min.x, center.y, node->min.z };
+	node->children[4]->max = (de_vec3_t) { center.x, node->max.y, center.z };
 
-	de_vec3_set(&node->children[5]->min, center.x, center.y, node->min.z);
-	de_vec3_set(&node->children[5]->max, node->max.x, node->max.y, center.z);
+	node->children[5]->min = (de_vec3_t) { center.x, center.y, node->min.z };
+	node->children[5]->max = (de_vec3_t) { node->max.x, node->max.y, center.z };
 
-	de_vec3_set(&node->children[6]->min, node->min.x, center.y, center.z);
-	de_vec3_set(&node->children[6]->max, center.x, node->max.y, node->max.z);
+	node->children[6]->min = (de_vec3_t) { node->min.x, center.y, center.z };
+	node->children[6]->max = (de_vec3_t) { center.x, node->max.y, node->max.z };
 
-	de_vec3_set(&node->children[7]->min, center.x, center.y, center.z);
-	de_vec3_set(&node->children[7]->max, node->max.x, node->max.y, node->max.z);
+	node->children[7]->min = (de_vec3_t) { center.x, center.y, center.z };
+	node->children[7]->max = (de_vec3_t) { node->max.x, node->max.y, node->max.z };
 
 	node->split = true;
 }
@@ -151,8 +151,8 @@ de_octree_t* de_octree_build(const void* vertices, int stride, int* indices, siz
 	/* compute metrics of vertices( min, max ) and build root node*/
 	octree->root = DE_NEW(de_octree_node_t);
 
-	de_vec3_set(&octree->root->min, FLT_MAX, FLT_MAX, FLT_MAX);
-	de_vec3_set(&octree->root->max, -FLT_MAX, -FLT_MAX, -FLT_MAX);
+	octree->root->min = (de_vec3_t) { FLT_MAX, FLT_MAX, FLT_MAX };
+	octree->root->max = (de_vec3_t) { -FLT_MAX, -FLT_MAX, -FLT_MAX };
 
 	for (i = 0; i < index_count; i++) {
 		const de_vec3_t* v = (de_vec3_t*)(data + stride * i);
@@ -164,10 +164,10 @@ de_octree_t* de_octree_build(const void* vertices, int stride, int* indices, siz
 	face_aabbs = (de_face_aabb_t*)de_malloc(index_count / 3 * sizeof(de_face_aabb_t));
 	for (i = 0, k = 0; i < index_count; ++k) {
 		de_face_aabb_t* aabb = face_aabbs + k;
-        de_vec3_t* v0, *v1, *v2;
+		de_vec3_t* v0, *v1, *v2;
 
-		de_vec3_set(&aabb->max, -FLT_MAX, -FLT_MAX, -FLT_MAX);
-		de_vec3_set(&aabb->min, FLT_MAX, FLT_MAX, FLT_MAX);
+		aabb->max = (de_vec3_t) { -FLT_MAX, -FLT_MAX, -FLT_MAX };
+		aabb->min = (de_vec3_t) { FLT_MAX, FLT_MAX, FLT_MAX };
 
 		v0 = (de_vec3_t*)(data + stride * indices[i++]);
 		v1 = (de_vec3_t*)(data + stride * indices[i++]);
@@ -187,7 +187,7 @@ de_octree_t* de_octree_build(const void* vertices, int stride, int* indices, siz
 
 
 static void de_octree_node_free(de_octree_node_t* node) {
-    int i;
+	int i;
 	if (node->split) {
 		for (i = 0; i < 8; ++i) {
 			de_octree_node_free(node->children[i]);
@@ -207,7 +207,7 @@ void de_octree_free(de_octree_t* octree) {
 
 
 static void de_octree_trace_ray_recursive(de_octree_t* octree, de_octree_node_t* node, const de_ray_t* ray) {
-    int i;
+	int i;
 	if (de_ray_aabb_intersection(ray, &node->min, &node->max, NULL, NULL)) {
 		if (node->split) {
 			for (i = 0; i < 8; i++) {
@@ -229,7 +229,7 @@ void de_octree_trace_ray(de_octree_t* octree, const de_ray_t* ray) {
 static bool de_octree_node_is_intersect_sphere(const de_octree_node_t* node, const de_vec3_t* position, float radius) {
 	float r2 = radius* radius;
 	float dmin = 0;
-    bool sphereInside;
+	bool sphereInside;
 
 	if (position->x < node->min.x) {
 		dmin += de_sqr(position->x - node->min.x);
@@ -258,7 +258,7 @@ static bool de_octree_node_is_intersect_sphere(const de_octree_node_t* node, con
 
 
 static void de_octree_trace_sphere_recursive(de_octree_t* octree, de_octree_node_t* node, const de_vec3_t* position, float radius) {
-    int i;
+	int i;
 	if (de_octree_node_is_intersect_sphere(node, position, radius)) {
 		if (node->split) {
 			for (i = 0; i < 8; i++) {

@@ -28,16 +28,14 @@ static de_object_visitor_node_t* de_object_visitor_node_create(const char* name)
 
 
 static void de_object_visitor_node_free(de_object_visitor_node_t* node) {
-	size_t i;
-
 	/* free children */
-	for (i = 0; i < node->children.size; ++i) {
+	for (size_t i = 0; i < node->children.size; ++i) {
 		de_object_visitor_node_free(node->children.data[i]);
 	}
 	DE_ARRAY_FREE(node->children);
 
 	/* free records */
-	for (i = 0; i < node->fields.size; ++i) {
+	for (size_t i = 0; i < node->fields.size; ++i) {
 		de_str8_free(&node->fields.data[i].name);
 	}
 	DE_ARRAY_FREE(node->fields);

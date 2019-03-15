@@ -19,6 +19,81 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+//
+// Resolving resource dependicies on loading of a save.
+// 
+// Case1: Changes in graphical data (meshes, textures and so on). Solution: find corresponding
+// nodes in resource by names of nodes and extract data from them. In case when corresponding 
+// node not found in resource - do nothing.
+//                                             +
+//     Scene graph in save file                |                Resource
+//                                             |
+//           +--------+                        |              +--------+
+//           |        |                        |              |        |
+//           |  Node1 |  <----------------------------------+ |  Node1 |
+//           |        |                        |              |        |
+//           +--------+                        |              +--------+
+//              |  |                           |                 |  |
+//     +-------------------------------------------------+       |  |
+//     |        |  |                           |         |       |  |
+// +---v-----<--+  +-->---------+              |    +---------<--+  +-->---------+
+// |        |          |        |              |    |        |          |        |
+// |  Node5 |          |  Node2 <-----+        |    |  Node5 |    +-----+  Node2 |
+// |        |          |        |     |        |    |        |    |     |        |
+// +--------+          +--------+     |        |    +--------+    |     +--------+
+//                        |  |        +---------------------------+        |  |
+//                        |  |                 |                           |  |
+//           +---------<--+  +-->---------+    |              +---------<--+  +-->---------+
+//           |        |          |        |    |              |        |          |        |
+//           |  Node4 |          |  Node3 |    |       +------+  Node4 |          |  Node3 |
+//           |        |          |        |    |       |      |        |          |        |
+//           +---^----+          +---^----+    |       |      +--------+          +--------+
+//               |                   |         |       |                               |
+//               +-------------------------------------+                               |
+//                                   |         |             Resolve by name           |
+//                                   |         |                                       |
+//                                   +-------------------------------------------------+
+//                                             |
+//                                             +
+//
+// Case 2: Hierarchy changes. Solution: find corresponding parents for each nodes in resource
+// and reattach nodes in scene graph accordingly. When parent node was deleted in resource -
+// do nothing.
+//
+//                                            +
+//    Scene graph in save file                |   Resource with changed hierarchy (Node4 and Node3)
+//                                            |
+//          +--------+                        |              +--------+
+//          |        |                        |              |        |
+//          |  Node1 |  <----------------------------------+ |  Node1 |
+//          |        |                        |              |        |
+//          +--------+                        |              +--------+
+//             |  |                           |                 |  |
+//    +-------------------------------------------------+       |  |
+//    |        |  |                           |         |       |  |
+//+---v-----<--+  +-->---------+              |    +---------<--+  +-->---------+
+//|        |          |        |              |    |        |          |        |
+//|  Node5 |          |  Node2 <-----+        |    |  Node5 |    +-----+  Node2 |
+//|        |          |        |     |        |    |        |    |     |        |
+//+--------+          +--------+     |        |    +--------+    |     +--------+
+//                       |  |        +---------------------------+
+//                       |  |                 |        |
+//          +---------<--+  +-->---------+    |        +---->---------+          +--------+
+//          |        |          |        |    |              |        |          |        |
+//          |  Node4 |          |  Node3 |    |       +------+  Node4 +--------->+  Node3 |
+//          |        |          |        |    |       |      |        |          |        |
+//          +---^----+          +---^----+    |       |      +--------+          +--------+
+//              |                   |         |       |                               |
+//              +-------------------------------------+                               |
+//                                  |         |             Resolve by name           |
+//                                  |         |                                       |
+//                                  +-------------------------------------------------+
+//                                            |
+//                                            +
+//    Hierarchy changes will be resolved by node names, so old hierarchy Node2->Node4 will become
+//    Node5->Node4 and Node2->Node3 will become Node4->Node3.
+//
+
 void de_node_free(de_node_t* node) {
 	/* Free children first */
 	while (node->children.size) {
@@ -55,10 +130,10 @@ de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type) {
 	node->scene = scene;
 	de_mat4_identity(&node->global_matrix);
 	de_mat4_identity(&node->local_matrix);
-	de_vec3_set(&node->scale, 1, 1, 1);
-	de_quat_set(&node->rotation, 0, 0, 0, 1);
-	de_quat_set(&node->pre_rotation, 0, 0, 0, 1);
-	de_quat_set(&node->post_rotation, 0, 0, 0, 1);
+	node->scale = (de_vec3_t) { 1, 1, 1 };
+	node->rotation = (de_quat_t) { 0, 0, 0, 1 };
+	node->pre_rotation = (de_quat_t) { 0, 0, 0, 1 };
+	node->post_rotation = (de_quat_t) { 0, 0, 0, 1 };
 	switch (node->type) {
 		case DE_NODE_TYPE_BASE: break; /* handled already */
 		case DE_NODE_TYPE_CAMERA: de_camera_init(&node->s.camera); break;
@@ -167,10 +242,6 @@ void de_node_detach(de_node_t* node) {
 }
 
 de_mat4_t* de_node_calculate_transforms(de_node_t* node) {
-	if (!node) {
-		return NULL;
-	}
-
 	if (node->body) {
 		de_body_get_position(node->body, &node->position);
 	}
@@ -243,45 +314,34 @@ de_mat4_t* de_node_calculate_transforms(de_node_t* node) {
 	return &node->global_matrix;
 }
 
-void de_node_get_look_vector(de_node_t* node, de_vec3_t* look) {
-	if (!node || !look) {
-		return;
-	}
-
+void de_node_get_look_vector(const de_node_t* node, de_vec3_t* look) {
+	DE_ASSERT(node);
 	de_mat4_look(&node->global_matrix, look);
 }
 
-void de_node_get_up_vector(de_node_t* node, de_vec3_t* up) {
-	if (!node || !up) {
-		return;
-	}
-
+void de_node_get_up_vector(const de_node_t* node, de_vec3_t* up) {
+	DE_ASSERT(node);
+	DE_ASSERT(up);
 	de_mat4_up(&node->global_matrix, up);
 }
 
-void de_node_get_side_vector(de_node_t* node, de_vec3_t* side) {
-	if (!node || !side) {
-		return;
-	}
-
+void de_node_get_side_vector(const de_node_t* node, de_vec3_t* side) {
+	DE_ASSERT(node);
+	DE_ASSERT(side);
 	de_mat4_side(&node->global_matrix, side);
 }
 
-void de_node_get_global_position(de_node_t* node, de_vec3_t* pos) {
-	if (!node || !pos) {
-		return;
-	}
-
+void de_node_get_global_position(const de_node_t* node, de_vec3_t* pos) {
+	DE_ASSERT(node);
+	DE_ASSERT(pos);
 	pos->x = node->global_matrix.f[12];
 	pos->y = node->global_matrix.f[13];
 	pos->z = node->global_matrix.f[14];
 }
 
 void de_node_set_local_position(de_node_t* node, de_vec3_t* pos) {
-	if (!node || !pos) {
-		return;
-	}
-
+	DE_ASSERT(node);
+	DE_ASSERT(pos);
 	de_body_t* body = node->body;
 	if (body) {
 		de_body_set_position(body, pos);
@@ -290,47 +350,31 @@ void de_node_set_local_position(de_node_t* node, de_vec3_t* pos) {
 	}
 }
 
-void de_node_set_local_position_xyz(de_node_t* node, float x, float y, float z) {
-	de_vec3_t p;
-
-	de_vec3_set(&p, x, y, z);
-
-	de_node_set_local_position(node, &p);
-}
-
 void de_node_set_body(de_node_t* node, de_body_t* body) {
-	if (!node) {
-		return;
-	}
-
+	DE_ASSERT(node);
 	node->body = body;
 }
 
 void de_node_move(de_node_t* node, de_vec3_t* offset) {
-	if (!node || !offset) {
-		return;
-	}
-
+	DE_ASSERT(node);
+	DE_ASSERT(offset);
 	de_vec3_add(&node->position, &node->position, offset);
 }
 
 void de_node_set_local_rotation(de_node_t* node, de_quat_t* rot) {
-	if (!node || !rot) {
-		return;
-	}
-
+	DE_ASSERT(node);
+	DE_ASSERT(rot);
 	node->rotation = *rot;
 }
 
 void de_node_set_local_scale(de_node_t* node, de_vec3_t* scl) {
-	if (!node || !scl) {
-		return;
-	}
-
+	DE_ASSERT(node);
+	DE_ASSERT(scl);
 	node->scale = *scl;
 }
 
 de_node_t* de_node_find(de_node_t* node, const char* name) {
+	DE_ASSERT(node);
 	if (node) {
 		if (de_str8_eq(&node->name, name)) {
 			return node;
@@ -344,38 +388,44 @@ de_node_t* de_node_find(de_node_t* node, const char* name) {
 			}
 		}
 	}
-
 	return NULL;
 }
 
 de_mesh_t* de_node_to_mesh(de_node_t* node) {
-	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_MESH);
+	DE_ASSERT(node);
+	DE_ASSERT(node->type == DE_NODE_TYPE_MESH);
 	return &node->s.mesh;
 }
 
 de_node_t* de_node_from_mesh(de_mesh_t* mesh) {
+	DE_ASSERT(mesh);
 	return (de_node_t*)((char*)mesh - offsetof(de_node_t, s.mesh));
 }
 
 de_light_t* de_node_to_light(de_node_t* node) {
-	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_LIGHT);
+	DE_ASSERT(node);
+	DE_ASSERT(node->type == DE_NODE_TYPE_LIGHT);
 	return &node->s.light;
 }
 
 de_node_t* de_node_from_light(de_mesh_t* light) {
+	DE_ASSERT(light);
 	return (de_node_t*)((char*)light - offsetof(de_node_t, s.light));
 }
 
 de_camera_t* de_node_to_camera(de_node_t* node) {
-	DE_ASSERT_SCENE_NODE_TYPE(node, DE_NODE_TYPE_CAMERA);
+	DE_ASSERT(node);
+	DE_ASSERT(node->type == DE_NODE_TYPE_CAMERA);
 	return &node->s.camera;
 }
 
 de_node_t* de_node_from_camera(de_camera_t* camera) {
+	DE_ASSERT(camera);
 	return (de_node_t*)((char*)camera - offsetof(de_node_t, s.camera));
 }
 
 bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node) {
+	DE_ASSERT(node);
 	bool result = true;
 	result &= de_object_visitor_visit_uint32(visitor, "Type", (uint32_t*)&node->type);
 	result &= de_object_visitor_visit_string(visitor, "Name", &node->name);

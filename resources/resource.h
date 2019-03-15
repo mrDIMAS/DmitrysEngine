@@ -28,14 +28,37 @@ typedef enum de_resource_type_t {
 
 DE_STATIC_ASSERT(sizeof(de_resource_type_t) == sizeof(uint32_t), invalid_resource_type_size);
 
+typedef enum de_resource_flag_t {
+	/**
+	 * Resource is created in runtime. Will be serialized unless 
+	 * DE_RESOURCE_FLAG_PERSISTENT is set. Useful for dynamic resource like procedural
+	 * textures.
+	 */
+	DE_RESOURCE_FLAG_PROCEDURAL = DE_BIT(0), 
+
+	/**
+	 * Resource is will exist until core is destroyed. Such resource WON'T be serialized!
+	 * by object visitor. For example such resources may be useful for UI textures which will
+	 * exist all the time game is running. 
+	 **/
+	DE_RESOURCE_FLAG_PERSISTENT = DE_BIT(1),
+
+	/**
+	 * Internal. Do not use. 
+	 * 
+	 * Internal persistent engine resources will be marked with this flag.
+	 */
+	DE_RESOURCE_FLAG_INTERNAL = DE_BIT(2),
+} de_resource_flags_t;
+
 #include "resources/model.h"
 
 struct de_resource_t {
 	de_core_t* core;
-	de_resource_type_t type; /**< Actual resource type. */
+	de_resource_type_t type; 
 	int ref_count;
-	de_path_t source; /**< Path for external resource. */
-	bool external; /**< true if resource needs to be loaded from external source, false for dynamic resources. */
+	de_path_t source; 
+	uint32_t flags;
 	union {
 		de_sound_buffer_t sound_buffer;
 		de_texture_t texture;
@@ -45,7 +68,7 @@ struct de_resource_t {
 
 const char* de_resource_type_to_cstr(de_resource_type_t type);
 
-de_resource_t* de_resource_create(de_core_t* core, de_resource_type_t type);
+de_resource_t* de_resource_create(de_core_t* core, de_resource_type_t type, uint32_t flags);
 
 /**
  * @brief Increases reference counter of resource. You must call de_resource_release when you do not

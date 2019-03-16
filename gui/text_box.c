@@ -365,32 +365,26 @@ static void de_gui_text_box_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uin
 	}
 }
 
-de_gui_dispatch_table_t* de_gui_text_box_get_dispatch_table(void) {
-	static de_gui_dispatch_table_t dispatch_table;
-	static bool init = false;
-	if (!init) {
-		dispatch_table.deinit = de_gui_text_box_deinit;
-		dispatch_table.render = de_gui_text_box_render;
-		dispatch_table.update = de_gui_text_box_update;
-		init = true;
-	}
-	return &dispatch_table;
-}
-
-de_gui_node_t* de_gui_text_box_create(de_gui_t* gui) {
-	de_gui_node_t* n;
-	de_gui_text_box_t* tb;
-	n = de_gui_node_alloc(gui, DE_GUI_NODE_TEXT_BOX, de_gui_text_box_get_dispatch_table());
+static void de_gui_text_box_init(de_gui_node_t* n) {
 	n->text_entered = de_gui_text_box_text_entered;
 	n->got_focus = de_gui_text_box_got_focus;
 	n->lost_focus = de_gui_text_box_lost_focus;
 	n->key_down = de_gui_text_box_key_down;
 	n->mouse_down = de_gui_text_box_mouse_down;
 	de_color_set(&n->color, 255, 255, 255, 255);
-	tb = &n->s.text_box;
-	tb->font = gui->default_font;
+	de_gui_text_box_t* tb = &n->s.text_box;
+	tb->font = n->gui->default_font;
 	tb->blink_interval = 35;
-	tb->blink_timer = 0;	
+	tb->blink_timer = 0;
 	de_str32_init(&tb->str);
-	return n;
+}
+
+de_gui_dispatch_table_t* de_gui_text_box_get_dispatch_table(void) {
+	static de_gui_dispatch_table_t dispatch_table = {
+		.init = de_gui_text_box_init,
+		.deinit = de_gui_text_box_deinit,
+		.render = de_gui_text_box_render,
+		.update = de_gui_text_box_update
+	};
+	return &dispatch_table;
 }

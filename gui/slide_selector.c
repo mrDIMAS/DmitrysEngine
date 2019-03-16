@@ -19,10 +19,6 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-static void de_gui_slide_selector_deinit(de_gui_node_t* node) {
-	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SLIDE_SELECTOR);
-}
-
 static void de_gui_slide_selector_on_prev_click(de_gui_node_t* node, void* user_data) {	
 	de_gui_slide_selector_t* ss;
 	de_gui_node_t* selector_node;
@@ -65,56 +61,45 @@ static void de_gui_slide_selector_on_next_click(de_gui_node_t* node, void* user_
 	}
 }
 
-de_gui_node_t* de_gui_slide_selector_create(de_gui_t* gui) {
-	de_gui_node_t* node;
-	de_gui_node_t* border;
-	de_gui_node_t* grid;
-	de_gui_node_t* prev;
-	de_gui_node_t* next;
-	de_gui_slide_selector_t* ss;
-	static de_gui_dispatch_table_t table;
-	{
-		static bool init = false;
-		if (!init) {
-			table.deinit = de_gui_slide_selector_deinit;
-			init = true;
-		}
-	}
+static void de_gui_slide_selector_init(de_gui_node_t* node) {
+	de_gui_slide_selector_t* ss = &node->s.slide_selector;
 
-	node = de_gui_node_alloc(gui, DE_GUI_NODE_SLIDE_SELECTOR, &table);
-	ss = &node->s.slide_selector;
-
-	border = de_gui_border_create(gui);
+	de_gui_node_t* border = de_gui_node_create(node->gui, DE_GUI_NODE_BORDER);
 	de_gui_node_set_color_rgba(border, 120, 120, 120, 255);
 	de_gui_node_attach(border, node);
 
-	grid = de_gui_grid_create(gui);
+	de_gui_node_t* grid = de_gui_node_create(node->gui, DE_GUI_NODE_GRID);
 	de_gui_grid_add_row(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
 	de_gui_grid_add_column(grid, 30, DE_GUI_SIZE_MODE_STRICT);
 	de_gui_grid_add_column(grid, 0, DE_GUI_SIZE_MODE_STRETCH);
 	de_gui_grid_add_column(grid, 30, DE_GUI_SIZE_MODE_STRICT);
 	de_gui_node_attach(grid, border);
 
-	next = de_gui_button_create(gui);
+	de_gui_node_t* next = de_gui_node_create(node->gui, DE_GUI_NODE_BUTTON);
 	de_gui_button_set_text(next, ">");
 	de_gui_node_set_column(next, 2);
 	de_gui_node_attach(next, grid);
 	de_gui_button_set_click(next, de_gui_slide_selector_on_next_click, node);
 
-	ss->current_item = de_gui_text_create(gui);
+	ss->current_item = de_gui_node_create(node->gui, DE_GUI_NODE_TEXT);
 	de_gui_node_set_column(ss->current_item, 1);
 	de_gui_node_attach(ss->current_item, grid);
 	de_gui_text_set_vertical_alignment(ss->current_item, DE_GUI_VERTICAL_ALIGNMENT_CENTER);
 	de_gui_text_set_horizontal_alignment(ss->current_item, DE_GUI_HORIZONTAL_ALIGNMENT_CENTER);
 	de_gui_text_set_text_utf8(ss->current_item, "some text");
 
-	prev = de_gui_button_create(gui);
+	de_gui_node_t* prev = de_gui_node_create(node->gui, DE_GUI_NODE_BUTTON);
 	de_gui_button_set_text(prev, "<");
 	de_gui_node_set_column(prev, 0);
 	de_gui_node_attach(prev, grid);
 	de_gui_button_set_click(prev, de_gui_slide_selector_on_prev_click, node);
+}
 
-	return node;
+de_gui_dispatch_table_t* de_gui_slide_selector_get_dispatch_table(void) {
+	static de_gui_dispatch_table_t dispatch_table = {
+		.init = de_gui_slide_selector_init,
+	};
+	return &dispatch_table;
 }
 
 void de_gui_slide_selector_set_items(de_gui_node_t* node, void* items, int item_count, de_gui_item_text_getter getter) {

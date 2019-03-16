@@ -131,26 +131,19 @@ static void de_gui_text_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t
 	}
 }
 
-de_gui_node_t* de_gui_text_create(de_gui_t* gui) {
-	de_gui_node_t* n;
-	de_gui_text_t* txt;
-
-	static de_gui_dispatch_table_t dispatch_table;
-	{
-		static bool init = false;
-		if (!init) {
-			dispatch_table.deinit = de_gui_text_deinit;
-			dispatch_table.render = de_gui_text_render;
-			init = true;
-		}
-	}
-
-	n = de_gui_node_alloc(gui, DE_GUI_NODE_TEXT, &dispatch_table);
-
-	txt = &n->s.text;
-	txt->font = gui->default_font;
+static void de_gui_text_init(de_gui_node_t* n) {
+	de_gui_text_t* txt = &n->s.text;
+	txt->font = n->gui->default_font;
 	de_str32_init(&txt->str);
-	return n;
+}
+
+de_gui_dispatch_table_t* de_gui_text_get_dispatch_table(void) {
+	static de_gui_dispatch_table_t dispatch_table = {
+		.init = de_gui_text_init,
+		.deinit = de_gui_text_deinit,
+		.render = de_gui_text_render,
+	};
+	return &dispatch_table;
 }
 
 void de_gui_text_set_font(de_gui_node_t* node, de_font_t* font) {

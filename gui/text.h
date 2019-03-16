@@ -41,7 +41,7 @@ typedef struct de_gui_text_t {
 	float total_lines_height;
 } de_gui_text_t;
 
-de_gui_node_t* de_gui_text_create(de_gui_t* gui);
+struct de_gui_dispatch_table_t* de_gui_text_get_dispatch_table(void);
 
 /**
 * @brief

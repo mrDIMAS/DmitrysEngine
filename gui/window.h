@@ -41,7 +41,7 @@ typedef struct de_gui_window_t {
 	uint32_t flags;
 } de_gui_window_t;
 
-de_gui_node_t* de_gui_window_create(de_gui_t* gui);
+struct de_gui_dispatch_table_t* de_gui_window_get_dispatch_table();
 
 de_gui_node_t* de_gui_window_get_title(de_gui_node_t* window);
 

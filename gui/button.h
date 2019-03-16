@@ -32,7 +32,7 @@ typedef struct de_gui_button_t {
 	bool was_pressed;
 } de_gui_button_t;
 
-de_gui_node_t* de_gui_button_create(de_gui_t* gui);
+struct de_gui_dispatch_table_t* de_gui_button_get_dispatch_table();
 
 /**
 * @brief

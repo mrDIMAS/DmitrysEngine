@@ -98,7 +98,6 @@ typedef enum de_gui_node_type_t {
 	DE_GUI_NODE_GRID,                    /**< Automatically arranges children by rows and columns */
 	DE_GUI_NODE_CANVAS,                  /**< Allows user to directly set position and size of a node */
 	DE_GUI_NODE_SCROLL_CONTENT_PRESENTER, /**< Allows user to scroll content */
-	DE_GUI_NODE_DRAWING,
 	DE_GUI_NODE_SLIDE_SELECTOR,
 	DE_GUI_NODE_USER_CONTROL /* Use this as start index for type for your custom controls */
 } de_gui_node_type_t;
@@ -209,53 +208,16 @@ typedef void(*de_key_up_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*);
 	}
 
 typedef struct de_gui_dispatch_table_t {
-	void(*deinit)(de_gui_node_t* n); /* required */
-	void(*measure)(de_gui_node_t* n, const de_vec2_t* constraint); /* optional */
-	void(*layout_children)(de_gui_node_t* n); /* optional */
-	void(*update)(de_gui_node_t* n);/* optional */
-	void(*render)(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting);/* optional */
-	bool(*get_property)(de_gui_node_t* n, const char* name, void* value, size_t data_size);/* optional */
-	bool(*set_property)(de_gui_node_t* n, const char* name, const void* value, size_t data_size);/* optional */
-	bool(*parse_property)(de_gui_node_t* n, const char* name, const char* value);/* optional */	
+	void(*init)(de_gui_node_t* n);
+	void(*deinit)(de_gui_node_t* n);
+	void(*measure)(de_gui_node_t* n, const de_vec2_t* constraint);
+	void(*layout_children)(de_gui_node_t* n);
+	void(*update)(de_gui_node_t* n);
+	void(*render)(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting);
+	bool(*get_property)(de_gui_node_t* n, const char* name, void* value, size_t data_size);
+	bool(*set_property)(de_gui_node_t* n, const char* name, const void* value, size_t data_size);
+	bool(*parse_property)(de_gui_node_t* n, const char* name, const char* value);
 } de_gui_dispatch_table_t;
-
-/**
- * @brief Node descriptor. Used together with designated initializers for C99+ (or C++20).
- * Provides neat way to describe ui node like so:
- * 
- *	de_gui_node_descriptor_t desc = {
- *     .position = { 10, 10 },
- *     .size = { 200, 20 },
- *     .row = 0, .column = 1,
- *     .vertical_alignment = DE_GUI_VERTICAL_ALIGNMENT_CENTER,
- *     .horizontal_alignment = DE_GUI_HORIZONTAL_ALIGNMENT_CENTER
- * };
- * 
- * instead of set of calls of specialized functions.
- */
-typedef struct de_gui_node_descriptor_t {
-	de_vec2_t position;
-	de_vec2_t size;
-	size_t row;
-	size_t column;
-	de_color_t color;
-	de_gui_vertical_alignment_t vertical_alignment;
-	de_gui_horizontal_alignment_t horizontal_alignment;
-	de_gui_margin_t margin;
-	de_gui_node_visibility_t visibility;
-	de_mouse_down_event_t mouse_down;
-	de_mouse_up_event_t mouse_up;
-	de_mouse_move_event_t mouse_move;
-	de_mouse_enter_event_t mouse_enter;
-	de_mouse_leave_event_t mouse_leave;
-	de_lost_focus_event_t lost_focus;
-	de_got_focus_event_t got_focus;
-	de_text_event_t text_entered;
-	de_key_down_event_t key_down;
-	de_key_up_event_t key_up;
-	void* user_data;
-	bool is_hit_test_visible; 
-} de_gui_node_descriptor_t;
 
 /**
  * @brief GUI node. Tagged union (https://en.wikipedia.org/wiki/Tagged_union)
@@ -282,7 +244,22 @@ struct de_gui_node_t {
 	DE_ARRAY_DECLARE(int, geometry); /**< Array of indices to draw command in draw list */
 	bool is_hit_test_visible; /**< Will this control participate in hit-test? */
 	void* user_data; /**< Pointer to any data. Useful to pass data to callbacks */
-
+    /* Events */
+	de_mouse_down_event_t mouse_down;
+	de_mouse_up_event_t mouse_up;
+	de_mouse_move_event_t mouse_move;
+	de_mouse_enter_event_t mouse_enter;
+	de_mouse_leave_event_t mouse_leave;
+	de_lost_focus_event_t lost_focus;
+	de_got_focus_event_t got_focus;
+	de_text_event_t text_entered;
+	de_key_down_event_t key_down;
+	de_key_up_event_t key_up;
+	bool is_focused;
+	bool is_mouse_over;
+	/* intrusive linked list */
+	DE_LINKED_LIST_ITEM(struct de_gui_node_t);
+	de_gui_t* gui;
 	/* Specialization (type-specific data) */
 	union {
 		de_gui_border_t border;
@@ -298,24 +275,6 @@ struct de_gui_node_t {
 		de_gui_slide_selector_t slide_selector;
 		void* user_control;
 	} s;
-
-	/* Public events */
-	de_mouse_down_event_t mouse_down;
-	de_mouse_up_event_t mouse_up;
-	de_mouse_move_event_t mouse_move;
-	de_mouse_enter_event_t mouse_enter;
-	de_mouse_leave_event_t mouse_leave;
-	de_lost_focus_event_t lost_focus;
-	de_got_focus_event_t got_focus;
-	de_text_event_t text_entered;
-	de_key_down_event_t key_down;
-	de_key_up_event_t key_up;
-	bool is_focused;
-	bool is_mouse_over;
-
-	/* intrusive linked list */
-	DE_LINKED_LIST_ITEM(struct de_gui_node_t);
-	de_gui_t* gui;
 };
 
 /**
@@ -362,7 +321,7 @@ void de_gui_node_update_transform(de_gui_node_t* node);
  *
  * dispatch_table - MUST be a pointer to static de_gui_dispatcher_entry_t!
  */
-de_gui_node_t* de_gui_node_alloc(de_gui_t* gui, de_gui_node_type_t type, de_gui_dispatch_table_t* dispatch_table);
+de_gui_node_t* de_gui_node_create(de_gui_t* gui, de_gui_node_type_t type);
 
 /**
  * @brief Sets desired local position of a node. Actual position can be different and depends on layout.

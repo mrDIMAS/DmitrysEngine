@@ -59,12 +59,6 @@ static void de_button_border_mouse_up(de_gui_node_t* button, de_gui_routed_event
 	args->handled = true;
 }
 
-static void de_gui_button_deinit(de_gui_node_t* n) {
-	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_BUTTON);
-
-	DE_UNUSED(n);
-}
-
 static bool de_gui_button_set_property(de_gui_node_t* n, const char* name, const void* value, size_t data_size) {
 	DE_DECLARE_PROPERTY_SETTER(de_gui_node_t, s.button.pressed_color, name, DE_GUI_BUTTON_PRESSED_COLOR_PROPERTY, value, data_size, n);
 	DE_DECLARE_PROPERTY_SETTER(de_gui_node_t, s.button.hover_color, name, DE_GUI_BUTTON_HOVERED_COLOR_PROPERTY, value, data_size, n);
@@ -79,32 +73,18 @@ static bool de_gui_button_get_property(de_gui_node_t* n, const char* name, void*
 	return false;
 }
 
-de_gui_node_t* de_gui_button_create(de_gui_t* gui) {
-	de_gui_node_t* n;
-	de_gui_button_t* b;
-
-	static de_gui_dispatch_table_t dispatch_table;
-	{
-		static bool init = false;
-		if (!init) {
-			dispatch_table.deinit = de_gui_button_deinit;
-			dispatch_table.set_property = de_gui_button_set_property;
-			dispatch_table.get_property = de_gui_button_get_property;
-			init = true;
-		}
-	}
-	n = de_gui_node_alloc(gui, DE_GUI_NODE_BUTTON, &dispatch_table);
-	b = &n->s.button;
+static void de_gui_button_init(de_gui_node_t* n) {
+	de_gui_button_t* b = &n->s.button;
 	de_color_set(&b->normal_color, 120, 120, 120, 255);
 	de_color_set(&b->pressed_color, 100, 100, 100, 255);
 	de_color_set(&b->hover_color, 140, 140, 140, 255);
-	b->border = de_gui_border_create(gui);
+	b->border = de_gui_node_create(n->gui, DE_GUI_NODE_BORDER);
 	de_gui_node_set_color(b->border, &b->normal_color);
 	n->mouse_down = de_button_border_mouse_down;
 	n->mouse_up = de_button_border_mouse_up;
 	n->mouse_enter = de_button_border_mouse_enter;
 	n->mouse_leave = de_button_border_mouse_leave;
-	b->text = de_gui_text_create(gui);
+	b->text = de_gui_node_create(n->gui, DE_GUI_NODE_TEXT);
 	de_gui_text_set_vertical_alignment(b->text, DE_GUI_VERTICAL_ALIGNMENT_CENTER);
 	de_gui_text_set_horizontal_alignment(b->text, DE_GUI_HORIZONTAL_ALIGNMENT_CENTER);
 	de_gui_node_set_hit_test_visible(b->text, false);
@@ -112,7 +92,15 @@ de_gui_node_t* de_gui_button_create(de_gui_t* gui) {
 	de_gui_border_set_stroke_color_rgba(b->border, 80, 80, 80, 255);
 	de_gui_node_attach(b->border, n);
 	de_gui_node_attach(b->text, n);
-	return n;
+}
+
+de_gui_dispatch_table_t* de_gui_button_get_dispatch_table() {
+	static de_gui_dispatch_table_t dispatch_table = {
+		.init = de_gui_button_init,
+		.set_property = de_gui_button_set_property,
+		.get_property = de_gui_button_get_property
+	};
+	return &dispatch_table;
 }
 
 void de_gui_button_set_click(de_gui_node_t* node, de_gui_callback_func_t click, void* user_data) {

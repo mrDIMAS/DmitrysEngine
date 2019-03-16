@@ -58,7 +58,7 @@ DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_lost_focus, lost_focus)
 
 static void de_gui_node_route_mouse_enter(de_gui_node_t* n, de_gui_routed_event_args_t* args) {
 	if (n->mouse_enter) {
-		n->mouse_enter(n, args); 
+		n->mouse_enter(n, args);
 	}
 	if (n->parent && !args->handled) {
 		de_gui_node_route_mouse_enter(n->parent, args);
@@ -599,11 +599,31 @@ void de_gui_update(de_gui_t* gui) {
 	}
 }
 
-de_gui_node_t* de_gui_node_alloc(de_gui_t* gui, de_gui_node_type_t type, de_gui_dispatch_table_t* dispatch_table) {
+static de_gui_dispatch_table_t* de_gui_node_get_dispatch_table_by_type(de_gui_node_type_t type) {
+	static de_gui_dispatch_table_t stub;
+	switch (type) {
+		case DE_GUI_NODE_BASE: return &stub;
+		case DE_GUI_NODE_TEXT: return de_gui_text_get_dispatch_table();
+		case DE_GUI_NODE_BORDER: return de_gui_border_get_dispatch_table();
+		case DE_GUI_NODE_WINDOW: return de_gui_window_get_dispatch_table();
+		case DE_GUI_NODE_BUTTON: return de_gui_button_get_dispatch_table();
+		case DE_GUI_NODE_SCROLL_BAR: return de_gui_scroll_bar_get_dispatch_table();
+		case DE_GUI_NODE_SCROLL_VIEWER: return de_gui_scroll_viewer_get_dispatch_table();
+		case DE_GUI_NODE_TEXT_BOX: return de_gui_text_box_get_dispatch_table();
+		case DE_GUI_NODE_GRID: return de_gui_grid_get_dispatch_table();
+		case DE_GUI_NODE_CANVAS: return de_gui_canvas_get_dispatch_table();
+		case DE_GUI_NODE_SCROLL_CONTENT_PRESENTER: return de_gui_scroll_content_presenter_get_dispatch_table();
+		case DE_GUI_NODE_SLIDE_SELECTOR: return de_gui_slide_selector_get_dispatch_table();
+		default: de_fatal_error("unhandled type"); break;
+	}
+	return NULL;
+}
+
+de_gui_node_t* de_gui_node_create(de_gui_t* gui, de_gui_node_type_t type) {
 	de_gui_node_t* n;
 	n = DE_NEW(de_gui_node_t);
 	n->gui = gui;
-	n->dispatch_table = dispatch_table;
+	n->dispatch_table = de_gui_node_get_dispatch_table_by_type(type);
 	DE_LINKED_LIST_APPEND(gui->nodes, n);
 	n->type = type;
 	DE_ARRAY_INIT(n->children);
@@ -613,6 +633,9 @@ de_gui_node_t* de_gui_node_alloc(de_gui_t* gui, de_gui_node_type_t type, de_gui_
 	n->visibility = DE_GUI_NODE_VISIBILITY_VISIBLE;
 	n->vertical_alignment = DE_GUI_VERTICAL_ALIGNMENT_STRETCH;
 	n->horizontal_alignment = DE_GUI_HORIZONTAL_ALIGNMENT_STRETCH;
+	if (n->dispatch_table->init) {
+		n->dispatch_table->init(n);
+	}
 	return n;
 }
 
@@ -765,10 +788,10 @@ bool de_gui_node_parse_property(de_gui_node_t* n, const char* name, const char* 
 	de_str8_view_array_t tokens;
 	bool result = false;
 	if (n->dispatch_table->parse_property) {
-		result = n->dispatch_table->parse_property(n, name, value);		
-	}	
+		result = n->dispatch_table->parse_property(n, name, value);
+	}
 	de_str8_set(&str, value);
-	tokens = de_str8_tokenize(&str, ";, ");	
+	tokens = de_str8_tokenize(&str, ";, ");
 	if (strcmp(name, DE_GUI_NODE_DESIRED_POSITION_PROPERTY) == 0) {
 		if (tokens.size == 2) {
 			n->desired_local_position.x = (float)atof(tokens.data[0].data);
@@ -825,7 +848,9 @@ void de_gui_node_detach(de_gui_node_t* node) {
 
 void de_gui_node_free(de_gui_node_t* n) {
 	size_t i;
-	n->dispatch_table->deinit(n);
+	if (n->dispatch_table->deinit) {
+		n->dispatch_table->deinit(n);
+	}
 	DE_LINKED_LIST_REMOVE(n->gui->nodes, n);
 	/* free children first */
 	for (i = 0; i < n->children.size; ++i) {
@@ -844,7 +869,7 @@ void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* constraint) {
 	} else {
 		/* standard measure */
 		node->desired_size.x = 0;
-		node->desired_size.y = 0;		
+		node->desired_size.y = 0;
 		for (i = 0; i < node->children.size; ++i) {
 			de_gui_node_t* child = node->children.data[i];
 			de_vec2_t child_constraint;
@@ -852,7 +877,7 @@ void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* constraint) {
 			child_constraint.y = de_maxf(0.0f, constraint->y - (node->margin.top + node->margin.bottom));
 			de_gui_node_measure(child, &child_constraint);
 			if (child->desired_size.x > node->desired_size.x) {
-				node->desired_size.x = child->desired_size.x;				
+				node->desired_size.x = child->desired_size.x;
 			}
 			if (child->desired_size.y > node->desired_size.y) {
 				node->desired_size.y = child->desired_size.y;

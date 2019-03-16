@@ -30,8 +30,19 @@ typedef enum de_node_type_t {
 DE_STATIC_ASSERT(sizeof(de_node_type_t) == sizeof(uint32_t), invalid_node_type_size);
 
 /**
+ * @brief Node dispatch table (vtable). Works together in combination with tagged unions.
+ */
+typedef struct de_node_dispatch_table_t {
+	void(*init)(de_node_t* n);
+	void(*free)(de_node_t* n);
+	bool(*visit)(de_object_visitor_t* visitor, de_node_t* n);
+	void(*resolve)(de_node_t* n);
+	void(*copy)(de_node_t* src, de_node_t* dst);
+} de_node_dispatch_table_t;
+
+/**
  * @class de_node_t
- * @brief Common scene node. Typed union.
+ * @brief Common scene node. Tagged union.
  *
  * Actual behaviour of scene node defined by its actual type.
  *
@@ -40,9 +51,6 @@ DE_STATIC_ASSERT(sizeof(de_node_type_t) == sizeof(uint32_t), invalid_node_type_s
  * and your game will not be compiling!
  */
 struct de_node_t {
-	/**
-	 * Standard properties
-	 */
 	de_node_type_t type;
 	de_str8_t name;
 	de_scene_t* scene;
@@ -52,41 +60,30 @@ struct de_node_t {
 	de_vec3_t position; /**< Position of the node relative to parent node (if exists) */
 	de_vec3_t scale; /**< Scale of the node relative to parent node (if exists) */
 	de_quat_t rotation; /**< Rotation of the node relative to parent node (if exists) */
-
-	/**
-	 * FBX stuff, but can be used if you want special transformations
-	 */
 	de_quat_t pre_rotation;
 	de_quat_t post_rotation;
 	de_vec3_t rotation_offset;
 	de_vec3_t rotation_pivot;
 	de_vec3_t scaling_offset;
 	de_vec3_t scaling_pivot;
-
 	bool need_update; /**< Indicates that node's transform needs to be updated */
 	de_node_t* parent; /**< Pool reference to parent node */
 	DE_ARRAY_DECLARE(de_node_t*, children); /**< Array of pool references to child nodes */
 	bool visible; /**< Local visibility. Actual visibility defined by hierarchy. So if parent node is invisible, then child node will be too */	
 	de_node_t* original; /**< Pointer to original node in resource from which this node copied. */
-
 	void* user_data; /**< Non-serializable. */
 	bool is_bone;
-
-	/* Physics */
 	de_body_t* body;
-
 	de_resource_t* model_resource; /**< Pointer to model from which this node was instantiated.  */
-
+	de_node_dispatch_table_t* dispatch_table;
+	DE_LINKED_LIST_ITEM(struct de_node_t);	
 	/* Specialization. Avoid accessing these directly, use de_node_to_xxx instead. */
 	union {
 		de_mesh_t mesh;
 		de_light_t light;
 		de_camera_t camera;
 	} s;
-
-	DE_LINKED_LIST_ITEM(struct de_node_t);
 };
-
 
 /**
 * @brief Creates new scene node. You should call de_scene_add_node to interact with node.
@@ -94,6 +91,9 @@ struct de_node_t {
 */
 de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type);
 
+/**
+ * @brief Copies a node with every children to destination scene.
+ */
 de_node_t* de_node_copy(de_scene_t* dest_scene, de_node_t* node_handle);
 
 /**
@@ -232,6 +232,9 @@ de_node_t* de_node_from_camera(de_camera_t* camera);
  */
 bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node);
 
+/**
+ * @brief Sets new name for a node.
+ */
 void de_node_set_name(de_node_t* node, const char* name);
 
 /**

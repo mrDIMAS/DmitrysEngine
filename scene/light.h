@@ -44,16 +44,7 @@ struct de_light_t {
 	float cone_angle_cos; /**< Precomputed cosine of angle at cone vertex. */
 };
 
-/**
- * @brief Specializes node as light. By default it is point light of white color and 2m emit radius.
- */
-void de_light_init(de_light_t* light);
-
-void de_light_deinit(de_light_t* light);
-
-void de_light_copy(de_light_t* src, de_light_t* dest);
-
-bool de_light_visit(de_object_visitor_t* visitor, de_light_t* light);
+struct de_node_dispatch_table_t* de_light_get_dispatch_table(void);
 
 /**
  * @brief

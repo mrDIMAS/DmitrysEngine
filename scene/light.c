@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-void de_light_init(de_light_t* light) {
+static void de_light_init(de_node_t* node) {
+	de_light_t* light = de_node_to_light(node);
 	de_color_set(&light->color, 255, 255, 255, 255);
 	light->radius = 2.0f;
 	light->type = DE_LIGHT_TYPE_POINT;
@@ -27,11 +28,9 @@ void de_light_init(de_light_t* light) {
 	light->cone_angle_cos = -1.0f;
 }
 
-void de_light_deinit(de_light_t* light) {
-	DE_UNUSED(light);
-}
-
-void de_light_copy(de_light_t* src, de_light_t* dest) {	
+static void de_light_copy(de_node_t* src_node, de_node_t* dest_node) {	
+	de_light_t* src = de_node_to_light(src_node);
+	de_light_t* dest = de_node_to_light(dest_node);
 	dest->color = src->color;
 	dest->cone_angle = src->cone_angle;
 	dest->cone_angle_cos = src->cone_angle_cos;
@@ -39,7 +38,8 @@ void de_light_copy(de_light_t* src, de_light_t* dest) {
 	dest->type = src->type;
 }
 
-bool de_light_visit(de_object_visitor_t* visitor, de_light_t* light) {	
+static bool de_light_visit(de_object_visitor_t* visitor, de_node_t* node) {
+	de_light_t* light = de_node_to_light(node);
 	bool result = true;
 	result &= de_object_visitor_visit_uint32(visitor, "Type", (uint32_t*)&light->type);
 	result &= de_object_visitor_visit_color(visitor, "Color", &light->color);
@@ -47,6 +47,15 @@ bool de_light_visit(de_object_visitor_t* visitor, de_light_t* light) {
 	result &= de_object_visitor_visit_float(visitor, "CosConeAngle", &light->cone_angle_cos);
 	result &= de_object_visitor_visit_float(visitor, "Radius", &light->radius);
 	return result;
+}
+
+struct de_node_dispatch_table_t* de_light_get_dispatch_table(void) {
+	static de_node_dispatch_table_t tbl = {
+		.init = de_light_init,
+		.copy = de_light_copy,
+		.visit = de_light_visit,
+	};
+	return &tbl;
 }
 
 void de_light_set_radius(de_light_t* light, float radius) {

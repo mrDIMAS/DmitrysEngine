@@ -219,34 +219,68 @@ typedef struct de_gui_dispatch_table_t {
 	bool(*parse_property)(de_gui_node_t* n, const char* name, const char* value);/* optional */	
 } de_gui_dispatch_table_t;
 
+/**
+ * @brief Node descriptor. Used together with designated initializers for C99+ (or C++20).
+ * Provides neat way to describe ui node like so:
+ * 
+ *	de_gui_node_descriptor_t desc = {
+ *     .position = { 10, 10 },
+ *     .size = { 200, 20 },
+ *     .row = 0, .column = 1,
+ *     .vertical_alignment = DE_GUI_VERTICAL_ALIGNMENT_CENTER,
+ *     .horizontal_alignment = DE_GUI_HORIZONTAL_ALIGNMENT_CENTER
+ * };
+ * 
+ * instead of set of calls of specialized functions.
+ */
 typedef struct de_gui_node_descriptor_t {
 	de_vec2_t position;
+	de_vec2_t size;
+	size_t row;
+	size_t column;
+	de_color_t color;
+	de_gui_vertical_alignment_t vertical_alignment;
+	de_gui_horizontal_alignment_t horizontal_alignment;
+	de_gui_margin_t margin;
+	de_gui_node_visibility_t visibility;
+	de_mouse_down_event_t mouse_down;
+	de_mouse_up_event_t mouse_up;
+	de_mouse_move_event_t mouse_move;
+	de_mouse_enter_event_t mouse_enter;
+	de_mouse_leave_event_t mouse_leave;
+	de_lost_focus_event_t lost_focus;
+	de_got_focus_event_t got_focus;
+	de_text_event_t text_entered;
+	de_key_down_event_t key_down;
+	de_key_up_event_t key_up;
+	void* user_data;
+	bool is_hit_test_visible; 
 } de_gui_node_descriptor_t;
 
 /**
  * @brief GUI node. Tagged union (https://en.wikipedia.org/wiki/Tagged_union)
  */
 struct de_gui_node_t {	
-	de_gui_node_type_t type;                            /**< Actual type of the node */
-	de_gui_dispatch_table_t* dispatch_table;            /**< Table of pointers to type-related functions (vtable) */
-	de_vec2_t desired_local_position;                   /**< Desired position relative to parent node */
-	de_vec2_t actual_local_position;                    /**< Position that will be used in layout */
-	de_vec2_t screen_position;                          /**< Screen position of the node */
-	de_vec2_t desired_size;                             /**< Desired size of the node */
-	de_vec2_t actual_size;                              /**< Size that will be used in layout */
-	de_color_t color;                                   /**< Overlay color of the node */
-	size_t row;                                         /**< Index of row to which this node belongs */
-	size_t column;                                      /**< Index of column to which this node belongs */
-	de_gui_vertical_alignment_t vertical_alignment;     /**< Vertical alignment */
+	de_gui_node_type_t type; /**< Actual type of the node */
+	de_gui_dispatch_table_t* dispatch_table; /**< Table of pointers to type-related functions (vtable) */
+	de_vec2_t desired_local_position; /**< Desired position relative to parent node */
+	de_vec2_t actual_local_position; /**< Position that will be used in layout */
+	de_vec2_t screen_position; /**< Screen position of the node */
+	de_vec2_t desired_size; /**< Desired size of the node */
+	de_vec2_t actual_size; /**< Size that will be used in layout */
+	de_color_t color; /**< Overlay color of the node */
+	size_t row; /**< Index of row to which this node belongs */
+	size_t column; /**< Index of column to which this node belongs */
+	de_gui_vertical_alignment_t vertical_alignment; /**< Vertical alignment */
 	de_gui_horizontal_alignment_t horizontal_alignment; /**< Horizontal alignment */
-	de_gui_margin_t margin;                             /**< Margin (four sides) */
-	de_gui_node_visibility_t visibility;                /**< Current visibility state */
-	float opacity;                                      /**< Opacity. Inherited property - children will have same opacity */
-	uint16_t tab_index;                                 /**< Index for keyboard navigation */
-	struct de_gui_node_t* parent;                       /**< Pointer to parent node */
+	de_gui_margin_t margin; /**< Margin (four sides) */
+	de_gui_node_visibility_t visibility; /**< Current visibility state */
+	float opacity; /**< Opacity. Inherited property - children will have same opacity */
+	uint16_t tab_index; /**< Index for keyboard navigation */
+	struct de_gui_node_t* parent; /**< Pointer to parent node */
 	DE_ARRAY_DECLARE(struct de_gui_node_t*, children);  /**< Array of children nodes */
-	DE_ARRAY_DECLARE(int, geometry);                    /**< Array of indices to draw command in draw list */
-	bool is_hit_test_visible;                      /**< Will this control participate in hit-test? */
+	DE_ARRAY_DECLARE(int, geometry); /**< Array of indices to draw command in draw list */
+	bool is_hit_test_visible; /**< Will this control participate in hit-test? */
 	void* user_data; /**< Pointer to any data. Useful to pass data to callbacks */
 
 	/* Specialization (type-specific data) */
@@ -366,16 +400,13 @@ void de_gui_node_set_color(de_gui_node_t* node, const de_color_t* color);
 void de_gui_node_set_color_rgba(de_gui_node_t* node, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 
 /**
- * @brief
- * @param node
- * @param parent
- * @return
+ * @brief Attaches specified node to a specified parent, so parent's transform will
+ * affect children transforms.
  */
 bool de_gui_node_attach(de_gui_node_t* node, de_gui_node_t* parent);
 
 /**
- * @brief
- * @param node
+ * @brief Detaches node from current parent making a node root node.
  */
 void de_gui_node_detach(de_gui_node_t* node);
 
@@ -495,12 +526,19 @@ void de_gui_node_set_vertical_alignment(de_gui_node_t* node, de_gui_vertical_ali
 void de_gui_node_set_horizontal_alignment(de_gui_node_t* node, de_gui_horizontal_alignment_t ha);
 
 /**
- * @brief
+ * @brief Internal. Draws every UI node into draw list.
  */
 de_gui_draw_list_t* de_gui_render(de_gui_t* gui);
 
+/**
+ * @brief Performs layouting, animation, transform calculations, etc.
+ */
 void de_gui_update(de_gui_t* gui);
 
+/**
+ * @brief Main UI event processing function, you must call it if you need UI
+ * to respond to user input.
+ */
 bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt);
 
 de_gui_node_t* de_gui_hit_test(de_gui_t* gui, float x, float y);

@@ -19,10 +19,9 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-void de_camera_copy(de_camera_t* src_camera, de_camera_t* dest_camera) {
-	/* will raise compile error if camera struct has changed, so 
-	 * forcing programmer to fix copying */
-	DE_STATIC_ASSERT(sizeof(de_camera_t) == 288, fix_camera_copying);
+static void de_camera_copy(de_node_t* src_node, de_node_t* dest_node) {
+	de_camera_t* src_camera = de_node_to_camera(src_node);
+	de_camera_t* dest_camera = de_node_to_camera(dest_node);
 	dest_camera->fov = src_camera->fov;
 	dest_camera->aspect = src_camera->aspect;
 	dest_camera->z_near = src_camera->z_near;
@@ -34,8 +33,8 @@ void de_camera_copy(de_camera_t* src_camera, de_camera_t* dest_camera) {
 	dest_camera->viewport = src_camera->viewport;
 }
 
-bool de_camera_visit(de_object_visitor_t* visitor, de_camera_t* camera) {	
-	DE_STATIC_ASSERT(sizeof(de_camera_t) == 288, fix_camera_visiting);	
+static bool de_camera_visit(de_object_visitor_t* visitor, de_node_t* camera_node) {		
+	de_camera_t* camera = de_node_to_camera(camera_node);
 	bool result = true;
 	result &= de_object_visitor_visit_float(visitor, "Fov", &camera->fov);
 	result &= de_object_visitor_visit_float(visitor, "Aspect", &camera->aspect);
@@ -49,8 +48,8 @@ bool de_camera_visit(de_object_visitor_t* visitor, de_camera_t* camera) {
 	return result;
 }
 
-void de_camera_init(de_camera_t* c) {
-	de_node_t* node = de_node_from_camera(c);
+static void de_camera_init(de_node_t* node) {
+	de_camera_t* c = de_node_to_camera(node);	
 	de_core_t* core = node->scene->core;	
 	de_rectf_t viewport = { 0, 0, 1, 1 };
 	de_camera_set_viewport(c, &viewport);
@@ -60,8 +59,13 @@ void de_camera_init(de_camera_t* c) {
 	c->aspect = core->params.video_mode.width / (float)core->params.video_mode.height;	
 }
 
-void de_camera_deinit(de_camera_t* camera) {
-	DE_UNUSED(camera);
+de_node_dispatch_table_t* de_camera_get_dispatch_table(void) {
+	static de_node_dispatch_table_t table = {
+		.visit = de_camera_visit,
+		.init = de_camera_init,
+		.copy = de_camera_copy,
+	};
+	return &table;
 }
 
 void de_camera_update(de_camera_t* cam) {

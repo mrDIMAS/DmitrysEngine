@@ -109,12 +109,9 @@ void de_node_free(de_node_t* node) {
 	}
 
 	de_str8_free(&node->name);
-	switch (node->type) {
-		case DE_NODE_TYPE_BASE: break; /* handled already */
-		case DE_NODE_TYPE_CAMERA: de_camera_deinit(&node->s.camera); break;
-		case DE_NODE_TYPE_LIGHT: de_light_deinit(&node->s.light); break;
-		case DE_NODE_TYPE_MESH: de_mesh_deinit(&node->s.mesh); break;
-		default: de_fatal_error("unhandled node type!"); break;
+
+	if (node->dispatch_table->free) {
+		node->dispatch_table->free(node);
 	}
 
 	if (node->model_resource) {
@@ -124,8 +121,21 @@ void de_node_free(de_node_t* node) {
 	de_free(node);
 }
 
+static de_node_dispatch_table_t* de_node_get_dispatch_table_by_type(de_node_type_t type) {
+	static de_node_dispatch_table_t stub_table;
+	switch (type) {
+		case DE_NODE_TYPE_BASE: return &stub_table;
+		case DE_NODE_TYPE_CAMERA: return de_camera_get_dispatch_table();
+		case DE_NODE_TYPE_MESH: return de_mesh_get_dispatch_table();
+		case DE_NODE_TYPE_LIGHT: return de_light_get_dispatch_table();
+		default: de_fatal_error("unhandled node type!"); break;
+	}
+	return NULL;
+}
+
 de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type) {
 	de_node_t* node = DE_NEW(de_node_t);
+	node->dispatch_table = de_node_get_dispatch_table_by_type(type);
 	node->type = type;
 	node->scene = scene;
 	de_mat4_identity(&node->global_matrix);
@@ -134,18 +144,15 @@ de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type) {
 	node->rotation = (de_quat_t) { 0, 0, 0, 1 };
 	node->pre_rotation = (de_quat_t) { 0, 0, 0, 1 };
 	node->post_rotation = (de_quat_t) { 0, 0, 0, 1 };
-	switch (node->type) {
-		case DE_NODE_TYPE_BASE: break; /* handled already */
-		case DE_NODE_TYPE_CAMERA: de_camera_init(&node->s.camera); break;
-		case DE_NODE_TYPE_LIGHT: de_light_init(&node->s.light); break;
-		case DE_NODE_TYPE_MESH: de_mesh_init(&node->s.mesh); break;
-		default: de_fatal_error("unhandled node type!"); break;
+	if(node->dispatch_table->init) {
+		node->dispatch_table->init(node);
 	}
 	return node;
 }
 
 static de_node_t* de_node_copy_internal(de_scene_t* dest_scene, de_node_t* node) {
 	de_node_t* copy = DE_NEW(de_node_t);
+	copy->dispatch_table = node->dispatch_table;
 	copy->type = node->type;
 	de_str8_copy(&node->name, &copy->name);
 	copy->scene = dest_scene;
@@ -177,12 +184,8 @@ static de_node_t* de_node_copy_internal(de_scene_t* dest_scene, de_node_t* node)
 	for (size_t i = 0; i < node->children.size; ++i) {
 		de_node_attach(de_node_copy_internal(dest_scene, node->children.data[i]), copy);
 	}
-	switch (node->type) {
-		case DE_NODE_TYPE_BASE: break; /* handled already */
-		case DE_NODE_TYPE_CAMERA: de_camera_copy(&node->s.camera, &copy->s.camera); break;
-		case DE_NODE_TYPE_LIGHT: de_light_copy(&node->s.light, &copy->s.light); break;
-		case DE_NODE_TYPE_MESH: de_mesh_copy(&node->s.mesh, &copy->s.mesh); break;
-		default: de_fatal_error("unhandled node type!"); break;
+	if(node->dispatch_table->copy) {
+		node->dispatch_table->copy(node, copy);
 	}
 	de_node_calculate_transforms(copy);
 	return copy;
@@ -208,12 +211,8 @@ void de_node_resolve(de_node_t* node) {
 
 	/* todo: resolve transform changes */
 
-	switch (node->type) {
-		case DE_NODE_TYPE_BASE: break;  /* handled already */
-		case DE_NODE_TYPE_CAMERA: break;
-		case DE_NODE_TYPE_LIGHT: break;
-		case DE_NODE_TYPE_MESH: de_mesh_resolve(&node->s.mesh); break;
-		default: de_fatal_error("unhandled node type!"); break;
+	if(node->dispatch_table->resolve) {
+		node->dispatch_table->resolve(node);
 	}
 
 	for (size_t i = 0; i < node->children.size; ++i) {
@@ -428,6 +427,10 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node) {
 	DE_ASSERT(node);
 	bool result = true;
 	result &= de_object_visitor_visit_uint32(visitor, "Type", (uint32_t*)&node->type);
+	if (visitor->is_reading) {
+		/* restore dispatch table */
+		node->dispatch_table = de_node_get_dispatch_table_by_type(node->type);
+	}
 	result &= de_object_visitor_visit_string(visitor, "Name", &node->name);
 	result &= de_object_visitor_visit_mat4(visitor, "LocalTransform", &node->local_matrix);
 	result &= de_object_visitor_visit_mat4(visitor, "GlobalTransform", &node->global_matrix);
@@ -447,12 +450,8 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node) {
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Scene", &node->scene, de_scene_visit);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Parent", &node->parent, de_node_visit);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Children", node->children, de_node_visit);
-	switch (node->type) {
-		case DE_NODE_TYPE_BASE: break;/* handled already */
-		case DE_NODE_TYPE_CAMERA: result &= de_camera_visit(visitor, &node->s.camera); break;
-		case DE_NODE_TYPE_LIGHT: result &= de_light_visit(visitor, &node->s.light); break;
-		case DE_NODE_TYPE_MESH: result &= de_mesh_visit(visitor, &node->s.mesh); break;
-		default: de_fatal_error("unhandled node type!"); break;
+	if(node->dispatch_table->visit) {
+		node->dispatch_table->visit(visitor, node);
 	}
 	if (visitor->is_reading) {
 		if (node->model_resource) {

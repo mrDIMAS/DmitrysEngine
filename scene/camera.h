@@ -34,16 +34,7 @@ typedef struct de_camera_t {
 	de_rectf_t viewport;               /**< Viewport rectangle in ratio. Default: 0,0,1,1 */
 } de_camera_t;
 
-void de_camera_copy(de_camera_t* src_camera, de_camera_t* dest_camera);
-
-bool de_camera_visit(de_object_visitor_t* visitor, de_camera_t* camera);
-
-/**
- * @brief Creates camera node.
- */
-void de_camera_init(de_camera_t* camera);
-
-void de_camera_deinit(de_camera_t* camera);
+struct de_node_dispatch_table_t* de_camera_get_dispatch_table(void);
 
 /**
 * @brief Builds camera matrices. Camera have to be attached to some node.

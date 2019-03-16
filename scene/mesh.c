@@ -33,14 +33,16 @@ static de_node_t* de_mesh_get_model_root(de_node_t* node) {
 	return node;
 }
 
-void de_mesh_copy(de_mesh_t* src, de_mesh_t* dest) {
-	for (size_t i = 0; i < src->surfaces.size; ++i) {
-		DE_ARRAY_APPEND(dest->surfaces, de_surface_copy(src->surfaces.data[i]));
+static void de_mesh_copy(de_node_t* src, de_node_t* dest) {
+	de_mesh_t* src_mesh = de_node_to_mesh(src);
+	de_mesh_t* dest_mesh = de_node_to_mesh(dest);
+	for (size_t i = 0; i < src_mesh->surfaces.size; ++i) {
+		DE_ARRAY_APPEND(dest_mesh->surfaces, de_surface_copy(src_mesh->surfaces.data[i]));
 	}
 }
 
-void de_mesh_resolve(de_mesh_t* mesh) {
-	de_node_t* node = de_node_from_mesh(mesh);
+static void de_mesh_resolve(de_node_t* node) {
+	de_mesh_t* mesh = de_node_to_mesh(node);
 	de_node_t* root = de_mesh_get_model_root(node);
 	if (!root) {
 		return;
@@ -55,8 +57,8 @@ void de_mesh_resolve(de_mesh_t* mesh) {
 	}
 }
 
-bool de_mesh_visit(de_object_visitor_t* visitor, de_mesh_t* mesh) {
-	de_node_t* node = de_node_from_mesh(mesh);
+static bool de_mesh_visit(de_object_visitor_t* visitor, de_node_t* node) {
+	de_mesh_t* mesh = de_node_to_mesh(node);
 	if (visitor->is_reading) {
 		/* resolve changes */
 		if (node->model_resource) {
@@ -78,16 +80,29 @@ bool de_mesh_visit(de_object_visitor_t* visitor, de_mesh_t* mesh) {
 	return result;
 }
 
-void de_mesh_init(de_mesh_t* mesh) {
+static void de_mesh_init(de_node_t* node) {
+	de_mesh_t* mesh = de_node_to_mesh(node);
 	DE_ARRAY_INIT(mesh->surfaces);
 }
 
-void de_mesh_deinit(de_mesh_t* mesh) {
+static void de_mesh_free(de_node_t* node) {
+	de_mesh_t* mesh = de_node_to_mesh(node);
 	/* Free surfaces */
 	for (size_t i = 0; i < mesh->surfaces.size; ++i) {
 		de_renderer_free_surface(mesh->surfaces.data[i]);
 	}
 	DE_ARRAY_FREE(mesh->surfaces);
+}
+
+struct de_node_dispatch_table_t* de_mesh_get_dispatch_table(void) {
+	static de_node_dispatch_table_t tbl = {
+		.free = de_mesh_free,
+		.init = de_mesh_init,
+		.visit = de_mesh_visit,
+		.resolve = de_mesh_resolve,
+		.copy = de_mesh_copy,
+	};
+	return &tbl;
 }
 
 void de_mesh_calculate_normals(de_mesh_t * mesh) {

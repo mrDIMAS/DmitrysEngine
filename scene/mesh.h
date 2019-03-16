@@ -28,18 +28,7 @@ struct de_mesh_t {
 	DE_ARRAY_DECLARE(de_surface_t*, surfaces); /**< Array of pointer to surfaces */
 };
 
-/**
-* @brief Specializes node as empty mesh (without any surface)
-*/
-void de_mesh_init(de_mesh_t* mesh);
-
-void de_mesh_deinit(de_mesh_t* mesh);
-
-void de_mesh_copy(de_mesh_t* src, de_mesh_t* dest);
-
-void de_mesh_resolve(de_mesh_t* mesh);
-
-bool de_mesh_visit(de_object_visitor_t* visitor, de_mesh_t* mesh);
+struct de_node_dispatch_table_t* de_mesh_get_dispatch_table(void);
 
 /**
  * @brief Calculates normals of each surface. Normals are per-face and not smooth.

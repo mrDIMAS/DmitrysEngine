@@ -54,8 +54,8 @@ static void de_core_clean(de_core_t* core) {
 		if (!(res->flags & DE_RESOURCE_FLAG_PERSISTENT) && !(res->flags & DE_RESOURCE_FLAG_INTERNAL)) {
 			/* force destroy a resource, at this moment we do not care if some still owns it
 			 * because at this time owner is already dead. */
-			while (res->ref_count) {
-				de_resource_release(res);
+			while (de_resource_release(res)) {
+				;
 			}
 		}
 	}

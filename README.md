@@ -8,6 +8,15 @@ Please note, that this engine is at very early development stage and some featur
 * Single compilation unit - no need to build as separate library: just add `de_main.h` and `de_main.c` to your project.
 * C99 with full compatibility with C++.
 * FBX support - both ASCII and binary
+* Scene graph with these nodes:
+	* Base (pivot)
+	* Mesh
+	* Light
+	* Camera
+* Automatic assets (resources) management 
+	* Textures
+	* Models
+	* Sound buffers
 * Modern rendering techniques, renderer based on OpenGL 3.3 Core.
     * Deferred shading
     * Normal mapping

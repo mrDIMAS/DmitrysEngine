@@ -64,11 +64,6 @@ struct de_sound_buffer_t {
 };
 
 /**
- * @brief Creates new sound buffer. Thread-safe.
- */
-void de_sound_buffer_init(de_sound_buffer_t* buf, de_sound_context_t* ctx, uint32_t flags);
-
-/**
  * @brief Uploads content of file into buffer. Thread-safe.
  * 
  * If used with DE_SOUND_BUFFER_FLAGS_STREAM flag, then reads small portion from file 
@@ -77,11 +72,6 @@ void de_sound_buffer_init(de_sound_buffer_t* buf, de_sound_context_t* ctx, uint3
  * IMPORTANT: Streaming buffers can ONLY be used with only one sound source!
  */
 void de_sound_buffer_load_file(de_sound_buffer_t* buf, const char* file);
-
-/**
- * @brief Destroys sound buffer. Thread-safe.
- */
-void de_sound_buffer_deinit(de_sound_buffer_t* buf);
 
 /**
  * @brief Internal. Performs streaming for streaming buffers.
@@ -108,4 +98,4 @@ void de_sound_buffer_reset_flags(de_sound_buffer_t* buf, uint32_t flags);
  */
 void de_sound_buffer_rewind(de_sound_buffer_t* buf);
 
-bool de_sound_buffer_visit(de_object_visitor_t* visitor, de_sound_buffer_t* buf);
+de_resource_dispatch_table_t* de_sound_buffer_get_dispatch_table();

@@ -19,25 +19,58 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-
-void de_texture_add_ref(de_texture_t* tex) {
-	if (!tex) {
-		return;
-	}
-	++tex->ref_count;
+static void de_texture_init(de_resource_t* res) {
+	de_texture_t* tex = de_resource_to_texture(res);
+	tex->width = 0;
+	tex->height = 0;
+	tex->byte_per_pixel = 0;
+	tex->depth = 0;
+	tex->id = 0;
+	tex->type = DE_TEXTURE_TYPE_2D;
+	tex->pixels = 0;
+	tex->need_upload = true;
 }
 
+static void de_texture_deinit(de_resource_t* res) {
+	de_texture_t* tex = de_resource_to_texture(res);
+	de_renderer_remove_texture(res->core->renderer, tex);
+	de_free(tex->pixels);
+}
 
-void de_texture_release(de_texture_t* tex) {
-	if (!tex) {
-		return;
+bool de_texture_load(de_texture_t* tex, const de_path_t* path) {
+	de_image_t img = { 0 };
+	if (de_image_load_tga(de_path_cstr(path), &img)) {
+		tex->width = img.width;
+		tex->height = img.height;
+		tex->byte_per_pixel = img.byte_per_pixel;
+		tex->pixels = img.data;
+		tex->need_upload = true;
+		return true;
 	}
-	--tex->ref_count;
-	if (tex->ref_count <= 0) {
-		de_renderer_remove_texture(tex->renderer, tex);
-		/* Free resources */
-		de_free(tex->pixels);
-		de_str8_free(&tex->name);
-		de_free(tex);
+	return false;
+}
+
+void de_texture_alloc_pixels(de_texture_t* tex, int w, int h, size_t byte_per_pixel) {
+	tex->width = w;
+	tex->height = h;
+	tex->byte_per_pixel = byte_per_pixel;
+	tex->pixels = de_calloc(w*h, byte_per_pixel);
+	tex->need_upload = true;
+}
+
+static bool de_texture_visit(de_object_visitor_t* visitor, de_resource_t* res) {
+	de_texture_t* tex = de_resource_to_texture(res);
+	bool result = true;
+	if(visitor->is_reading) {
+		result &= de_texture_load(tex, &res->source);
 	}
+	return result;
+}
+
+de_resource_dispatch_table_t* de_texture_get_dispatch_table(void) {
+	static de_resource_dispatch_table_t table = {
+		.init = de_texture_init,
+		.deinit = de_texture_deinit,
+	};
+	return &table;
 }

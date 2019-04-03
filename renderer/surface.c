@@ -82,17 +82,18 @@ void de_surface_shared_data_free(de_surface_shared_data_t* data) {
 	de_free(data->indices);
 	de_free(data->bone_indices);
 	de_free(data->bone_weights);
+	de_free(data);
 }
 
 de_surface_t* de_surface_copy(de_surface_t* surf) {
 	de_surface_t* copy = DE_NEW(de_surface_t);
 	copy->renderer = surf->renderer;
 	if (surf->diffuse_map) {
-		de_texture_add_ref(surf->diffuse_map);
+		de_resource_add_ref(de_resource_from_texture(surf->diffuse_map));		
 		copy->diffuse_map = surf->diffuse_map;
 	}
 	if (surf->normal_map) {
-		de_texture_add_ref(surf->normal_map);
+		de_resource_add_ref(de_resource_from_texture(surf->normal_map));
 		copy->normal_map = surf->normal_map;
 	}
 	copy->need_upload = true;
@@ -128,11 +129,11 @@ void de_surface_set_diffuse_texture(de_surface_t * surf, de_texture_t *tex) {
 	}
 
 	if (surf->diffuse_map) {
-		de_texture_release(surf->diffuse_map);
+		de_resource_release(de_resource_from_texture(surf->diffuse_map));		
 	}
 
-	de_texture_add_ref(tex);
-
+	de_resource_add_ref(de_resource_from_texture(tex));
+	
 	surf->diffuse_map = tex;
 }
 
@@ -142,10 +143,10 @@ void de_surface_set_normal_texture(de_surface_t * surf, de_texture_t *tex) {
 	}
 
 	if (surf->normal_map) {
-		de_texture_release(surf->normal_map);
+		de_resource_release(de_resource_from_texture(surf->normal_map));		
 	}
 
-	de_texture_add_ref(tex);
+	de_resource_add_ref(de_resource_from_texture(tex));
 
 	surf->normal_map = tex;
 }

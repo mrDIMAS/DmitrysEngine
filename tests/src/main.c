@@ -224,7 +224,7 @@ player_t* player_create(level_t* level) {
 		snprintf(buf, sizeof(buf), "data/sounds/footsteps/FootStep_shoe_metal_step%d.wav", i + 1);
 		de_path_t path;
 		de_path_from_cstr_as_view(&path, buf);
-		de_resource_t* res = de_core_request_resource(level->game->core, DE_RESOURCE_TYPE_SOUND_BUFFER, &path);
+		de_resource_t* res = de_core_request_resource(level->game->core, DE_RESOURCE_TYPE_SOUND_BUFFER, &path, 0);
 		de_sound_source_t* src = de_sound_source_create(ctx, DE_SOUND_SOURCE_TYPE_3D);
 		de_sound_source_set_buffer(src, de_resource_to_sound_buffer(res));
 		DE_ARRAY_APPEND(p->footsteps, src);
@@ -271,14 +271,6 @@ bool player_visit(de_object_visitor_t* visitor, player_t* player) {
 	result &= de_object_visitor_visit_vec3(visitor, "CameraDestOffset", &player->camera_dest_offset);
 	result &= de_object_visitor_visit_vec3(visitor, "CameraPosition", &player->camera_position);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Footsteps", player->footsteps, de_sound_source_visit);
-	/*
-	TODO: visit these
-
-	DE_ARRAY_DECLARE(weapon_t*, weapons);
-	de_sound_buffer_t* footstep_bufs[4];
-	de_sound_source_t* footsteps[4];
-	*/
-
 	return result;
 }
 
@@ -314,6 +306,7 @@ void player_free(player_t* p) {
 	for (size_t i = 0; i < p->footsteps.size; ++i) {
 		de_sound_source_free(p->footsteps.data[i]);
 	}
+	DE_ARRAY_FREE(p->footsteps);
 	de_node_free(p->pivot);
 	de_free(p);
 }
@@ -401,7 +394,7 @@ void player_update(player_t* p) {
 	if (p->controller.run) {
 		speed_multiplier = p->run_speed_multiplier;
 	}
-
+	
 	if (de_vec3_sqr_len(&offset) > 0) {
 		de_vec3_normalize(&offset, &offset);
 		de_vec3_scale(&offset, &offset, speed_multiplier * p->move_speed);
@@ -410,6 +403,9 @@ void player_update(player_t* p) {
 			de_sound_source_t* src = p->footsteps.data[rand() % p->footsteps.size];
 			if (src) {
 				de_sound_source_play(src);
+				de_vec3_t pos;
+				de_node_get_global_position(p->pivot, &pos);
+				de_sound_source_set_position(src, &pos);
 			}
 			p->path_len = 0;
 		}
@@ -447,7 +443,7 @@ level_t* level_create_test(game_t* game) {
 		de_path_t res_path;
 		de_path_init(&res_path);
 		de_path_append_cstr(&res_path, "data/models/ripper.fbx");
-		de_resource_t* mdl_res = de_core_request_resource(game->core, DE_RESOURCE_TYPE_MODEL, &res_path);
+		de_resource_t* mdl_res = de_core_request_resource(game->core, DE_RESOURCE_TYPE_MODEL, &res_path, 0);
 		de_model_t* mdl = de_resource_to_model(mdl_res);
 		de_node_t* ripper1 = de_model_instantiate(mdl, level->scene);
 		de_node_set_local_position(ripper1, &(de_vec3_t){ -1, 0, -1 });
@@ -465,7 +461,7 @@ level_t* level_create_test(game_t* game) {
 		de_path_t res_path;
 		de_path_init(&res_path);
 		de_path_append_cstr(&res_path, "data/models/map2_bin.fbx");
-		de_resource_t* res = de_core_request_resource(game->core, DE_RESOURCE_TYPE_MODEL, &res_path);
+		de_resource_t* res = de_core_request_resource(game->core, DE_RESOURCE_TYPE_MODEL, &res_path, 0);
 		de_model_t* mdl = de_resource_to_model(res);
 		de_model_instantiate(mdl, level->scene);
 		de_path_free(&res_path);
@@ -473,14 +469,12 @@ level_t* level_create_test(game_t* game) {
 
 	level_create_collider(level);
 
-	level->player = player_create(level);
-	{
-		de_node_t* pp = de_scene_find_node(level->scene, "PlayerPosition");
-		if (pp) {
-			de_vec3_t pos;
-			de_node_get_global_position(pp, &pos);
-			de_node_set_local_position(level->player->pivot, &pos);
-		}
+	level->player = player_create(level);	
+	de_node_t* pp = de_scene_find_node(level->scene, "PlayerPosition");
+	if (pp) {
+		de_vec3_t pos;
+		de_node_get_global_position(pp, &pos);
+		de_node_set_local_position(level->player->pivot, &pos);
 	}
 
 	return level;
@@ -582,10 +576,13 @@ main_menu_t* main_menu_create(game_t* game) {
 	{
 		de_path_t path;
 		de_path_from_cstr_as_view(&path, "data/sounds/test.wav");
-		de_resource_t* res = de_core_request_resource(game->core, DE_RESOURCE_TYPE_SOUND_BUFFER, &path);
+		de_resource_t* res = de_core_request_resource(game->core, DE_RESOURCE_TYPE_SOUND_BUFFER, &path, 
+			DE_RESOURCE_FLAG_PERSISTENT);
+		de_sound_buffer_t* buffer = de_resource_to_sound_buffer(res);
+		de_sound_buffer_set_flags(buffer, DE_SOUND_BUFFER_FLAGS_STREAM);
 		menu->music = de_sound_source_create(de_core_get_sound_context(game->core), DE_SOUND_SOURCE_TYPE_2D);
 		de_sound_source_set_buffer(menu->music, de_resource_to_sound_buffer(res));
-		///de_sound_source_play(menu->music);
+		de_sound_source_play(menu->music);
 	}
 	/* main window */
 	{
@@ -841,8 +838,6 @@ void game_close(game_t* game) {
 
 int main(int argc, char** argv) {
 	game_t* game;
-
-	de_config_test();
 
 	DE_UNUSED(argc);
 	DE_UNUSED(argv);

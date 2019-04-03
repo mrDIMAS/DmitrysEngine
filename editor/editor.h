@@ -19,20 +19,39 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/**
- * @brief Model is an isolated scene which can be instantiated multiple times, the source
- * scene won't be rendered.
- */
-typedef struct de_model_t {
+typedef struct de_editor_t de_editor_t;
+
+typedef struct de_editor_property_window_t {
+	de_editor_t* owner;
+	de_gui_node_t* window;
+	de_gui_node_t* grid;
+
+	de_gui_node_t* name_label;
+	de_gui_node_t* name_text;
+
+} de_editor_property_window_t;
+
+typedef struct de_editor_camera_controller_t {
+	de_node_t* camera;
+	de_node_t* camera_pivot;
+	bool move_forward;
+	bool move_backward;
+	bool move_left;
+	bool move_right;
+} de_editor_camera_controller_t;
+
+struct de_editor_t {
+	de_core_t* core;
+	de_editor_property_window_t prop;
+
 	de_scene_t* scene;
-	de_node_t* root;
-} de_model_t;
+	de_editor_camera_controller_t camera_ctrl;
+};
 
-/**
- * @brief Internal. Do not call directly. Call de_core_request resource.
- */
-bool de_model_load(de_model_t* mdl, const de_path_t* path);
+de_editor_t* de_editor_create(de_core_t* core);
 
-de_node_t* de_model_instantiate(de_model_t* mdl, de_scene_t* dest_scene);
+void de_editor_free(de_editor_t* ed);
 
-de_resource_dispatch_table_t* de_model_get_dispatch_table(void);
+void de_editor_update(de_editor_t* ed);
+
+void de_editor_process_event(de_editor_t* ed, const de_event_t* evt);

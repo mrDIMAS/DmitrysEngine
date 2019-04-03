@@ -116,7 +116,9 @@ void de_core_add_resource(de_core_t* core, de_resource_t* resource);
  * @brief Request external resource of specified type. If resource was loaded previously, 
  * increases reference count and returns pointer to resource, if not - loads resource.
  */
-de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type, const de_path_t* path);
+de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type, const de_path_t* path, uint32_t flags);
+
+de_resource_t* de_core_find_resource_of_type(de_core_t* core, de_resource_type_t type, const de_path_t* path);
 
 /**
  * @brief Visit core with specified object visitor.

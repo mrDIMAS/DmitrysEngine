@@ -128,8 +128,8 @@ static de_node_dispatch_table_t* de_node_get_dispatch_table_by_type(de_node_type
 		case DE_NODE_TYPE_CAMERA: return de_camera_get_dispatch_table();
 		case DE_NODE_TYPE_MESH: return de_mesh_get_dispatch_table();
 		case DE_NODE_TYPE_LIGHT: return de_light_get_dispatch_table();
-		default: de_fatal_error("unhandled node type!"); break;
 	}
+	de_log("unhandled node type!");
 	return NULL;
 }
 
@@ -452,12 +452,6 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node) {
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Children", node->children, de_node_visit);
 	if(node->dispatch_table->visit) {
 		node->dispatch_table->visit(visitor, node);
-	}
-	if (visitor->is_reading) {
-		if (node->model_resource) {
-			/* acquire resource */
-			de_resource_add_ref(node->model_resource);
-		}
 	}
 	return result;
 }

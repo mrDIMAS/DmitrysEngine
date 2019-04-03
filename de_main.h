@@ -28,20 +28,9 @@
   *   screen, Y axis points up, and X axis points right.
   * - Vectors are single-column matrices.
   * 
-  * VERY IMPORTANT: Engine heavily uses object pools to store objects of the same type.
-  * To make memory management more easy and safe engine returns handles for new objects,
-  * not pointers. Each handle can be converted into a pointer via special function, and 
-  * then passed to any function you need. *BUT* you must NEVER EVER store raw pointers 
-  * for objects which lives in pools. Pointers must be used in-place, otherwise you will
-  * get UNDEFINED BEHAVIOUR!
-  * 
-  * Why not to use handles everywhere, you may ask. Answer is simple: performance. Imagine
-  * situation when you need to do some chain of action on some object via special functions,
-  * if you would using handles everywhere, then in each function you'll need to convert handle
-  * into a point and then do some action, this is too costly and must be avoided. Thats why
-  * most of function still needs pointers to objects, not handles.
-  * 
-  * Putting all together: creation and deletion of object uses handles, manupulation - pointers.
+  * VERY IMPORTNAT NOTE: Every method in engine is *NOT* thread-safe unless noted otherwise.
+  * For example most of sound-related functions are thread-safe and they're marked as such
+  * in comments, keep this in mind please.
   * 
   **/
 
@@ -54,6 +43,8 @@ extern "C" {
 
 /* Set this to 1 to disable asserts, can be useful for release builds to increase performance a bit. */
 #define DE_DISABLE_ASSERTS 0
+
+#define DE_EDITOR_ENABLED 1
 
 /* Enables additional code in the math library and allows you to catch division by zero, NAN's and other
  * weird stuff. When 0 - gives absolutely zero performance impact. Very useful for debugging. */
@@ -197,6 +188,7 @@ typedef struct de_resource_t de_resource_t;
 #include "renderer/surface.h"
 #include "fbx/fbx.h"
 #include "renderer/renderer.h"
+#include "resources/resource_fdecl.h"
 #include "resources/texture.h"
 #include "font/font.h"
 #include "core/utility.h"
@@ -205,6 +197,10 @@ typedef struct de_resource_t de_resource_t;
 #include "resources/resource.h"
 #include "core/core.h" 
 #include "external/miniz_tinfl.h"
+
+#if DE_EDITOR_ENABLED
+#include "editor/editor.h"
+#endif
 
 #ifdef __cplusplus
 }

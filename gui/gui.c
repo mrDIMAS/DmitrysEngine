@@ -613,9 +613,9 @@ static de_gui_dispatch_table_t* de_gui_node_get_dispatch_table_by_type(de_gui_no
 		case DE_GUI_NODE_GRID: return de_gui_grid_get_dispatch_table();
 		case DE_GUI_NODE_CANVAS: return de_gui_canvas_get_dispatch_table();
 		case DE_GUI_NODE_SCROLL_CONTENT_PRESENTER: return de_gui_scroll_content_presenter_get_dispatch_table();
-		case DE_GUI_NODE_SLIDE_SELECTOR: return de_gui_slide_selector_get_dispatch_table();
-		default: de_fatal_error("unhandled type"); break;
+		case DE_GUI_NODE_SLIDE_SELECTOR: return de_gui_slide_selector_get_dispatch_table();		 
 	}
+	de_log("unhandled type");
 	return NULL;
 }
 

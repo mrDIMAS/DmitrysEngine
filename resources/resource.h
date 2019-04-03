@@ -19,44 +19,13 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef enum de_resource_type_t {
-	DE_RESOURCE_TYPE_MODEL,
-	DE_RESOURCE_TYPE_TEXTURE,
-	DE_RESOURCE_TYPE_SOUND_BUFFER,
-	DE_RESOURCE_TYPE_FORCE_SIZE = INT32_MAX,
-} de_resource_type_t;
-
-DE_STATIC_ASSERT(sizeof(de_resource_type_t) == sizeof(uint32_t), invalid_resource_type_size);
-
-typedef enum de_resource_flag_t {
-	/**
-	 * Resource is created in runtime. Will be serialized unless 
-	 * DE_RESOURCE_FLAG_PERSISTENT is set. Useful for dynamic resource like procedural
-	 * textures.
-	 */
-	DE_RESOURCE_FLAG_PROCEDURAL = DE_BIT(0), 
-
-	/**
-	 * Resource is will exist until core is destroyed. Such resource WON'T be serialized!
-	 * by object visitor. For example such resources may be useful for UI textures which will
-	 * exist all the time game is running. 
-	 **/
-	DE_RESOURCE_FLAG_PERSISTENT = DE_BIT(1),
-
-	/**
-	 * Internal. Do not use. 
-	 * 
-	 * Internal persistent engine resources will be marked with this flag.
-	 */
-	DE_RESOURCE_FLAG_INTERNAL = DE_BIT(2),
-} de_resource_flags_t;
-
 #include "resources/model.h"
 
 struct de_resource_t {
-	de_core_t* core;
+	de_core_t* core;	
 	de_resource_type_t type; 
-	int ref_count;
+	de_resource_dispatch_table_t* dispatch_table;
+	int32_t ref_count;
 	de_path_t source; 
 	uint32_t flags;
 	union {
@@ -68,7 +37,11 @@ struct de_resource_t {
 
 const char* de_resource_type_to_cstr(de_resource_type_t type);
 
-de_resource_t* de_resource_create(de_core_t* core, de_resource_type_t type, uint32_t flags);
+/**
+ * @brief Creates new resource of specified type with specified flags. Automatically
+ * registers self in core. path can be null for runtime resources.
+ */
+de_resource_t* de_resource_create(de_core_t* core, const de_path_t* path, de_resource_type_t type, uint32_t flags);
 
 /**
  * @brief Increases reference counter of resource. You must call de_resource_release when you do not
@@ -83,10 +56,35 @@ int de_resource_release(de_resource_t* res);
 
 bool de_resource_visit(de_object_visitor_t* visitor, de_resource_t* res);
 
+/**
+ * @brief Returns pointer to model based on resource pointer.
+ */
 de_model_t* de_resource_to_model(de_resource_t* res);
 
+/**
+ * @brief Returns pointer to resource from pointer to model resource. 
+ */
 de_resource_t* de_resource_from_model(de_model_t* mdl);
 
+/**
+ * @brief Returns pointer to model resource based on resource pointer.
+ */
 de_sound_buffer_t* de_resource_to_sound_buffer(de_resource_t* res);
 
+/**
+ * @brief Returns pointer to resource from pointer to sound buffer resource. 
+ */
 de_resource_t* de_resource_from_sound_buffer(de_sound_buffer_t* buf);
+
+/**
+* @brief Returns pointer to texture resource based on resource pointer.
+*/
+de_texture_t* de_resource_to_texture(de_resource_t* res);
+
+/**
+* @brief Returns pointer to resource from pointer to texture resource. 
+*/
+de_resource_t* de_resource_from_texture(de_texture_t* buf);
+
+
+de_resource_dispatch_table_t* de_resource_get_dispatch_table_by_type(de_resource_type_t type);

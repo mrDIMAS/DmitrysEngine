@@ -32,7 +32,9 @@ void de_sound_context_free(de_sound_context_t* ctx) {
 	size_t i;
 	de_sound_device_free(&ctx->dev);
 	for (i = 0; i < ctx->sounds.size; ++i) {
-		de_sound_source_free(ctx->sounds.data[i]);
+		de_sound_source_t* src = ctx->sounds.data[i];
+		de_log("unfreed sound source found -> mem leaks. details:\n\tsource: %s",
+			src->buffer ? de_path_cstr(&de_resource_from_sound_buffer(src->buffer)->source) : "not set");
 	}
 	DE_ARRAY_FREE(ctx->sounds);
 	de_mtx_destroy(&ctx->mtx);

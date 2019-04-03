@@ -57,3 +57,7 @@
 #include "core/thread.c"
 #include "sound/sound.c"
 #include "resources/resource.c"
+
+#if DE_EDITOR_ENABLED
+#include "editor/editor.c"
+#endif

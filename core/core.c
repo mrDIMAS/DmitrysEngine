@@ -68,7 +68,26 @@ bool de_core_visit(de_object_visitor_t* visitor, de_core_t* core) {
 	if (visitor->is_reading) {		
 		de_core_clean(core);
 	}
-	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Resources", core->resources, de_resource_visit);
+	DE_ARRAY_DECLARE(de_resource_t*, visited_resources);	
+	if(!visitor->is_reading) {
+		DE_ARRAY_INIT(visited_resources);
+		/* copy only serializable resources to temp collection */
+		for (size_t i = 0; i < core->resources.size; ++i) {
+			de_resource_t* res = core->resources.data[i];
+			if(!(res->flags & DE_RESOURCE_FLAG_PERSISTENT) && !(res->flags & DE_RESOURCE_FLAG_INTERNAL)) {
+				DE_ARRAY_APPEND(visited_resources, res);
+			}
+		}
+	}	
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Resources", visited_resources, de_resource_visit);
+	/* append serialized resources back to core collection of resources */
+	if(visitor->is_reading) {
+		for (size_t i = 0; i < visited_resources.size; ++i) {
+			de_resource_t* res = visited_resources.data[i];
+			DE_ARRAY_APPEND(core->resources, res);
+		}
+	}
+	DE_ARRAY_FREE(visited_resources);
 	result &= de_sound_context_visit(visitor, core->sound_context);
 	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Scenes", core->scenes, de_scene_t, de_scene_visit);
 	de_sound_context_unlock(core->sound_context);
@@ -94,16 +113,17 @@ void de_core_shutdown(de_core_t* core) {
 		de_scene_free(core->scenes.head);
 	}
 	de_sound_context_free(core->sound_context);
+	de_gui_shutdown(core->gui);
+	/* Notify about unreleased resources */
 	for (size_t i = 0; i < core->resources.size; ++i) {
 		de_resource_t* res = core->resources.data[i];
-		if (de_resource_release(res) != 0) {
-			de_log("unrealeased resource found -> mem leaks");
-		}
+		de_log("unrealeased resource found -> mem leaks. details:\n\tpath: %s\n\tref count: %d",
+			de_path_cstr(&res->source), res->ref_count);		
 	}
-	DE_ARRAY_FREE(core->events_queue);
-	de_gui_shutdown(core->gui);
+	DE_ARRAY_FREE(core->resources);
+	DE_ARRAY_FREE(core->events_queue);	
 	de_renderer_free(core->renderer);
-	de_core_platform_shutdown(core);
+	de_core_platform_shutdown(core);	
 	de_free(core);
 	de_log("Engine shutdown successful!");
 	de_log_close();
@@ -173,7 +193,7 @@ void de_core_add_resource(de_core_t* core, de_resource_t* resource) {
 	DE_ARRAY_APPEND(core->resources, resource);
 }
 
-de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type, const de_path_t* path) {
+de_resource_t* de_core_find_resource_of_type(de_core_t* core, de_resource_type_t type, const de_path_t* path) {
 	for (size_t i = 0; i < core->resources.size; ++i) {
 		de_resource_t* res = core->resources.data[i];
 		if (de_path_eq(&res->source, path)) {
@@ -184,25 +204,41 @@ de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type
 			return res;
 		}
 	}
+	return NULL;
+}
+
+de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type, const de_path_t* path, uint32_t flags) {
+	de_resource_t* res = de_core_find_resource_of_type(core, type, path);
+	if(res) {
+		return res;
+	}
 	de_str8_view_t ext;
-	de_path_extension(path, &ext);	
-	de_resource_t* res = de_resource_create(core, type, 0);	
-	de_path_copy(path, &res->source);
+	de_path_extension(path, &ext);			
 	switch (type) {
 		case DE_RESOURCE_TYPE_TEXTURE:
 			if (de_str8_view_eq_cstr(&ext, ".tga")) {
-
+				res = de_resource_create(core, path, type, flags);	
+				if(!de_texture_load(&res->s.texture, path)) {
+					DE_ARRAY_REMOVE(core->resources, res);
+					/* hackery hack: adding ref and then immediately release to prevent 
+					 * triggering of assert */
+					de_resource_add_ref(res);
+					de_resource_release(res);
+					return NULL;
+				}
+				return res;
 			}
 			break;
 		case DE_RESOURCE_TYPE_SOUND_BUFFER:
-			if (de_str8_view_eq_cstr(&ext, ".wav")) {
-				de_sound_buffer_init(&res->s.sound_buffer, core->sound_context, 0);
+			if (de_str8_view_eq_cstr(&ext, ".wav")) 
+				res = de_resource_create(core, path, type, flags);	{
 				de_sound_buffer_load_file(&res->s.sound_buffer, de_path_cstr(path));
 				return res;
 			}
 			break;
 		case DE_RESOURCE_TYPE_MODEL:
 			if (de_str8_view_eq_cstr(&ext, ".fbx")) {				
+				res = de_resource_create(core, path, type, flags);	
 				de_model_load(&res->s.model, path);
 				return res;
 			}

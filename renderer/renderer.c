@@ -570,7 +570,10 @@ de_renderer_t* de_renderer_init(de_core_t* core) {
 	/* white dummy texture for surfaces without texture */
 	{
 		de_rgba8_t* pixel;
-		r->white_dummy = de_renderer_create_texture(r, 1, 1, 4);
+		de_resource_t* res = de_resource_create(core, NULL, DE_RESOURCE_TYPE_TEXTURE, DE_RESOURCE_FLAG_INTERNAL);
+		de_resource_add_ref(res);
+		r->white_dummy = de_resource_to_texture(res);
+		de_texture_alloc_pixels(r->white_dummy, 1, 1, 4);
 		pixel = (de_rgba8_t*)r->white_dummy->pixels;
 		pixel->r = pixel->g = pixel->b = pixel->a = 255;
 	}
@@ -578,7 +581,10 @@ de_renderer_t* de_renderer_init(de_core_t* core) {
 	/* dummy normal map with (0,0,1) vector */
 	{
 		de_rgba8_t* pixel;
-		r->normal_map_dummy = de_renderer_create_texture(r, 1, 1, 4);
+		de_resource_t* res = de_resource_create(core, NULL, DE_RESOURCE_TYPE_TEXTURE, DE_RESOURCE_FLAG_INTERNAL);
+		de_resource_add_ref(res);
+		r->normal_map_dummy = de_resource_to_texture(res);
+		de_texture_alloc_pixels(r->normal_map_dummy, 1, 1, 4);
 		pixel = (de_rgba8_t*)r->normal_map_dummy->pixels;
 		pixel->r = 128;
 		pixel->g = 128;
@@ -592,13 +598,11 @@ de_renderer_t* de_renderer_init(de_core_t* core) {
 	return r;
 }
 
-
 void de_renderer_free(de_renderer_t* r) {
 	de_renderer_free_surface(r->quad);
 	de_renderer_free_surface(r->test_surface);
-	de_texture_release(r->white_dummy);
-	de_texture_release(r->normal_map_dummy);
-
+	de_resource_release(de_resource_from_texture(r->white_dummy));
+	de_resource_release(de_resource_from_texture(r->normal_map_dummy));	
 	de_free(r);
 }
 
@@ -807,7 +811,12 @@ de_surface_t* de_renderer_create_surface(de_renderer_t* r) {
 
 void de_renderer_free_surface(de_surface_t* surf) {
 	/* Unref texture */
-	de_texture_release(surf->diffuse_map);
+	if (surf->diffuse_map) {
+		de_resource_release(de_resource_from_texture(surf->diffuse_map));
+	}
+	if (surf->normal_map) {
+		de_resource_release(de_resource_from_texture(surf->normal_map));
+	}
 
 	/* Delete buffers */
 	de_surface_shared_data_t* data = surf->shared_data;
@@ -827,79 +836,10 @@ void de_renderer_free_surface(de_surface_t* surf) {
 	de_free(surf);
 }
 
-
-de_texture_t* de_renderer_request_texture(de_renderer_t* r, const de_path_t* path) {
-	de_texture_t* tex;
-	de_image_t img = { 0 };
-	const char* file = de_path_cstr(path);
-
-	/* Look for already loaded textures */
-	{
-		de_texture_t* texture = NULL;
-		DE_LINKED_LIST_FOR_EACH(r->textures, texture) {
-			if (de_str8_eq(&texture->name, file)) {
-				return texture;
-			}
-		}
-	}
-
-	/* No already loaded textures, try load new from file */
-	if (strstr(file, ".tga")) {
-		if (!de_image_load_tga(file, &img)) {
-			return NULL;
-		}
-	} else {
-		de_log("Warning: Unsupported texture format! %s is not loaded!", file);
-
-		return NULL;
-	}
-
-	tex = DE_NEW(de_texture_t);
-	tex->renderer = r;
-	tex->width = img.width;
-	tex->height = img.height;
-	tex->byte_per_pixel = img.byte_per_pixel;
-	de_str8_set(&tex->name, file);
-	tex->depth = 0;
-	tex->id = 0;
-	tex->type = DE_TEXTURE_TYPE_2D;
-	tex->pixels = img.data;
-	tex->ref_count = 0;
-	tex->need_upload = 1;
-
-	DE_LINKED_LIST_APPEND(r->textures, tex);
-
-	de_log("Texture %s is loaded!", file);
-
-	return tex;
-}
-
-
-de_texture_t* de_renderer_create_texture(de_renderer_t* r, size_t w, size_t h, size_t byte_per_pixel) {
-	de_texture_t* tex;
-
-	tex = DE_NEW(de_texture_t);
-	tex->renderer = r;
-	tex->width = w;
-	tex->height = h;
-	tex->byte_per_pixel = byte_per_pixel;
-	tex->depth = 0;
-	tex->id = 0;
-	tex->type = DE_TEXTURE_TYPE_2D;
-	tex->pixels = (char*)de_calloc(w * h * byte_per_pixel, 1);
-	tex->ref_count = 1;
-	tex->need_upload = 1;
-
-	DE_LINKED_LIST_APPEND(r->textures, tex);
-	return tex;
-}
-
-
 static void de_renderer_remove_texture(de_renderer_t* r, de_texture_t* tex) {
+	DE_UNUSED(r);
 	glDeleteTextures(1, &tex->id);
-	DE_LINKED_LIST_REMOVE(r->textures, tex);
 }
-
 
 static void de_renderer_upload_texture(de_texture_t* texture) {
 	GLint internalFormat;
@@ -1014,11 +954,13 @@ static void de_renderer_set_viewport(const de_rectf_t* viewport, unsigned int wi
 }
 
 static void de_renderer_upload_textures(de_renderer_t* r) {
-	de_texture_t* texture;
-
-	DE_LINKED_LIST_FOR_EACH(r->textures, texture) {
-		if (texture->need_upload) {
-			de_renderer_upload_texture(texture);
+	for(size_t i = 0; i < r->core->resources.size; ++i) {
+		de_resource_t* res = r->core->resources.data[i];
+		if (res->type == DE_RESOURCE_TYPE_TEXTURE) {
+			de_texture_t* texture = de_resource_to_texture(res);
+			if (texture->need_upload) {
+				de_renderer_upload_texture(texture);
+			}
 		}
 	}
 }

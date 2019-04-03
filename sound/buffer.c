@@ -19,11 +19,13 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-void de_sound_buffer_init(de_sound_buffer_t* buf, de_sound_context_t* ctx, uint32_t flags) {
+static void de_sound_buffer_init(de_resource_t* res) {
+	de_sound_buffer_t* buf = de_resource_to_sound_buffer(res);	
+	de_sound_context_t* ctx = res->core->sound_context;
 	de_sound_context_lock(ctx);
 	buf->ctx = ctx;
-	buf->flags = flags;
-	de_sound_context_unlock(ctx);	
+	buf->flags = 0;
+	de_sound_context_unlock(ctx);
 }
 
 void de_sound_buffer_load_file(de_sound_buffer_t* buf, const char* file) {
@@ -62,7 +64,8 @@ void de_sound_buffer_load_file(de_sound_buffer_t* buf, const char* file) {
 	de_sound_context_unlock(buf->ctx);
 }
 
-void de_sound_buffer_deinit(de_sound_buffer_t* buf) {
+static void de_sound_buffer_deinit(de_resource_t* res) {
+	de_sound_buffer_t* buf = de_resource_to_sound_buffer(res);	
 	de_sound_context_t* ctx = buf->ctx;
 	de_sound_context_lock(ctx);
 	if (buf->decoder) {
@@ -118,8 +121,8 @@ void de_sound_buffer_rewind(de_sound_buffer_t* buf) {
 	}
 }
 
-bool de_sound_buffer_visit(de_object_visitor_t* visitor, de_sound_buffer_t* buf) {
-	de_resource_t* res = de_resource_from_sound_buffer(buf);
+static bool de_sound_buffer_visit(de_object_visitor_t* visitor, de_resource_t* res) {
+	de_sound_buffer_t* buf = de_resource_to_sound_buffer(res);	
 	bool result = true;
 	result &= de_object_visitor_visit_uint32(visitor, "Flags", &buf->flags);
 	if (visitor->is_reading) {
@@ -127,4 +130,13 @@ bool de_sound_buffer_visit(de_object_visitor_t* visitor, de_sound_buffer_t* buf)
 		de_sound_buffer_load_file(buf, de_path_cstr(&res->source));
 	}
 	return result;
+}
+
+de_resource_dispatch_table_t* de_sound_buffer_get_dispatch_table() {
+	static de_resource_dispatch_table_t table = {
+		.init = de_sound_buffer_init,
+		.deinit = de_sound_buffer_deinit,
+		.visit = de_sound_buffer_visit,
+	};
+	return &table;
 }

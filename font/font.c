@@ -563,7 +563,10 @@ static int de_font_pack(de_renderer_t* r, de_font_t * font) {
 	root = de_rectpack_create_node(0, 0, atlas_size, atlas_size);
 
 	/* prepare atlas */
-	font->texture = de_renderer_create_texture(r, atlas_size, atlas_size, 4);
+	de_resource_t* tex_resource = de_resource_create(r->core, NULL, DE_RESOURCE_TYPE_TEXTURE, DE_RESOURCE_FLAG_INTERNAL);	
+	de_resource_add_ref(tex_resource);
+	font->texture = de_resource_to_texture(tex_resource);
+	de_texture_alloc_pixels(font->texture, atlas_size, atlas_size, 4);
 	for (i = 0; i < font->texture->width * font->texture->height; ++i) {
 		de_rgba8_t* pix = (de_rgba8_t*)(font->texture->pixels) + i;
 		pix->r = pix->g = pix->b = 255;
@@ -708,7 +711,7 @@ de_font_t* de_font_load_ttf(de_core_t* core, const char * filename, float height
 void de_font_free(de_font_t* font) {
 	DE_LINKED_LIST_REMOVE(font->core->fonts, font);
 	DE_ARRAY_FREE(font->charmap);
-	de_texture_release(font->texture);
+	de_resource_release(de_resource_from_texture(font->texture));	
 	de_free(font->glyphs);
 	de_free(font);
 }

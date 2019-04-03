@@ -173,8 +173,6 @@ struct de_renderer_t {
 		GLuint ebo;      /**< Element buffer object id */
 	} gui_render_buffers;
 
-	DE_LINKED_LIST_DECLARE(de_texture_t, textures);
-
 	/* statistics (time in milliseconds) */
 	double frame_time;
 	size_t frames_per_second;
@@ -204,21 +202,6 @@ de_surface_t* de_renderer_create_surface(de_renderer_t* r);
 * Pointer to surface will become invalid after calling this function
 */
 void de_renderer_free_surface(de_surface_t* surf);
-
-/**
-* @brief Tries to find already loaded texture.
-* @param file file name
-* @return pointer to texture
-*
-* If texture is already loaded - returns pointer to it, otherwise - loads
-* from file
-*/
-de_texture_t* de_renderer_request_texture(de_renderer_t* r, const de_path_t* path);
-
-/**
- * @brief Create black texture
- */
-de_texture_t* de_renderer_create_texture(de_renderer_t* r, size_t w, size_t h, size_t byte_per_pixel);
 
 /**
 * @brief Sets frame rate limit

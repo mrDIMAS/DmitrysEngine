@@ -31,29 +31,25 @@ typedef enum de_texture_type_e {
 /**
 * @brief Common texture. Can be 2D, volume or cube
 */
-struct de_texture_t {
-	de_renderer_t* renderer;
-	DE_LINKED_LIST_ITEM(struct de_texture_t);
-	de_str8_t name;             /**< Name for procedural texture, or file name for textures loaded from file */
-	unsigned int id;        /**< OpenGL texture id */
-	int ref_count;          /**< Use count of texture, texture is shared object */
-	int width;              /**< Width of texture */
-	int height;             /**< Height of texture */
-	int depth;              /**< Depth of volume texture */
-	char* pixels;           /**< Texture pixels */
-	int byte_per_pixel;     /**< Count of bytes per pixel */
+struct de_texture_t {				
+	unsigned int id; /**< OpenGL texture id */
+	int width; /**< Width of texture */
+	int height; /**< Height of texture */
+	int depth; /**< Depth of volume texture */
+	char* pixels; /**< Texture pixels */
+	int byte_per_pixel; /**< Count of bytes per pixel */
 	de_texture_type_t type; /**< Type of texture */
-	bool need_upload;     /**< Indicates that texture needs to be uploaded to GPU */
+	bool need_upload; /**< Indicates that texture needs to be uploaded to GPU */
 };
 
-/**
-* @brief Increases reference count of texture
-* @param tex pointer to texture
-*/
-void de_texture_add_ref(de_texture_t* tex);
+de_resource_dispatch_table_t* de_texture_get_dispatch_table(void);
 
 /**
-* @brief Decreases reference count of texture, if reference count is zero - frees texture
-* @param tex pointer to texture
-*/
-void de_texture_release(de_texture_t* tex);
+ * @brief Internal. Do not use directly! Use de_core_request_resource
+ */
+bool de_texture_load(de_texture_t* tex, const de_path_t* path);
+
+/**
+ * @brief Allocates pixels for rectangle image.
+ */
+void de_texture_alloc_pixels(de_texture_t* tex, int w, int h, size_t byte_per_pixel);

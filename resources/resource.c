@@ -31,47 +31,47 @@ const char* de_resource_type_to_cstr(de_resource_type_t type) {
 	return "<unknown>";
 }
 
-/**
-* @brief Internal. Use specializations for concrete type.
-*/
-de_resource_t* de_resource_create(de_core_t* core, de_resource_type_t type, uint32_t flags) {
+de_resource_dispatch_table_t* de_resource_get_dispatch_table_by_type(de_resource_type_t type) {	
+	switch (type) {
+		case DE_RESOURCE_TYPE_MODEL: return de_model_get_dispatch_table();
+		case DE_RESOURCE_TYPE_TEXTURE: return de_texture_get_dispatch_table();
+		case DE_RESOURCE_TYPE_SOUND_BUFFER: return de_sound_buffer_get_dispatch_table();
+		default: de_fatal_error("unhandled resource type"); return NULL;
+	}	
+}
+
+de_resource_t* de_resource_create(de_core_t* core, const de_path_t* path, de_resource_type_t type, uint32_t flags) {
 	de_resource_t* res = DE_NEW(de_resource_t);
 	res->core = core;
+	res->dispatch_table = de_resource_get_dispatch_table_by_type(type);
 	res->type = type;
 	res->ref_count = 0;
 	res->flags = flags;
-	DE_ARRAY_APPEND(core->resources, res);
-	switch (res->type) {
-		case DE_RESOURCE_TYPE_MODEL: break;
-		case DE_RESOURCE_TYPE_TEXTURE: break;
-		case DE_RESOURCE_TYPE_SOUND_BUFFER: break;
-		default: de_fatal_error("unhandled resource type"); break;
+	if (path) {
+		de_path_copy(path, &res->source);
 	}
+	DE_ARRAY_APPEND(core->resources, res);
+	if(res->dispatch_table->init) {
+		res->dispatch_table->init(res);
+	}
+	de_log("resource created: %s", de_path_cstr(&res->source));
 	return res;
 }
 
-/**
-* @brief Increases reference counter of resource. You must call de_resource_release when you do not
-* need resource anymore.
-*/
 void de_resource_add_ref(de_resource_t* res) {
 	++res->ref_count;
 }
 
-/**
-* @brief Frees resource
-*/
 int de_resource_release(de_resource_t* res) {
 	DE_ASSERT(res->ref_count >= 0);
 	--res->ref_count;
 	if (res->ref_count == 0) {
-		switch (res->type) {
-			case DE_RESOURCE_TYPE_MODEL: de_model_deinit(&res->s.model); break;
-			case DE_RESOURCE_TYPE_TEXTURE: break;
-			case DE_RESOURCE_TYPE_SOUND_BUFFER: de_sound_buffer_deinit(&res->s.sound_buffer); break;
-			default: de_fatal_error("unhandled resource type"); break;
+		if(res->dispatch_table->deinit) {
+			res->dispatch_table->deinit(res);
 		}
 		DE_ARRAY_REMOVE(res->core->resources, res);
+		de_log("resource released: %s", de_path_cstr(&res->source));
+		de_path_free(&res->source);
 		de_free(res);
 		return 0;
 	}
@@ -79,17 +79,18 @@ int de_resource_release(de_resource_t* res) {
 }
 
 bool de_resource_visit(de_object_visitor_t* visitor, de_resource_t* res) {
-	bool result = true;
+	bool result = true;	
+	result &= de_object_visitor_visit_uint32(visitor, "Type", (uint32_t*)&res->type);
 	if (visitor->is_reading) {
 		res->core = visitor->core;
+		res->dispatch_table = de_resource_get_dispatch_table_by_type(res->type);
 	}
-	result &= de_object_visitor_visit_uint32(visitor, "Type", (uint32_t*)&res->type);
 	result &= de_object_visitor_visit_path(visitor, "Source", &res->source);	
-	switch (res->type) {
-		case DE_RESOURCE_TYPE_MODEL: result &= de_model_visit(visitor, &res->s.model); break;
-		case DE_RESOURCE_TYPE_TEXTURE: break;
-		case DE_RESOURCE_TYPE_SOUND_BUFFER: result &= de_sound_buffer_visit(visitor, &res->s.sound_buffer); break;
-		default: de_fatal_error("unhandled resource type"); break;
+	/* directly serialize ref counter because it is guaranteed that all pointers 
+	 * to resource will be restored on deserialization */
+	result &= de_object_visitor_visit_int32(visitor, "RefCount", &res->ref_count);
+	if(res->dispatch_table->visit) {
+		result &= res->dispatch_table->visit(visitor, res);
 	}
 	return result;
 }
@@ -108,4 +109,12 @@ de_sound_buffer_t* de_resource_to_sound_buffer(de_resource_t* res) {
 
 de_resource_t* de_resource_from_sound_buffer(de_sound_buffer_t* buf) {
 	return (de_resource_t*)((char*)buf - offsetof(de_resource_t, s.sound_buffer));
+}
+
+de_texture_t* de_resource_to_texture(de_resource_t* res) {
+	return &res->s.texture;
+}
+
+de_resource_t* de_resource_from_texture(de_texture_t* buf) {
+	return (de_resource_t*)((char*)buf - offsetof(de_resource_t, s.texture));
 }

@@ -64,6 +64,7 @@ bool de_config_parse(de_config_t* cfg, char* src, size_t len) {
 	DE_ASSERT(cfg);
 	size_t i = 0;
 	bool result = false;
+	cfg->data = src;
 	DE_ARRAY_INIT(cfg->entries);
 	while (true) {
 		if (!de_config_ignore_while_contains_any(&i, src, len, "\t ")) {
@@ -214,11 +215,4 @@ void de_config_print(de_config_t* cfg) {
 		de_config_entry_t* entry = cfg->entries.data + i;
 		printf("%s = %s\n", entry->name, entry->value);
 	}
-}
-
-void de_config_test(void) {
-	char* src = "  #this is comment\n   foobar = \"Some Value with any 4r356wq345345q3 chars\"    ; baz =\"a value324\";          ";
-	de_config_t cfg;
-	de_config_parse(&cfg, src, strlen(src));
-	de_config_print(&cfg);
 }

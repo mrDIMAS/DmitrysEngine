@@ -1358,7 +1358,10 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 						de_path_init(&path);
 						de_path_append_cstr(&path, "data/textures/");
 						de_path_append_str8(&path, &mat->diffuse_tex->filename);
-						de_surface_set_diffuse_texture(surf, de_renderer_request_texture(renderer, &path));
+						de_resource_t* res = de_core_request_resource(scene->core, DE_RESOURCE_TYPE_TEXTURE, &path, 0);
+						if (res) {
+							de_surface_set_diffuse_texture(surf, de_resource_to_texture(res));
+						}
 
 						/* normal texture */
 						de_path_clear(&path);
@@ -1366,7 +1369,10 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 						de_path_append_str_view(&path, &diffuse_tex_name);
 						de_path_append_cstr(&path, "_normal");
 						de_path_append_str_view(&path, &diffuse_tex_extension);
-						de_surface_set_normal_texture(surf, de_renderer_request_texture(renderer, &path));
+						res = de_core_request_resource(scene->core, DE_RESOURCE_TYPE_TEXTURE, &path, 0);
+						if (res) {
+							de_surface_set_normal_texture(surf, de_resource_to_texture(res));
+						}
 
 						de_path_free(&path);
 					}

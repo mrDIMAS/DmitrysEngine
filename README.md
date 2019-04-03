@@ -44,7 +44,7 @@ Please note, that this engine is at very early development stage and some featur
 * Documentation - almost every function of the engine has description in Doxygen format.
 * Easy to hack and modify
 
-## Planned features (by priorities)
+## Planned features
 - Materials (probably PBR)
 - More GUI widgets
 - Stability
@@ -52,11 +52,11 @@ Please note, that this engine is at very early development stage and some featur
 - Support more 3D formats (3ds for example)
 - Compound character support in fonts.
 
-## Dependencies (header only)
+## Dependencies
 - miniz_tinfl - to decompress FBX compressed data.
 
 ## Code statistics
-- ~17000 lines of code
+- ~18000 lines of code
 - Pure C99
 
 ## Supported compilers

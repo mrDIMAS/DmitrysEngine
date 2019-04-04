@@ -28,9 +28,12 @@
   *   screen, Y axis points up, and X axis points right.
   * - Vectors are single-column matrices.
   * 
-  * VERY IMPORTNAT NOTE: Every method in engine is *NOT* thread-safe unless noted otherwise.
-  * For example most of sound-related functions are thread-safe and they're marked as such
-  * in comments, keep this in mind please.
+  * VERY IMPORTANT NOTES: 
+  * 1) Every method in engine is *NOT* thread-safe unless noted otherwise.
+  *    For example most of sound-related functions are thread-safe and they're marked as such
+  *    in comments, keep this in mind please.
+  * 2) If method marked as Internal it means you should never use it directly. 
+  * 3) Use get/set functions instead of accessing fields of engine structures directly.
   * 
   **/
 

@@ -28,11 +28,6 @@ typedef struct de_model_t {
 	de_node_t* root;
 } de_model_t;
 
-/**
- * @brief Internal. Do not call directly. Call de_core_request resource.
- */
-bool de_model_load(de_model_t* mdl, const de_path_t* path);
-
 de_node_t* de_model_instantiate(de_model_t* mdl, de_scene_t* dest_scene);
 
 de_resource_dispatch_table_t* de_model_get_dispatch_table(void);

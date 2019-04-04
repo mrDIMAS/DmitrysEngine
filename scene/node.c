@@ -453,6 +453,11 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node) {
 	if(node->dispatch_table->visit) {
 		node->dispatch_table->visit(visitor, node);
 	}
+	if(visitor->is_reading) {
+		if(node->model_resource) {
+			de_resource_add_ref(node->model_resource);
+		}
+	}
 	return result;
 }
 

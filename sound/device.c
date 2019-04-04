@@ -117,10 +117,12 @@ bool de_sound_device_init(de_sound_context_t* ctx, de_sound_device_t* dev) {
 void de_sound_device_free(de_sound_device_t* dev) {
 	dev->mixer_status = DE_MIXER_STATUS_NEED_STOP;
 	de_sound_context_lock(dev->ctx);
+	/* loop to prevent spurious wakeups */
 	while (dev->mixer_status != DE_MIXER_STATUS_STOPPED) {
 		de_cnd_wait(&dev->cnd, &dev->ctx->mtx);
 	}
 	de_free(dev->out_buffer);
+	DE_ARRAY_FREE(dev->active_sources);
 	de_sound_device_shutdown(dev);
 	de_sound_context_unlock(dev->ctx);
 	de_cnd_destroy(&dev->cnd);

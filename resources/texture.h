@@ -45,11 +45,6 @@ struct de_texture_t {
 de_resource_dispatch_table_t* de_texture_get_dispatch_table(void);
 
 /**
- * @brief Internal. Do not use directly! Use de_core_request_resource
- */
-bool de_texture_load(de_texture_t* tex, const de_path_t* path);
-
-/**
  * @brief Allocates pixels for rectangle image.
  */
 void de_texture_alloc_pixels(de_texture_t* tex, int w, int h, size_t byte_per_pixel);

@@ -582,8 +582,9 @@ main_menu_t* main_menu_create(game_t* game) {
 		de_sound_buffer_set_flags(buffer, DE_SOUND_BUFFER_FLAGS_STREAM);
 		menu->music = de_sound_source_create(de_core_get_sound_context(game->core), DE_SOUND_SOURCE_TYPE_2D);
 		de_sound_source_set_buffer(menu->music, de_resource_to_sound_buffer(res));
-		de_sound_source_play(menu->music);
+		//de_sound_source_play(menu->music);
 	}
+
 	/* main window */
 	{
 		de_gui_node_t* grid;

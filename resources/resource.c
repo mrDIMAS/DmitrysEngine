@@ -86,9 +86,8 @@ bool de_resource_visit(de_object_visitor_t* visitor, de_resource_t* res) {
 		res->dispatch_table = de_resource_get_dispatch_table_by_type(res->type);
 	}
 	result &= de_object_visitor_visit_path(visitor, "Source", &res->source);	
-	/* directly serialize ref counter because it is guaranteed that all pointers 
-	 * to resource will be restored on deserialization */
-	result &= de_object_visitor_visit_int32(visitor, "RefCount", &res->ref_count);
+	/* do not serialize ref counter because internally resource can load any other 
+	 * resources increasing ref counter of resource */
 	if(res->dispatch_table->visit) {
 		result &= res->dispatch_table->visit(visitor, res);
 	}
@@ -117,4 +116,11 @@ de_texture_t* de_resource_to_texture(de_resource_t* res) {
 
 de_resource_t* de_resource_from_texture(de_texture_t* buf) {
 	return (de_resource_t*)((char*)buf - offsetof(de_resource_t, s.texture));
+}
+
+bool de_resource_load(de_resource_t* res) {
+	if(res->dispatch_table->load) {
+		return res->dispatch_table->load(res);
+	}
+	return true; // is this valid?
 }

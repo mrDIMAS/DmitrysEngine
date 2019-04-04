@@ -57,4 +57,7 @@ typedef struct de_resource_dispatch_table_t {
 	void(*init)(de_resource_t* res);
 	void(*deinit)(de_resource_t* res);
 	bool(*visit)(de_object_visitor_t* visitor, de_resource_t* res);
+	/* load implementation for external resources */
+	bool(*load)(de_resource_t* res);
 } de_resource_dispatch_table_t;
+

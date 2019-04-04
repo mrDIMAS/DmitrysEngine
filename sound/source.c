@@ -183,6 +183,9 @@ bool de_sound_source_visit(de_object_visitor_t* visitor, de_sound_source_t* src)
 		de_resource_t* res_buf;
 		result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Buffer", &res_buf, de_resource_visit);
 		src->buffer = de_resource_to_sound_buffer(res_buf);
+		if(res_buf) {
+			de_resource_add_ref(res_buf);
+		}
 	} else {
 		de_resource_t* res_buf = de_resource_from_sound_buffer(src->buffer);
 		result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Buffer", &res_buf, de_resource_visit);		

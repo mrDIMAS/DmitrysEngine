@@ -54,6 +54,11 @@ bool de_animation_visit(de_object_visitor_t* visitor, de_animation_t* anim) {
 	result &= de_object_visitor_visit_float(visitor, "TimePosition", &anim->time_position);
 	result &= de_object_visitor_visit_float(visitor, "Weight", &anim->weight);
 	result &= de_object_visitor_visit_float(visitor, "FadeStep", &anim->fade_step);		
+	if (visitor->is_reading) {
+		if (anim->resource) {
+			de_resource_add_ref(anim->resource);
+		}
+	}
 	return result;
 }
 

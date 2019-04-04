@@ -28,10 +28,11 @@ static void de_sound_buffer_init(de_resource_t* res) {
 	de_sound_context_unlock(ctx);
 }
 
-void de_sound_buffer_load_file(de_sound_buffer_t* buf, const char* file) {
+static bool de_sound_buffer_load(de_resource_t* res) {
+	de_sound_buffer_t* buf = de_resource_to_sound_buffer(res);	
 	size_t buffer_sample_count, block_sample_count;
 	de_sound_context_lock(buf->ctx);
-	buf->decoder = de_sound_decoder_init(file);
+	buf->decoder = de_sound_decoder_init(de_path_cstr(&res->source));
 	buf->channel_count = buf->decoder->channel_count;
 	if (buf->flags & DE_SOUND_BUFFER_FLAGS_STREAM) {
 		/* 1 second streaming buffer */
@@ -62,6 +63,7 @@ void de_sound_buffer_load_file(de_sound_buffer_t* buf, const char* file) {
 		buf->decoder = NULL;
 	}
 	de_sound_context_unlock(buf->ctx);
+	return true;
 }
 
 static void de_sound_buffer_deinit(de_resource_t* res) {
@@ -127,7 +129,6 @@ static bool de_sound_buffer_visit(de_object_visitor_t* visitor, de_resource_t* r
 	result &= de_object_visitor_visit_uint32(visitor, "Flags", &buf->flags);
 	if (visitor->is_reading) {
 		buf->ctx = visitor->core->sound_context;
-		de_sound_buffer_load_file(buf, de_path_cstr(&res->source));
 	}
 	return result;
 }
@@ -137,6 +138,7 @@ de_resource_dispatch_table_t* de_sound_buffer_get_dispatch_table() {
 		.init = de_sound_buffer_init,
 		.deinit = de_sound_buffer_deinit,
 		.visit = de_sound_buffer_visit,
+		.load = de_sound_buffer_load
 	};
 	return &table;
 }

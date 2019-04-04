@@ -29,13 +29,39 @@ static void de_model_deinit(de_resource_t* res) {
 	de_scene_free(mdl->scene);
 }
 
+static void de_model_set_node_resource(de_node_t* node, de_resource_t* res) {
+	DE_ASSERT(node);
+	DE_ASSERT(res);
+	/* assign resource, but do *NOT* increase reference count because these 
+	* nodes are ALREADY in resource and resource have ownership */
+	node->model_resource = res;	
+	for (size_t i = 0; i < node->children.size; ++i) {
+		de_model_set_node_resource(node->children.data[i], res);
+	}
+}
+
+static bool de_model_load(de_resource_t* res) {
+	de_model_t* mdl = de_resource_to_model(res);
+	de_core_t* core = res->core;
+	mdl->scene = de_scene_create(core);
+	DE_LINKED_LIST_REMOVE(core->scenes, mdl->scene);
+	mdl->root = de_fbx_load_to_scene(mdl->scene, de_path_cstr(&res->source));
+	if (mdl->root) {
+		de_model_set_node_resource(mdl->root, res);
+		DE_LINKED_LIST_FOR_EACH_T(de_animation_t*, anim, mdl->scene->animations) {
+			anim->resource = res;
+		}
+	} else {
+		de_log("failed to load model %s", de_path_cstr(&res->source));
+	}
+	return mdl->root != NULL;
+}
+
 static bool de_model_visit(de_object_visitor_t* visitor, de_resource_t* res) {
 	DE_ASSERT(visitor);
 	DE_ASSERT(res);
 	bool result = true;
-	if (visitor->is_reading) {
-		result &= de_model_load(de_resource_to_model(res), &res->source);
-	}
+	/* todo: visit dynamic models here */
 	return result;
 }
 
@@ -43,39 +69,14 @@ de_resource_dispatch_table_t* de_model_get_dispatch_table(void) {
 	static de_resource_dispatch_table_t table = {
 		.deinit = de_model_deinit,
 		.visit = de_model_visit,
+		.load = de_model_load
 	};
 	return &table;
 }
 
-static void de_model_set_node_resource(de_node_t* node, de_resource_t* res) {
-	DE_ASSERT(node);
-	DE_ASSERT(res);
-	/* assign resource, but do *NOT* increase reference count because these 
-	 * nodes are ALREADY in resource and resource have ownership */
-	node->model_resource = res;	
-	for (size_t i = 0; i < node->children.size; ++i) {
-		de_model_set_node_resource(node->children.data[i], res);
-	}
-}
 
-bool de_model_load(de_model_t* mdl, const de_path_t* path) {
-	DE_ASSERT(path);
-	DE_ASSERT(mdl);
-	de_resource_t* res = de_resource_from_model(mdl);
-	de_core_t* core = res->core;
-	mdl->scene = de_scene_create(core);
-	DE_LINKED_LIST_REMOVE(core->scenes, mdl->scene);
-	mdl->root = de_fbx_load_to_scene(mdl->scene, de_path_cstr(path));
-	if (mdl->root) {
-		de_model_set_node_resource(mdl->root, res);
-		DE_LINKED_LIST_FOR_EACH_T(de_animation_t*, anim, mdl->scene->animations) {
-			anim->resource = res;
-		}
-	} else {
-		de_log("failed to load model %s", de_path_cstr(path));
-	}
-	return mdl->root != NULL;
-}
+
+
 
 
 de_node_t* de_model_instantiate(de_model_t* mdl, de_scene_t* dest_scene) {

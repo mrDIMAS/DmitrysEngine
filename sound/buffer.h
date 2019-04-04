@@ -64,16 +64,6 @@ struct de_sound_buffer_t {
 };
 
 /**
- * @brief Uploads content of file into buffer. Thread-safe.
- * 
- * If used with DE_SOUND_BUFFER_FLAGS_STREAM flag, then reads small portion from file 
- * and keeps it open until @de_sound_buffer_free is called. 
- * 
- * IMPORTANT: Streaming buffers can ONLY be used with only one sound source!
- */
-void de_sound_buffer_load_file(de_sound_buffer_t* buf, const char* file);
-
-/**
  * @brief Internal. Performs streaming for streaming buffers.
  */
 void de_sound_buffer_update(de_sound_buffer_t* buf);

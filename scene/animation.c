@@ -92,14 +92,21 @@ void de_animation_resolve(de_animation_t* anim) {
 		for (size_t i = 0; i < anim->tracks.size; ++i) {
 			de_animation_track_t* track = anim->tracks.data[i];
 			DE_LINKED_LIST_FOR_EACH_T(de_animation_t*, ref_anim, model->scene->animations) {
+				/* find ref track */
+				de_animation_track_t* ref_track = NULL;
 				for (size_t k = 0; k < ref_anim->tracks.size; ++k) {
-					de_animation_track_t* ref_track = ref_anim->tracks.data[k];
-					if (ref_track->node && track->node && track->node->original == ref_track->node) {
-						/* copy keyframes from ref track */
-						DE_ARRAY_COPY(ref_track->keyframes, track->keyframes);
-					} else {
-						de_log("unable to resolve track resource dependencies");
+					de_animation_track_t* other_track = ref_anim->tracks.data[k];
+					if (other_track->node && track->node && track->node->original == other_track->node) {
+						ref_track = other_track;
+						break;
 					}
+				}
+
+				if(ref_track) {
+					/* copy keyframes from ref track */
+					DE_ARRAY_COPY(ref_track->keyframes, track->keyframes);
+				} else {
+					de_log("unable to resolve track resource dependencies");
 				}
 			}
 		}

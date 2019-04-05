@@ -31,7 +31,7 @@ const char* de_resource_type_to_cstr(de_resource_type_t type) {
 	return "<unknown>";
 }
 
-de_resource_dispatch_table_t* de_resource_get_dispatch_table_by_type(de_resource_type_t type) {	
+de_resource_dispatch_table_t* de_resource_get_dispatch_table_by_type(de_resource_type_t type) {
 	switch (type) {
 		case DE_RESOURCE_TYPE_MODEL: return de_model_get_dispatch_table();
 		case DE_RESOURCE_TYPE_TEXTURE: return de_texture_get_dispatch_table();

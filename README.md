@@ -2,7 +2,10 @@
 
 Experimental C99 cross-platform single-compilation-unit (SCU) 3D game engine with absolute minimum of external dependencies.
 
-Please note, that this engine is at early development stage and some features maybe very brittle. [Here](https://github.com/mrDIMAS/Shooter) you can find 3d shooter game that I writing using this engine.
+Please note, that this engine is at early development stage and some features maybe very brittle. 
+
+## Projects on this engine
+* [Shooter](https://github.com/mrDIMAS/Shooter) - 3d shooter game that I writing using this engine.
 
 ## Features
 * Single compilation unit - no need to build as separate library: just add `de_main.h` and `de_main.c` to your project.

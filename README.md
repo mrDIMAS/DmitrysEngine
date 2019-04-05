@@ -54,6 +54,7 @@ Please note, that this engine is at very early development stage and some featur
 * GUI improvements
 	* Styles		
 	* More widgets
+* Async resource loading
 * Stability	
 * Support more 3D formats (3ds for example)
 * Compound character support in fonts.

@@ -45,18 +45,18 @@ Please note, that this engine is at very early development stage and some featur
 * Easy to hack and modify
 
 ## Planned features
-	* Renderer improvements
-		* Materials (probably PBR)
-		* Frustum culling
-		* Performance optimizations
-		* Levels of details (LODs)
-		* Particle systems
-	* GUI improvements
-		* Styles		
-		* More widgets
-	* Stability	
-	* Support more 3D formats (3ds for example)
-	* Compound character support in fonts.
+* Renderer improvements
+	* Materials (probably PBR)
+	* Frustum culling
+	* Performance optimizations
+	* Levels of details (LODs)
+	* Particle systems
+* GUI improvements
+	* Styles		
+	* More widgets
+* Stability	
+* Support more 3D formats (3ds for example)
+* Compound character support in fonts.
 
 ## Dependencies
 - miniz_tinfl - to decompress FBX compressed data.

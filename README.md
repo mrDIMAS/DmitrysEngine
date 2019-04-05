@@ -45,12 +45,18 @@ Please note, that this engine is at very early development stage and some featur
 * Easy to hack and modify
 
 ## Planned features
-- Materials (probably PBR)
-- More GUI widgets
-- Stability
-- Particle systems
-- Support more 3D formats (3ds for example)
-- Compound character support in fonts.
+	* Renderer improvements
+		* Materials (probably PBR)
+		* Frustum culling
+		* Performance optimizations
+		* Levels of details (LODs)
+		* Particle systems
+	* GUI improvements
+		* Styles		
+		* More widgets
+	* Stability	
+	* Support more 3D formats (3ds for example)
+	* Compound character support in fonts.
 
 ## Dependencies
 - miniz_tinfl - to decompress FBX compressed data.
@@ -88,6 +94,7 @@ Options for linker: `-lGL -lpthread -lasound -lX11 -lXrandr`
 * Why not one of those other fancy languages? Let Benjamin Franklin says for me: "He who sacrifices freedom for security deserves neither."
 
 And of course:
+
 ![Why](pics/why.png?raw=true "Why")
 
 ## Why engine called in that way?

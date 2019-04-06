@@ -36,7 +36,6 @@ static bool de_gui_node_contains_point(de_gui_node_t* node, const de_vec2_t* poi
 #include "gui/text_box.c"
 #include "gui/window.c"
 #include "gui/slide_selector.c"
-
 #define DE_DECLARE_ROUTED_EVENT_TRACER(name__, event__) \
 	static void name__(de_gui_node_t* n, de_gui_routed_event_args_t* args) { \
 		if (n->event__) { \
@@ -252,15 +251,12 @@ static de_gui_node_t* de_gui_node_pick(de_gui_node_t* n, float x, float y, int* 
 	size_t i;
 	de_gui_node_t* picked = NULL;
 	int topmost_picked_level = 0;
-	de_vec2_t p;
-	p.x = x;
-	p.y = y;
 
 	if (!n->is_hit_test_visible) {
 		return NULL;
 	}
 
-	if (de_gui_node_contains_point(n, &p)) {
+	if (de_gui_node_contains_point(n, &(de_vec2_t){ x, y })) {
 		picked = n;
 		topmost_picked_level = *level;
 	}
@@ -335,6 +331,11 @@ static bool de_gui_draw_command_contains_point(const de_gui_draw_list_t* draw_li
 static bool de_gui_node_is_clipped(de_gui_node_t* node, const de_vec2_t* point) {
 	size_t i;
 	de_gui_draw_list_t* draw_list = &node->gui->draw_list;
+
+	if (node->visibility != DE_GUI_NODE_VISIBILITY_VISIBLE) {
+		return true;
+	}
+
 	bool clipped = true;
 
 	for (i = 0; i < node->geometry.size; ++i) {
@@ -362,6 +363,10 @@ static bool de_gui_node_is_clipped(de_gui_node_t* node, const de_vec2_t* point) 
 static bool de_gui_node_contains_point(de_gui_node_t* node, const de_vec2_t* point) {
 	size_t i;
 	de_gui_draw_list_t* draw_list = &node->gui->draw_list;
+
+	if(node->visibility != DE_GUI_NODE_VISIBILITY_VISIBLE) {
+		return false;
+	}
 
 	if (!de_gui_node_is_clipped(node, point)) {
 		for (i = 0; i < node->geometry.size; ++i) {
@@ -431,6 +436,12 @@ static void de_gui_node_fire_got_focus_event(de_gui_node_t* n) {
 	de_gui_node_route_got_focus(n, &evt);
 }
 
+void de_gui_drop_focus(de_gui_t* gui) {
+	gui->keyboard_focus->is_focused = false;
+	de_gui_node_fire_lost_focus_event(gui->keyboard_focus);
+	gui->keyboard_focus = NULL;
+}
+
 static bool de_gui_node_process_event(de_gui_node_t* n, const de_event_t* evt) {
 	bool processed = false;
 	de_gui_t* gui = n->gui;
@@ -452,8 +463,7 @@ static bool de_gui_node_process_event(de_gui_node_t* n, const de_event_t* evt) {
 			if (evt->s.mouse_down.button == DE_BUTTON_LEFT) {
 				if (!n->is_focused) {
 					if (gui->keyboard_focus && gui->keyboard_focus != n) {
-						gui->keyboard_focus->is_focused = false;
-						de_gui_node_fire_lost_focus_event(gui->keyboard_focus);
+						de_gui_drop_focus(gui);
 					}
 					gui->keyboard_focus = n;
 					n->is_focused = true;
@@ -486,7 +496,7 @@ de_gui_node_t* de_gui_hit_test(de_gui_t* gui, float x, float y) {
 	if (!picked_node) {
 		int topmost_picked_level = 0;
 		DE_LINKED_LIST_FOR_EACH(gui->nodes, n) {
-			if (!n->parent) {
+			if (!n->parent && n->visibility == DE_GUI_NODE_VISIBILITY_VISIBLE) {
 				int level = 0;
 				de_gui_node_t* picked = de_gui_node_pick(n, x, y, &level);
 				if (picked && level >= topmost_picked_level) {
@@ -578,6 +588,10 @@ bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt) {
 void de_gui_update(de_gui_t* gui) {
 	de_gui_node_t* n;
 
+	/* TODO: layout update MUST be performed only if it is actually needed, 
+	 * right now there is annoying bug which requires *two* calls of layout 
+	 * update to correctly layout everything. This must be fixed! For now 
+	 * we will sacrifice performance to get correct layout. */
 	DE_LINKED_LIST_FOR_EACH(gui->nodes, n) {
 		if (n->parent == NULL) {
 			de_gui_node_apply_layout(n);
@@ -613,7 +627,7 @@ static de_gui_dispatch_table_t* de_gui_node_get_dispatch_table_by_type(de_gui_no
 		case DE_GUI_NODE_GRID: return de_gui_grid_get_dispatch_table();
 		case DE_GUI_NODE_CANVAS: return de_gui_canvas_get_dispatch_table();
 		case DE_GUI_NODE_SCROLL_CONTENT_PRESENTER: return de_gui_scroll_content_presenter_get_dispatch_table();
-		case DE_GUI_NODE_SLIDE_SELECTOR: return de_gui_slide_selector_get_dispatch_table();		 
+		case DE_GUI_NODE_SLIDE_SELECTOR: return de_gui_slide_selector_get_dispatch_table();
 	}
 	de_log("unhandled type");
 	return NULL;
@@ -747,8 +761,21 @@ void de_gui_node_set_mouse_move(de_gui_node_t* node, de_mouse_move_event_t evt) 
 	node->mouse_move = evt;
 }
 
+static void de_gui_node_drop_keyboard_focus(de_gui_node_t* node) {
+	if (node->gui->keyboard_focus == node) {
+		de_gui_drop_focus(node->gui);		
+	} else {
+		for(int i = 0; i < node->children.size; ++i) {
+			de_gui_node_drop_keyboard_focus(node->children.data[i]);
+		}
+	}
+}
+
 void de_gui_node_set_visibility(de_gui_node_t* node, de_gui_node_visibility_t vis) {
 	node->visibility = vis;
+	if (vis != DE_GUI_NODE_VISIBILITY_VISIBLE) {
+		de_gui_node_drop_keyboard_focus(node);
+	}
 }
 
 void de_gui_node_set_vertical_alignment(de_gui_node_t* node, de_gui_vertical_alignment_t va) {

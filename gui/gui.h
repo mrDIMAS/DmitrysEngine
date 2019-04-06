@@ -22,7 +22,7 @@
 /* Inspired by WPF */
 
 /* Set to non-zero to enable visual debugging of GUI */
-#define DE_GUI_ENABLE_GUI_DEBUGGING 0
+#define DE_GUI_ENABLE_GUI_DEBUGGING 1
 
 typedef struct de_gui_node_t de_gui_node_t;
 typedef struct de_gui_draw_list_t de_gui_draw_list_t;
@@ -500,8 +500,25 @@ void de_gui_update(de_gui_t* gui);
  */
 bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt);
 
+/**
+ * @brief Performs hit test starting from root nodes, returns top-most picked node.
+ */
 de_gui_node_t* de_gui_hit_test(de_gui_t* gui, float x, float y);
 
+/**
+ * @brief Sets user data for a node, which can be obtained when needed.
+ * 
+ * Main purpose of this method is to get user data in event handlers. 
+ */
 void de_gui_node_set_user_data(de_gui_node_t* node, void* user_data);
 
+/**
+ * @brief TODO
+ */
 void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* constraint);
+
+/**
+ * @brief Drops focus from current focused ui node, raises LOST_FOCUS event for focused
+ * node.
+ */
+void de_gui_drop_focus(de_gui_t* gui);

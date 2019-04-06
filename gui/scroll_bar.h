@@ -33,19 +33,19 @@ typedef void(*de_scroll_bar_value_changed_event_t)(de_gui_node_t*);
 * @brief
 */
 typedef struct de_gui_scroll_bar_t {
-	de_gui_node_t* border;                       /**< Background of scrollbar */
-	de_gui_node_t* grid;                         /**< Lives on border */
-	de_gui_node_t* canvas;                       /**< Lives on 2nd grid cell */
-	de_gui_node_t* indicator;                    /**< Lives on canvas */
-	de_gui_node_t* up_button;                    /**< Lives on 1st grid cell */
-	de_gui_node_t* down_button;                  /**< Lives on 3rd grid cell */
-	de_gui_scroll_bar_orientation_t orientation; /**< Orieintation: vertical or horizontal */
-	float value;                                 /**< Current scroll value */
-	float min;                                   /**< Maximum scroll value */
-	float max;                                   /**< Minimum scroll value */
-	float step;                                  /**< Increment/decrement step for value. Used when user clicks on arrows */
-	bool is_dragging;                       /**< Indicates that indicator is being dragging */
-	de_vec2_t offset;                            /**< Offset from left top corner of indicator to mouse position */
+	de_gui_node_t* border; /**< Background of scrollbar */
+	de_gui_node_t* grid; /**< Lives on border */
+	de_gui_node_t* canvas; /**< Lives on 2nd grid cell */
+	de_gui_node_t* indicator; /**< Lives on canvas */
+	de_gui_node_t* up_button; /**< Lives on 1st grid cell */
+	de_gui_node_t* down_button; /**< Lives on 3rd grid cell */
+	de_gui_scroll_bar_orientation_t orientation; /**< Orientation: vertical or horizontal */
+	float value; /**< Current scroll value */
+	float min; /**< Maximum scroll value */
+	float max; /**< Minimum scroll value */
+	float step; /**< Increment/decrement step for value. Used when user clicks on arrows */
+	bool is_dragging; /**< Indicates that indicator is being dragging */
+	de_vec2_t offset; /**< Offset from left top corner of indicator to mouse position */
 	de_scroll_bar_value_changed_event_t value_changed;
 } de_gui_scroll_bar_t;
 

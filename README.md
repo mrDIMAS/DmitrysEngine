@@ -50,6 +50,7 @@ Please note, that this engine is at early development stage and some features ma
 ## Planned features
 * Renderer improvements
 	* Materials (probably PBR)
+	* Shadows
 	* Frustum culling
 	* Performance optimizations
 	* Levels of details (LODs)
@@ -61,6 +62,9 @@ Please note, that this engine is at early development stage and some features ma
 * Stability	
 * Support more 3D formats (3ds for example)
 * Compound character support in fonts.
+* Path finding
+* Terrain
+* Editor
 
 ## Dependencies
 - miniz_tinfl - to decompress FBX compressed data.

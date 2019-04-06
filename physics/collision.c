@@ -19,7 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-void de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c) {
+bool de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c) {
 	de_vec3_t ca;
 	de_static_triangle_t triangle;
 
@@ -32,9 +32,15 @@ void de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t
 	de_vec3_sub(&ca, c, a);
 
 	/* Normal of triangle is a cross product of above vectors */
-	de_vec3_normalize(&triangle.normal, de_vec3_cross(&triangle.normal, &triangle.ba, &ca));
-
-	/* Find triangle edges */
+	de_vec3_cross(&triangle.normal, &triangle.ba, &ca);
+	if (de_vec3_sqr_len(&triangle.normal) > FLT_EPSILON) {
+		de_vec3_normalize(&triangle.normal, &triangle.normal);
+	} else {
+		de_log("degenerated triangle found!");
+		return false;
+	}
+	
+    /* Find triangle edges */
 	de_vec3_sub(&triangle.ab, a, b);
 	de_vec3_sub(&triangle.bc, b, c);
 	de_vec3_sub(&triangle.ca, c, a);
@@ -51,6 +57,8 @@ void de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t
 
 	/* Add new triangle to array */
 	DE_ARRAY_APPEND(geom->triangles, triangle);
+
+	return true;
 }
 
 void de_static_geometry_fill(de_static_geometry_t* geom, const de_mesh_t* mesh, const de_mat4_t transform) {
@@ -66,7 +74,7 @@ void de_static_geometry_fill(de_static_geometry_t* geom, const de_mesh_t* mesh, 
 		surf = mesh->surfaces.data[i];
 
 		de_surface_shared_data_t* data = surf->shared_data;
-		for (k = 0; k < data->index_count; k += 3) {			
+		for (k = 0; k < data->index_count; k += 3) {
 			de_vec3_t pa, pb, pc;
 			int a, b, c;
 

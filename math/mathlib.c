@@ -1293,7 +1293,12 @@ void de_get_polygon_normal(const de_vec3_t* points, size_t count, de_vec3_t* nor
 		normal->y += (points[i].z - points[j].z) * (points[i].x + points[j].x);
 		normal->z += (points[i].x - points[j].x) * (points[i].y + points[j].y);
 	}
-	de_vec3_normalize(normal, normal);
+	if (de_vec3_sqr_len(normal) > FLT_EPSILON) {
+		de_vec3_normalize(normal, normal);
+	} else {
+		de_log("unable to get normal of degenerated polygon");
+		*normal = (de_vec3_t) { 0, 1, 0 };
+	}
 }
 
 

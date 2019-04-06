@@ -1389,6 +1389,10 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 
 				/* face is invalid, skip it and move to next one */
 				if (index_per_face < 0) {
+					if (geom->material_mapping == DE_FBX_MAPPING_BY_POLYGON) {
+						++material_index;
+					}
+
 					continue;
 				}
 

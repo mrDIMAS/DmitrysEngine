@@ -307,6 +307,7 @@ static void de_create_builtin_shaders(de_renderer_t* r) {
 		"{"
 		"	outDepth = position.z / position.w;"
 		"	outColor = texture2D(diffuseTexture, texCoord);"
+		"   if(outColor.a < 0.5) discard;"
 		"	outColor.a = 1;"
 		"   vec4 n = normalize(texture2D(normalTexture, vec2(texCoord.x,-texCoord.y)) * 2.0 - 1.0);"
 		"   mat3 tangentSpace = mat3(tangent, binormal, normal);"

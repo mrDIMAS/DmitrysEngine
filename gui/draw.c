@@ -1,4 +1,23 @@
-
+/* Copyright (c) 2017-2019 Dmitry Stepanov a.k.a mr.DIMAS
+*
+* Permission is hereby granted, free of charge, to any person obtaining
+* a copy of this software and associated documentation files (the
+* "Software"), to deal in the Software without restriction, including
+* without limitation the rights to use, copy, modify, merge, publish,
+* distribute, sublicense, and/or sell copies of the Software, and to
+* permit persons to whom the Software is furnished to do so, subject to
+* the following conditions:
+*
+* The above copyright notice and this permission notice shall be
+* included in all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+* LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+* OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+* WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 static void de_gui_get_line_thickness_vector(const de_vec2_t* a, const de_vec2_t* b, float thickness, de_vec2_t* thickness_vec) {
 	de_vec2_t dir;
@@ -391,4 +410,11 @@ void de_gui_draw_list_commit_clip_rect(de_gui_draw_list_t* draw_list, float x, f
 
 void de_gui_draw_list_set_nesting(de_gui_draw_list_t* draw_list, uint8_t nesting) {
 	draw_list->current_nesting = nesting;
+}
+
+void de_gui_draw_list_clear(de_gui_draw_list_t* draw_list) {
+	DE_ARRAY_CLEAR(draw_list->commands);
+	DE_ARRAY_CLEAR(draw_list->vertex_buffer);
+	DE_ARRAY_CLEAR(draw_list->index_buffer);
+	DE_ARRAY_CLEAR(draw_list->clip_cmd_stack);
 }

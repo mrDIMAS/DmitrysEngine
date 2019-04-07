@@ -22,7 +22,7 @@
 /* Inspired by WPF */
 
 /* Set to non-zero to enable visual debugging of GUI */
-#define DE_GUI_ENABLE_GUI_DEBUGGING 1
+#define DE_GUI_ENABLE_GUI_DEBUGGING 0
 
 typedef struct de_gui_node_t de_gui_node_t;
 typedef struct de_gui_draw_list_t de_gui_draw_list_t;
@@ -38,20 +38,20 @@ typedef struct de_gui_thickness_t {
 * @brief
 */
 typedef enum de_gui_vertical_alignment_t {
+	DE_GUI_VERTICAL_ALIGNMENT_STRETCH, /**< Top alignment with vertical stretch */
 	DE_GUI_VERTICAL_ALIGNMENT_TOP,    /**< Top alignment */
 	DE_GUI_VERTICAL_ALIGNMENT_CENTER, /**< Center alignment */
-	DE_GUI_VERTICAL_ALIGNMENT_BOTTOM, /**< Bottom alignment */
-	DE_GUI_VERTICAL_ALIGNMENT_STRETCH /**< Top alignment with vertical stretch */
+	DE_GUI_VERTICAL_ALIGNMENT_BOTTOM, /**< Bottom alignment */	
 } de_gui_vertical_alignment_t;
 
 /**
 * @brief
 */
 typedef enum de_gui_horizontal_alignment_t {
+	DE_GUI_HORIZONTAL_ALIGNMENT_STRETCH, /**< Left alignment with horizontal stretch */
 	DE_GUI_HORIZONTAL_ALIGNMENT_LEFT,   /**< Left alignment */
 	DE_GUI_HORIZONTAL_ALIGNMENT_CENTER, /**< Center alignment */
-	DE_GUI_HORIZONTAL_ALIGNMENT_RIGHT,  /**< Right alignment */
-	DE_GUI_HORIZONTAL_ALIGNMENT_STRETCH /**< Left alignment with horizontal stretch */
+	DE_GUI_HORIZONTAL_ALIGNMENT_RIGHT,  /**< Right alignment */	
 } de_gui_horizontal_alignment_t;
 
 typedef void(*de_gui_callback_func_t)(de_gui_node_t*, void*);
@@ -154,9 +154,9 @@ typedef struct de_gui_routed_event_args_t {
  * @brief
  */
 typedef enum de_gui_node_visibility_t {
+	DE_GUI_NODE_VISIBILITY_VISIBLE,    /**< Node will be visible */
 	DE_GUI_NODE_VISIBILITY_HIDDEN,    /**< Node will be invisible, but its bounds will participate in layout */
-	DE_GUI_NODE_VISIBILITY_COLLAPSED, /**< Node will be invisible and no space will be reserved for it in layout */
-	DE_GUI_NODE_VISIBILITY_VISIBLE    /**< Node will be visible */
+	DE_GUI_NODE_VISIBILITY_COLLAPSED, /**< Node will be invisible and no space will be reserved for it in layout */	
 } de_gui_node_visibility_t;
 
 #define DE_MEMBER_SIZE(type, member) sizeof(((type *)0)->member)
@@ -207,6 +207,37 @@ typedef void(*de_key_up_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*);
 		} \
 	}
 
+
+/**
+ * @brief UI node descriptor. Works well with C99 (or C++20) designated
+ * initializers. 
+ * 
+ * Example: 
+ *		de_gui_node_t* text_box = de_gui_node_create(gui, DE_GUI_NODE_TEXT_BOX);
+ *		de_gui_node_apply_descriptor(text_box, &(de_gui_node_descriptor_t) {
+ *		    .row = 1, .column = 1, .parent = grid,
+ *			.margin = (de_gui_thickness_t) { .left = 2, .top = 2, .right = 2, .bottom = 2 }			
+ *		});
+ * Every unset value will have correct default value.
+ * 
+ * TODO: Expand this struct to be able to work with more widgets.
+ */
+typedef struct de_gui_node_descriptor_t {
+	size_t row;
+	size_t column;
+	de_gui_vertical_alignment_t vertical_alignment;
+	de_gui_horizontal_alignment_t horizontal_alignment;
+	de_gui_node_visibility_t visibility;
+	de_vec2_t desired_size;
+	de_vec2_t desired_position;
+	de_gui_thickness_t margin;
+	de_gui_node_t* parent;
+	void* user_data;
+	union {
+		de_gui_text_block_descriptor_t text_block;
+	} s;
+} de_gui_node_descriptor_t;
+
 typedef struct de_gui_dispatch_table_t {
 	void(*init)(de_gui_node_t* n);
 	void(*deinit)(de_gui_node_t* n);
@@ -217,6 +248,7 @@ typedef struct de_gui_dispatch_table_t {
 	bool(*get_property)(de_gui_node_t* n, const char* name, void* value, size_t data_size);
 	bool(*set_property)(de_gui_node_t* n, const char* name, const void* value, size_t data_size);
 	bool(*parse_property)(de_gui_node_t* n, const char* name, const char* value);
+	void(*apply_descriptor)(de_gui_node_t* n, const de_gui_node_descriptor_t* desc);
 } de_gui_dispatch_table_t;
 
 /**
@@ -342,6 +374,14 @@ bool de_gui_node_get_property(de_gui_node_t* n, const char* name, void* value, s
 void de_gui_node_set_hit_test_visible(de_gui_node_t* n, bool visibility);
 
 /**
+ * @brief Allows to apply multiple properties of a UI node without need to write a ton
+ * of boilerplate code. 
+ * 
+ * For example see description of \ref de_gui_node_descriptor_t struct.
+ */
+void de_gui_node_apply_descriptor(de_gui_node_t* n, const de_gui_node_descriptor_t* desc);
+
+/**
  * @brief
  * @param node
  * @param color
@@ -380,14 +420,14 @@ void de_gui_node_free(de_gui_node_t* node);
  * @param node
  * @param row
  */
-void de_gui_node_set_row(de_gui_node_t* node, uint16_t row);
+void de_gui_node_set_row(de_gui_node_t* node, size_t row);
 
 /**
  * @brief
  * @param node
  * @param col
  */
-void de_gui_node_set_column(de_gui_node_t* node, uint16_t col);
+void de_gui_node_set_column(de_gui_node_t* node, size_t col);
 
 /**
  * @brief

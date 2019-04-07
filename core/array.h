@@ -135,7 +135,7 @@
 		} \
 	} while(0) 
 
-/* Internals functions. Do not use directly! Use macro instead. Macro desined to automatically 
+/* Internals functions. Do not use directly! Use macro instead. Macro designed to automatically 
  * calculate size of array elements and required pointers to array elements. */
 void de_array_init_(void** data, size_t* size, size_t* capacity);
 void de_array_grow_(void** data, size_t* size, size_t* capacity, size_t item_size, size_t n);

@@ -19,6 +19,14 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+static void de_gui_text_apply_descriptor(de_gui_node_t* n, const de_gui_node_descriptor_t* desc) {
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_TEXT);
+	const de_gui_text_block_descriptor_t* txt_desc = &desc->s.text_block;
+	if (txt_desc->text) {
+		de_gui_text_set_text_utf8(n, txt_desc->text);
+	}
+}
+
 static void de_gui_text_deinit(de_gui_node_t* n) {
 	de_gui_text_t* txt;
 
@@ -142,6 +150,7 @@ de_gui_dispatch_table_t* de_gui_text_get_dispatch_table(void) {
 		.init = de_gui_text_init,
 		.deinit = de_gui_text_deinit,
 		.render = de_gui_text_render,
+		.apply_descriptor = de_gui_text_apply_descriptor
 	};
 	return &dispatch_table;
 }
@@ -191,3 +200,4 @@ void de_gui_text_set_horizontal_alignment(de_gui_node_t* node, de_gui_horizontal
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_TEXT);
 	node->s.text.hor_alignment = alignment;
 }
+

@@ -658,7 +658,7 @@ void de_gui_node_set_desired_local_position(de_gui_node_t* node, float x, float 
 	node->desired_local_position.y = y;
 }
 
-void de_gui_node_set_column(de_gui_node_t* node, uint16_t col) {
+void de_gui_node_set_column(de_gui_node_t* node, size_t col) {
 	node->column = col;
 }
 
@@ -765,7 +765,7 @@ static void de_gui_node_drop_keyboard_focus(de_gui_node_t* node) {
 	if (node->gui->keyboard_focus == node) {
 		de_gui_drop_focus(node->gui);		
 	} else {
-		for(int i = 0; i < node->children.size; ++i) {
+		for(size_t i = 0; i < node->children.size; ++i) {
 			de_gui_node_drop_keyboard_focus(node->children.data[i]);
 		}
 	}
@@ -861,6 +861,7 @@ void de_gui_node_set_color_rgba(de_gui_node_t* node, uint8_t r, uint8_t g, uint8
 }
 
 bool de_gui_node_attach(de_gui_node_t* node, de_gui_node_t* parent) {
+	de_gui_node_detach(node);
 	DE_ARRAY_APPEND(parent->children, node);
 	node->parent = parent;
 	return true;
@@ -913,7 +914,7 @@ void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* constraint) {
 	}
 }
 
-void de_gui_node_set_row(de_gui_node_t* node, uint16_t row) {
+void de_gui_node_set_row(de_gui_node_t* node, size_t row) {
 	node->row = row;
 }
 
@@ -961,17 +962,13 @@ static void de_gui_node_draw(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t n
 de_gui_draw_list_t* de_gui_render(de_gui_t* gui) {
 	de_gui_node_t* n;
 	de_gui_draw_list_t* dl = &gui->draw_list;
-	uint8_t nesting = 1;
 	de_core_t* core = gui->core;
 
 	/* prepare draw list */
-	DE_ARRAY_CLEAR(gui->draw_list.commands);
-	DE_ARRAY_CLEAR(gui->draw_list.vertex_buffer);
-	DE_ARRAY_CLEAR(gui->draw_list.index_buffer);
-	DE_ARRAY_CLEAR(gui->draw_list.clip_cmd_stack);
+	de_gui_draw_list_clear(dl);
 
 	/* push global clipping rect */
-	de_gui_draw_list_set_nesting(dl, nesting);
+	de_gui_draw_list_set_nesting(dl, 1);
 	de_gui_draw_list_commit_clip_rect(dl, 0, 0, (float)core->params.video_mode.width, (float)core->params.video_mode.height, NULL);
 
 	/* render nodes down by visual tree starting from root nodes */
@@ -1000,4 +997,24 @@ de_gui_draw_list_t* de_gui_render(de_gui_t* gui) {
 #endif
 
 	return dl;
+}
+
+void de_gui_node_apply_descriptor(de_gui_node_t* n, const de_gui_node_descriptor_t* desc) {
+	de_gui_node_set_column(n, desc->column);
+	de_gui_node_set_row(n, desc->row);
+	de_gui_node_set_desired_local_position(n, desc->desired_position.x, desc->desired_position.y);
+	if (desc->desired_size.x != 0 && desc->desired_size.y != 0) {
+		de_gui_node_set_desired_size(n, desc->desired_size.x, desc->desired_size.y);
+	}
+	de_gui_node_set_horizontal_alignment(n, desc->horizontal_alignment);
+	de_gui_node_set_vertical_alignment(n, desc->vertical_alignment);
+	de_gui_node_set_visibility(n, desc->visibility);
+	de_gui_node_set_margin(n, desc->margin.left, desc->margin.top, desc->margin.right, desc->margin.bottom);
+	if(desc->parent) {
+		de_gui_node_attach(n, desc->parent);
+	}
+	de_gui_node_set_user_data(n, desc->user_data);
+	if(n->dispatch_table->apply_descriptor) {
+		n->dispatch_table->apply_descriptor(n, desc);
+	}
 }

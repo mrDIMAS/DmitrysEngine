@@ -423,6 +423,12 @@ void de_core_platform_poll_events(de_core_t* core) {
 				lasty = evt.s.mouse_move.y;
 				de_core_push_event(core, &evt);
 				break;
+            case ResizeRequest:
+                evt.type = DE_EVENT_TYPE_RESIZE;
+                evt.s.resize.w = event.xresizerequest.width;
+                evt.s.resize.h = event.xresizerequest.height;
+                de_core_push_event(core, &evt);
+                break;
 			default:			
 				break;			
 		}

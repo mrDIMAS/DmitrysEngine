@@ -66,6 +66,8 @@ de_editor_t* de_editor_create(de_core_t* core) {
 	de_editor_t* ed = DE_NEW(de_editor_t);
 	ed->core = core;
 	de_editor_create_property_window(ed);
+    de_editor_setup_scene(ed);
+    de_editor_setup_camera_controller(ed);
 	return ed;
 }
 
@@ -91,6 +93,8 @@ void de_editor_process_event(de_editor_t* ed, const de_event_t* evt) {
 				case DE_KEY_D:
 					ctl->move_right = true;
 					break;
+                default:
+                    break;
 			}
 			break;
 		case DE_EVENT_TYPE_KEY_UP:
@@ -107,11 +111,14 @@ void de_editor_process_event(de_editor_t* ed, const de_event_t* evt) {
 				case DE_KEY_D:
 					ctl->move_right = false;
 					break;
+                default:
+                    break;
 			}
 			break;
 		case DE_EVENT_TYPE_MOUSE_MOVE:
-
 			break;
+        default:
+            break;
 	}
 }
 

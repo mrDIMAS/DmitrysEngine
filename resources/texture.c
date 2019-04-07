@@ -73,6 +73,7 @@ de_resource_dispatch_table_t* de_texture_get_dispatch_table(void) {
 		.init = de_texture_init,
 		.deinit = de_texture_deinit,
 		.load = de_texture_load,
+        .visit = de_texture_visit,
 	};
 	return &table;
 }

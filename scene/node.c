@@ -128,8 +128,11 @@ static de_node_dispatch_table_t* de_node_get_dispatch_table_by_type(de_node_type
 		case DE_NODE_TYPE_CAMERA: return de_camera_get_dispatch_table();
 		case DE_NODE_TYPE_MESH: return de_mesh_get_dispatch_table();
 		case DE_NODE_TYPE_LIGHT: return de_light_get_dispatch_table();
+        default:
+            de_log("unhandled node type!");
+            break;
 	}
-	de_log("unhandled node type!");
+	
 	return NULL;
 }
 

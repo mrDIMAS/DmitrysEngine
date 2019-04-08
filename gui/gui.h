@@ -35,13 +35,19 @@ typedef struct de_gui_thickness_t {
 } de_gui_thickness_t;
 
 /**
+ * @brief Initializes thickness with same values. Designed for use with 
+ * designated initializers.
+ */
+de_gui_thickness_t de_gui_thickness_uniform(float value);
+
+/**
 * @brief
 */
 typedef enum de_gui_vertical_alignment_t {
 	DE_GUI_VERTICAL_ALIGNMENT_STRETCH, /**< Top alignment with vertical stretch */
 	DE_GUI_VERTICAL_ALIGNMENT_TOP,    /**< Top alignment */
 	DE_GUI_VERTICAL_ALIGNMENT_CENTER, /**< Center alignment */
-	DE_GUI_VERTICAL_ALIGNMENT_BOTTOM, /**< Bottom alignment */	
+	DE_GUI_VERTICAL_ALIGNMENT_BOTTOM, /**< Bottom alignment */
 } de_gui_vertical_alignment_t;
 
 /**
@@ -51,13 +57,13 @@ typedef enum de_gui_horizontal_alignment_t {
 	DE_GUI_HORIZONTAL_ALIGNMENT_STRETCH, /**< Left alignment with horizontal stretch */
 	DE_GUI_HORIZONTAL_ALIGNMENT_LEFT,   /**< Left alignment */
 	DE_GUI_HORIZONTAL_ALIGNMENT_CENTER, /**< Center alignment */
-	DE_GUI_HORIZONTAL_ALIGNMENT_RIGHT,  /**< Right alignment */	
+	DE_GUI_HORIZONTAL_ALIGNMENT_RIGHT,  /**< Right alignment */
 } de_gui_horizontal_alignment_t;
 
 typedef void(*de_gui_callback_func_t)(de_gui_node_t*, void*);
 
 typedef struct de_gui_callback_t {
-	void* user_data;
+	void* arg;
 	de_gui_callback_func_t func;
 } de_gui_callback_t;
 
@@ -156,7 +162,7 @@ typedef struct de_gui_routed_event_args_t {
 typedef enum de_gui_node_visibility_t {
 	DE_GUI_NODE_VISIBILITY_VISIBLE,    /**< Node will be visible */
 	DE_GUI_NODE_VISIBILITY_HIDDEN,    /**< Node will be invisible, but its bounds will participate in layout */
-	DE_GUI_NODE_VISIBILITY_COLLAPSED, /**< Node will be invisible and no space will be reserved for it in layout */	
+	DE_GUI_NODE_VISIBILITY_COLLAPSED, /**< Node will be invisible and no space will be reserved for it in layout */
 } de_gui_node_visibility_t;
 
 #define DE_MEMBER_SIZE(type, member) sizeof(((type *)0)->member)
@@ -210,16 +216,16 @@ typedef void(*de_key_up_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*);
 
 /**
  * @brief UI node descriptor. Works well with C99 (or C++20) designated
- * initializers. 
- * 
- * Example: 
+ * initializers.
+ *
+ * Example:
  *		de_gui_node_t* text_box = de_gui_node_create(gui, DE_GUI_NODE_TEXT_BOX);
  *		de_gui_node_apply_descriptor(text_box, &(de_gui_node_descriptor_t) {
  *		    .row = 1, .column = 1, .parent = grid,
- *			.margin = (de_gui_thickness_t) { .left = 2, .top = 2, .right = 2, .bottom = 2 }			
+ *			.margin = (de_gui_thickness_t) { .left = 2, .top = 2, .right = 2, .bottom = 2 }
  *		});
  * Every unset value will have correct default value.
- * 
+ *
  * TODO: Expand this struct to be able to work with more widgets.
  */
 typedef struct de_gui_node_descriptor_t {
@@ -234,7 +240,10 @@ typedef struct de_gui_node_descriptor_t {
 	de_gui_node_t* parent;
 	void* user_data;
 	union {
-		de_gui_text_block_descriptor_t text_block;
+		de_gui_text_descriptor_t text_block;
+		de_gui_scroll_bar_descriptor_t scroll_bar;
+		de_gui_grid_descriptor_t grid;
+		de_gui_button_descriptor_t button;
 	} s;
 } de_gui_node_descriptor_t;
 
@@ -254,7 +263,7 @@ typedef struct de_gui_dispatch_table_t {
 /**
  * @brief GUI node. Tagged union (https://en.wikipedia.org/wiki/Tagged_union)
  */
-struct de_gui_node_t {	
+struct de_gui_node_t {
 	de_gui_node_type_t type; /**< Actual type of the node */
 	de_gui_dispatch_table_t* dispatch_table; /**< Table of pointers to type-related functions (vtable) */
 	de_vec2_t desired_local_position; /**< Desired position relative to parent node */
@@ -276,7 +285,7 @@ struct de_gui_node_t {
 	DE_ARRAY_DECLARE(int, geometry); /**< Array of indices to draw command in draw list */
 	bool is_hit_test_visible; /**< Will this control participate in hit-test? */
 	void* user_data; /**< Pointer to any data. Useful to pass data to callbacks */
-    /* Events */
+	/* Events */
 	de_mouse_down_event_t mouse_down;
 	de_mouse_up_event_t mouse_up;
 	de_mouse_move_event_t mouse_move;
@@ -344,16 +353,14 @@ void de_gui_shutdown(de_gui_t* gui);
 void de_gui_node_update_transform(de_gui_node_t* node);
 
 /**
- * @brief Allocates memory and initializes common node data.
- * @param type
- * @return
- *
- * You must use this function only when you need to create your own control!
- * DO NOT USE THIS DIRECTLY IN USER CODE! USE de_gui_NODETYPE_create()
- *
- * dispatch_table - MUST be a pointer to static de_gui_dispatcher_entry_t!
+ * @brief Creates UI widget of specified type.
  */
 de_gui_node_t* de_gui_node_create(de_gui_t* gui, de_gui_node_type_t type);
+
+/**
+ * @brief Creates UI widget of specified type using specified descriptor.
+ */
+de_gui_node_t* de_gui_node_create_with_desc(de_gui_t* gui, de_gui_node_type_t type, const de_gui_node_descriptor_t* desc);
 
 /**
  * @brief Sets desired local position of a node. Actual position can be different and depends on layout.
@@ -375,8 +382,8 @@ void de_gui_node_set_hit_test_visible(de_gui_node_t* n, bool visibility);
 
 /**
  * @brief Allows to apply multiple properties of a UI node without need to write a ton
- * of boilerplate code. 
- * 
+ * of boilerplate code.
+ *
  * For example see description of \ref de_gui_node_descriptor_t struct.
  */
 void de_gui_node_apply_descriptor(de_gui_node_t* n, const de_gui_node_descriptor_t* desc);
@@ -547,8 +554,8 @@ de_gui_node_t* de_gui_hit_test(de_gui_t* gui, float x, float y);
 
 /**
  * @brief Sets user data for a node, which can be obtained when needed.
- * 
- * Main purpose of this method is to get user data in event handlers. 
+ *
+ * Main purpose of this method is to get user data in event handlers.
  */
 void de_gui_node_set_user_data(de_gui_node_t* node, void* user_data);
 

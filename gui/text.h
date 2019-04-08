@@ -23,9 +23,11 @@
 /**
  * 
  */
-typedef struct de_gui_text_block_descriptor_t {
+typedef struct de_gui_text_descriptor_t {
 	char* text;
-} de_gui_text_block_descriptor_t;
+	de_gui_vertical_alignment_t vertical_alignment;
+	de_gui_horizontal_alignment_t horizontal_alignment;
+} de_gui_text_descriptor_t;
 
 /**
 * @brief

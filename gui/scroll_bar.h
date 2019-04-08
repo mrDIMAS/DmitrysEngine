@@ -23,11 +23,20 @@
 * @brief
 */
 typedef enum de_gui_scroll_bar_orientation_t {
-	DE_GUI_SCROLL_BAR_ORIENTATION_VERTICAL,
-	DE_GUI_SCROLL_BAR_ORIENTATION_HORIZONTAL
+	DE_GUI_SCROLL_BAR_ORIENTATION_HORIZONTAL,
+	DE_GUI_SCROLL_BAR_ORIENTATION_VERTICAL,	
 } de_gui_scroll_bar_orientation_t;
 
-typedef void(*de_scroll_bar_value_changed_event_t)(de_gui_node_t*);
+typedef void(*de_scroll_bar_value_changed_event_t)(de_gui_node_t*, float old_value, float new_value);
+
+typedef struct de_gui_scroll_bar_descriptor_t {
+	de_scroll_bar_value_changed_event_t value_changed;
+	float value; /**< Current scroll value */
+	float min; /**< Maximum scroll value */
+	float max; /**< Minimum scroll value */
+	float step; /**< Increment/decrement step for value. Used when user clicks on arrows */
+	de_gui_scroll_bar_orientation_t orientation; /**< Orientation: vertical or horizontal */
+} de_gui_scroll_bar_descriptor_t;
 
 /**
 * @brief
@@ -56,7 +65,7 @@ struct de_gui_dispatch_table_t* de_gui_scroll_bar_get_dispatch_table(void);
 * @param node
 * @param dir
 */
-void de_gui_scroll_bar_set_direction(de_gui_node_t* node, de_gui_scroll_bar_orientation_t dir);
+void de_gui_scroll_bar_set_orientation(de_gui_node_t* node, de_gui_scroll_bar_orientation_t dir);
 
 /**
 * @brief
@@ -78,3 +87,7 @@ void de_gui_scroll_bar_set_max_value(de_gui_node_t* node, float max);
 * @param evt
 */
 void de_gui_scroll_bar_set_value_changed(de_gui_node_t* node, de_scroll_bar_value_changed_event_t evt);
+
+void de_gui_scroll_bar_set_value(de_gui_node_t* node, float value);
+
+void de_gui_scroll_bar_set_step(de_gui_node_t* node, float value);

@@ -45,13 +45,14 @@ void de_sound_device_send_data(de_sound_device_t* dev);
 static int de_sound_device_mixer_thread(void* ptr) {
 	size_t i, k;
 	de_sound_device_t* dev = (de_sound_device_t*)ptr;
+	de_sound_context_t* ctx = dev->ctx;
 	de_log("Sound thread started!");
 	while (dev->mixer_status == DE_MIXER_STATUS_ACTIVE) {
-		de_sound_context_lock(dev->ctx);
+		de_sound_context_lock(ctx);
 		/* gather all active sounds */
 		DE_ARRAY_CLEAR(dev->active_sources);
-		for (k = 0; k < dev->ctx->sounds.size; ++k) {
-			de_sound_source_t* src = dev->ctx->sounds.data[k];
+		for (k = 0; k < ctx->sounds.size; ++k) {
+			de_sound_source_t* src = ctx->sounds.data[k];
 			if (de_sound_source_can_produce_samples(src)) {
 				DE_ARRAY_APPEND(dev->active_sources, src);
 			}
@@ -76,10 +77,10 @@ static int de_sound_device_mixer_thread(void* ptr) {
 			} else if (right < -1.0f) {
 				right = -1.0f ;
 			}	
-			dev->out_buffer[i++] = (short)(left * (float)INT16_MAX);
-			dev->out_buffer[i++] = (short)(right * (float)INT16_MAX);
+			dev->out_buffer[i++] = (short)(ctx->master_volume * left * (float)INT16_MAX);
+			dev->out_buffer[i++] = (short)(ctx->master_volume * right * (float)INT16_MAX);
 		}
-		de_sound_context_unlock(dev->ctx);
+		de_sound_context_unlock(ctx);
 		/* send_data is locking so mutex is already unlocked here */
 		de_sound_device_send_data(dev);
 	}

@@ -23,8 +23,10 @@
 * @brief
 */
 typedef enum de_gui_size_mode_t {
+	/* Internal. Do not use. */
+	DE_GUI_SIZE_MODE_UNKNOWN,
 	/* size of row/column is strictly defined by desired size */
-	DE_GUI_SIZE_MODE_STRICT,
+	DE_GUI_SIZE_MODE_STRICT = 1,
 	/* grid row/column will take size of most large element */
 	DE_GUI_SIZE_MODE_AUTO,
 	/* grid row/column size calculated automatically without respect of elements
@@ -43,7 +45,7 @@ typedef struct de_gui_grid_column_t {
 } de_gui_grid_column_t;
 
 /**
-* @brief
+* @brief Internal.
 */
 typedef struct de_gui_grid_row_t {
 	de_gui_size_mode_t size_mode;
@@ -51,6 +53,24 @@ typedef struct de_gui_grid_row_t {
 	float actual_height;
 	float y;
 } de_gui_grid_row_t;
+
+typedef struct de_gui_grid_row_descriptor_t {
+	de_gui_size_mode_t size_mode;
+	float desired_height;
+} de_gui_grid_row_descriptor_t;
+
+typedef struct de_gui_grid_column_descriptor_t {
+	de_gui_size_mode_t size_mode;
+	float desired_width;
+} de_gui_grid_column_descriptor_t;
+
+#define DE_GUI_GRID_DESCRIPTOR_MAX_ROWS_COLUMNS 64
+
+typedef struct de_gui_grid_descriptor_t {
+	de_gui_grid_column_descriptor_t columns[DE_GUI_GRID_DESCRIPTOR_MAX_ROWS_COLUMNS];
+	de_gui_grid_row_descriptor_t rows[DE_GUI_GRID_DESCRIPTOR_MAX_ROWS_COLUMNS];
+	bool draw_borders;
+} de_gui_grid_descriptor_t;
 
 /**
 * @brief

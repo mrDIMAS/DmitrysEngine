@@ -19,6 +19,14 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+static void de_button_apply_descriptor(de_gui_node_t* node, const de_gui_node_descriptor_t* desc) {
+	const de_gui_button_descriptor_t* button_desc = &desc->s.button;
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BUTTON);
+	de_gui_button_t* btn = &node->s.button;
+	btn->click = button_desc->click;
+	de_gui_button_set_text(node, button_desc->text);
+}
+
 static void de_button_border_mouse_down(de_gui_node_t* button, de_gui_routed_event_args_t* args) {
 	de_gui_button_t* btn;
 	DE_ASSERT_GUI_NODE_TYPE(button, DE_GUI_NODE_BUTTON);
@@ -54,7 +62,7 @@ static void de_button_border_mouse_up(de_gui_node_t* button, de_gui_routed_event
 		btn->border->color = btn->normal_color;
 	}
 	if (btn->click.func && btn->was_pressed) {
-		btn->click.func(button, btn->click.user_data);
+		btn->click.func(button, btn->click.arg);
 	}
 	args->handled = true;
 }
@@ -98,15 +106,16 @@ de_gui_dispatch_table_t* de_gui_button_get_dispatch_table() {
 	static de_gui_dispatch_table_t dispatch_table = {
 		.init = de_gui_button_init,
 		.set_property = de_gui_button_set_property,
-		.get_property = de_gui_button_get_property
+		.get_property = de_gui_button_get_property,
+		.apply_descriptor = de_button_apply_descriptor,
 	};
 	return &dispatch_table;
 }
 
-void de_gui_button_set_click(de_gui_node_t* node, de_gui_callback_func_t click, void* user_data) {
+void de_gui_button_set_click(de_gui_node_t* node, de_gui_callback_func_t click, void* arg) {
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BUTTON);
 	node->s.button.click.func = click;
-	node->s.button.click.user_data = user_data;
+	node->s.button.click.arg = arg;
 }
 
 de_gui_node_t* de_gui_button_get_text(de_gui_node_t* node) {

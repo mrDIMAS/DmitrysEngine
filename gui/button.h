@@ -19,6 +19,11 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+typedef struct de_gui_button_descriptor_t {
+	char* text;
+	de_gui_callback_t click;
+} de_gui_button_descriptor_t;
+
 /**
 * @brief
 */

@@ -23,6 +23,7 @@ struct de_sound_context_t {
 	de_mtx_t mtx;
 	de_core_t* core;
 	de_sound_device_t dev;
+	float master_volume;
 	de_listener_t listener;
 	DE_ARRAY_DECLARE(de_sound_source_t*, sounds);
 };
@@ -60,4 +61,12 @@ void de_sound_context_unlock(de_sound_context_t* ctx);
  */
 de_listener_t* de_sound_context_get_listener(de_sound_context_t* ctx);
 
+/**
+ * @brief Sets master volume of sound context, defines global sound volume
+ */
+void de_sound_context_set_master_volume(de_sound_context_t* ctx, float vol);
+
+/**
+ * @brief Internal. Visits sound context.
+ */
 bool de_sound_context_visit(de_object_visitor_t* visitor, de_sound_context_t* ctx);

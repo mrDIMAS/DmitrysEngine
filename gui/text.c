@@ -21,10 +21,12 @@
 
 static void de_gui_text_apply_descriptor(de_gui_node_t* n, const de_gui_node_descriptor_t* desc) {
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_TEXT);
-	const de_gui_text_block_descriptor_t* txt_desc = &desc->s.text_block;
+	const de_gui_text_descriptor_t* txt_desc = &desc->s.text_block;
 	if (txt_desc->text) {
 		de_gui_text_set_text_utf8(n, txt_desc->text);
 	}
+	de_gui_text_set_vertical_alignment(n, txt_desc->vertical_alignment);
+	de_gui_text_set_horizontal_alignment(n, txt_desc->horizontal_alignment);
 }
 
 static void de_gui_text_deinit(de_gui_node_t* n) {

@@ -328,6 +328,10 @@ static bool de_gui_draw_command_contains_point(const de_gui_draw_list_t* draw_li
 	return false;
 }
 
+de_gui_thickness_t de_gui_thickness_uniform(float value) {
+	return (de_gui_thickness_t) { .left = value, .right = value, .top = value, .bottom = value };
+}
+
 static bool de_gui_node_is_clipped(de_gui_node_t* node, const de_vec2_t* point) {
 	size_t i;
 	de_gui_draw_list_t* draw_list = &node->gui->draw_list;
@@ -652,6 +656,12 @@ de_gui_node_t* de_gui_node_create(de_gui_t* gui, de_gui_node_type_t type) {
 		n->dispatch_table->init(n);
 	}
 	return n;
+}
+
+de_gui_node_t* de_gui_node_create_with_desc(de_gui_t* gui, de_gui_node_type_t type, const de_gui_node_descriptor_t* desc) {
+	de_gui_node_t* node = de_gui_node_create(gui, type);
+	de_gui_node_apply_descriptor(node, desc);
+	return node;
 }
 
 void de_gui_node_set_desired_local_position(de_gui_node_t* node, float x, float y) {

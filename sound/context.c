@@ -23,6 +23,7 @@ de_sound_context_t* de_sound_context_create(de_core_t* core) {
 	de_sound_context_t* ctx = DE_NEW(de_sound_context_t);
 	de_mtx_init(&ctx->mtx);
 	ctx->core = core;
+	ctx->master_volume = 1.0f;
 	de_listener_init(&ctx->listener);
 	de_sound_device_init(ctx, &ctx->dev);
 	return ctx;
@@ -42,7 +43,7 @@ void de_sound_context_free(de_sound_context_t* ctx) {
 }
 
 void de_sound_context_update(de_sound_context_t* ctx) {
-	size_t i;	
+	size_t i;
 
 	de_sound_context_lock(ctx);
 	for (i = 0; i < ctx->sounds.size; ++i) {
@@ -75,6 +76,10 @@ de_listener_t* de_sound_context_get_listener(de_sound_context_t* ctx) {
 
 bool de_sound_context_visit(de_object_visitor_t* visitor, de_sound_context_t* ctx) {
 	bool result = true;
-	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Sources", ctx->sounds, de_sound_source_visit);	
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Sources", ctx->sounds, de_sound_source_visit);
 	return result;
+}
+
+void de_sound_context_set_master_volume(de_sound_context_t* ctx, float vol) {
+	ctx->master_volume = de_clamp(vol, 0.0f, 1.0f);
 }

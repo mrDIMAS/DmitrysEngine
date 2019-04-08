@@ -19,6 +19,18 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+static void de_gui_grid_apply_descriptor(de_gui_node_t* n, const de_gui_node_descriptor_t* desc) {
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_GRID);
+	const de_gui_grid_descriptor_t* grid_desc = &desc->s.grid;
+	for (size_t i = 0; i < DE_GUI_GRID_DESCRIPTOR_MAX_ROWS_COLUMNS && grid_desc->rows[i].size_mode != DE_GUI_SIZE_MODE_UNKNOWN; ++i) {
+		de_gui_grid_add_row(n, grid_desc->rows[i].desired_height, grid_desc->rows[i].size_mode);
+	}
+	for (size_t i = 0; i < DE_GUI_GRID_DESCRIPTOR_MAX_ROWS_COLUMNS && grid_desc->columns[i].size_mode != DE_GUI_SIZE_MODE_UNKNOWN; ++i) {
+		de_gui_grid_add_column(n, grid_desc->columns[i].desired_width, grid_desc->columns[i].size_mode);
+	}
+	de_gui_grid_enable_draw_borders(n, grid_desc->draw_borders);
+}
+
 static void de_gui_grid_perform_layout(de_gui_node_t* n) {
 	size_t i;
 	de_gui_grid_t* grid = &n->s.grid;
@@ -279,6 +291,7 @@ de_gui_dispatch_table_t* de_gui_grid_get_dispatch_table(void) {
 		.deinit = de_gui_grid_deinit,
 		.layout_children = de_gui_grid_perform_layout,
 		.render = de_gui_grid_render,
+		.apply_descriptor = de_gui_grid_apply_descriptor
 	};
 	return &dispatch_table;
 }

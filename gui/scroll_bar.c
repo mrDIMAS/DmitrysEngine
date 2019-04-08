@@ -19,6 +19,18 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+static void de_gui_scroll_bar_apply_descriptor(de_gui_node_t* node, const de_gui_node_descriptor_t* desc) {
+	const de_gui_scroll_bar_descriptor_t* sbdesc = &desc->s.scroll_bar;
+	if (sbdesc->max != sbdesc->min) {
+		de_gui_scroll_bar_set_max_value(node, sbdesc->max);
+		de_gui_scroll_bar_set_min_value(node, sbdesc->min);
+	}
+	de_gui_scroll_bar_set_value(node, sbdesc->value);
+	de_gui_scroll_bar_set_value_changed(node, sbdesc->value_changed);
+	de_gui_scroll_bar_set_orientation(node, sbdesc->orientation);
+	de_gui_scroll_bar_set_step(node, sbdesc->step);
+}
+
 static void de_gui_scroll_bar_update_indicator(de_gui_node_t* node) {
 	de_gui_scroll_bar_t* sb;
 	float percent;
@@ -51,13 +63,7 @@ static void de_gui_scroll_bar_on_up_click(de_gui_node_t* node, void* user_data) 
 	de_gui_node_t* scroll_bar_node = de_gui_node_find_parent_of_type(node, DE_GUI_NODE_SCROLL_BAR);
 	de_gui_scroll_bar_t* sb = &scroll_bar_node->s.scroll_bar;
 	DE_UNUSED(user_data);
-	sb->value -= sb->step;
-	if (sb->value < sb->min) {
-		sb->value = sb->min;
-	}
-	if (sb->value_changed) {
-		sb->value_changed(scroll_bar_node);
-	}
+	de_gui_scroll_bar_set_value(scroll_bar_node, sb->value - sb->step);
 	de_gui_scroll_bar_update_indicator(scroll_bar_node);
 }
 
@@ -65,13 +71,7 @@ static void de_gui_scroll_bar_on_down_click(de_gui_node_t* node, void* user_data
 	de_gui_node_t* scroll_bar_node = de_gui_node_find_parent_of_type(node, DE_GUI_NODE_SCROLL_BAR);
 	de_gui_scroll_bar_t* sb = &scroll_bar_node->s.scroll_bar;
 	DE_UNUSED(user_data);
-	sb->value += sb->step;
-	if (sb->value > sb->max) {
-		sb->value = sb->max;
-	}
-	if (sb->value_changed) {
-		sb->value_changed(scroll_bar_node);
-	}
+	de_gui_scroll_bar_set_value(scroll_bar_node, sb->value + sb->step);
 	de_gui_scroll_bar_update_indicator(scroll_bar_node);
 }
 
@@ -122,10 +122,7 @@ static void de_gui_scroll_bar_indicator_mouse_move(de_gui_node_t* node, de_gui_r
 				break;
 			}
 		}
-		sb->value = percent * (sb->max - sb->min);
-		if (sb->value_changed) {
-			sb->value_changed(scroll_bar_node);
-		}
+		de_gui_scroll_bar_set_value(scroll_bar_node, percent * (sb->max - sb->min));
 		de_gui_scroll_bar_update_indicator(scroll_bar_node);
 		args->handled = true;
 	}
@@ -148,7 +145,7 @@ static void de_gui_scroll_bar_init(de_gui_node_t* n) {
 	de_gui_node_attach(sb->grid, sb->border);
 	de_gui_grid_enable_draw_borders(sb->grid, false);
 
-	sb->canvas =  de_gui_node_create(n->gui, DE_GUI_NODE_CANVAS);
+	sb->canvas = de_gui_node_create(n->gui, DE_GUI_NODE_CANVAS);
 	de_gui_node_attach(sb->canvas, sb->grid);
 
 	sb->indicator = de_gui_node_create(n->gui, DE_GUI_NODE_BORDER);
@@ -170,18 +167,19 @@ static void de_gui_scroll_bar_init(de_gui_node_t* n) {
 	de_gui_node_attach(sb->down_button, sb->grid);
 	de_gui_button_set_click(sb->down_button, de_gui_scroll_bar_on_down_click, NULL);
 
-	de_gui_scroll_bar_set_direction(n, DE_GUI_SCROLL_BAR_ORIENTATION_HORIZONTAL);
+	de_gui_scroll_bar_set_orientation(n, DE_GUI_SCROLL_BAR_ORIENTATION_HORIZONTAL);
 	de_gui_scroll_bar_update_indicator(n);
 }
 
 de_gui_dispatch_table_t* de_gui_scroll_bar_get_dispatch_table(void) {
 	static de_gui_dispatch_table_t dispatch_table = {
 		.init = de_gui_scroll_bar_init,
+		.apply_descriptor = de_gui_scroll_bar_apply_descriptor
 	};
 	return &dispatch_table;
 }
 
-void de_gui_scroll_bar_set_direction(de_gui_node_t* node, de_gui_scroll_bar_orientation_t orientation) {
+void de_gui_scroll_bar_set_orientation(de_gui_node_t* node, de_gui_scroll_bar_orientation_t orientation) {
 	de_gui_scroll_bar_t* sb;
 
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
@@ -237,24 +235,38 @@ void de_gui_scroll_bar_set_direction(de_gui_node_t* node, de_gui_scroll_bar_orie
 }
 
 void de_gui_scroll_bar_set_min_value(de_gui_node_t* node, float min) {
-	de_gui_scroll_bar_t* sb;
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
-	sb = &node->s.scroll_bar;
-	sb->min = min;
+	node->s.scroll_bar.min = min;
 	de_gui_scroll_bar_update_indicator(node);
 }
 
 void de_gui_scroll_bar_set_max_value(de_gui_node_t* node, float max) {
-	de_gui_scroll_bar_t* sb;
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
-	sb = &node->s.scroll_bar;
-	sb->max = max;
+	node->s.scroll_bar.max = max;
 	de_gui_scroll_bar_update_indicator(node);
 }
 
 void de_gui_scroll_bar_set_value_changed(de_gui_node_t* node, de_scroll_bar_value_changed_event_t evt) {
-	de_gui_scroll_bar_t* sb;
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
-	sb = &node->s.scroll_bar;
-	sb->value_changed = evt;
+	node->s.scroll_bar.value_changed = evt;	
+}
+
+void de_gui_scroll_bar_set_step(de_gui_node_t* node, float value) {
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
+	node->s.scroll_bar.step = value;
+}
+
+void de_gui_scroll_bar_set_value(de_gui_node_t* node, float value) {
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
+	de_gui_scroll_bar_t* sb = &node->s.scroll_bar;
+	float old_value = sb->value;
+	if (value < sb->min) {
+		value = sb->min;
+	} else if (value > sb->max) {
+		value = sb->max;
+	}
+	sb->value = value;
+	if (old_value != value && sb->value_changed) {
+		sb->value_changed(node, old_value, value);
+	}
 }

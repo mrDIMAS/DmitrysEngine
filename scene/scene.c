@@ -106,8 +106,8 @@ void de_scene_update(de_scene_t* s, double dt) {
 				de_animation_track_t* track = anim->tracks.data[i];
 				de_node_t* node = track->node;
 				if (node) {
-					node->position = (de_vec3_t) { 0 };
-					de_quat_set(&node->rotation, 0, 0, 0, 1);
+					node->position = (de_vec3_t) { 0, 0, 0 };
+					node->rotation = (de_quat_t) { 0, 0, 0, 1 };
 					node->scale = (de_vec3_t) { 1, 1, 1 };
 				}
 			}
@@ -119,9 +119,11 @@ void de_scene_update(de_scene_t* s, double dt) {
 		de_animation_update(anim, (float)dt);
 	}
 
-	/* Calculate transforms of nodes */
+	/* Calculate transforms of nodes starting from root nodes */
 	DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, s->nodes) {
-		de_node_calculate_transforms(node);
+		if(!node->parent) {
+			de_node_calculate_transforms_descending(node);
+		}		
 	}
 }
 

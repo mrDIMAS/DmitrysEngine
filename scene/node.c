@@ -128,11 +128,11 @@ static de_node_dispatch_table_t* de_node_get_dispatch_table_by_type(de_node_type
 		case DE_NODE_TYPE_CAMERA: return de_camera_get_dispatch_table();
 		case DE_NODE_TYPE_MESH: return de_mesh_get_dispatch_table();
 		case DE_NODE_TYPE_LIGHT: return de_light_get_dispatch_table();
-        default:
-            de_log("unhandled node type!");
-            break;
+		default:
+			de_log("unhandled node type!");
+			break;
 	}
-	
+
 	return NULL;
 }
 
@@ -147,7 +147,7 @@ de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type) {
 	node->rotation = (de_quat_t) { 0, 0, 0, 1 };
 	node->pre_rotation = (de_quat_t) { 0, 0, 0, 1 };
 	node->post_rotation = (de_quat_t) { 0, 0, 0, 1 };
-	if(node->dispatch_table->init) {
+	if (node->dispatch_table->init) {
 		node->dispatch_table->init(node);
 	}
 	return node;
@@ -187,10 +187,10 @@ static de_node_t* de_node_copy_internal(de_scene_t* dest_scene, de_node_t* node)
 	for (size_t i = 0; i < node->children.size; ++i) {
 		de_node_attach(de_node_copy_internal(dest_scene, node->children.data[i]), copy);
 	}
-	if(node->dispatch_table->copy) {
+	if (node->dispatch_table->copy) {
 		node->dispatch_table->copy(node, copy);
 	}
-	de_node_calculate_transforms(copy);
+	de_node_calculate_transforms_ascending(copy);
 	return copy;
 }
 
@@ -214,7 +214,7 @@ void de_node_resolve(de_node_t* node) {
 
 	/* todo: resolve transform changes */
 
-	if(node->dispatch_table->resolve) {
+	if (node->dispatch_table->resolve) {
 		node->dispatch_table->resolve(node);
 	}
 
@@ -243,24 +243,24 @@ void de_node_detach(de_node_t* node) {
 	}
 }
 
-de_mat4_t* de_node_calculate_transforms(de_node_t* node) {
+void de_node_calculate_local_transform(de_node_t* node) {
 	if (node->body) {
 		de_body_get_position(node->body, &node->position);
 	}
 
 	/**
-	 * TODO: Why there is so much matrices? Because of FBX support.
-	 * FBX uses very complex transformations and there is no way (in my opinion)
-	 * to convert these to just three parameters:
-	 *  - translation
-	 *  - rotation quaternion
-	 *  - scale
-	 * So to exclude weird transformations behaviour when using FBX, I just decided
-	 * to use all these matrices. This is not optimized at all, for example 70% of
-	 * these multiplications and matrices creation can be done only once on load.
-	 *
-	 * TODO: OPTIMIZE THIS ASAP!
-	 */
+	* TODO: Why there is so much matrices? Because of FBX support.
+	* FBX uses very complex transformations and there is no way (in my opinion)
+	* to convert these to just three parameters:
+	*  - translation
+	*  - rotation quaternion
+	*  - scale
+	* So to exclude weird transformations behaviour when using FBX, I just decided
+	* to use all these matrices. This is not optimized at all, for example 70% of
+	* these multiplications and matrices creation can be done only once on load.
+	*
+	* TODO: OPTIMIZE THIS ASAP!
+	*/
 
 	de_mat4_t pre_rotation;
 	de_mat4_rotation(&pre_rotation, &node->pre_rotation);
@@ -306,14 +306,32 @@ de_mat4_t* de_node_calculate_transforms(de_node_t* node) {
 	de_mat4_mul(&node->local_matrix, &node->local_matrix, &scale_pivot);
 	de_mat4_mul(&node->local_matrix, &node->local_matrix, &scale);
 	de_mat4_mul(&node->local_matrix, &node->local_matrix, &scale_pivot_inv);
+}
+
+de_mat4_t* de_node_calculate_transforms_ascending(de_node_t* node) {
+	de_node_calculate_local_transform(node);
 
 	if (node->parent) {
-		de_mat4_mul(&node->global_matrix, de_node_calculate_transforms(node->parent), &node->local_matrix);
+		de_mat4_mul(&node->global_matrix, de_node_calculate_transforms_ascending(node->parent), &node->local_matrix);
 	} else {
 		node->global_matrix = node->local_matrix;
 	}
 
 	return &node->global_matrix;
+}
+
+void de_node_calculate_transforms_descending(de_node_t* node) {
+	de_node_calculate_local_transform(node);
+
+	if (node->parent) {
+		de_mat4_mul(&node->global_matrix, &node->parent->global_matrix, &node->local_matrix);
+	} else {
+		node->global_matrix = node->local_matrix;
+	}
+
+	for (size_t i = 0; i < node->children.size; ++i) {
+		de_node_calculate_transforms_descending(node->children.data[i]);
+	}
 }
 
 void de_node_get_look_vector(const de_node_t* node, de_vec3_t* look) {
@@ -341,7 +359,7 @@ void de_node_get_global_position(const de_node_t* node, de_vec3_t* pos) {
 	pos->z = node->global_matrix.f[14];
 }
 
-void de_node_set_local_position(de_node_t* node, de_vec3_t* pos) {
+void de_node_set_local_position(de_node_t* node, const de_vec3_t* pos) {
 	DE_ASSERT(node);
 	DE_ASSERT(pos);
 	de_body_t* body = node->body;
@@ -453,11 +471,11 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node) {
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Scene", &node->scene, de_scene_visit);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Parent", &node->parent, de_node_visit);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Children", node->children, de_node_visit);
-	if(node->dispatch_table->visit) {
+	if (node->dispatch_table->visit) {
 		node->dispatch_table->visit(visitor, node);
 	}
-	if(visitor->is_reading) {
-		if(node->model_resource) {
+	if (visitor->is_reading) {
+		if (node->model_resource) {
 			de_resource_add_ref(node->model_resource);
 		}
 	}

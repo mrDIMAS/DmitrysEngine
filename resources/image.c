@@ -34,7 +34,6 @@ typedef struct de_tga_header_t {
 	char imageDescriptor;
 } de_tga_header_t;
 
-
 bool de_image_load_tga(const char* filename, de_image_t* img) {
 	FILE* file;
 	size_t i, byte_count;
@@ -88,11 +87,12 @@ bool de_image_load_tga(const char* filename, de_image_t* img) {
 		img->data[i + 2] = temp;
 	}
 
-	de_image_flip_y(img);
+	if(header.imageDescriptor & 32) {
+		de_image_flip_y(img);
+	}
 
 	return true;
 }
-
 
 void de_image_flip_y(de_image_t* img) {
 	int x, y_src, y_dest, k;

@@ -329,7 +329,7 @@ static void de_create_builtin_shaders(de_renderer_t* r) {
 		"	outColor = texture2D(diffuseTexture, texCoord);"
 		"   if(outColor.a < 0.5) discard;"
 		"	outColor.a = 1;"
-		"   vec4 n = normalize(texture2D(normalTexture, vec2(texCoord.x,-texCoord.y)) * 2.0 - 1.0);"
+		"   vec4 n = normalize(texture2D(normalTexture, texCoord) * 2.0 - 1.0);"
 		"   mat3 tangentSpace = mat3(tangent, binormal, normal);"
 		"	outNormal = normalize(tangentSpace * n.xyz) * 0.5 + 0.5;"
 		"}";
@@ -571,10 +571,10 @@ de_renderer_t* de_renderer_init(de_core_t* core) {
 		data->positions[1] = (de_vec3_t) { w, 0, 0 };
 		data->positions[2] = (de_vec3_t) { w, h, 0 };
 		data->positions[3] = (de_vec3_t) { 0, h, 0 };
-		data->tex_coords[0] = (de_vec2_t) { 0, 0 };
-		data->tex_coords[1] = (de_vec2_t) { 1, 0 };
-		data->tex_coords[2] = (de_vec2_t) { 1, 1 };
-		data->tex_coords[3] = (de_vec2_t) { 0, 1 };
+		data->tex_coords[0] = (de_vec2_t) { 0, 1 };
+		data->tex_coords[1] = (de_vec2_t) { 1, 1 };
+		data->tex_coords[2] = (de_vec2_t) { 1, 0 };
+		data->tex_coords[3] = (de_vec2_t) { 0, 0 };
 		data->vertex_count = 4;
 
 		r->quad = de_renderer_create_surface(r);
@@ -1063,7 +1063,7 @@ void de_renderer_render(de_renderer_t* r) {
 		DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 		DE_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
-		de_mat4_ortho(&y_flip_ortho, 0, w, 0, h, -1, 1);
+		de_mat4_ortho(&y_flip_ortho, 0, w, h, 0, -1, 1);
 
 		DE_GL_CALL(glEnable(GL_BLEND));
 		DE_GL_CALL(glBlendFunc(GL_ONE, GL_ONE));

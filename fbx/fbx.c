@@ -1398,7 +1398,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 					de_vec3_t vertex_position;
 					de_vec3_t vertex_normal;
 					de_vec4_t vertex_tangent;
-					de_vec2_t vertex_tex_coord;
+					de_vec2_t vertex_tex_coord = { 0 };
 					int index = temp_indices[m];
 					int surface_index = 0;
 					de_vec3_t* tangent;
@@ -1454,16 +1454,21 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 					switch (geom->uv_mapping) {
 						case DE_FBX_MAPPING_BY_POLYGON_VERTEX:
 							if (geom->uv_reference == DE_FBX_REFERENCE_DIRECT) {
-								vertex_tex_coord = geom->uvs[origin + relative_indices[m]];
+								const int offset = origin + relative_indices[m];
+								DE_ASSERT(offset < geom->uv_count);
+								vertex_tex_coord = geom->uvs[offset];
 							} else if (geom->uv_reference == DE_FBX_REFERENCE_INDEX_TO_DIRECT) {
-								vertex_tex_coord = geom->uvs[geom->uv_index[origin + relative_indices[m]]];
+								const int offset = origin + relative_indices[m];
+								DE_ASSERT(offset < geom->uv_index_count);
+								const int uv_index = geom->uv_index[offset];
+								DE_ASSERT(uv_index < geom->uv_count);
+								vertex_tex_coord = geom->uvs[uv_index];
 							}
 							break;
 						case DE_FBX_MAPPING_UNKNOWN:
 							/* means that there is no uvs */
 							break;
 						default:
-							vertex_tex_coord = (de_vec2_t) { 0 };
 							de_log("FBX: UV mapping is not supported");
 							break;
 					}
@@ -1486,7 +1491,10 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 
 					/* Put vertex into correct surface */
 					de_fbx_add_vertex_to_surface(mesh->surfaces.data[surface_index],
-						&vertex_position, &vertex_normal, &vertex_tex_coord, &vertex_tangent,
+						&vertex_position, 
+						&vertex_normal, 
+						&vertex_tex_coord,
+						&vertex_tangent,
 						geom->deformers.size ? &bone_vertices[index] : NULL);
 				}
 
@@ -1588,7 +1596,9 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 
 	for (i = 0; i < created_nodes.size; ++i) {
 		de_node_t* node = created_nodes.data[i];
-		de_node_calculate_transforms(node);
+		if (!node->parent) {
+			de_node_calculate_transforms_descending(node);
+		}
 	}
 
 	/* Remap pointers to fbx models to engine nodes in every surface (part of skinning)

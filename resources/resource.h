@@ -93,3 +93,5 @@ de_resource_dispatch_table_t* de_resource_get_dispatch_table_by_type(de_resource
  * @brief Internal. Performs dispatch call to type-specific loading routine.
  */
 bool de_resource_load(de_resource_t* res);
+
+de_resource_type_t de_resource_get_type(de_resource_t* res);

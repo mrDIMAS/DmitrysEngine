@@ -36,7 +36,7 @@ de_resource_dispatch_table_t* de_resource_get_dispatch_table_by_type(de_resource
 		case DE_RESOURCE_TYPE_MODEL: return de_model_get_dispatch_table();
 		case DE_RESOURCE_TYPE_TEXTURE: return de_texture_get_dispatch_table();
 		case DE_RESOURCE_TYPE_SOUND_BUFFER: return de_sound_buffer_get_dispatch_table();
-		default: de_fatal_error("unhandled resource type"); return NULL;
+		default: return NULL;
 	}	
 }
 
@@ -44,6 +44,7 @@ de_resource_t* de_resource_create(de_core_t* core, const de_path_t* path, de_res
 	de_resource_t* res = DE_NEW(de_resource_t);
 	res->core = core;
 	res->dispatch_table = de_resource_get_dispatch_table_by_type(type);
+	DE_ASSERT(res->dispatch_table);
 	res->type = type;
 	res->ref_count = 0;
 	res->flags = flags;
@@ -63,7 +64,17 @@ void de_resource_add_ref(de_resource_t* res) {
 }
 
 int de_resource_release(de_resource_t* res) {
+	/**
+	 * If this assert triggers most likely that you have mismatch in de_resource_add_ref/de_resource_release
+	 * calls. This can happen for various reasons, most common is that you forgot to call
+	 * de_resource_release. If this happens on deserialization then you forgot to serialize an object
+	 * that uses this resource, imagine this situation: you have a level and a player, player have weapons,
+	 * some weapon uses same texture as some level part uses. Then you doing serialization and serializing
+	 * only level and player and forget to serialize weapons, then you will have mismatch in de_resource_add_ref
+	 * and de_resource_release calls which will result in this assert. Check everything carefully!
+	 */
 	DE_ASSERT(res->ref_count >= 0);
+
 	--res->ref_count;
 	if (res->ref_count == 0) {
 		if(res->dispatch_table->deinit) {
@@ -84,6 +95,7 @@ bool de_resource_visit(de_object_visitor_t* visitor, de_resource_t* res) {
 	if (visitor->is_reading) {
 		res->core = visitor->core;
 		res->dispatch_table = de_resource_get_dispatch_table_by_type(res->type);
+		DE_ASSERT(res->dispatch_table);
 	}
 	result &= de_object_visitor_visit_path(visitor, "Source", &res->source);	
 	/* do not serialize ref counter because internally resource can load any other 
@@ -123,4 +135,8 @@ bool de_resource_load(de_resource_t* res) {
 		return res->dispatch_table->load(res);
 	}
 	return true; // is this valid?
+}
+
+de_resource_type_t de_resource_get_type(de_resource_t* res) {
+	return res->type;
 }

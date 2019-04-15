@@ -48,7 +48,7 @@ typedef struct de_node_dispatch_table_t {
  *
  * Important note: please consider using special functions for nodes, instead of
  * directly accessing fields of structure. Suddenly internals could be changed
- * and your game will not be compiling!
+ * and your game will not be compiling! 
  */
 struct de_node_t {
 	de_node_type_t type;
@@ -117,10 +117,28 @@ void de_node_attach(de_node_t* node_handle, de_node_t* parent_handle);
 void de_node_detach(de_node_t* node_handle);
 
 /**
-* @brief Calculates local and global transforms. Global transform takes into account node hierarchy
-* @param node pointer to node
-*/
-de_mat4_t* de_node_calculate_transforms(de_node_t* node);
+ * @brief Calculates local transform of a node.
+ */
+void de_node_calculate_local_transform(de_node_t* node);
+
+/**
+ * @brief Calculates local and global transforms. Global transform takes into account node hierarchy.
+ * Normally owning scene will calculate transforms of each node recursively, by calling
+ * @ref de_node_calculate_transforms_descending on root nodes but you can calculate transform of a node
+ * directly. This function recursively calculates transform of *each* node in hierarchy, so
+ * with this chain: Node1 -> Node2 -> Node3 -> Node4, global transforms of each node will be calculated
+ * starting from Node1.
+ *
+ * @param node pointer to node
+ */
+de_mat4_t* de_node_calculate_transforms_ascending(de_node_t* node);
+
+/**
+ * @brief Calculates local and global transform. Also calculates transforms of child nodes recursively,
+ * descending by tree. Unlike @ref de_node_calculate_transforms_ascending, this functions going *down* on tree, so
+ * if called with root node a param then transforms of each node in tree will be calculated.
+ */
+void de_node_calculate_transforms_descending(de_node_t* node);
 
 /**
 * @brief Writes out look vector from node's global transform
@@ -160,7 +178,7 @@ void de_node_resolve(de_node_t* node);
 * @param node pointer to node
 * @param pos new position of node
 */
-void de_node_set_local_position(de_node_t* node, de_vec3_t* pos);
+void de_node_set_local_position(de_node_t* node, const de_vec3_t* pos);
 
 /**
 * @brief Sets local rotation of node. Sets "need_update" flag

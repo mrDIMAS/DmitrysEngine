@@ -28,10 +28,11 @@ typedef struct de_triangulator_vertex_t {
 typedef DE_LINKED_LIST_DECLARE(de_triangulator_vertex_t, de_triangulator_polygon_t);
 
 /**
- * @brief Performs ear-clipping triangulation of a simple polygon.
- * @return Returns count of indices that forms triangles.
- *
- * TODO: add special case for quadrilaterals!
+ * @brief Performs fast fan triangulation for quadrilaterals or ear-clipping triangulation 
+ * for simple arbitrary polygon. Function can fail if polygon is not simple or  not enough 
+ * vertices was passed into (4 or more required).
+ * 
+ * @return Returns count of indices that forms triangles. Negative number indicates error.
  */
 int de_triangulate(de_vec3_t* polygon, size_t vertex_count, int* out_indices, int buffer_size);
 

@@ -24,7 +24,8 @@ static bool de_is_ear(
 	const de_triangulator_vertex_t* vprev,
 	const de_triangulator_vertex_t* vear,
 	const de_triangulator_vertex_t* vnext) {
-    float angle;
+
+	float angle;
 	de_triangulator_vertex_t* v;
 	de_vec2_t ab, cb;
 
@@ -32,7 +33,7 @@ static bool de_is_ear(
 	de_vec2_sub(&ab, &vear->position, &vprev->position);
 	de_vec2_sub(&cb, &vear->position, &vnext->position);
 
-    angle = de_vec2_angle(&ab, &cb);
+	angle = de_vec2_angle(&ab, &cb);
 
 	/* not an ear tip, so not an ear triangle */
 	if (angle > M_PI) {
@@ -64,6 +65,60 @@ int de_triangulate_get_approx_index_count(size_t vertex_count) {
 }
 
 int de_triangulate(de_vec3_t* polygon, size_t vertex_count, int* out_indices, int buffer_size) {
+	if (vertex_count < 3) {
+		de_log("triangulator: trying to triangulate a line or point???");
+		return -1;
+	}
+
+	if (vertex_count == 3) {
+		/* triangle, nothing to do */
+		out_indices[0] = 0;
+		out_indices[1] = 1;
+		out_indices[2] = 2;
+		return 3;
+	} else if (vertex_count == 4) {
+		/* special case for quadrilaterals: fan triangulation starting from concave vertex (if exists)
+		 * this method is *much* faster that full triangulation by ear clipping because it does not
+		 * requires memory allocations and any relatively heavy math */
+		int start_vertex = 0;
+		for (int i = 0; i < 4; ++i) {
+			const de_vec3_t* v0 = &polygon[(i + 3) % 4];
+			const de_vec3_t* v1 = &polygon[(i + 2) % 4];
+			const de_vec3_t* v2 = &polygon[(i + 1) % 4];
+
+			const de_vec3_t* v = polygon + i;
+
+			de_vec3_t left;
+			de_vec3_sub(&left, v0, v);
+			de_vec3_normalize(&left, &left);
+
+			de_vec3_t diag;
+			de_vec3_sub(&diag, v1, v);
+			de_vec3_normalize(&diag, &diag);
+
+			de_vec3_t right;
+			de_vec3_sub(&right, v2, v);
+			de_vec3_normalize(&right, &right);
+
+			const float angle = (float)(acos(de_vec3_dot(&left, &diag)) + acos(de_vec3_dot(&right, &diag)));
+			if (angle > M_PI) {
+				start_vertex = i;
+				break;
+			}
+		}
+
+		out_indices[0] = start_vertex;
+		out_indices[1] = (start_vertex + 1) % 4;
+		out_indices[2] = (start_vertex + 2) % 4;
+
+		out_indices[3] = start_vertex;
+		out_indices[4] = (start_vertex + 2) % 4;
+		out_indices[5] = (start_vertex + 3) % 4;
+
+		return 6;
+	}
+
+	/* triangulate arbitrary polygon */
 	size_t i;
 	de_vec3_t normal;
 	int vertices_left, loop_sentinel = 0, iteration_limit;
@@ -72,14 +127,8 @@ int de_triangulate(de_vec3_t* polygon, size_t vertex_count, int* out_indices, in
 	de_plane_class_t proj_plane_class;
 	de_triangulator_vertex_t* vertices;
 	int index_count = 0;
-
-	if (vertex_count < 3) {
-		de_log("triangulator: trying to triangulate a line or point???");
-		return -1;
-	}
-
 	/* make buffer size be divisible by 3 without remainder so we can put
-	 * only 3*N indices to output buffer */
+		* only 3*N indices to output buffer */
 	buffer_size = buffer_size - (buffer_size % 3);
 
 	vertices_left = vertex_count;
@@ -112,7 +161,7 @@ int de_triangulate(de_vec3_t* polygon, size_t vertex_count, int* out_indices, in
 
 		if (loop_sentinel >= iteration_limit) {
 			/* something went wrong, probably not a simple polygon was passed
-			 * for triangulation */
+				* for triangulation */
 			de_free(vertices);
 			return -1;
 		}

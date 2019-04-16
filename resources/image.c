@@ -63,6 +63,16 @@ bool de_image_load_tga(const char* filename, de_image_t* img) {
 	READ_VAR(header.imageDescriptor);
 #undef READ_VAR
 
+	if(header.dataTypeCode != 2) {
+		de_log("tga: only uncompressed, rgb/rgba images are supported!");
+		return false;
+	}
+
+	if(header.bitsPerPixel != 24 && header.bitsPerPixel != 32) {
+		de_log("tga: only 32/24 bit images are supported!");
+		return false;
+	}
+
 	/* Create new texture */
 	img->width = header.width;
 	img->height = header.height;
@@ -87,6 +97,7 @@ bool de_image_load_tga(const char* filename, de_image_t* img) {
 		img->data[i + 2] = temp;
 	}
 
+	/* Some images can have Y origin at bottom left corner, flip them */ 
 	if(header.imageDescriptor & 32) {
 		de_image_flip_y(img);
 	}
@@ -95,19 +106,16 @@ bool de_image_load_tga(const char* filename, de_image_t* img) {
 }
 
 void de_image_flip_y(de_image_t* img) {
-	int x, y_src, y_dest, k;
 	char* new_data = (char*)de_malloc(img->byte_per_pixel * img->width * img->height);
-
-	for (y_src = (int)img->height - 1, y_dest = 0; y_src >= 0; --y_src, ++y_dest) {
-		for (x = 0; x < (int)img->width; ++x) {
-			for (k = 0; k < (int)img->byte_per_pixel; ++k) {
+	for (int y_src = (int)img->height - 1, y_dest = 0; y_src >= 0; --y_src, ++y_dest) {
+		for (int x = 0; x < (int)img->width; ++x) {
+			for (int k = 0; k < (int)img->byte_per_pixel; ++k) {
 				size_t src_index = (y_src * img->width + x) * img->byte_per_pixel + k;
 				size_t dst_index = (y_dest * img->width + x) * img->byte_per_pixel + k;
 				new_data[dst_index] = img->data[src_index];
 			}
 		}
 	}
-
 	de_free(img->data);
 	img->data = new_data;
 }

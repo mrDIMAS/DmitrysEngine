@@ -145,23 +145,23 @@ void de_str8_find(const de_str8_t* str, size_t offset, const de_str8_view_t* sub
 
 /**
  * @brief Fills out string view with a requested sub-string range [offset, offset + count].
- * 
+ *
  * Note: Function is non-sensitive for out-of-bounds arguments.
  */
 void de_str8_substr(const de_str8_t* str, de_str8_view_t* view, size_t offset, size_t count);
 
 /**
  * @brief Replaces all substrings in a string with a given string.
- * 
+ *
  * Note: @what and @with must NOT be views of @str!
  */
 void de_str8_replace(de_str8_t* str, const de_str8_view_t* what, const de_str8_view_t* with);
 
 /**
- * @brief Reads string from file. 
- * 
- * Note: If @len == 0, reads everything until null-terminator. This usage is potentially 
- * dangerous and slower than reading string with known length. Use with caution!  
+ * @brief Reads string from file.
+ *
+ * Note: If @len == 0, reads everything until null-terminator. This usage is potentially
+ * dangerous and slower than reading string with known length. Use with caution!
  */
 size_t de_str8_fread(de_str8_t* str, FILE* file, size_t len);
 

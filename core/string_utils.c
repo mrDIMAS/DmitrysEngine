@@ -27,7 +27,8 @@
 #define MASK5BYTES 0xF8
 #define MASK6BYTES 0xFC
 
-int de_utf8_to_utf32(const char* inString, size_t in_str_len, uint32_t* out, int bufferSize) {
+int de_utf8_to_utf32(const char* inString, size_t in_str_len, uint32_t* out, int bufferSize)
+{
 	size_t i;
 	int n = 0;
 	unsigned char * in = (unsigned char *)inString;

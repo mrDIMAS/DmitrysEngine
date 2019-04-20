@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-static void de_gui_border_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting) {
+static void de_gui_border_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting)
+{
 	const de_vec2_t* scr_pos = &n->screen_position;
 	const de_gui_border_t* b = &n->s.border;
 	de_vec2_t tex_coords[4] = {
@@ -39,7 +40,8 @@ static void de_gui_border_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8
 	de_gui_draw_list_commit(dl, DE_GUI_DRAW_COMMAND_TYPE_GEOMETRY, 0, n);
 }
 
-static void de_gui_border_layout_children(de_gui_node_t* n) {
+static void de_gui_border_layout_children(de_gui_node_t* n)
+{
 	size_t i;
 	de_gui_border_t* border = &n->s.border;
 	de_vec2_t inner_size;
@@ -57,49 +59,33 @@ static void de_gui_border_layout_children(de_gui_node_t* n) {
 		/* apply vertical alignment */
 		switch (child->vertical_alignment) {
 			case DE_GUI_VERTICAL_ALIGNMENT_TOP:
-			{
 				desired_y = 0;
 				break;
-			}
 			case DE_GUI_VERTICAL_ALIGNMENT_CENTER:
-			{
 				desired_y = (inner_size.y - child->actual_size.y) * 0.5f;
 				break;
-			}
 			case DE_GUI_VERTICAL_ALIGNMENT_BOTTOM:
-			{
 				desired_y = inner_size.y - child->actual_size.y;
 				break;
-			}
 			case DE_GUI_VERTICAL_ALIGNMENT_STRETCH:
-			{
 				desired_height = inner_size.y;
 				break;
-			}
 		}
 
 		/* apply horizontal alignment */
 		switch (child->horizontal_alignment) {
 			case DE_GUI_HORIZONTAL_ALIGNMENT_LEFT:
-			{
 				desired_x = 0;
 				break;
-			}
 			case DE_GUI_HORIZONTAL_ALIGNMENT_CENTER:
-			{
 				desired_x = (inner_size.x - child->actual_size.x) * 0.5f;
 				break;
-			}
 			case DE_GUI_HORIZONTAL_ALIGNMENT_RIGHT:
-			{
 				desired_x = inner_size.x - child->actual_size.x;
 				break;
-			}
 			case DE_GUI_HORIZONTAL_ALIGNMENT_STRETCH:
-			{
 				desired_width = inner_size.x;
 				break;
-			}
 		}
 
 		desired_x += border->thickness.left;
@@ -110,13 +96,15 @@ static void de_gui_border_layout_children(de_gui_node_t* n) {
 	}
 }
 
-static void de_gui_border_init(de_gui_node_t* n) {
+static void de_gui_border_init(de_gui_node_t* n)
+{
 	de_gui_border_t* b = &n->s.border;
 	de_gui_border_set_thickness_uniform(n, 1);
 	de_color_set(&b->stroke_color, 150, 150, 150, 255);
 }
 
-de_gui_dispatch_table_t* de_gui_border_get_dispatch_table() {
+de_gui_dispatch_table_t* de_gui_border_get_dispatch_table()
+{
 	static de_gui_dispatch_table_t dispatch_table = {
 		.init = de_gui_border_init,
 		.render = de_gui_border_render,
@@ -125,12 +113,14 @@ de_gui_dispatch_table_t* de_gui_border_get_dispatch_table() {
 	return &dispatch_table;
 }
 
-void de_gui_border_set_stroke_color(de_gui_node_t* node, const de_color_t* color) {
+void de_gui_border_set_stroke_color(de_gui_node_t* node, const de_color_t* color)
+{
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BORDER);
 	node->s.border.stroke_color = *color;
 }
 
-void de_gui_border_set_stroke_color_rgba(de_gui_node_t* node, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+void de_gui_border_set_stroke_color_rgba(de_gui_node_t* node, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+{
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BORDER);
 	node->s.border.stroke_color.r = r;
 	node->s.border.stroke_color.g = g;
@@ -138,12 +128,14 @@ void de_gui_border_set_stroke_color_rgba(de_gui_node_t* node, uint8_t r, uint8_t
 	node->s.border.stroke_color.a = a;
 }
 
-void de_gui_border_set_thickness_uniform(de_gui_node_t* node, float thickness) {
+void de_gui_border_set_thickness_uniform(de_gui_node_t* node, float thickness)
+{
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BORDER);
 	node->s.border.thickness.left = node->s.border.thickness.top = node->s.border.thickness.right = node->s.border.thickness.bottom = (float)fabs(thickness);
 }
 
-void de_gui_border_set_thickness(de_gui_node_t* node, float left, float top, float right, float bottom) {
+void de_gui_border_set_thickness(de_gui_node_t* node, float left, float top, float right, float bottom)
+{
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BORDER);
 	node->s.border.thickness.left = (float)fabs(left);
 	node->s.border.thickness.top = (float)fabs(top);

@@ -22,16 +22,16 @@
 #include "resources/model.h"
 
 struct de_resource_t {
-	de_core_t* core;	
-	de_resource_type_t type; 
+	de_core_t* core;
+	de_resource_type_t type;
 	de_resource_dispatch_table_t* dispatch_table;
 	int32_t ref_count;
-	de_path_t source; 
+	de_path_t source;
 	uint32_t flags;
 	union {
 		de_sound_buffer_t sound_buffer;
 		de_texture_t texture;
-		de_model_t model;		
+		de_model_t model;
 	} s;
 };
 
@@ -62,7 +62,7 @@ bool de_resource_visit(de_object_visitor_t* visitor, de_resource_t* res);
 de_model_t* de_resource_to_model(de_resource_t* res);
 
 /**
- * @brief Returns pointer to resource from pointer to model resource. 
+ * @brief Returns pointer to resource from pointer to model resource.
  */
 de_resource_t* de_resource_from_model(de_model_t* mdl);
 
@@ -72,7 +72,7 @@ de_resource_t* de_resource_from_model(de_model_t* mdl);
 de_sound_buffer_t* de_resource_to_sound_buffer(de_resource_t* res);
 
 /**
- * @brief Returns pointer to resource from pointer to sound buffer resource. 
+ * @brief Returns pointer to resource from pointer to sound buffer resource.
  */
 de_resource_t* de_resource_from_sound_buffer(de_sound_buffer_t* buf);
 
@@ -82,7 +82,7 @@ de_resource_t* de_resource_from_sound_buffer(de_sound_buffer_t* buf);
 de_texture_t* de_resource_to_texture(de_resource_t* res);
 
 /**
-* @brief Returns pointer to resource from pointer to texture resource. 
+* @brief Returns pointer to resource from pointer to texture resource.
 */
 de_resource_t* de_resource_from_texture(de_texture_t* buf);
 

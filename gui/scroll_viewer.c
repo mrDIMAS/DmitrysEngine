@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-static void de_gui_scroll_viewer_ver_scroll_changed(de_gui_node_t* sv_node, float old_value, float new_value) {
+static void de_gui_scroll_viewer_ver_scroll_changed(de_gui_node_t* sv_node, float old_value, float new_value)
+{
 	de_gui_node_t* scroll_viewer_node;
 	de_gui_scroll_viewer_t* sv;
 	DE_UNUSED(old_value);
@@ -29,7 +30,8 @@ static void de_gui_scroll_viewer_ver_scroll_changed(de_gui_node_t* sv_node, floa
 	de_gui_scroll_content_presenter_set_v_scroll(sv->scroll_content_presenter, new_value);
 }
 
-static void de_gui_scroll_viewer_hor_scroll_changed(de_gui_node_t* sv_node, float old_value, float new_value) {
+static void de_gui_scroll_viewer_hor_scroll_changed(de_gui_node_t* sv_node, float old_value, float new_value)
+{
 	de_gui_node_t* scroll_viewer_node;
 	de_gui_scroll_viewer_t* sv;
 	DE_UNUSED(old_value);
@@ -39,7 +41,8 @@ static void de_gui_scroll_viewer_hor_scroll_changed(de_gui_node_t* sv_node, floa
 	de_gui_scroll_content_presenter_set_h_scroll(sv->scroll_content_presenter, new_value);
 }
 
-void de_gui_scroll_viewer_update(de_gui_node_t* n) {
+void de_gui_scroll_viewer_update(de_gui_node_t* n)
+{
 	de_gui_scroll_viewer_t* sv = &n->s.scroll_viewer;
 	de_gui_node_visibility_t vis;
 
@@ -81,7 +84,8 @@ void de_gui_scroll_viewer_update(de_gui_node_t* n) {
 	}
 }
 
-static void de_gui_scroll_viewer_init(de_gui_node_t* n) {
+static void de_gui_scroll_viewer_init(de_gui_node_t* n)
+{
 	de_gui_scroll_viewer_t* sv = &n->s.scroll_viewer;
 
 	sv->border = de_gui_node_create(n->gui, DE_GUI_NODE_BORDER);
@@ -116,7 +120,8 @@ static void de_gui_scroll_viewer_init(de_gui_node_t* n) {
 	de_gui_scroll_bar_set_value_changed(sv->ver_scroll_bar, de_gui_scroll_viewer_ver_scroll_changed);
 }
 
-de_gui_dispatch_table_t* de_gui_scroll_viewer_get_dispatch_table(void) {
+de_gui_dispatch_table_t* de_gui_scroll_viewer_get_dispatch_table(void)
+{
 	static de_gui_dispatch_table_t dispatch_table = {
 		.init = de_gui_scroll_viewer_init,
 		.update = de_gui_scroll_viewer_update,
@@ -124,7 +129,8 @@ de_gui_dispatch_table_t* de_gui_scroll_viewer_get_dispatch_table(void) {
 	return &dispatch_table;
 }
 
-void de_gui_scroll_viewer_set_content(de_gui_node_t* n, de_gui_node_t* content) {
+void de_gui_scroll_viewer_set_content(de_gui_node_t* n, de_gui_node_t* content)
+{
 	de_gui_scroll_viewer_t* sv = &n->s.scroll_viewer;
 
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_SCROLL_VIEWER);

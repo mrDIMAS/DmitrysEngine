@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-static void de_gui_slide_selector_on_prev_click(de_gui_node_t* node, void* user_data) {	
+static void de_gui_slide_selector_on_prev_click(de_gui_node_t* node, void* user_data)
+{
 	de_gui_slide_selector_t* ss;
 	de_gui_node_t* selector_node;
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BUTTON);
@@ -27,7 +28,7 @@ static void de_gui_slide_selector_on_prev_click(de_gui_node_t* node, void* user_
 	ss = &selector_node->s.slide_selector;
 	if (ss->get_item_text) {
 		if (ss->selection_index > 0) {
-			char buffer[512];
+			char buffer[DE_GUI_SLIDE_SELECTOR_BUFFER_SIZE];
 			--ss->selection_index;
 			ss->get_item_text(ss->items, ss->selection_index, buffer, sizeof(buffer));
 			de_gui_text_set_text_utf8(ss->current_item, buffer);
@@ -40,15 +41,16 @@ static void de_gui_slide_selector_on_prev_click(de_gui_node_t* node, void* user_
 	}
 }
 
-static void de_gui_slide_selector_on_next_click(de_gui_node_t* node, void* user_data) {
+static void de_gui_slide_selector_on_next_click(de_gui_node_t* node, void* user_data)
+{
 	de_gui_slide_selector_t* ss;
 	de_gui_node_t* selector_node;
-	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BUTTON);	
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_BUTTON);
 	selector_node = (de_gui_node_t*)user_data;
 	ss = &selector_node->s.slide_selector;
 	if (ss->get_item_text) {
 		if (ss->selection_index < ss->item_count - 1) {
-			char buffer[512];
+			char buffer[DE_GUI_SLIDE_SELECTOR_BUFFER_SIZE];
 			++ss->selection_index;
 			ss->get_item_text(ss->items, ss->selection_index, buffer, sizeof(buffer));
 			de_gui_text_set_text_utf8(ss->current_item, buffer);
@@ -61,7 +63,8 @@ static void de_gui_slide_selector_on_next_click(de_gui_node_t* node, void* user_
 	}
 }
 
-static void de_gui_slide_selector_init(de_gui_node_t* node) {
+static void de_gui_slide_selector_init(de_gui_node_t* node)
+{
 	de_gui_slide_selector_t* ss = &node->s.slide_selector;
 
 	de_gui_node_t* border = de_gui_node_create(node->gui, DE_GUI_NODE_BORDER);
@@ -95,32 +98,46 @@ static void de_gui_slide_selector_init(de_gui_node_t* node) {
 	de_gui_button_set_click(prev, de_gui_slide_selector_on_prev_click, node);
 }
 
-de_gui_dispatch_table_t* de_gui_slide_selector_get_dispatch_table(void) {
+de_gui_dispatch_table_t* de_gui_slide_selector_get_dispatch_table(void)
+{
 	static de_gui_dispatch_table_t dispatch_table = {
 		.init = de_gui_slide_selector_init,
 	};
 	return &dispatch_table;
 }
 
-void de_gui_slide_selector_set_items(de_gui_node_t* node, void* items, int item_count, de_gui_item_text_getter getter) {
-    de_gui_slide_selector_t* ss;
+void de_gui_slide_selector_set_items(de_gui_node_t* node, void* items, int item_count, de_gui_item_text_getter getter)
+{
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SLIDE_SELECTOR);
-	ss = &node->s.slide_selector;
+	de_gui_slide_selector_t* ss = &node->s.slide_selector;
 	ss->items = items;
 	ss->item_count = item_count;
 	ss->get_item_text = getter;
+	ss->selection_index = 0;
+	if (ss->item_count) {
+		char buffer[DE_GUI_SLIDE_SELECTOR_BUFFER_SIZE];
+		ss->get_item_text(ss->items, ss->selection_index, buffer, sizeof(buffer));
+		de_gui_text_set_text_utf8(ss->current_item, buffer);
+	}
 }
 
-void* de_gui_slide_selector_get_selection(de_gui_node_t* node) {
-    de_gui_slide_selector_t* ss;
+void de_gui_slide_selector_override_selection_text(de_gui_node_t* node, const char* text)
+{
+	de_gui_slide_selector_t* ss = &node->s.slide_selector;
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SLIDE_SELECTOR);
-	ss = &node->s.slide_selector;
+	de_gui_text_set_text_utf8(ss->current_item, text);
+}
+
+void* de_gui_slide_selector_get_selection(de_gui_node_t* node)
+{
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SLIDE_SELECTOR);
+	de_gui_slide_selector_t* ss = &node->s.slide_selector;
 	return ss->selection;
 }
 
-void de_gui_slide_selector_set_selection_changed(de_gui_node_t* node, de_gui_selection_changed callback) {
-    de_gui_slide_selector_t* ss;
+void de_gui_slide_selector_set_selection_changed(de_gui_node_t* node, de_gui_selection_changed callback)
+{
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SLIDE_SELECTOR);
-	ss = &node->s.slide_selector;
+	de_gui_slide_selector_t* ss = &node->s.slide_selector;
 	ss->selection_changed = callback;
 }

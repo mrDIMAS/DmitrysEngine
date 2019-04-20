@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-char * de_load_file_into_memory(const char * path, size_t* out_size) {
+char * de_load_file_into_memory(const char * path, size_t* out_size)
+{
 	size_t file_size;
 	size_t content_size;
 	char* content;
@@ -55,7 +56,8 @@ char * de_load_file_into_memory(const char * path, size_t* out_size) {
 }
 
 
-void de_convert_to_c_array(const char* source, const char* dest) {
+void de_convert_to_c_array(const char* source, const char* dest)
+{
 	size_t i;
 	size_t size;
 	FILE* out;
@@ -84,6 +86,7 @@ void de_convert_to_c_array(const char* source, const char* dest) {
 /**
  * @brief Tests for file system utilities.
  */
-void de_file_tests(void) {
+void de_file_tests(void)
+{
 
 }

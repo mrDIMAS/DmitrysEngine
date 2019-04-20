@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-de_sound_context_t* de_sound_context_create(de_core_t* core) {
+de_sound_context_t* de_sound_context_create(de_core_t* core)
+{
 	de_sound_context_t* ctx = DE_NEW(de_sound_context_t);
 	de_mtx_init(&ctx->mtx);
 	ctx->core = core;
@@ -29,7 +30,8 @@ de_sound_context_t* de_sound_context_create(de_core_t* core) {
 	return ctx;
 }
 
-void de_sound_context_free(de_sound_context_t* ctx) {
+void de_sound_context_free(de_sound_context_t* ctx)
+{
 	size_t i;
 	de_sound_device_free(&ctx->dev);
 	for (i = 0; i < ctx->sounds.size; ++i) {
@@ -42,7 +44,8 @@ void de_sound_context_free(de_sound_context_t* ctx) {
 	de_free(ctx);
 }
 
-void de_sound_context_update(de_sound_context_t* ctx) {
+void de_sound_context_update(de_sound_context_t* ctx)
+{
 	size_t i;
 
 	de_sound_context_lock(ctx);
@@ -62,24 +65,29 @@ void de_sound_context_update(de_sound_context_t* ctx) {
 	de_sound_context_unlock(ctx);
 }
 
-void de_sound_context_lock(de_sound_context_t* ctx) {
+void de_sound_context_lock(de_sound_context_t* ctx)
+{
 	de_mtx_lock(&ctx->mtx);
 }
 
-void de_sound_context_unlock(de_sound_context_t* ctx) {
+void de_sound_context_unlock(de_sound_context_t* ctx)
+{
 	de_mtx_unlock(&ctx->mtx);
 }
 
-de_listener_t* de_sound_context_get_listener(de_sound_context_t* ctx) {
+de_listener_t* de_sound_context_get_listener(de_sound_context_t* ctx)
+{
 	return &ctx->listener;
 }
 
-bool de_sound_context_visit(de_object_visitor_t* visitor, de_sound_context_t* ctx) {
+bool de_sound_context_visit(de_object_visitor_t* visitor, de_sound_context_t* ctx)
+{
 	bool result = true;
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Sources", ctx->sounds, de_sound_source_visit);
 	return result;
 }
 
-void de_sound_context_set_master_volume(de_sound_context_t* ctx, float vol) {
+void de_sound_context_set_master_volume(de_sound_context_t* ctx, float vol)
+{
 	ctx->master_volume = de_clamp(vol, 0.0f, 1.0f);
 }

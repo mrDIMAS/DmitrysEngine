@@ -19,14 +19,16 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-static void de_fignore(FILE* f, size_t num) {
+static void de_fignore(FILE* f, size_t num)
+{
 	fseek(f, ftell(f) + num, SEEK_SET);
 }
 
 /**
  * @brief Small helper method to ensure that we have read all requested data.
  */
-static bool de_fbx_fread(void* buffer, size_t size, FILE* f) {
+static bool de_fbx_fread(void* buffer, size_t size, FILE* f)
+{
 	return fread(buffer, 1, size, f) == size;
 }
 
@@ -37,7 +39,8 @@ static bool de_fbx_fread(void* buffer, size_t size, FILE* f) {
  * Perform reading using this specification:
  * https://code.blender.org/2013/08/fbx-binary-file-format-specification/
  **/
-de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f) {
+de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
+{
 	size_t i, k;
 	char null_record[13];
 	uint32_t null_record_position;
@@ -80,8 +83,7 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f) {
 		return NULL;
 	}
 
-	if(de_str8_fread(&node->name, f, name_len) != name_len)
-	{		
+	if (de_str8_fread(&node->name, f, name_len) != name_len) {
 		de_log("FBX Binary: Unable to read name of node!");
 		return NULL;
 	}
@@ -216,7 +218,7 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f) {
 				if (raw_array) {
 					size_t n;
 					de_fbx_node_t* a_node = DE_NEW(de_fbx_node_t);
-					de_str8_set(&a_node->name, "a");					
+					de_str8_set(&a_node->name, "a");
 					a_node->parent = node;
 					a_node->is_binary = true;
 					for (k = 0, n = 0; k < length; ++k, n += size) {
@@ -304,7 +306,8 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f) {
 /**
  * You must check if file is binary before call this function!
  */
-de_fbx_node_t* de_fbx_binary_load_file(const char* filename, de_fbx_buffer_t* data_buf) {
+de_fbx_node_t* de_fbx_binary_load_file(const char* filename, de_fbx_buffer_t* data_buf)
+{
 	de_fbx_node_t* root;
 	size_t total_length;
 	unsigned int version;

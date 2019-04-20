@@ -32,6 +32,9 @@ typedef struct de_camera_t {
 	de_mat4_t view_projection_matrix; /**< Combined view * projection matrix. Read-only. */
 	de_mat4_t inv_view_proj;
 	de_rectf_t viewport;               /**< Viewport rectangle in ratio. Default: 0,0,1,1 */
+
+	float depth_hack_value;
+	bool in_depth_hack_mode;
 } de_camera_t;
 
 struct de_node_dispatch_table_t* de_camera_get_dispatch_table(void);
@@ -53,3 +56,7 @@ void de_camera_update(de_camera_t* c);
 void de_camera_set_viewport(de_camera_t* camera, const de_rectf_t* viewport);
 
 void de_camera_set_fov(de_camera_t* camera, float fov);
+
+void de_camera_enter_depth_hack(de_camera_t* camera, float value);
+
+void de_camera_leave_depth_hack(de_camera_t* camera);

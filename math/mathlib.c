@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-void de_mat4_get_basis(const de_mat4_t * in, de_mat3_t * out) {
+void de_mat4_get_basis(const de_mat4_t * in, de_mat3_t * out)
+{
 	out->f[0] = in->f[0];
 	out->f[1] = in->f[1];
 	out->f[2] = in->f[2];
@@ -33,21 +34,26 @@ void de_mat4_get_basis(const de_mat4_t * in, de_mat3_t * out) {
 	out->f[8] = in->f[10];
 }
 
-float de_mat3_at(const de_mat3_t* m, unsigned int row, unsigned int column) {
+float de_mat3_at(const de_mat3_t* m, unsigned int row, unsigned int column)
+{
 	return m->f[row + 3 * column];
 }
 
-float de_mat4_at(const de_mat4_t * m, unsigned int row, unsigned int column) {
+float de_mat4_at(const de_mat4_t * m, unsigned int row, unsigned int column)
+{
 	return m->f[row + 4 * column];
 }
 
-void de_mat4_identity(de_mat4_t * out) {
-	*out = (de_mat4_t) { 
+void de_mat4_identity(de_mat4_t * out)
+{
+	*out = (de_mat4_t)
+	{
 		.f[0] = 1.0f, .f[5] = 1.0f, .f[10] = 1.0f, .f[15] = 1.0f
 	};
 }
 
-void de_mat4_transpose(de_mat4_t * out, const de_mat4_t * m) {	
+void de_mat4_transpose(de_mat4_t * out, const de_mat4_t * m)
+{
 	for (int j = 0; j < 4; ++j) {
 		for (int i = 0; i < 4; ++i) {
 			out->f[(j * 4) + i] = m->f[(i * 4) + j];
@@ -55,37 +61,42 @@ void de_mat4_transpose(de_mat4_t * out, const de_mat4_t * m) {
 	}
 }
 
-void de_mat4_mul(de_mat4_t * out, const de_mat4_t * a, const de_mat4_t * b) {
-	*out = (de_mat4_t) {
+void de_mat4_mul(de_mat4_t * out, const de_mat4_t * a, const de_mat4_t * b)
+{
+	*out = (de_mat4_t)
+	{
 		.f[0] = a->f[0] * b->f[0] + a->f[4] * b->f[1] + a->f[8] * b->f[2] + a->f[12] * b->f[3],
-		.f[1] = a->f[1] * b->f[0] + a->f[5] * b->f[1] + a->f[9] * b->f[2] + a->f[13] * b->f[3],
-		.f[2] = a->f[2] * b->f[0] + a->f[6] * b->f[1] + a->f[10] * b->f[2] + a->f[14] * b->f[3],
-		.f[3] = a->f[3] * b->f[0] + a->f[7] * b->f[1] + a->f[11] * b->f[2] + a->f[15] * b->f[3],
+			.f[1] = a->f[1] * b->f[0] + a->f[5] * b->f[1] + a->f[9] * b->f[2] + a->f[13] * b->f[3],
+			.f[2] = a->f[2] * b->f[0] + a->f[6] * b->f[1] + a->f[10] * b->f[2] + a->f[14] * b->f[3],
+			.f[3] = a->f[3] * b->f[0] + a->f[7] * b->f[1] + a->f[11] * b->f[2] + a->f[15] * b->f[3],
 
-		.f[4] = a->f[0] * b->f[4] + a->f[4] * b->f[5] + a->f[8] * b->f[6] + a->f[12] * b->f[7],
-		.f[5] = a->f[1] * b->f[4] + a->f[5] * b->f[5] + a->f[9] * b->f[6] + a->f[13] * b->f[7],
-		.f[6] = a->f[2] * b->f[4] + a->f[6] * b->f[5] + a->f[10] * b->f[6] + a->f[14] * b->f[7],
-		.f[7] = a->f[3] * b->f[4] + a->f[7] * b->f[5] + a->f[11] * b->f[6] + a->f[15] * b->f[7],
+			.f[4] = a->f[0] * b->f[4] + a->f[4] * b->f[5] + a->f[8] * b->f[6] + a->f[12] * b->f[7],
+			.f[5] = a->f[1] * b->f[4] + a->f[5] * b->f[5] + a->f[9] * b->f[6] + a->f[13] * b->f[7],
+			.f[6] = a->f[2] * b->f[4] + a->f[6] * b->f[5] + a->f[10] * b->f[6] + a->f[14] * b->f[7],
+			.f[7] = a->f[3] * b->f[4] + a->f[7] * b->f[5] + a->f[11] * b->f[6] + a->f[15] * b->f[7],
 
-		.f[8] = a->f[0] * b->f[8] + a->f[4] * b->f[9] + a->f[8] * b->f[10] + a->f[12] * b->f[11],
-		.f[9] = a->f[1] * b->f[8] + a->f[5] * b->f[9] + a->f[9] * b->f[10] + a->f[13] * b->f[11],
-		.f[10] = a->f[2] * b->f[8] + a->f[6] * b->f[9] + a->f[10] * b->f[10] + a->f[14] * b->f[11],
-		.f[11] = a->f[3] * b->f[8] + a->f[7] * b->f[9] + a->f[11] * b->f[10] + a->f[15] * b->f[11],
+			.f[8] = a->f[0] * b->f[8] + a->f[4] * b->f[9] + a->f[8] * b->f[10] + a->f[12] * b->f[11],
+			.f[9] = a->f[1] * b->f[8] + a->f[5] * b->f[9] + a->f[9] * b->f[10] + a->f[13] * b->f[11],
+			.f[10] = a->f[2] * b->f[8] + a->f[6] * b->f[9] + a->f[10] * b->f[10] + a->f[14] * b->f[11],
+			.f[11] = a->f[3] * b->f[8] + a->f[7] * b->f[9] + a->f[11] * b->f[10] + a->f[15] * b->f[11],
 
-		.f[12] = a->f[0] * b->f[12] + a->f[4] * b->f[13] + a->f[8] * b->f[14] + a->f[12] * b->f[15],
-		.f[13] = a->f[1] * b->f[12] + a->f[5] * b->f[13] + a->f[9] * b->f[14] + a->f[13] * b->f[15],
-		.f[14] = a->f[2] * b->f[12] + a->f[6] * b->f[13] + a->f[10] * b->f[14] + a->f[14] * b->f[15],
-		.f[15] = a->f[3] * b->f[12] + a->f[7] * b->f[13] + a->f[11] * b->f[14] + a->f[15] * b->f[15]
+			.f[12] = a->f[0] * b->f[12] + a->f[4] * b->f[13] + a->f[8] * b->f[14] + a->f[12] * b->f[15],
+			.f[13] = a->f[1] * b->f[12] + a->f[5] * b->f[13] + a->f[9] * b->f[14] + a->f[13] * b->f[15],
+			.f[14] = a->f[2] * b->f[12] + a->f[6] * b->f[13] + a->f[10] * b->f[14] + a->f[14] * b->f[15],
+			.f[15] = a->f[3] * b->f[12] + a->f[7] * b->f[13] + a->f[11] * b->f[14] + a->f[15] * b->f[15]
 	};
 }
 
-void de_mat4_scale(de_mat4_t * out, const de_vec3_t * v) {
-	*out = (de_mat4_t) { 
+void de_mat4_scale(de_mat4_t * out, const de_vec3_t * v)
+{
+	*out = (de_mat4_t)
+	{
 		.f[0] = v->x, .f[5] = v->y, .f[10] = v->z, .f[15] = 1.0f
 	};
 }
 
-void de_mat4_perspective(de_mat4_t * out, float fov_radians, float aspect, float zNear, float zFar) {
+void de_mat4_perspective(de_mat4_t * out, float fov_radians, float aspect, float zNear, float zFar)
+{
 	float y_scale = 1.0f / (float)tan(fov_radians * 0.5f);
 	float x_scale = y_scale / aspect;
 
@@ -110,7 +121,8 @@ void de_mat4_perspective(de_mat4_t * out, float fov_radians, float aspect, float
 	out->f[15] = 0;
 }
 
-void de_mat4_ortho(de_mat4_t * out, float left, float right, float bottom, float top, float zNear, float zFar) {
+void de_mat4_ortho(de_mat4_t * out, float left, float right, float bottom, float top, float zNear, float zFar)
+{
 	out->f[0] = 2.0f / (right - left);
 	out->f[1] = 0.0f;
 	out->f[2] = 0.0f;
@@ -132,7 +144,8 @@ void de_mat4_ortho(de_mat4_t * out, float left, float right, float bottom, float
 	out->f[15] = 1.0f;
 }
 
-void de_mat4_translation(de_mat4_t * out, const de_vec3_t * v) {
+void de_mat4_translation(de_mat4_t * out, const de_vec3_t * v)
+{
 	out->f[0] = 1.0f;
 	out->f[1] = 0.0f;
 	out->f[2] = 0.0f;
@@ -154,7 +167,8 @@ void de_mat4_translation(de_mat4_t * out, const de_vec3_t * v) {
 	out->f[15] = 1.0f;
 }
 
-void de_mat4_look_at(de_mat4_t * out, const de_vec3_t * eye, const de_vec3_t * at, const de_vec3_t * up) {
+void de_mat4_look_at(de_mat4_t * out, const de_vec3_t * eye, const de_vec3_t * at, const de_vec3_t * up)
+{
 	de_vec3_t zaxis, xaxis, yaxis;
 
 	de_vec3_normalize(&zaxis, de_vec3_sub(&zaxis, at, eye));
@@ -182,7 +196,8 @@ void de_mat4_look_at(de_mat4_t * out, const de_vec3_t * eye, const de_vec3_t * a
 	out->f[15] = 1.0f;
 }
 
-void de_mat4_inverse(de_mat4_t * out, const de_mat4_t * a) {
+void de_mat4_inverse(de_mat4_t * out, const de_mat4_t * a)
+{
 	int i;
 	float det;
 	de_mat4_t temp;
@@ -211,7 +226,8 @@ void de_mat4_inverse(de_mat4_t * out, const de_mat4_t * a) {
 	}
 }
 
-void de_mat4_rotation(de_mat4_t * out, const de_quat_t * q) {
+void de_mat4_rotation(de_mat4_t * out, const de_quat_t * q)
+{
 	float s = 2.0f / de_quat_sqr_len(q);
 
 	float xs = q->x * s;
@@ -251,7 +267,8 @@ void de_mat4_rotation(de_mat4_t * out, const de_quat_t * q) {
 	out->f[15] = 1.0f;
 }
 
-void de_mat4_rotation_x(de_mat4_t * out, float angle_radians) {
+void de_mat4_rotation_x(de_mat4_t * out, float angle_radians)
+{
 	float c = (float)cos(angle_radians);
 	float s = (float)sin(angle_radians);
 
@@ -276,7 +293,8 @@ void de_mat4_rotation_x(de_mat4_t * out, float angle_radians) {
 	out->f[15] = 1.0f;
 }
 
-void de_mat4_rotation_y(de_mat4_t * out, float angle_radians) {
+void de_mat4_rotation_y(de_mat4_t * out, float angle_radians)
+{
 	float c = (float)cos(angle_radians);
 	float s = (float)sin(angle_radians);
 
@@ -301,7 +319,8 @@ void de_mat4_rotation_y(de_mat4_t * out, float angle_radians) {
 	out->f[15] = 1.0f;
 }
 
-void de_mat4_rotation_z(de_mat4_t * out, float angle_radians) {
+void de_mat4_rotation_z(de_mat4_t * out, float angle_radians)
+{
 	float c = (float)cos(angle_radians);
 	float s = (float)sin(angle_radians);
 
@@ -326,32 +345,37 @@ void de_mat4_rotation_z(de_mat4_t * out, float angle_radians) {
 	out->f[15] = 1.0f;
 }
 
-de_vec3_t * de_mat4_up(const de_mat4_t * m, de_vec3_t * up) {
+de_vec3_t * de_mat4_up(const de_mat4_t * m, de_vec3_t * up)
+{
 	up->x = m->f[4];
 	up->y = m->f[5];
 	up->z = m->f[6];
 	return up;
 }
 
-de_vec3_t * de_mat4_side(const de_mat4_t * m, de_vec3_t * side) {
+de_vec3_t * de_mat4_side(const de_mat4_t * m, de_vec3_t * side)
+{
 	side->x = m->f[0];
 	side->y = m->f[1];
 	side->z = m->f[2];
 	return side;
 }
 
-de_vec3_t * de_mat4_look(const de_mat4_t * m, de_vec3_t * look) {
+de_vec3_t * de_mat4_look(const de_mat4_t * m, de_vec3_t * look)
+{
 	look->x = m->f[8];
 	look->y = m->f[9];
 	look->z = m->f[10];
 	return look;
 }
 
-static void de_quat_set_at(de_quat_t * quat, float f, unsigned int index) {
+static void de_quat_set_at(de_quat_t * quat, float f, unsigned int index)
+{
 	*(((float*)quat) + index) = f;
 }
 
-de_quat_t * de_mat4_to_quat(const de_mat4_t * m, de_quat_t * quat) {
+de_quat_t * de_mat4_to_quat(const de_mat4_t * m, de_quat_t * quat)
+{
 	de_mat3_t basis;
 	float trace;
 	float recip;
@@ -389,53 +413,61 @@ de_quat_t * de_mat4_to_quat(const de_mat4_t * m, de_quat_t * quat) {
 	return quat;
 }
 
-de_vec3_t* de_vec3_add(de_vec3_t* out, const de_vec3_t* a, const de_vec3_t* b) {
+de_vec3_t* de_vec3_add(de_vec3_t* out, const de_vec3_t* a, const de_vec3_t* b)
+{
 	out->x = a->x + b->x;
 	out->y = a->y + b->y;
 	out->z = a->z + b->z;
 	return out;
 }
 
-de_vec3_t* de_vec3_sub(de_vec3_t* out, const de_vec3_t* a, const de_vec3_t* b) {
+de_vec3_t* de_vec3_sub(de_vec3_t* out, const de_vec3_t* a, const de_vec3_t* b)
+{
 	out->x = a->x - b->x;
 	out->y = a->y - b->y;
 	out->z = a->z - b->z;
 	return out;
 }
 
-de_vec3_t* de_vec3_div(de_vec3_t* out, const de_vec3_t* a, const de_vec3_t* b) {
+de_vec3_t* de_vec3_div(de_vec3_t* out, const de_vec3_t* a, const de_vec3_t* b)
+{
 	out->x = a->x / b->x;
 	out->y = a->y / b->y;
 	out->z = a->z / b->z;
 	return out;
 }
 
-de_vec3_t* de_vec3_mul(de_vec3_t* out, const de_vec3_t* a, const de_vec3_t* b) {
+de_vec3_t* de_vec3_mul(de_vec3_t* out, const de_vec3_t* a, const de_vec3_t* b)
+{
 	out->x = a->x * b->x;
 	out->y = a->y * b->y;
 	out->z = a->z * b->z;
 	return out;
 }
 
-de_vec3_t* de_vec3_scale(de_vec3_t* out, const de_vec3_t* a, float s) {
+de_vec3_t* de_vec3_scale(de_vec3_t* out, const de_vec3_t* a, float s)
+{
 	out->x = a->x * s;
 	out->y = a->y * s;
 	out->z = a->z * s;
 	return out;
 }
 
-de_vec3_t* de_vec3_negate(de_vec3_t* out, const de_vec3_t* a) {
+de_vec3_t* de_vec3_negate(de_vec3_t* out, const de_vec3_t* a)
+{
 	out->x = -a->x;
 	out->y = -a->y;
 	out->z = -a->z;
 	return out;
 }
 
-float de_vec3_dot(const de_vec3_t* a, const de_vec3_t* b) {
+float de_vec3_dot(const de_vec3_t* a, const de_vec3_t* b)
+{
 	return a->x * b->x + a->y * b->y + a->z * b->z;
 }
 
-de_vec3_t* de_vec3_cross(de_vec3_t* out, const de_vec3_t* a, const de_vec3_t* b) {
+de_vec3_t* de_vec3_cross(de_vec3_t* out, const de_vec3_t* a, const de_vec3_t* b)
+{
 	de_vec3_t v;
 	v.x = a->y * b->z - a->z * b->y;
 	v.y = a->z * b->x - a->x * b->z;
@@ -446,15 +478,18 @@ de_vec3_t* de_vec3_cross(de_vec3_t* out, const de_vec3_t* a, const de_vec3_t* b)
 	return out;
 }
 
-float de_vec3_len(const de_vec3_t* a) {
+float de_vec3_len(const de_vec3_t* a)
+{
 	return (float)sqrt(a->x * a->x + a->y * a->y + a->z * a->z);
 }
 
-float de_vec3_sqr_len(const de_vec3_t* a) {
+float de_vec3_sqr_len(const de_vec3_t* a)
+{
 	return a->x * a->x + a->y * a->y + a->z * a->z;
 }
 
-de_vec3_t* de_vec3_normalize(de_vec3_t* out, const de_vec3_t* a) {
+de_vec3_t* de_vec3_normalize(de_vec3_t* out, const de_vec3_t* a)
+{
 	float k;
 	float len = de_vec3_len(a);
 #if DE_MATH_CHECKS
@@ -467,7 +502,8 @@ de_vec3_t* de_vec3_normalize(de_vec3_t* out, const de_vec3_t* a) {
 	return out;
 }
 
-de_vec3_t* de_vec3_normalize_ex(de_vec3_t* out, const de_vec3_t* a, float* length) {
+de_vec3_t* de_vec3_normalize_ex(de_vec3_t* out, const de_vec3_t* a, float* length)
+{
 	float k;
 	*length = de_vec3_len(a);
 #if DE_MATH_CHECKS
@@ -480,24 +516,28 @@ de_vec3_t* de_vec3_normalize_ex(de_vec3_t* out, const de_vec3_t* a, float* lengt
 	return out;
 }
 
-de_vec3_t* de_vec3_lerp(de_vec3_t* out, const de_vec3_t* a, const de_vec3_t* b, float t) {
+de_vec3_t* de_vec3_lerp(de_vec3_t* out, const de_vec3_t* a, const de_vec3_t* b, float t)
+{
 	out->x = a->x + (b->x - a->x) * t;
 	out->y = a->y + (b->y - a->y) * t;
 	out->z = a->z + (b->z - a->z) * t;
 	return out;
 }
 
-float de_vec3_distance(const de_vec3_t* a, const de_vec3_t* b) {
+float de_vec3_distance(const de_vec3_t* a, const de_vec3_t* b)
+{
 	de_vec3_t d;
 	return de_vec3_len(de_vec3_sub(&d, a, b));
 }
 
-float de_vec3_sqr_distance(const de_vec3_t* a, const de_vec3_t* b) {
+float de_vec3_sqr_distance(const de_vec3_t* a, const de_vec3_t* b)
+{
 	de_vec3_t d;
 	return de_vec3_sqr_len(de_vec3_sub(&d, a, b));
 }
 
-float de_vec3_angle(const de_vec3_t* a, const de_vec3_t* b) {
+float de_vec3_angle(const de_vec3_t* a, const de_vec3_t* b)
+{
 	float denominator = de_vec3_len(a) * de_vec3_len(b);
 #if DE_MATH_CHECKS
 	DE_CHECK_DENOMINATOR(denominator);
@@ -505,7 +545,8 @@ float de_vec3_angle(const de_vec3_t* a, const de_vec3_t* b) {
 	return (float)acos(de_vec3_dot(a, b) / denominator);
 }
 
-de_vec3_t* de_vec3_project_plane(de_vec3_t* out, const de_vec3_t* point, const de_vec3_t* normal) {
+de_vec3_t* de_vec3_project_plane(de_vec3_t* out, const de_vec3_t* point, const de_vec3_t* normal)
+{
 	de_vec3_t n = { 0 };
 	if (de_vec3_sqr_len(normal) < 0.00001f) {
 		return out; /* degenerated normal vector */
@@ -515,13 +556,15 @@ de_vec3_t* de_vec3_project_plane(de_vec3_t* out, const de_vec3_t* point, const d
 	return de_vec3_add(out, point, &n);
 }
 
-de_vec3_t* de_vec3_reflect(de_vec3_t* out, const de_vec3_t* a, const de_vec3_t* normal) {
+de_vec3_t* de_vec3_reflect(de_vec3_t* out, const de_vec3_t* a, const de_vec3_t* normal)
+{
 	de_vec3_t v;
 	de_vec3_scale(&v, normal, 2.0f * de_vec3_dot(a, normal));
 	return de_vec3_sub(out, a, &v);
 }
 
-de_vec3_t* de_vec3_transform(de_vec3_t* out, const de_vec3_t* a, const de_mat4_t* mat) {
+de_vec3_t* de_vec3_transform(de_vec3_t* out, const de_vec3_t* a, const de_mat4_t* mat)
+{
 	de_vec3_t v;
 	v.x = a->x * mat->f[0] + a->y * mat->f[4] + a->z * mat->f[8] + mat->f[12];
 	v.y = a->x * mat->f[1] + a->y * mat->f[5] + a->z * mat->f[9] + mat->f[13];
@@ -532,7 +575,8 @@ de_vec3_t* de_vec3_transform(de_vec3_t* out, const de_vec3_t* a, const de_mat4_t
 	return out;
 }
 
-de_vec3_t* de_vec3_transform_normal(de_vec3_t* out, const de_vec3_t* a, const de_mat4_t* mat) {
+de_vec3_t* de_vec3_transform_normal(de_vec3_t* out, const de_vec3_t* a, const de_mat4_t* mat)
+{
 	de_vec3_t v;
 	v.x = a->x * mat->f[0] + a->y * mat->f[4] + a->z * mat->f[8];
 	v.y = a->x * mat->f[1] + a->y * mat->f[5] + a->z * mat->f[9];
@@ -543,14 +587,16 @@ de_vec3_t* de_vec3_transform_normal(de_vec3_t* out, const de_vec3_t* a, const de
 	return out;
 }
 
-de_vec3_t* de_vec3_middle(de_vec3_t* out, const de_vec3_t* a, const de_vec3_t* b) {
+de_vec3_t* de_vec3_middle(de_vec3_t* out, const de_vec3_t* a, const de_vec3_t* b)
+{
 	de_vec3_t v;
 	de_vec3_add(&v, a, b);
 	de_vec3_scale(out, &v, 0.5f);
 	return out;
 }
 
-void de_vec3_min_max(const de_vec3_t* a, de_vec3_t* vMin, de_vec3_t* vMax) {
+void de_vec3_min_max(const de_vec3_t* a, de_vec3_t* vMin, de_vec3_t* vMax)
+{
 	if (a->x < vMin->x) {
 		vMin->x = a->x;
 	}
@@ -572,81 +618,96 @@ void de_vec3_min_max(const de_vec3_t* a, de_vec3_t* vMin, de_vec3_t* vMax) {
 	}
 }
 
-int de_vec3_approx_equals(const de_vec3_t* a, const de_vec3_t* b) {
+int de_vec3_approx_equals(const de_vec3_t* a, const de_vec3_t* b)
+{
 	return fabs(a->x - b->x) < 0.0001f && fabs(a->y - b->y) < 0.0001f &&
 		fabs(a->z - b->z) < 0.0001f;
 }
 
-int de_vec3_equals(const de_vec3_t* a, const de_vec3_t* b) {
+int de_vec3_equals(const de_vec3_t* a, const de_vec3_t* b)
+{
 	return a->x == b->x && a->y == b->y && a->z == b->z;
 }
 
-de_vec2_t* de_vec2_set(de_vec2_t* out, float x, float y) {
+de_vec2_t* de_vec2_set(de_vec2_t* out, float x, float y)
+{
 	out->x = x;
 	out->y = y;
 	return out;
 }
 
-de_vec2_t* de_vec2_zero(de_vec2_t* out) {
+de_vec2_t* de_vec2_zero(de_vec2_t* out)
+{
 	out->x = 0.0f;
 	out->y = 0.0f;
 	return out;
 }
 
-de_vec2_t* de_vec2_add(de_vec2_t* out, const de_vec2_t* a, const de_vec2_t* b) {
+de_vec2_t* de_vec2_add(de_vec2_t* out, const de_vec2_t* a, const de_vec2_t* b)
+{
 	out->x = a->x + b->x;
 	out->y = a->y + b->y;
 	return out;
 }
 
-de_vec2_t* de_vec2_sub(de_vec2_t* out, const de_vec2_t* a, const de_vec2_t* b) {
+de_vec2_t* de_vec2_sub(de_vec2_t* out, const de_vec2_t* a, const de_vec2_t* b)
+{
 	out->x = a->x - b->x;
 	out->y = a->y - b->y;
 	return out;
 }
 
-de_vec2_t* de_vec2_div(de_vec2_t* out, const de_vec2_t* a, const de_vec2_t* b) {
+de_vec2_t* de_vec2_div(de_vec2_t* out, const de_vec2_t* a, const de_vec2_t* b)
+{
 	out->x = a->x / b->x;
 	out->y = a->y / b->y;
 	return out;
 }
 
-de_vec2_t* de_vec2_mul(de_vec2_t* out, const de_vec2_t* a, const de_vec2_t* b) {
+de_vec2_t* de_vec2_mul(de_vec2_t* out, const de_vec2_t* a, const de_vec2_t* b)
+{
 	out->x = a->x * b->x;
 	out->y = a->y * b->y;
 	return out;
 }
 
-de_vec2_t* de_vec2_scale(de_vec2_t* out, const de_vec2_t* a, float s) {
+de_vec2_t* de_vec2_scale(de_vec2_t* out, const de_vec2_t* a, float s)
+{
 	out->x = a->x * s;
 	out->y = a->y * s;
 	return out;
 }
 
-de_vec2_t* de_vec2_negate(de_vec2_t* out, const de_vec2_t* a) {
+de_vec2_t* de_vec2_negate(de_vec2_t* out, const de_vec2_t* a)
+{
 	out->x = -a->x;
 	out->y = -a->y;
 	return out;
 }
 
-float de_vec2_dot(const de_vec2_t* a, const de_vec2_t* b) {
+float de_vec2_dot(const de_vec2_t* a, const de_vec2_t* b)
+{
 	return a->x * b->x + a->y * b->y;
 }
 
-float de_vec2_len(const de_vec2_t* a) {
+float de_vec2_len(const de_vec2_t* a)
+{
 	return (float)sqrt(a->x * a->x + a->y * a->y);
 }
 
-float de_vec2_sqr_len(const de_vec2_t* a) {
+float de_vec2_sqr_len(const de_vec2_t* a)
+{
 	return a->x * a->x + a->y * a->y;
 }
 
-void de_vec2_perp(de_vec2_t* out, const de_vec2_t* a) {
+void de_vec2_perp(de_vec2_t* out, const de_vec2_t* a)
+{
 	out->x = a->y;
 	out->y = -a->x;
 }
 
-de_vec2_t* de_vec2_normalize(de_vec2_t* out, const de_vec2_t* a) {
+de_vec2_t* de_vec2_normalize(de_vec2_t* out, const de_vec2_t* a)
+{
 	float len = de_vec2_len(a);
 	if (len > 0.00001f) {
 		float k = 1.0f / len;
@@ -656,34 +717,40 @@ de_vec2_t* de_vec2_normalize(de_vec2_t* out, const de_vec2_t* a) {
 	return out;
 }
 
-de_vec2_t* de_vec2_lerp(de_vec2_t* out, const de_vec2_t* a, const de_vec2_t* b, float t) {
+de_vec2_t* de_vec2_lerp(de_vec2_t* out, const de_vec2_t* a, const de_vec2_t* b, float t)
+{
 	out->x = a->x + (b->x - a->x) * t;
 	out->y = a->y + (b->y - a->y) * t;
 	return out;
 }
 
-float de_vec2_distance(const de_vec2_t* a, const de_vec2_t* b) {
+float de_vec2_distance(const de_vec2_t* a, const de_vec2_t* b)
+{
 	de_vec2_t d;
 	return de_vec2_len(de_vec2_sub(&d, a, b));
 }
 
-float de_vec2_sqr_distance(const de_vec2_t* a, const de_vec2_t* b) {
+float de_vec2_sqr_distance(const de_vec2_t* a, const de_vec2_t* b)
+{
 	de_vec2_t d;
 	return de_vec2_sqr_len(de_vec2_sub(&d, a, b));
 }
 
-float de_vec2_angle(const de_vec2_t* a, const de_vec2_t* b) {
+float de_vec2_angle(const de_vec2_t* a, const de_vec2_t* b)
+{
 	return (float)acos(de_vec2_dot(a, b) / (de_vec2_len(a) * de_vec2_len(b)));
 }
 
-de_vec2_t* de_vec2_middle(de_vec2_t* out, const de_vec2_t* a, const de_vec2_t* b) {
+de_vec2_t* de_vec2_middle(de_vec2_t* out, const de_vec2_t* a, const de_vec2_t* b)
+{
 	de_vec2_t v;
 	de_vec2_add(&v, a, b);
 	de_vec2_scale(out, &v, 0.5f);
 	return out;
 }
 
-void de_vec2_min_max(const de_vec2_t* a, de_vec2_t* vMin, de_vec2_t* vMax) {
+void de_vec2_min_max(const de_vec2_t* a, de_vec2_t* vMin, de_vec2_t* vMax)
+{
 	if (a->x < vMin->x) {
 		vMin->x = a->x;
 	}
@@ -699,27 +766,32 @@ void de_vec2_min_max(const de_vec2_t* a, de_vec2_t* vMin, de_vec2_t* vMax) {
 	}
 }
 
-int de_vec2_approx_equals(const de_vec2_t* a, const de_vec2_t* b) {
+int de_vec2_approx_equals(const de_vec2_t* a, const de_vec2_t* b)
+{
 	return fabs(a->x - b->x) < 0.0001f && fabs(a->y - b->y) < 0.0001f;
 }
 
-int de_vec2_equals(const de_vec2_t* a, const de_vec2_t* b) {
+int de_vec2_equals(const de_vec2_t* a, const de_vec2_t* b)
+{
 	return a->x == b->x && a->y == b->y;
 }
 
-de_ray_t* de_ray_set(de_ray_t* out, const de_vec3_t* origin, const de_vec3_t* dir) {
+de_ray_t* de_ray_set(de_ray_t* out, const de_vec3_t* origin, const de_vec3_t* dir)
+{
 	out->origin = *origin;
 	out->dir = *dir;
 	return out;
 }
 
-de_ray_t* de_ray_by_two_points(de_ray_t* out, const de_vec3_t* start, const de_vec3_t* end) {
+de_ray_t* de_ray_by_two_points(de_ray_t* out, const de_vec3_t* start, const de_vec3_t* end)
+{
 	out->origin = *start;
 	de_vec3_sub(&out->dir, end, start);
 	return out;
 }
 
-int de_ray_aabb_intersection(const de_ray_t* ray, const de_vec3_t* min, const de_vec3_t* max, float* out_tmin, float* out_tmax) {
+int de_ray_aabb_intersection(const de_ray_t* ray, const de_vec3_t* min, const de_vec3_t* max, float* out_tmin, float* out_tmax)
+{
 	float tmin, tmax, tymin, tymax, tzmin, tzmax;
 	if (ray->dir.x >= 0) {
 		tmin = (min->x - ray->origin.x) / ray->dir.x;
@@ -769,8 +841,9 @@ int de_ray_aabb_intersection(const de_ray_t* ray, const de_vec3_t* min, const de
 	return ((tmin < 1.0f) && (tmax > 0.0f));
 }
 
-int de_ray_plane_intersection(const de_ray_t* ray, const de_plane_t* plane, de_vec3_t* out_intersection_point) {
-	/* solve plane equation */
+int de_ray_plane_intersection(const de_ray_t* ray, const de_plane_t* plane, de_vec3_t* out_intersection_point)
+{
+/* solve plane equation */
 	float u = -(de_vec3_dot(&ray->origin, &plane->n) + plane->d);
 	float v = de_vec3_dot(&ray->dir, &plane->n);
 	float t = u / v;
@@ -786,7 +859,8 @@ int de_ray_plane_intersection(const de_ray_t* ray, const de_plane_t* plane, de_v
 	return 1;
 }
 
-bool de_is_point_inside_triangle(const de_vec3_t* point, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c) {
+bool de_is_point_inside_triangle(const de_vec3_t* point, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c)
+{
 	float baDotba, caDotba, caDotca, invDenom, dot02, dot12, u, v;
 	de_vec3_t vp, ca, ba;
 
@@ -811,7 +885,8 @@ bool de_is_point_inside_triangle(const de_vec3_t* point, const de_vec3_t* a, con
 	return (u >= 0.0f) && (v >= 0.0f) && (u + v < 1.0f);
 }
 
-bool de_is_point_inside_triangle_2D(const de_vec2_t* point, const de_vec2_t* a, const de_vec2_t* b, const de_vec2_t* c) {
+bool de_is_point_inside_triangle_2D(const de_vec2_t* point, const de_vec2_t* a, const de_vec2_t* b, const de_vec2_t* c)
+{
 	float baDotba, caDotba, caDotca, invDenom, dot02, dot12, u, v;
 	de_vec2_t vp, ca, ba;
 
@@ -836,7 +911,8 @@ bool de_is_point_inside_triangle_2D(const de_vec2_t* point, const de_vec2_t* a, 
 	return (u >= 0.0f) && (v >= 0.0f) && (u + v < 1.0f);
 }
 
-int de_ray_triangle_intersection(const de_ray_t* ray, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c, de_vec3_t* out_intersection_point) {
+int de_ray_triangle_intersection(const de_ray_t* ray, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c, de_vec3_t* out_intersection_point)
+{
 	de_vec3_t point, ca, ba;
 	de_plane_t plane;
 
@@ -858,7 +934,8 @@ int de_ray_triangle_intersection(const de_ray_t* ray, const de_vec3_t* a, const 
 	return 0;
 }
 
-int de_ray_sphere_intersection(const de_ray_t* ray, const de_vec3_t* position, float radius, de_vec3_t* out_int_point_a, de_vec3_t* out_int_point_b) {
+int de_ray_sphere_intersection(const de_ray_t* ray, const de_vec3_t* position, float radius, de_vec3_t* out_int_point_a, de_vec3_t* out_int_point_b)
+{
 	de_vec3_t d, rv;
 	float a, b, c, discriminant, discrRoot, r1, r2;
 	de_vec3_sub(&d, &ray->origin, position);
@@ -883,7 +960,8 @@ int de_ray_sphere_intersection(const de_ray_t* ray, const de_vec3_t* position, f
 	return 1;
 }
 
-de_quat_t* de_quat_set(de_quat_t* out, float x, float y, float z, float w) {
+de_quat_t* de_quat_set(de_quat_t* out, float x, float y, float z, float w)
+{
 	out->x = x;
 	out->y = y;
 	out->z = z;
@@ -891,7 +969,8 @@ de_quat_t* de_quat_set(de_quat_t* out, float x, float y, float z, float w) {
 	return out;
 }
 
-de_quat_t* de_quat_from_axis_angle(de_quat_t* out, const de_vec3_t* axis, float angle) {
+de_quat_t* de_quat_from_axis_angle(de_quat_t* out, const de_vec3_t* axis, float angle)
+{
 	float half_angle = angle * 0.5f;
 	float d = de_vec3_len(axis);
 	float s = (float)sin(half_angle) / d;
@@ -902,24 +981,29 @@ de_quat_t* de_quat_from_axis_angle(de_quat_t* out, const de_vec3_t* axis, float 
 	return out;
 }
 
-float de_quat_dot(const de_quat_t* a, const de_quat_t* b) {
+float de_quat_dot(const de_quat_t* a, const de_quat_t* b)
+{
 	return a->x * b->x + a->y * b->y + a->z * b->z + a->w * b->w;
 }
 
-float de_quat_len(const de_quat_t* a) {
+float de_quat_len(const de_quat_t* a)
+{
 	return (float)sqrt(a->x * a->x + a->y * a->y + a->z * a->z + a->w * a->w);
 }
 
-float de_quat_sqr_len(const de_quat_t* a) {
+float de_quat_sqr_len(const de_quat_t* a)
+{
 	return a->x * a->x + a->y * a->y + a->z * a->z + a->w * a->w;
 }
 
-float de_quat_angle(const de_quat_t* a, const de_quat_t* b) {
+float de_quat_angle(const de_quat_t* a, const de_quat_t* b)
+{
 	float s = (float)sqrt(de_quat_sqr_len(a) * de_quat_sqr_len(b));
 	return (float)acos(de_quat_dot(a, b) / s);
 }
 
-de_quat_t* de_quat_slerp(de_quat_t* out, const de_quat_t* a, const de_quat_t* b, float t) {
+de_quat_t* de_quat_slerp(de_quat_t* out, const de_quat_t* a, const de_quat_t* b, float t)
+{
 	de_quat_t q;
 	float theta = de_quat_angle(a, b);
 	if (fabs(theta) > 0.00001f) {
@@ -944,7 +1028,8 @@ de_quat_t* de_quat_slerp(de_quat_t* out, const de_quat_t* a, const de_quat_t* b,
 	return out;
 }
 
-void de_quat_from_euler(de_quat_t * out, const de_vec3_t * euler_radians, de_euler_t order) {
+void de_quat_from_euler(de_quat_t * out, const de_vec3_t * euler_radians, de_euler_t order)
+{
 	static de_vec3_t x = { 1, 0, 0 };
 	static de_vec3_t y = { 0, 1, 0 };
 	static de_vec3_t z = { 0, 0, 1 };
@@ -980,7 +1065,8 @@ void de_quat_from_euler(de_quat_t * out, const de_vec3_t * euler_radians, de_eul
 	}
 }
 
-de_quat_t* de_quat_mul(de_quat_t* out, const de_quat_t* a, const de_quat_t* b) {
+de_quat_t* de_quat_mul(de_quat_t* out, const de_quat_t* a, const de_quat_t* b)
+{
 	de_quat_t t;
 	t.x = a->w * b->x + a->x * b->w + a->y * b->z - a->z * b->y;
 	t.y = a->w * b->y + a->y * b->w + a->z * b->x - a->x * b->z;
@@ -990,7 +1076,8 @@ de_quat_t* de_quat_mul(de_quat_t* out, const de_quat_t* a, const de_quat_t* b) {
 	return out;
 }
 
-de_quat_t* de_quat_normalize(de_quat_t* out, de_quat_t* a) {
+de_quat_t* de_quat_normalize(de_quat_t* out, de_quat_t* a)
+{
 	float k = 1.0f / de_quat_len(a);
 	out->x *= k;
 	out->y *= k;
@@ -999,7 +1086,8 @@ de_quat_t* de_quat_normalize(de_quat_t* out, de_quat_t* a) {
 	return out;
 }
 
-de_vec3_t* de_quat_get_axis(const de_quat_t* q, de_vec3_t* out_axis) {
+de_vec3_t* de_quat_get_axis(const de_quat_t* q, de_vec3_t* out_axis)
+{
 	float s_squared = 1.0f - q->w * q->w;
 	if (s_squared < 0.0001f) {
 		*out_axis = (de_vec3_t) { 1.0f, 0.0f, 0.0f };
@@ -1010,11 +1098,13 @@ de_vec3_t* de_quat_get_axis(const de_quat_t* q, de_vec3_t* out_axis) {
 	return out_axis;
 }
 
-float de_quat_get_angle(const de_quat_t* q) {
+float de_quat_get_angle(const de_quat_t* q)
+{
 	return 2.0f * (float)acos(q->w);
 }
 
-de_plane_t* de_plane_setCoef(de_plane_t* p, float a, float b, float c, float d) {
+de_plane_t* de_plane_setCoef(de_plane_t* p, float a, float b, float c, float d)
+{
 	p->n.x = a;
 	p->n.y = b;
 	p->n.z = c;
@@ -1023,28 +1113,33 @@ de_plane_t* de_plane_setCoef(de_plane_t* p, float a, float b, float c, float d) 
 	return p;
 }
 
-de_plane_t* de_plane_set(de_plane_t* p, const de_vec3_t* n, float d) {
+de_plane_t* de_plane_set(de_plane_t* p, const de_vec3_t* n, float d)
+{
 	de_vec3_normalize(&p->n, n);
 	p->d = d;
 	return p;
 }
 
-float de_plane_distance(const de_plane_t* p, const de_vec3_t* point) {
+float de_plane_distance(const de_plane_t* p, const de_vec3_t* point)
+{
 	return (float)fabs(de_vec3_dot(&p->n, point) + p->d);
 }
 
-float de_plane_dot(const de_plane_t* p, const de_vec3_t* point) {
+float de_plane_dot(const de_plane_t* p, const de_vec3_t* point)
+{
 	return de_vec3_dot(&p->n, point) + p->d;
 }
 
-de_plane_t* de_plane_normalize(de_plane_t* p) {
+de_plane_t* de_plane_normalize(de_plane_t* p)
+{
 	float d = 1.0f / de_vec3_len(&p->n);
 	de_vec3_scale(&p->n, &p->n, d);
 	p->d *= d;
 	return p;
 }
 
-de_frustum_t* de_frustum_from_matrix(de_frustum_t* f, const de_mat4_t* m) {
+de_frustum_t* de_frustum_from_matrix(de_frustum_t* f, const de_mat4_t* m)
+{
 	de_plane_setCoef(&f->planes[0], m->f[3] + m->f[0], m->f[7] + m->f[4], m->f[11] + m->f[8], m->f[15] + m->f[12]); /* left plane */
 	de_plane_setCoef(&f->planes[1], m->f[3] - m->f[0], m->f[7] - m->f[4], m->f[11] - m->f[8], m->f[15] - m->f[12]); /* right plane */
 	de_plane_setCoef(&f->planes[2], m->f[3] - m->f[1], m->f[7] - m->f[5], m->f[11] - m->f[9], m->f[15] - m->f[13]); /* top plane */
@@ -1054,7 +1149,8 @@ de_frustum_t* de_frustum_from_matrix(de_frustum_t* f, const de_mat4_t* m) {
 	return f;
 }
 
-int de_frustum_box_intersection(const de_frustum_t* f, const de_aabb_t* aabb, const de_vec3_t* aabb_offset) {
+int de_frustum_box_intersection(const de_frustum_t* f, const de_aabb_t* aabb, const de_vec3_t* aabb_offset)
+{
 	int i, k;
 	de_vec3_t aabb_points[8];
 	for (i = 0; i < 8; ++i) {
@@ -1076,7 +1172,8 @@ int de_frustum_box_intersection(const de_frustum_t* f, const de_aabb_t* aabb, co
 	return 1;
 }
 
-int de_frustum_box_intersection_transform(const de_frustum_t* f, const de_aabb_t* aabb, const de_mat4_t* obj_matrix) {
+int de_frustum_box_intersection_transform(const de_frustum_t* f, const de_aabb_t* aabb, const de_mat4_t* obj_matrix)
+{
 	int i, k;
 	de_vec3_t aabb_points[8];
 	for (i = 0; i < 8; ++i) {
@@ -1098,7 +1195,8 @@ int de_frustum_box_intersection_transform(const de_frustum_t* f, const de_aabb_t
 	return 1;
 }
 
-int de_frustum_contains_point(const de_frustum_t* f, const de_vec3_t* p) {
+int de_frustum_contains_point(const de_frustum_t* f, const de_vec3_t* p)
+{
 	int i;
 	for (i = 0; i < 6; i++) {
 		if (de_plane_dot(&f->planes[i], p) <= 0.0f) {
@@ -1108,13 +1206,15 @@ int de_frustum_contains_point(const de_frustum_t* f, const de_vec3_t* p) {
 	return 1;
 }
 
-de_aabb_t* de_aabb_set(de_aabb_t* aabb, const de_vec3_t* min, const de_vec3_t* max) {
+de_aabb_t* de_aabb_set(de_aabb_t* aabb, const de_vec3_t* min, const de_vec3_t* max)
+{
 	aabb->min = *min;
 	aabb->max = *max;
 	return de_aabb_recompute_corners(aabb);
 }
 
-de_aabb_t* de_aabb_recompute_corners(de_aabb_t* aabb) {
+de_aabb_t* de_aabb_recompute_corners(de_aabb_t* aabb)
+{
 	aabb->corners[0] = (de_vec3_t) { aabb->min.x, aabb->min.y, aabb->min.z };
 	aabb->corners[1] = (de_vec3_t) { aabb->min.x, aabb->min.y, aabb->max.z };
 	aabb->corners[2] = (de_vec3_t) { aabb->max.x, aabb->min.y, aabb->max.z };
@@ -1126,7 +1226,8 @@ de_aabb_t* de_aabb_recompute_corners(de_aabb_t* aabb) {
 	return aabb;
 }
 
-int de_aabb_sphere_intersection(const de_aabb_t* aabb, const de_vec3_t* aabb_offset, const de_vec3_t* position, float radius) {
+int de_aabb_sphere_intersection(const de_aabb_t* aabb, const de_vec3_t* aabb_offset, const de_vec3_t* position, float radius)
+{
 	float r2 = radius * radius;
 	float dmin = 0;
 	de_vec3_t min = aabb->min, max = aabb->max;
@@ -1159,12 +1260,14 @@ int de_aabb_sphere_intersection(const de_aabb_t* aabb, const de_vec3_t* aabb_off
 		(position->y <= max.y) && (position->z >= min.z) && (position->z <= max.z));
 }
 
-int de_aabb_contains_point(const de_aabb_t* aabb, const de_vec3_t* point) {
+int de_aabb_contains_point(const de_aabb_t* aabb, const de_vec3_t* point)
+{
 	return point->x >= aabb->min.x && point->x <= aabb->max.x && point->y >= aabb->min.y &&
 		point->y <= aabb->max.y && point->z >= aabb->min.z && point->z <= aabb->max.z;
 }
 
-int de_aabb_aabb_intersection(const de_aabb_t* aabb, const de_aabb_t* other) {
+int de_aabb_aabb_intersection(const de_aabb_t* aabb, const de_aabb_t* other)
+{
 	de_vec3_t aabb_size, other_size;
 	de_vec3_t aabb_center, other_center;
 	de_aabb_get_size(aabb, &aabb_size);
@@ -1184,7 +1287,8 @@ int de_aabb_aabb_intersection(const de_aabb_t* aabb, const de_aabb_t* other) {
 	return 1;
 }
 
-int de_aabb_triangle_intersection(const de_aabb_t* aabb, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c) {
+int de_aabb_triangle_intersection(const de_aabb_t* aabb, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c)
+{
 	de_aabb_t triangle_aabb;
 	de_aabb_invalidate(&triangle_aabb);
 	de_aabb_push_point(&triangle_aabb, a);
@@ -1193,42 +1297,51 @@ int de_aabb_triangle_intersection(const de_aabb_t* aabb, const de_vec3_t* a, con
 	return de_aabb_aabb_intersection(aabb, &triangle_aabb);
 }
 
-de_aabb_t* de_aabb_push_point(de_aabb_t* aabb, const de_vec3_t* p) {
+de_aabb_t* de_aabb_push_point(de_aabb_t* aabb, const de_vec3_t* p)
+{
 	de_vec3_min_max(p, &aabb->min, &aabb->max);
 	return aabb;
 }
 
-de_vec3_t* de_aabb_get_size(const de_aabb_t* aabb, de_vec3_t* size) {
+de_vec3_t* de_aabb_get_size(const de_aabb_t* aabb, de_vec3_t* size)
+{
 	return de_vec3_scale(size, de_vec3_sub(size, &aabb->max, &aabb->min), 0.5f);
 }
 
-de_vec3_t* de_aabb_get_center(const de_aabb_t* aabb, de_vec3_t* center) {
+de_vec3_t* de_aabb_get_center(const de_aabb_t* aabb, de_vec3_t* center)
+{
 	return de_vec3_middle(center, &aabb->min, &aabb->max);
 }
 
-de_aabb_t* de_aabb_invalidate(de_aabb_t* aabb) {
+de_aabb_t* de_aabb_invalidate(de_aabb_t* aabb)
+{
 	aabb->max = (de_vec3_t) { -FLT_MAX, -FLT_MAX, -FLT_MAX };
 	aabb->min = (de_vec3_t) { FLT_MAX, FLT_MAX, FLT_MAX };
 	return de_aabb_recompute_corners(aabb);
 }
 
-float de_sqr(float a) {
+float de_sqr(float a)
+{
 	return a * a;
 }
 
-float de_rad_to_deg(float a) {
+float de_rad_to_deg(float a)
+{
 	return a * 180.0f / 3.14159f;
 }
 
-float de_deg_to_rad(float a) {
+float de_deg_to_rad(float a)
+{
 	return a * 3.14159f / 180.0f;
 }
 
-float de_lerp(float a, float b, float t) {
+float de_lerp(float a, float b, float t)
+{
 	return a + (b - a) * t;
 }
 
-float de_clamp(float a, float min, float max) {
+float de_clamp(float a, float min, float max)
+{
 	if (a < min) {
 		return min;
 	}
@@ -1238,15 +1351,18 @@ float de_clamp(float a, float min, float max) {
 	return a;
 }
 
-float de_maxf(float a, float b) {
+float de_maxf(float a, float b)
+{
 	return a > b ? a : b;
 }
 
-float de_minf(float a, float b) {
+float de_minf(float a, float b)
+{
 	return a < b ? a : b;
 }
 
-unsigned int de_ceil_pow2(unsigned int v) {
+unsigned int de_ceil_pow2(unsigned int v)
+{
 	unsigned int power = 1;
 	while (v >>= 1) {
 		power <<= 1;
@@ -1255,7 +1371,8 @@ unsigned int de_ceil_pow2(unsigned int v) {
 	return power;
 }
 
-float de_fwrap(float n, float min_limit, float max_limit) {
+float de_fwrap(float n, float min_limit, float max_limit)
+{
 	float offset, num_of_max;
 
 	if (n >= min_limit && n <= max_limit) {
@@ -1284,7 +1401,8 @@ float de_fwrap(float n, float min_limit, float max_limit) {
 }
 
 
-void de_get_polygon_normal(const de_vec3_t* points, size_t count, de_vec3_t* normal) {
+void de_get_polygon_normal(const de_vec3_t* points, size_t count, de_vec3_t* normal)
+{
 	size_t i, j;
 	*normal = (de_vec3_t) { 0 };
 	for (i = 0; i < count; ++i) {
@@ -1302,12 +1420,14 @@ void de_get_polygon_normal(const de_vec3_t* points, size_t count, de_vec3_t* nor
 }
 
 
-double de_get_signed_triangle_area(const de_vec2_t* v1, const de_vec2_t* v2, const de_vec2_t* v3) {
+double de_get_signed_triangle_area(const de_vec2_t* v1, const de_vec2_t* v2, const de_vec2_t* v3)
+{
 	return 0.5 * (v1->x * ((double)v3->y - v2->y) + v2->x * ((double)v1->y - v3->y) + v3->x * ((double)v2->y - v1->y));
 }
 
 
-bool de_line_line_intersection(const de_vec3_t* a_begin, const de_vec3_t* a_end, const de_vec3_t* b_begin, const de_vec3_t* b_end, de_vec3_t *out) {
+bool de_line_line_intersection(const de_vec3_t* a_begin, const de_vec3_t* a_end, const de_vec3_t* b_begin, const de_vec3_t* b_end, de_vec3_t *out)
+{
 	float s1x = a_end->x - a_begin->x;
 	float s1y = a_end->y - a_begin->y;
 	float s2x = b_end->x - b_begin->x;
@@ -1326,7 +1446,8 @@ bool de_line_line_intersection(const de_vec3_t* a_begin, const de_vec3_t* a_end,
 }
 
 
-de_plane_class_t de_plane_classify(const de_vec3_t * triangle_normal) {
+de_plane_class_t de_plane_classify(const de_vec3_t * triangle_normal)
+{
 	float longest = 0.0f;
 
 	de_plane_class_t plane = DE_PLANE_OXY;
@@ -1349,7 +1470,8 @@ de_plane_class_t de_plane_classify(const de_vec3_t * triangle_normal) {
 }
 
 
-void de_vec3_to_vec2_by_plane(de_plane_class_t plane, const de_vec3_t* normal, const de_vec3_t * point, de_vec2_t * mapped) {
+void de_vec3_to_vec2_by_plane(de_plane_class_t plane, const de_vec3_t* normal, const de_vec3_t * point, de_vec2_t * mapped)
+{
 	if (plane == DE_PLANE_OXY) {
 		if (normal->z < 0) {
 			mapped->x = point->y;

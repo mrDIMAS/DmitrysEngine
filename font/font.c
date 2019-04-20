@@ -60,25 +60,30 @@ typedef struct de_true_type_t {
 	de_ttf_glyph_t* glyphs;
 } de_true_type_t;
 
-static uint16_t ToU16(uint16_t p) {
+static uint16_t ToU16(uint16_t p)
+{
 	return de_byte_order_swap_u16(p);
 }
 
-static uint16_t de_ptr_to_u16(uint8_t *p) {
+static uint16_t de_ptr_to_u16(uint8_t *p)
+{
 	return p[0] * 256 + p[1];
 }
 
-static int16_t de_ptr_to_i16(uint8_t *p) {
+static int16_t de_ptr_to_i16(uint8_t *p)
+{
 	return p[0] * 256 + p[1];
 }
 
-static uint32_t de_ptr_to_u32(uint8_t *p) {
+static uint32_t de_ptr_to_u32(uint8_t *p)
+{
 	return (p[0] << 24) + (p[1] << 16) + (p[2] << 8) + p[3];
 }
 
 #define DE_FOURCC(d,c,b,a) ((uint32_t) (((d)<<24) | ((c)<<16) | ((b)<<8) | (a)))
 
-static void de_ttf_find_tables(de_true_type_t* ttf) {
+static void de_ttf_find_tables(de_true_type_t* ttf)
+{
 	int i;
 	uint16_t num_tables = de_ptr_to_u16(ttf->data + 4);
 
@@ -102,7 +107,8 @@ static void de_ttf_find_tables(de_true_type_t* ttf) {
 	ttf->num_glyphs = de_ptr_to_u16(ttf->maxp_table + 4);
 }
 
-static uint32_t de_ttf_segmented_mapping(uint8_t* subtable, uint32_t unicode) {
+static uint32_t de_ttf_segmented_mapping(uint8_t* subtable, uint32_t unicode)
+{
 	int segment;
 	int segment_count = de_ptr_to_u16(subtable + 6) / 2;
 	uint16_t* end_codes = (uint16_t*)(subtable + 14);
@@ -133,7 +139,8 @@ static uint32_t de_ttf_segmented_mapping(uint8_t* subtable, uint32_t unicode) {
 	return 0;
 }
 
-static uint32_t de_ttf_direct_mapping(uint8_t* subtable, uint32_t unicode) {
+static uint32_t de_ttf_direct_mapping(uint8_t* subtable, uint32_t unicode)
+{
 	if (unicode < 256) {
 		uint8_t* indices = subtable + 6;
 		return indices[unicode];
@@ -142,7 +149,8 @@ static uint32_t de_ttf_direct_mapping(uint8_t* subtable, uint32_t unicode) {
 	return 0;
 }
 
-static uint32_t de_ttf_dense_mapping(uint8_t* subtable, uint32_t unicode) {
+static uint32_t de_ttf_dense_mapping(uint8_t* subtable, uint32_t unicode)
+{
 	uint16_t first = de_ptr_to_u16(subtable + 6);
 	uint16_t entry_count = de_ptr_to_u16(subtable + 8);
 	uint16_t* indices = (uint16_t*)(subtable + 10);
@@ -154,7 +162,8 @@ static uint32_t de_ttf_dense_mapping(uint8_t* subtable, uint32_t unicode) {
 	return 0;
 }
 
-static uint32_t de_ttf_unicode_to_glyph_index(de_true_type_t* ttf, uint32_t unicode) {
+static uint32_t de_ttf_unicode_to_glyph_index(de_true_type_t* ttf, uint32_t unicode)
+{
 	int i;
 
 	uint16_t subtable_count = de_ptr_to_u16(ttf->cmap_table + 2);
@@ -174,11 +183,13 @@ static uint32_t de_ttf_unicode_to_glyph_index(de_true_type_t* ttf, uint32_t unic
 	return 0;
 }
 
-static void de_polygon_add_vertex(de_polygon_t *poly, de_point_t* v) {
+static void de_polygon_add_vertex(de_polygon_t *poly, de_point_t* v)
+{
 	DE_ARRAY_APPEND(poly->points, *v);
 }
 
-uint32_t de_ttf_get_glyph_offset(de_true_type_t* ttf, uint32_t index) {
+uint32_t de_ttf_get_glyph_offset(de_true_type_t* ttf, uint32_t index)
+{
 	int16_t index_to_loc_format = de_ptr_to_i16(ttf->head_table + 50);
 
 	if (index_to_loc_format & 1) {
@@ -188,7 +199,8 @@ uint32_t de_ttf_get_glyph_offset(de_true_type_t* ttf, uint32_t index) {
 	}
 }
 
-static void de_ttf_prepare_contours(de_ttf_glyph_t * glyph, de_point_t* points) {
+static void de_ttf_prepare_contours(de_ttf_glyph_t * glyph, de_point_t* points)
+{
 	int j;
 	size_t k;
 	size_t prev_end_pt = 0;
@@ -219,7 +231,7 @@ static void de_ttf_prepare_contours(de_ttf_glyph_t * glyph, de_point_t* points) 
 	/* Unpack contours */
 	for (j = 0; j < glyph->num_contours; ++j) {
 		de_polygon_t * raw_contour = glyph->raw_contours + j;
-		de_polygon_t unpacked_contour = { {0} };
+		de_polygon_t unpacked_contour = { { 0 } };
 
 		int start_off = !(raw_contour->points.data[0].flags & ON_CURVE_POINT);
 
@@ -285,7 +297,8 @@ static void de_ttf_prepare_contours(de_ttf_glyph_t * glyph, de_point_t* points) 
 	}
 }
 
-static void de_ttf_get_glyph_horizontal_metrics(de_true_type_t* ttf, int glyph_index, de_ttf_glyph_t* glyph) {
+static void de_ttf_get_glyph_horizontal_metrics(de_true_type_t* ttf, int glyph_index, de_ttf_glyph_t* glyph)
+{
 	uint16_t numOfLongHorMetrics;
 
 	assert(ttf);
@@ -302,7 +315,8 @@ static void de_ttf_get_glyph_horizontal_metrics(de_true_type_t* ttf, int glyph_i
 }
 
 #ifdef DE_KERNING
-void de_ttf_read_kern(de_true_type_t* ttf) {
+void de_ttf_read_kern(de_true_type_t* ttf)
+{
 	uint32_t version = de_ptr_to_u32(ttf->kern_table + 0);
 	uint32_t num_tables = de_ptr_to_u32(ttf->kern_table + 4);
 	for (uint32_t i = 0; i < num_tables; ++i) {
@@ -314,7 +328,8 @@ void de_ttf_read_kern(de_true_type_t* ttf) {
 }
 #endif
 
-void de_ttf_read_glyphs(de_true_type_t * ttf) {
+void de_ttf_read_glyphs(de_true_type_t * ttf)
+{
 	int i, j, k;
 
 	/* Allocate glyphs */
@@ -421,12 +436,14 @@ void de_ttf_read_glyphs(de_true_type_t * ttf) {
 	}
 }
 
-static float de_em_to_pixels(de_true_type_t* ttf, float pixels) {
+static float de_em_to_pixels(de_true_type_t* ttf, float pixels)
+{
 	uint16_t units_per_em = de_ptr_to_u16(ttf->head_table + 18);
 	return pixels / units_per_em;
 }
 
-static void de_convert_curves_to_line_set(de_ttf_glyph_t * glyph) {
+static void de_convert_curves_to_line_set(de_ttf_glyph_t * glyph)
+{
 	int i;
 	size_t j;
 	size_t k;
@@ -467,7 +484,8 @@ static void de_convert_curves_to_line_set(de_ttf_glyph_t * glyph) {
 	}
 }
 
-static void de_ttf_render_glyph(de_true_type_t* ttf, int glyph_index, de_glyph_t* out_glyph, float scaler) {
+static void de_ttf_render_glyph(de_true_type_t* ttf, int glyph_index, de_glyph_t* out_glyph, float scaler)
+{
 	de_bitmap_t bitmap, final_bitmap;
 	line_array_t lines;
 	de_ttf_glyph_t * ttf_glyph;
@@ -495,7 +513,7 @@ static void de_ttf_render_glyph(de_true_type_t* ttf, int glyph_index, de_glyph_t
 		(float)(ttf_glyph->yMax - ttf_glyph->yMin),
 		scaler
 	);
-	
+
 	de_bitmap_create(&bitmap, width, height);
 	final_bitmap = de_vg_raster_scanlines(&bitmap, lines);
 	de_free(bitmap.pixels);
@@ -519,7 +537,8 @@ static void de_ttf_render_glyph(de_true_type_t* ttf, int glyph_index, de_glyph_t
 	de_free(final_bitmap.pixels);
 }
 
-void de_ttf_clear(de_true_type_t* ttf) {
+void de_ttf_clear(de_true_type_t* ttf)
+{
 	int i, j;
 	for (i = 0; i < ttf->num_glyphs; ++i) {
 		de_ttf_glyph_t* glyph = ttf->glyphs + i;
@@ -534,7 +553,8 @@ void de_ttf_clear(de_true_type_t* ttf) {
 	de_free(ttf->glyphs);
 }
 
-static int de_font_compute_atlas_size(de_font_t * font) {
+static int de_font_compute_atlas_size(de_font_t * font)
+{
 	int totalArea = 0;
 	int i = 0;
 
@@ -546,7 +566,8 @@ static int de_font_compute_atlas_size(de_font_t * font) {
 	return (int)(sqrt(totalArea) * 1.1f);
 }
 
-static int de_font_pack(de_renderer_t* r, de_font_t * font) {
+static int de_font_pack(de_renderer_t* r, de_font_t * font)
+{
 	int i = 0;
 	int row = 0;
 	int col = 0;
@@ -563,7 +584,7 @@ static int de_font_pack(de_renderer_t* r, de_font_t * font) {
 	root = de_rectpack_create_node(0, 0, atlas_size, atlas_size);
 
 	/* prepare atlas */
-	de_resource_t* tex_resource = de_resource_create(r->core, NULL, DE_RESOURCE_TYPE_TEXTURE, DE_RESOURCE_FLAG_INTERNAL);	
+	de_resource_t* tex_resource = de_resource_create(r->core, NULL, DE_RESOURCE_TYPE_TEXTURE, DE_RESOURCE_FLAG_INTERNAL);
 	de_resource_add_ref(tex_resource);
 	font->texture = de_resource_to_texture(tex_resource);
 	de_texture_alloc_pixels(font->texture, atlas_size, atlas_size, 4);
@@ -621,7 +642,8 @@ static int de_font_pack(de_renderer_t* r, de_font_t * font) {
 	return 1;
 }
 
-static int de_compare_charmap_entry(const void* a, const void* b) {
+static int de_compare_charmap_entry(const void* a, const void* b)
+{
 	const de_font_charmap_entry_t* entry_a = (const de_font_charmap_entry_t*)a;
 	const de_font_charmap_entry_t* entry_b = (const de_font_charmap_entry_t*)b;
 	if (entry_a->unicode < entry_b->unicode) {
@@ -633,7 +655,8 @@ static int de_compare_charmap_entry(const void* a, const void* b) {
 	return 1;
 }
 
-de_font_t* de_font_load_ttf_from_memory(de_core_t* core, void* data, float height, const int* char_set, int char_count) {
+de_font_t* de_font_load_ttf_from_memory(de_core_t* core, void* data, float height, const int* char_set, int char_count)
+{
 	int i;
 	de_true_type_t ttf;
 	float oversample_height;
@@ -691,7 +714,8 @@ de_font_t* de_font_load_ttf_from_memory(de_core_t* core, void* data, float heigh
 	return font;
 }
 
-de_font_t* de_font_load_ttf(de_core_t* core, const char * filename, float height, const int* char_set, int char_count) {
+de_font_t* de_font_load_ttf(de_core_t* core, const char * filename, float height, const int* char_set, int char_count)
+{
 	size_t size;
 	void* data;
 	de_font_t* font;
@@ -708,15 +732,17 @@ de_font_t* de_font_load_ttf(de_core_t* core, const char * filename, float height
 	return font;
 }
 
-void de_font_free(de_font_t* font) {
+void de_font_free(de_font_t* font)
+{
 	DE_LINKED_LIST_REMOVE(font->core->fonts, font);
 	DE_ARRAY_FREE(font->charmap);
-	de_resource_release(de_resource_from_texture(font->texture));	
+	de_resource_release(de_resource_from_texture(font->texture));
 	de_free(font->glyphs);
 	de_free(font);
 }
 
-static int de_charmap_search_compare(const void* unicode_ptr, const void* elem) {
+static int de_charmap_search_compare(const void* unicode_ptr, const void* elem)
+{
 	const de_font_charmap_entry_t* entry = (const de_font_charmap_entry_t*)elem;
 	uint32_t unicode = *((uint32_t*)unicode_ptr);
 	if (unicode < entry->unicode) {
@@ -728,7 +754,8 @@ static int de_charmap_search_compare(const void* unicode_ptr, const void* elem) 
 	return 1;
 }
 
-de_glyph_t* de_font_get_glyph(const de_font_t* font, uint32_t code) {
+de_glyph_t* de_font_get_glyph(const de_font_t* font, uint32_t code)
+{
 	de_font_charmap_entry_t* entry = (de_font_charmap_entry_t*)DE_ARRAY_BSEARCH(font->charmap, &code, de_charmap_search_compare);
 	if (entry) {
 		return font->glyphs + entry->glyph_index;

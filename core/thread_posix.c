@@ -19,52 +19,64 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-int de_thrd_create(de_thrd_t* thr, de_thrd_start_t func, void* arg) {	
-    pthread_create(thr, NULL, (void*(*)(void*)) func, arg);
-    return true;
+int de_thrd_create(de_thrd_t* thr, de_thrd_start_t func, void* arg)
+{
+	pthread_create(thr, NULL, (void*(*)(void*)) func, arg);
+	return true;
 }
 
-int de_thrd_detach(de_thrd_t* thr) {    
-    return pthread_detach(*thr) == 0;
+int de_thrd_detach(de_thrd_t* thr)
+{
+	return pthread_detach(*thr) == 0;
 }
 
-int de_thrd_join(de_thrd_t* thr) {
-    void* code;
-    return pthread_join(*thr, &code);
+int de_thrd_join(de_thrd_t* thr)
+{
+	void* code;
+	return pthread_join(*thr, &code);
 }
 
-void de_mtx_init(de_mtx_t* mtx) {
-    pthread_mutex_init(mtx, NULL);
+void de_mtx_init(de_mtx_t* mtx)
+{
+	pthread_mutex_init(mtx, NULL);
 }
 
-void de_mtx_lock(de_mtx_t* mtx) {	
+void de_mtx_lock(de_mtx_t* mtx)
+{
 	pthread_mutex_lock(mtx);
 }
 
-void de_mtx_unlock(de_mtx_t* mtx) {
+void de_mtx_unlock(de_mtx_t* mtx)
+{
 	pthread_mutex_unlock(mtx);
 }
 
-void de_mtx_destroy(de_mtx_t* mtx) {
-    pthread_mutex_destroy(mtx);
+void de_mtx_destroy(de_mtx_t* mtx)
+{
+	pthread_mutex_destroy(mtx);
 }
 
-void de_cnd_init(de_cnd_t* cnd) {
-    pthread_cond_init(cnd, NULL);
+void de_cnd_init(de_cnd_t* cnd)
+{
+	pthread_cond_init(cnd, NULL);
 }
 
-void de_cnd_destroy(de_cnd_t* cnd) {	
-    pthread_cond_destroy(cnd);
+void de_cnd_destroy(de_cnd_t* cnd)
+{
+	pthread_cond_destroy(cnd);
 }
 
-void de_cnd_signal(de_cnd_t* cnd) {
-    pthread_cond_signal(cnd);
+void de_cnd_signal(de_cnd_t* cnd)
+{
+	pthread_cond_signal(cnd);
 }
 
-void de_cnd_broadcast(de_cnd_t* cnd) {
-    pthread_cond_broadcast(cnd);
+void de_cnd_broadcast(de_cnd_t* cnd)
+{
+	pthread_cond_broadcast(cnd);
 }
 
-void de_cnd_wait(de_cnd_t* cnd, de_mtx_t* mtx) {
-    pthread_cond_wait(cnd, mtx);
+void de_cnd_wait(de_cnd_t* cnd, de_mtx_t* mtx)
+{
+	pthread_cond_wait(cnd, mtx);
 }

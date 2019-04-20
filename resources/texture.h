@@ -31,7 +31,7 @@ typedef enum de_texture_type_e {
 /**
 * @brief Common texture. Can be 2D, volume or cube
 */
-struct de_texture_t {				
+struct de_texture_t {
 	unsigned int id; /**< OpenGL texture id */
 	int width; /**< Width of texture */
 	int height; /**< Height of texture */

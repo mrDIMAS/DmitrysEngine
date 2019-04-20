@@ -19,23 +19,27 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-void de_listener_init(de_listener_t* l) {
+void de_listener_init(de_listener_t* l)
+{
 	l->position = (de_vec3_t) { 0 };
 	l->look = (de_vec3_t) { 0, 0, 1 };
 	l->up = (de_vec3_t) { 0, 1, 0 };
 }
 
-void de_listener_set_position(de_listener_t* l, const de_vec3_t* pos) {
+void de_listener_set_position(de_listener_t* l, const de_vec3_t* pos)
+{
 	DE_ASSERT(l);
 	l->position = *pos;
 }
 
-void de_listener_get_position(de_listener_t* l, de_vec3_t* pos) {
+void de_listener_get_position(de_listener_t* l, de_vec3_t* pos)
+{
 	DE_ASSERT(l);
 	*pos = l->position;
 }
 
-void de_listener_set_orientation(de_listener_t* l, const de_vec3_t* look, const de_vec3_t* up) {
+void de_listener_set_orientation(de_listener_t* l, const de_vec3_t* look, const de_vec3_t* up)
+{
 	DE_ASSERT(l);
 	DE_ASSERT(look);
 	DE_ASSERT(up);

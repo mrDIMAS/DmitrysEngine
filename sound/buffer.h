@@ -33,28 +33,28 @@ typedef enum de_sound_buffer_flags_t {
 														 uploaded */
 } de_sound_buffer_flags_t;
 
-/** 
+/**
  * Data in buffer is NON-INTERLEAVED, which for left (L) and right (R) channels means:
- * LLLLLLLLLLLLLL RRRRRRRRRRRRRR 
+ * LLLLLLLLLLLLLL RRRRRRRRRRRRRR
  * So basically data split into chunks for each channel.
- * 
+ *
  * Important notes about streaming:
  * When buffer is streaming, data size doubles.
  * |LLLLLLLLLLLLLL RRRRRRRRRRRRRR|LLLLLLLLLLLLLL RRRRRRRRRRRRRR|
  * ^                             ^
  * read_ptr                      stream_write_ptr
- * 
- * So while you read data from buffer by read_ptr, other part will be filled with new 
+ *
+ * So while you read data from buffer by read_ptr, other part will be filled with new
  * portion of data. When read_ptr will reach stream_write_ptr, they'll be swapped and
- * reading will be performed from new loaded data, while old data will be filled with 
- * new portion of data, this process will continue until end of file and when eof is 
+ * reading will be performed from new loaded data, while old data will be filled with
+ * new portion of data, this process will continue until end of file and when eof is
  * reached, streaming will be started from beginning of a file.
  */
 struct de_sound_buffer_t {
 	de_sound_context_t* ctx;
 	de_sound_format_t format;
 	float* data; /**< Data of buffer. Do NOT read from this pointer directly! Use read_ptr! */
-	float* read_ptr; /**< Pointer to beginning of actual block of samples */	
+	float* read_ptr; /**< Pointer to beginning of actual block of samples */
 	float* stream_write_ptr; /**< Pointer to beginning of block for streaming. */
 	size_t sample_per_channel; /**< Count of samples per each channel (left, right, etc.) */
 	size_t total_sample_per_channel; /**< Total amount of samples in the buffer. */

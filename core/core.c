@@ -44,8 +44,9 @@ struct de_core_t {
 	} platform;
 };
 
-static void de_core_clean(de_core_t* core) {
-	/* destroy every scene with all their contents */
+static void de_core_clean(de_core_t* core)
+{
+/* destroy every scene with all their contents */
 	while (core->scenes.head) {
 		de_scene_free(core->scenes.head);
 	}
@@ -61,7 +62,8 @@ static void de_core_clean(de_core_t* core) {
 	}
 }
 
-bool de_core_visit(de_object_visitor_t* visitor, de_core_t* core) {
+bool de_core_visit(de_object_visitor_t* visitor, de_core_t* core)
+{
 	bool result = true;
 	de_sound_context_lock(core->sound_context);
 	/* make sure to deserialize everything on "clean" core */
@@ -86,7 +88,7 @@ bool de_core_visit(de_object_visitor_t* visitor, de_core_t* core) {
 			de_resource_t* res = visited_resources.data[i];
 			DE_ARRAY_APPEND(core->resources, res);
 		}
-	}	
+	}
 	if (visitor->is_reading) {
 		/* now we can load resources. this step is deferred from actual resource serialization
 		 * because internally resource can request other resources (models for example can request
@@ -104,7 +106,8 @@ bool de_core_visit(de_object_visitor_t* visitor, de_core_t* core) {
 	return result;
 }
 
-de_core_t* de_core_init(const de_engine_params_t* params) {
+de_core_t* de_core_init(const de_engine_params_t* params)
+{
 	de_core_t* core;
 	core = DE_NEW(de_core_t);
 	de_log("Dmitry's Engine - Logging Started");
@@ -118,7 +121,8 @@ de_core_t* de_core_init(const de_engine_params_t* params) {
 	return core;
 }
 
-void de_core_shutdown(de_core_t* core) {
+void de_core_shutdown(de_core_t* core)
+{
 	while (core->scenes.head) {
 		de_scene_free(core->scenes.head);
 	}
@@ -139,47 +143,58 @@ void de_core_shutdown(de_core_t* core) {
 	de_log_close();
 }
 
-bool de_core_is_running(de_core_t* core) {
+bool de_core_is_running(de_core_t* core)
+{
 	return core->is_running;
 }
 
-void de_core_stop(de_core_t* core) {
+void de_core_stop(de_core_t* core)
+{
 	core->is_running = false;
 }
 
-unsigned int de_core_get_window_width(de_core_t* core) {
+unsigned int de_core_get_window_width(de_core_t* core)
+{
 	return core->params.video_mode.width;
 }
 
-unsigned int de_core_get_window_height(de_core_t* core) {
+unsigned int de_core_get_window_height(de_core_t* core)
+{
 	return core->params.video_mode.height;
 }
 
-void* de_core_get_user_pointer(de_core_t* core) {
+void* de_core_get_user_pointer(de_core_t* core)
+{
 	return core->user_pointer;
 }
 
-void de_core_set_user_pointer(de_core_t* core, void* ptr) {
+void de_core_set_user_pointer(de_core_t* core, void* ptr)
+{
 	core->user_pointer = ptr;
 }
 
-de_renderer_t* de_core_get_renderer(de_core_t* core) {
+de_renderer_t* de_core_get_renderer(de_core_t* core)
+{
 	return core->renderer;
 }
 
-de_gui_t* de_core_get_gui(de_core_t* core) {
+de_gui_t* de_core_get_gui(de_core_t* core)
+{
 	return core->gui;
 }
 
-de_sound_context_t* de_core_get_sound_context(de_core_t* core) {
+de_sound_context_t* de_core_get_sound_context(de_core_t* core)
+{
 	return core->sound_context;
 }
 
-void de_core_push_event(de_core_t* core, const de_event_t* evt) {
+void de_core_push_event(de_core_t* core, const de_event_t* evt)
+{
 	DE_ARRAY_APPEND(core->events_queue, *evt);
 }
 
-bool de_core_poll_event(de_core_t* core, de_event_t* evt) {
+bool de_core_poll_event(de_core_t* core, de_event_t* evt)
+{
 	de_core_platform_poll_events(core);
 	if (core->events_queue.size) {
 		*evt = core->events_queue.data[0];
@@ -189,11 +204,13 @@ bool de_core_poll_event(de_core_t* core, de_event_t* evt) {
 	return false;
 }
 
-de_scene_t* de_core_get_first_scene(de_core_t* core) {
+de_scene_t* de_core_get_first_scene(de_core_t* core)
+{
 	return core->scenes.head;
 }
 
-void de_core_add_resource(de_core_t* core, de_resource_t* resource) {
+void de_core_add_resource(de_core_t* core, de_resource_t* resource)
+{
 	for (size_t i = 0; i < core->resources.size; ++i) {
 		if (core->resources.data[i] == resource) {
 			de_log("trying to add already registered resource!");
@@ -203,7 +220,8 @@ void de_core_add_resource(de_core_t* core, de_resource_t* resource) {
 	DE_ARRAY_APPEND(core->resources, resource);
 }
 
-de_resource_t* de_core_find_resource_of_type(de_core_t* core, de_resource_type_t type, const de_path_t* path) {
+de_resource_t* de_core_find_resource_of_type(de_core_t* core, de_resource_type_t type, const de_path_t* path)
+{
 	for (size_t i = 0; i < core->resources.size; ++i) {
 		de_resource_t* res = core->resources.data[i];
 		if (de_path_eq(&res->source, path)) {
@@ -217,7 +235,8 @@ de_resource_t* de_core_find_resource_of_type(de_core_t* core, de_resource_type_t
 	return NULL;
 }
 
-de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type, const de_path_t* path, uint32_t flags) {
+de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type, const de_path_t* path, uint32_t flags)
+{
 	de_resource_t* res = de_core_find_resource_of_type(core, type, path);
 	if (res) {
 		return res;

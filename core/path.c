@@ -20,55 +20,67 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-void de_path_init(de_path_t* path) {
+void de_path_init(de_path_t* path)
+{
 	de_str8_init(&path->str);
 }
 
-void de_path_free(de_path_t* path) {
+void de_path_free(de_path_t* path)
+{
 	de_str8_free(&path->str);
 }
 
-void de_path_clear(de_path_t* path) {
+void de_path_clear(de_path_t* path)
+{
 	de_str8_clear(&path->str);
 }
 
-void de_path_from_cstr_as_view(de_path_t* path, const char* cstr) {
+void de_path_from_cstr_as_view(de_path_t* path, const char* cstr)
+{
 	path->str.str.data = (char*)cstr;
 	path->str.str.size = strlen(cstr) + 1;
 	path->str.str._capacity = path->str.str.size;
 }
 
-void de_path_copy(const de_path_t* src, de_path_t* dest) {
+void de_path_copy(const de_path_t* src, de_path_t* dest)
+{
 	de_str8_copy(&src->str, &dest->str);
 }
 
-void de_path_as_str8_view(de_path_t* path, de_str8_t* str) {
+void de_path_as_str8_view(de_path_t* path, de_str8_t* str)
+{
 	path->str.str.data = str->str.data;
 	path->str.str.size = str->str.size;
 	path->str.str._capacity = str->str._capacity;
 }
 
-const char* de_path_cstr(const de_path_t* path) {
+const char* de_path_cstr(const de_path_t* path)
+{
 	return de_str8_cstr(&path->str);
 }
 
-void de_path_append_cstr(de_path_t* path, const char* utf8str) {
+void de_path_append_cstr(de_path_t* path, const char* utf8str)
+{
 	de_str8_append_cstr(&path->str, utf8str);
 }
 
-void de_path_append_str8(de_path_t* path, const de_str8_t* str) {
+void de_path_append_str8(de_path_t* path, const de_str8_t* str)
+{
 	de_str8_append_str8(&path->str, str);
 }
 
-void de_path_append_str_view(de_path_t* path, const de_str8_view_t* view) {
+void de_path_append_str_view(de_path_t* path, const de_str8_view_t* view)
+{
 	de_str8_append_str_view(&path->str, view);
 }
 
-bool de_path_eq(const de_path_t* a, const de_path_t* b) {
+bool de_path_eq(const de_path_t* a, const de_path_t* b)
+{
 	return de_str8_eq_str8(&a->str, &b->str);
 }
 
-void de_path_extension(const de_path_t* p, de_str8_view_t* ext) {
+void de_path_extension(const de_path_t* p, de_str8_view_t* ext)
+{
 	const char* dot_pos = strrchr(de_path_cstr(p), '.');
 	if (dot_pos) {
 		de_str8_view_set(ext, dot_pos, strlen(dot_pos));
@@ -77,7 +89,8 @@ void de_path_extension(const de_path_t* p, de_str8_view_t* ext) {
 	}
 }
 
-void de_path_file_name(const de_path_t* p, de_str8_view_t* name) {
+void de_path_file_name(const de_path_t* p, de_str8_view_t* name)
+{
 	const char* dot_pos, *slash_pos, *str;
 
 	if (!p) {

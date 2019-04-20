@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-static void de_project_point_on_line(const de_vec3_t* point, const de_ray_t* ray, de_vec3_t* out) {
+static void de_project_point_on_line(const de_vec3_t* point, const de_ray_t* ray, de_vec3_t* out)
+{
 	float sqr_len;
 	de_vec3_t pa, offset;
 
@@ -34,8 +35,9 @@ static void de_project_point_on_line(const de_vec3_t* point, const de_ray_t* ray
 	de_vec3_add(out, &ray->origin, &offset);
 }
 
-static bool de_is_point_on_line_segment(const de_vec3_t* point, const de_vec3_t* a, const de_vec3_t* b) {
-	/* simply check, if point lies in bounding box (a,b), means that point is on line  */
+static bool de_is_point_on_line_segment(const de_vec3_t* point, const de_vec3_t* a, const de_vec3_t* b)
+{
+/* simply check, if point lies in bounding box (a,b), means that point is on line  */
 	de_vec3_t min = *a;
 	de_vec3_t max = *b;
 
@@ -66,7 +68,8 @@ static bool de_is_point_on_line_segment(const de_vec3_t* point, const de_vec3_t*
 	return true;
 }
 
-static bool de_body_sphere_intersection(const de_ray_t* edgeRay, const de_vec3_t* sphere_pos, float sphere_radius, de_vec3_t* intersection_pt) {
+static bool de_body_sphere_intersection(const de_ray_t* edgeRay, const de_vec3_t* sphere_pos, float sphere_radius, de_vec3_t* intersection_pt)
+{
 	de_vec3_t ray_end_pt;
 	if (de_ray_sphere_intersection(edgeRay, sphere_pos, sphere_radius, NULL, NULL)) {
 		de_project_point_on_line(sphere_pos, edgeRay, intersection_pt);
@@ -78,7 +81,8 @@ static bool de_body_sphere_intersection(const de_ray_t* edgeRay, const de_vec3_t
 	return false;
 }
 
-static bool de_body_point_intersection(const de_vec3_t* point, const de_vec3_t* sphere_pos, float sphere_radius, de_vec3_t* intersection_pt) {
+static bool de_body_point_intersection(const de_vec3_t* point, const de_vec3_t* sphere_pos, float sphere_radius, de_vec3_t* intersection_pt)
+{
 	if (de_vec3_sqr_distance(point, sphere_pos) < sphere_radius * sphere_radius) {
 		*intersection_pt = *point;
 		return true;
@@ -86,7 +90,8 @@ static bool de_body_point_intersection(const de_vec3_t* point, const de_vec3_t* 
 	return false;
 }
 
-static bool de_sphere_triangle_intersection(const de_vec3_t* sphere_pos, float sphere_radius, const de_static_triangle_t* triangle, de_vec3_t* intersection_pt) {
+static bool de_sphere_triangle_intersection(const de_vec3_t* sphere_pos, float sphere_radius, const de_static_triangle_t* triangle, de_vec3_t* intersection_pt)
+{
 	de_plane_t plane;
 	float distance;
 
@@ -108,7 +113,8 @@ static bool de_sphere_triangle_intersection(const de_vec3_t* sphere_pos, float s
 	return false;
 }
 
-static void de_body_verlet(de_body_t* body, float dt2) {
+static void de_body_verlet(de_body_t* body, float dt2)
+{
 	de_vec3_t last_position;
 	float friction, k1, k2;
 	de_vec3_t velocity;
@@ -144,14 +150,16 @@ static void de_body_verlet(de_body_t* body, float dt2) {
 	}
 }
 
-static de_contact_t* de_body_add_contact(de_body_t* body) {
+static de_contact_t* de_body_add_contact(de_body_t* body)
+{
 	if (body->contact_count < DE_MAX_CONTACTS) {
 		return &body->contacts[body->contact_count++];
 	}
 	return NULL;
 }
 
-void de_body_triangle_collision(de_static_triangle_t* triangle, de_body_t* sphere) {
+void de_body_triangle_collision(de_static_triangle_t* triangle, de_body_t* sphere)
+{
 	de_vec3_t intersectionPoint;
 	de_vec3_t middle, orientation, offset;
 	float length, penetrationDepth;
@@ -185,85 +193,100 @@ void de_body_triangle_collision(de_static_triangle_t* triangle, de_body_t* spher
 	}
 }
 
-void de_body_set_gravity(de_body_t* body, const de_vec3_t * gravity) {	
+void de_body_set_gravity(de_body_t* body, const de_vec3_t * gravity)
+{
 	DE_ASSERT(body);
 	body->gravity = *gravity;
 }
 
-void de_body_set_position(de_body_t* body, const de_vec3_t * pos) {	
+void de_body_set_position(de_body_t* body, const de_vec3_t * pos)
+{
 	DE_ASSERT(body);
 	body->position = *pos;
 	body->last_position = *pos;
 }
 
-void de_body_get_position(const de_body_t* body, de_vec3_t* pos) {	
+void de_body_get_position(const de_body_t* body, de_vec3_t* pos)
+{
 	DE_ASSERT(body);
 	*pos = body->position;
 }
 
-void de_body_set_radius(de_body_t* body, float radius) {	
+void de_body_set_radius(de_body_t* body, float radius)
+{
 	DE_ASSERT(body);
 	body->radius = radius;
 }
 
-float de_body_get_radius(de_body_t* body) {	
+float de_body_get_radius(de_body_t* body)
+{
 	DE_ASSERT(body);
 	return body->radius;
 }
 
-size_t de_body_get_contact_count(de_body_t* body) {	
+size_t de_body_get_contact_count(de_body_t* body)
+{
 	DE_ASSERT(body);
 	return body->contact_count;
 }
 
-de_contact_t* de_body_get_contact(de_body_t* body, size_t i) {
+de_contact_t* de_body_get_contact(de_body_t* body, size_t i)
+{
 	if (i >= DE_MAX_CONTACTS) {
 		return NULL;
 	}
-	
+
 	DE_ASSERT(body);
 	return body->contacts + i;
 }
 
-void de_body_free(de_body_t* body) {
+void de_body_free(de_body_t* body)
+{
 	DE_ASSERT(body);
 	DE_LINKED_LIST_REMOVE(body->scene->bodies, body);
 	de_free(body);
 }
 
-void de_body_move(de_body_t* body, const de_vec3_t* velocity) {	
+void de_body_move(de_body_t* body, const de_vec3_t* velocity)
+{
 	DE_ASSERT(body);
 	de_vec3_add(&body->position, &body->position, velocity);
 }
 
-void de_body_set_velocity(de_body_t* body, const de_vec3_t* velocity) {	
+void de_body_set_velocity(de_body_t* body, const de_vec3_t* velocity)
+{
 	DE_ASSERT(body);
 	body->last_position = body->position;
 	de_vec3_sub(&body->last_position, &body->last_position, velocity);
 }
 
-void de_body_set_y_velocity(de_body_t* body, float y_velocity) {	
+void de_body_set_y_velocity(de_body_t* body, float y_velocity)
+{
 	DE_ASSERT(body);
 	body->last_position.y = body->position.y - y_velocity;
 }
 
-void de_body_set_x_velocity(de_body_t* body, float x_velocity) {	
+void de_body_set_x_velocity(de_body_t* body, float x_velocity)
+{
 	DE_ASSERT(body);
 	body->last_position.x = body->position.x - x_velocity;
 }
 
-void de_body_set_z_velocity(de_body_t* body, float z_velocity) {	
+void de_body_set_z_velocity(de_body_t* body, float z_velocity)
+{
 	DE_ASSERT(body);
 	body->last_position.z = body->position.z - z_velocity;
 }
 
-void de_body_get_velocity(de_body_t* body, de_vec3_t * velocity) {	
+void de_body_get_velocity(de_body_t* body, de_vec3_t * velocity)
+{
 	DE_ASSERT(body);
 	de_vec3_sub(velocity, &body->position, &body->last_position);
 }
 
-de_body_t* de_body_create(de_scene_t* s) {
-	DE_ASSERT(s);		
+de_body_t* de_body_create(de_scene_t* s)
+{
+	DE_ASSERT(s);
 	de_body_t* body = DE_NEW(de_body_t);
 	DE_LINKED_LIST_APPEND(s->bodies, body);
 	body->scene = s;
@@ -274,7 +297,8 @@ de_body_t* de_body_create(de_scene_t* s) {
 	return body;
 }
 
-bool de_body_visit(de_object_visitor_t* visitor, de_body_t* body) {
+bool de_body_visit(de_object_visitor_t* visitor, de_body_t* body)
+{
 	bool result = true;
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Scene", &body->scene, de_scene_visit);
 	result &= de_object_visitor_visit_vec3(visitor, "Gravity", &body->gravity);
@@ -287,9 +311,10 @@ bool de_body_visit(de_object_visitor_t* visitor, de_body_t* body) {
 	return result;
 }
 
-de_body_t* de_body_copy(de_scene_t* dest_scene, de_body_t* body) {
+de_body_t* de_body_copy(de_scene_t* dest_scene, de_body_t* body)
+{
 	DE_ASSERT(dest_scene);
-	DE_ASSERT(body);	
+	DE_ASSERT(body);
 	de_body_t* copy = DE_NEW(de_body_t);
 	copy->scene = dest_scene;
 	copy->gravity = body->gravity;

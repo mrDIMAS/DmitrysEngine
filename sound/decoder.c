@@ -38,7 +38,8 @@ typedef struct de_wav_header_t {
 	uint32_t data_chunk_size;
 } de_wav_header_t;
 
-bool de_wav_read_header(FILE* f, de_wav_header_t* wav) {
+bool de_wav_read_header(FILE* f, de_wav_header_t* wav)
+{
 	fread(wav->chunk_id, 1, sizeof(wav->chunk_id), f);
 	if (strncmp(wav->chunk_id, "RIFF", sizeof(wav->chunk_id)) != 0) {
 		return false;
@@ -71,7 +72,8 @@ bool de_wav_read_header(FILE* f, de_wav_header_t* wav) {
 	return true;
 }
 
-de_sound_decoder_t* de_sound_decoder_init(const char* filename) {
+de_sound_decoder_t* de_sound_decoder_init(const char* filename)
+{
 	de_path_t path;
 	de_str8_view_t ext;
 	de_sound_decoder_t* dec = DE_NEW(de_sound_decoder_t);
@@ -100,7 +102,8 @@ de_sound_decoder_t* de_sound_decoder_init(const char* filename) {
 	return dec;
 }
 
-size_t de_sound_decoder_read(de_sound_decoder_t* dec, float* out_data, size_t sample_per_channel, size_t offset, size_t count) {
+size_t de_sound_decoder_read(de_sound_decoder_t* dec, float* out_data, size_t sample_per_channel, size_t offset, size_t count)
+{
 	uint8_t chunk[64];
 	size_t i = 0, k;
 	int sample_chunk_size;
@@ -134,7 +137,8 @@ size_t de_sound_decoder_read(de_sound_decoder_t* dec, float* out_data, size_t sa
 	return i;
 }
 
-void de_sound_decoder_rewind(de_sound_decoder_t* dec) {
+void de_sound_decoder_rewind(de_sound_decoder_t* dec)
+{
 	rewind(dec->file);
 	dec->bytes_readed = 0;
 	switch (dec->type) {
@@ -145,7 +149,8 @@ void de_sound_decoder_rewind(de_sound_decoder_t* dec) {
 	}
 }
 
-void de_sound_decoder_free(de_sound_decoder_t* dec) {
+void de_sound_decoder_free(de_sound_decoder_t* dec)
+{
 	fclose(dec->file);
 	de_free(dec);
 }

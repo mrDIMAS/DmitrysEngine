@@ -20,14 +20,16 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 
-void de_fbx_rdbuf_init(de_fbx_rdbuf_t* rdbuf) {
+void de_fbx_rdbuf_init(de_fbx_rdbuf_t* rdbuf)
+{
 	rdbuf->chunk_read_cursor = 0;
 	rdbuf->chunk_size = 0;
 	rdbuf->eof = false;
 }
 
 
-char de_fbx_rdbuf_next_symbol(FILE* file, de_fbx_rdbuf_t* rdbuf) {
+char de_fbx_rdbuf_next_symbol(FILE* file, de_fbx_rdbuf_t* rdbuf)
+{
 	if (rdbuf->chunk_read_cursor >= rdbuf->chunk_size) {
 		rdbuf->chunk_size = fread(rdbuf->chunk, sizeof(char), sizeof(rdbuf->chunk), file);
 		rdbuf->chunk_read_cursor = 0;
@@ -40,17 +42,20 @@ char de_fbx_rdbuf_next_symbol(FILE* file, de_fbx_rdbuf_t* rdbuf) {
 }
 
 
-bool de_fbx_rdbuf_is_eof(de_fbx_rdbuf_t* rdbuf) {
+bool de_fbx_rdbuf_is_eof(de_fbx_rdbuf_t* rdbuf)
+{
 	return rdbuf->eof && rdbuf->chunk_read_cursor >= rdbuf->chunk_size;
 }
 
 
-bool de_fbx_is_space(char c) {
+bool de_fbx_is_space(char c)
+{
 	return c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v';
 }
 
 
-de_fbx_node_t* de_fbx_ascii_load_file(const char* filename, de_fbx_buffer_t* data_buf) {
+de_fbx_node_t* de_fbx_ascii_load_file(const char* filename, de_fbx_buffer_t* data_buf)
+{
 	int line_size = 0;
 	char buffer[32768];
 	de_fbx_rdbuf_t rdbuf;
@@ -177,7 +182,8 @@ de_fbx_node_t* de_fbx_ascii_load_file(const char* filename, de_fbx_buffer_t* dat
 
 
 
-de_fbx_reference_t de_fbx_get_reference(const char* str) {
+de_fbx_reference_t de_fbx_get_reference(const char* str)
+{
 	if (strcmp(str, "Direct") == 0) {
 		return DE_FBX_REFERENCE_DIRECT;
 	} else if (strcmp(str, "IndexToDirect") == 0 || strcmp(str, "Index") == 0) {

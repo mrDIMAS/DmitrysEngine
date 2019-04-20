@@ -67,10 +67,10 @@ struct de_animation_t {
 	float time_position;        /**< Current time of animation (playback position) */
 	float weight;               /**< Weight of animation [0; 1]. Used for animation blending */
 	float fade_step;            /**< Speed of weight fading. Used for animation blending */
-	/* Pointer to resource from which this animation was instantiated. 
+	/* Pointer to resource from which this animation was instantiated.
 	 * For now resource type can be only DE_RESOURCE_TYPE_MODEL, because models
 	 * are the only source of animations. In future there can be added more types */
-	de_resource_t* resource; 
+	de_resource_t* resource;
 };
 
 /**

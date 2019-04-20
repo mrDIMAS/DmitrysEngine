@@ -24,6 +24,7 @@ Please note, that this engine is at early development stage and some features ma
     * Deferred shading
     * Normal mapping
 	* Skeletal animation
+	* Instancing
 * Sound
 	* 2D + 3D 
 	* WAV format support 
@@ -41,6 +42,7 @@ Please note, that this engine is at early development stage and some features ma
 	* Canvas
 	* Grid
 	* Slide selector	
+	* Image
 * TGA image loading
 * Position-based physics
 * Built-in save/load functionality via object visitor.
@@ -55,6 +57,7 @@ Please note, that this engine is at early development stage and some features ma
 	* Performance optimizations
 	* Levels of details (LODs)
 	* Particle systems
+	* Instancing optimizations (batching, etc.)
 * GUI improvements
 	* Styles		
 	* More widgets

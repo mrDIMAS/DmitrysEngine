@@ -20,7 +20,7 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 typedef struct de_path_t {
-	de_str8_t str;	
+	de_str8_t str;
 } de_path_t;
 
 void de_path_init(de_path_t* path);

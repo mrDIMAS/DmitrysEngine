@@ -20,14 +20,16 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 
-void de_bitmap_create(de_bitmap_t * bitmap, int width, int height) {
+void de_bitmap_create(de_bitmap_t * bitmap, int width, int height)
+{
 	bitmap->width = width;
 	bitmap->height = height;
 	bitmap->pixels = (unsigned char*)de_calloc(width, height);
 }
 
 
-void de_bitmap_set_pixel(de_bitmap_t* bitmap, int x, int y, unsigned char pixel) {
+void de_bitmap_set_pixel(de_bitmap_t* bitmap, int x, int y, unsigned char pixel)
+{
 	if (x < 0 || x >= bitmap->width) {
 		return;
 	}
@@ -39,7 +41,8 @@ void de_bitmap_set_pixel(de_bitmap_t* bitmap, int x, int y, unsigned char pixel)
 }
 
 
-point_array_t de_vg_eval_quad_bezier(const de_point_t * p0, const de_point_t * p1, const de_point_t * p2, int steps) {
+point_array_t de_vg_eval_quad_bezier(const de_point_t * p0, const de_point_t * p1, const de_point_t * p2, int steps)
+{
 	point_array_t points;
 	float t;
 
@@ -64,7 +67,8 @@ point_array_t de_vg_eval_quad_bezier(const de_point_t * p0, const de_point_t * p
 }
 
 
-bool de_vg_line_line_intersection(de_line2_t* a, de_line2_t* b, de_point_t *out) {
+bool de_vg_line_line_intersection(de_line2_t* a, de_line2_t* b, de_point_t *out)
+{
 	float s1x = a->end.x - a->begin.x;
 	float s1y = a->end.y - a->begin.y;
 	float s2x = b->end.x - b->begin.x;
@@ -80,7 +84,8 @@ bool de_vg_line_line_intersection(de_line2_t* a, de_line2_t* b, de_point_t *out)
 }
 
 
-static int de_compare_floats(const void* a_ptr, const void* b_ptr) {
+static int de_compare_floats(const void* a_ptr, const void* b_ptr)
+{
 	const float* a = (const float*)a_ptr;
 	const float* b = (const float*)b_ptr;
 	if (*a < *b) return -1;
@@ -89,7 +94,8 @@ static int de_compare_floats(const void* a_ptr, const void* b_ptr) {
 }
 
 
-line_array_t de_vg_polys_to_scanlines(de_polygon_t* polys, size_t poly_count, float width, float height, float scale) {
+line_array_t de_vg_polys_to_scanlines(de_polygon_t* polys, size_t poly_count, float width, float height, float scale)
+{
 	size_t i;
 	size_t j;
 	line_array_t scanlines;
@@ -168,7 +174,8 @@ line_array_t de_vg_polys_to_scanlines(de_polygon_t* polys, size_t poly_count, fl
 }
 
 
-de_bitmap_t de_bitmap_downscale4_box_filter(de_bitmap_t *src) {
+de_bitmap_t de_bitmap_downscale4_box_filter(de_bitmap_t *src)
+{
 	int dest_y;
 	int dest_x;
 	int dy;
@@ -210,7 +217,8 @@ de_bitmap_t de_bitmap_downscale4_box_filter(de_bitmap_t *src) {
 }
 
 
-de_bitmap_t de_vg_raster_scanlines(de_bitmap_t* bitmap, line_array_t lines) {
+de_bitmap_t de_vg_raster_scanlines(de_bitmap_t* bitmap, line_array_t lines)
+{
 	int row, col;
 	int border = 4;
 	int half_border = border / 2;

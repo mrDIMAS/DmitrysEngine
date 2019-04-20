@@ -19,16 +19,19 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-static void de_gui_canvas_perform_layout(de_gui_node_t* n) {
+static void de_gui_canvas_perform_layout(de_gui_node_t* n)
+{
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_CANVAS);
 	DE_UNUSED(n);
 }
 
-static void de_gui_canvas_init(de_gui_node_t* n) {
+static void de_gui_canvas_init(de_gui_node_t* n)
+{
 	DE_UNUSED(n);
 }
 
-de_gui_dispatch_table_t* de_gui_canvas_get_dispatch_table() {
+de_gui_dispatch_table_t* de_gui_canvas_get_dispatch_table()
+{
 	static de_gui_dispatch_table_t dispatch_table = {
 		.init = de_gui_canvas_init,
 		.layout_children = de_gui_canvas_perform_layout,

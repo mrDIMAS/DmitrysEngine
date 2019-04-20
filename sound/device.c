@@ -42,7 +42,8 @@ void de_sound_device_send_data(de_sound_device_t* dev);
 #include "sound/device_alsa.c"
 #endif
 
-static int de_sound_device_mixer_thread(void* ptr) {
+static int de_sound_device_mixer_thread(void* ptr)
+{
 	size_t i, k;
 	de_sound_device_t* dev = (de_sound_device_t*)ptr;
 	de_sound_context_t* ctx = dev->ctx;
@@ -60,9 +61,9 @@ static int de_sound_device_mixer_thread(void* ptr) {
 		/* mix them */
 		for (i = 0; i < dev->out_samples_count;) {
 			float left = 0, right = 0;
-			for(k = 0; k < dev->active_sources.size; ++k) {
+			for (k = 0; k < dev->active_sources.size; ++k) {
 				float sleft, sright;
-				de_sound_source_sample(dev->active_sources.data[k], &sleft, &sright);				
+				de_sound_source_sample(dev->active_sources.data[k], &sleft, &sright);
 				left += sleft;
 				right += sright;
 			}
@@ -75,8 +76,8 @@ static int de_sound_device_mixer_thread(void* ptr) {
 			if (right > 1.0f) {
 				right = 1.0f;
 			} else if (right < -1.0f) {
-				right = -1.0f ;
-			}	
+				right = -1.0f;
+			}
 			dev->out_buffer[i++] = (short)(ctx->master_volume * left * (float)INT16_MAX);
 			dev->out_buffer[i++] = (short)(ctx->master_volume * right * (float)INT16_MAX);
 		}
@@ -90,12 +91,13 @@ static int de_sound_device_mixer_thread(void* ptr) {
 	return 0;
 }
 
-bool de_sound_device_init(de_sound_context_t* ctx, de_sound_device_t* dev) {
+bool de_sound_device_init(de_sound_context_t* ctx, de_sound_device_t* dev)
+{
 	de_thrd_t mixer_thread;
 
 	de_zero(dev, sizeof(*dev));
 	dev->ctx = ctx;
-	dev->sample_rate = 44100;	
+	dev->sample_rate = 44100;
 	dev->buffer_len_bytes = dev->sample_rate / 5;
 	dev->out_samples_count = dev->buffer_len_bytes / sizeof(int16_t);
 	if ((dev->out_samples_count % 2) != 0) {
@@ -115,7 +117,8 @@ bool de_sound_device_init(de_sound_context_t* ctx, de_sound_device_t* dev) {
 	return true;
 }
 
-void de_sound_device_free(de_sound_device_t* dev) {
+void de_sound_device_free(de_sound_device_t* dev)
+{
 	dev->mixer_status = DE_MIXER_STATUS_NEED_STOP;
 	de_sound_context_lock(dev->ctx);
 	/* loop to prevent spurious wakeups */

@@ -23,14 +23,14 @@
 * @brief Returns pointer to null-terminated text.
 *
 * WARNING: You must call de_free to free data! Otherwise there will be memory leaks!
-* 
-* Note: Implementation is platform-specific 
+*
+* Note: Implementation is platform-specific
 */
 char* de_clipboard_get_text();
 
 /**
  * @brief Sets text into clipboard
  *
- * Note: Implementation is platform-specific 
+ * Note: Implementation is platform-specific
  */
 void de_clipboard_set_text(char* data);

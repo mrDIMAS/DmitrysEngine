@@ -88,7 +88,7 @@ typedef struct de_object_visitor_field_t {
  * @brief Object visitor node - container for data fields.
  */
 typedef struct de_object_visitor_node_t {
-	de_str8_t name;	
+	de_str8_t name;
 	struct de_object_visitor_node_t* parent;
 	DE_ARRAY_DECLARE(de_object_visitor_field_t, fields);
 	DE_ARRAY_DECLARE(struct de_object_visitor_node_t*, children);

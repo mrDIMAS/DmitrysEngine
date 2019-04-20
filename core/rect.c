@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-bool de_rect_contains(const de_rectf_t* rect, const de_vec2_t* point) {
+bool de_rect_contains(const de_rectf_t* rect, const de_vec2_t* point)
+{
 	return
 		point->x >= rect->x &&
 		point->x <= rect->x + rect->w &&

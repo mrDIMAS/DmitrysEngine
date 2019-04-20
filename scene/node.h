@@ -48,7 +48,7 @@ typedef struct de_node_dispatch_table_t {
  *
  * Important note: please consider using special functions for nodes, instead of
  * directly accessing fields of structure. Suddenly internals could be changed
- * and your game will not be compiling! 
+ * and your game will not be compiling!
  */
 struct de_node_t {
 	de_node_type_t type;
@@ -69,14 +69,16 @@ struct de_node_t {
 	bool need_update; /**< Indicates that node's transform needs to be updated */
 	de_node_t* parent; /**< Pool reference to parent node */
 	DE_ARRAY_DECLARE(de_node_t*, children); /**< Array of pool references to child nodes */
-	bool visible; /**< Local visibility. Actual visibility defined by hierarchy. So if parent node is invisible, then child node will be too */	
+	bool local_visibility; /**< Local visibility. Actual visibility defined by hierarchy. So if parent node is invisible, then child node will be too */
+	bool global_visibility;
 	de_node_t* original; /**< Pointer to original node in resource from which this node copied. */
 	void* user_data; /**< Non-serializable. */
 	bool is_bone;
 	de_body_t* body;
+	float depth_hack; /**< Depth hack value for node, will be used to hack projection matrix on render. Used to make object render on-top of other. */
 	de_resource_t* model_resource; /**< Pointer to model from which this node was instantiated.  */
 	de_node_dispatch_table_t* dispatch_table;
-	DE_LINKED_LIST_ITEM(struct de_node_t);	
+	DE_LINKED_LIST_ITEM(struct de_node_t);
 	/* Specialization. Avoid accessing these directly, use de_node_to_xxx instead. */
 	union {
 		de_mesh_t mesh;
@@ -259,3 +261,23 @@ void de_node_set_name(de_node_t* node, const char* name);
  * @brief Tries to find a copy of specified node in whole hierarchy of other node defined by root.
  */
 de_node_t* de_node_find_copy_of(de_node_t* root, de_node_t* node);
+
+/**
+ * @brief Sets value which will be used to modify projection matrix when rendering a node.
+ * Very useful for object which should be rendered on-top of other, like weapons in first person shooters.
+ * Typical value is 0.1.
+ */
+void de_node_set_depth_hack(de_node_t* node, float value);
+
+/**
+ * @brief Returns current depth hack values used by node.
+ */
+float de_node_get_depth_hack(de_node_t* node);
+
+void de_node_set_local_visibility(de_node_t* node, bool visibility);
+
+bool de_node_get_local_visibility(de_node_t* node);
+
+bool de_node_get_global_visibility(de_node_t* node);
+
+void de_node_calculate_visibility_descending(de_node_t* node);

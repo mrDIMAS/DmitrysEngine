@@ -21,10 +21,10 @@
 
 /* Partial implementation of C11 threads.h
  * Threads are optional in C11 and most compilers ignore them.
- * 
+ *
  * WARNING: Current implementation for Windows have minumum supported version
  * Windows Vista. WinXP is not supported!
- * 
+ *
  * Note: Implementation is platform-specific. */
 
 #if defined(__GNUC__) || defined(__MINGW32__)

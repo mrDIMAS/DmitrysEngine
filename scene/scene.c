@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-de_scene_t* de_scene_create(de_core_t* core) {
+de_scene_t* de_scene_create(de_core_t* core)
+{
 	de_scene_t* s = DE_NEW(de_scene_t);
 	s->core = core;
 	DE_LINKED_LIST_INIT(s->nodes);
@@ -27,8 +28,9 @@ de_scene_t* de_scene_create(de_core_t* core) {
 	return s;
 }
 
-void de_scene_free(de_scene_t* s) {
-	/* free nodes */
+void de_scene_free(de_scene_t* s)
+{
+/* free nodes */
 	while (s->nodes.head) {
 		de_node_free(s->nodes.head);
 	}
@@ -55,7 +57,8 @@ void de_scene_free(de_scene_t* s) {
 	de_free(s);
 }
 
-de_static_geometry_t* de_scene_create_static_geometry(de_scene_t* s) {
+de_static_geometry_t* de_scene_create_static_geometry(de_scene_t* s)
+{
 	de_static_geometry_t* geom;
 	assert(s);
 	geom = DE_NEW(de_static_geometry_t);
@@ -64,14 +67,16 @@ de_static_geometry_t* de_scene_create_static_geometry(de_scene_t* s) {
 	return geom;
 }
 
-void de_scene_free_static_geometry(de_scene_t* s, de_static_geometry_t* geom) {
+void de_scene_free_static_geometry(de_scene_t* s, de_static_geometry_t* geom)
+{
 	assert(s);
 	DE_LINKED_LIST_REMOVE(s->static_geometries, geom);
 	DE_ARRAY_FREE(geom->triangles);
 	de_free(geom);
 }
 
-void de_scene_add_node(de_scene_t* s, de_node_t* node) {
+void de_scene_add_node(de_scene_t* s, de_node_t* node)
+{
 	DE_LINKED_LIST_APPEND(s->nodes, node);
 	node->scene = s;
 	if (node->type == DE_NODE_TYPE_CAMERA) {
@@ -79,7 +84,8 @@ void de_scene_add_node(de_scene_t* s, de_node_t* node) {
 	}
 }
 
-void de_scene_remove_node(de_scene_t* s, de_node_t* node) {
+void de_scene_remove_node(de_scene_t* s, de_node_t* node)
+{
 	if (node == s->active_camera) {
 		s->active_camera = NULL;
 	}
@@ -89,8 +95,10 @@ void de_scene_remove_node(de_scene_t* s, de_node_t* node) {
 	DE_LINKED_LIST_REMOVE(s->nodes, node);
 }
 
-de_node_t* de_scene_find_node(const de_scene_t* s, const char* name) {
-	DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, s->nodes) {
+de_node_t* de_scene_find_node(const de_scene_t* s, const char* name)
+{
+	DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, s->nodes)
+	{
 		if (de_str8_eq(&node->name, name)) {
 			return node;
 		}
@@ -98,9 +106,11 @@ de_node_t* de_scene_find_node(const de_scene_t* s, const char* name) {
 	return NULL;
 }
 
-void de_scene_update(de_scene_t* s, double dt) {
-	/* Animations prepass - reset local transform of associated track nodes for blending */
-	DE_LINKED_LIST_FOR_EACH_T(de_animation_t*, anim, s->animations) {
+void de_scene_update(de_scene_t* s, double dt)
+{
+/* Animations prepass - reset local transform of associated track nodes for blending */
+	DE_LINKED_LIST_FOR_EACH_T(de_animation_t*, anim, s->animations)
+	{
 		if (de_animation_is_flags_set(anim, DE_ANIMATION_FLAG_ENABLED)) {
 			for (size_t i = 0; i < anim->tracks.size; ++i) {
 				de_animation_track_t* track = anim->tracks.data[i];
@@ -115,19 +125,23 @@ void de_scene_update(de_scene_t* s, double dt) {
 	}
 
 	/* Animation pass */
-	DE_LINKED_LIST_FOR_EACH_T(de_animation_t*, anim, s->animations) {
+	DE_LINKED_LIST_FOR_EACH_T(de_animation_t*, anim, s->animations)
+	{
 		de_animation_update(anim, (float)dt);
 	}
 
-	/* Calculate transforms of nodes starting from root nodes */
-	DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, s->nodes) {
-		if(!node->parent) {
+	/* Calculate transforms and visibility of nodes starting from root nodes */
+	DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, s->nodes)
+	{
+		if (!node->parent) {
+			de_node_calculate_visibility_descending(node);
 			de_node_calculate_transforms_descending(node);
-		}		
+		}
 	}
 }
 
-bool de_scene_visit(de_object_visitor_t* visitor, de_scene_t* scene) {
+bool de_scene_visit(de_object_visitor_t* visitor, de_scene_t* scene)
+{
 	bool result = true;
 	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Nodes", scene->nodes, de_node_t, de_node_visit);
 	if (visitor->is_reading) {
@@ -135,13 +149,15 @@ bool de_scene_visit(de_object_visitor_t* visitor, de_scene_t* scene) {
 		/* resolve pointers to original nodes from model resources using names of nodes
 		 * notes: this is unreliable mechanism, because if name will be changed, resolving
 		 * will fail. at this moment of time I do not know better way of resolving pointers. */
-		DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes) {
+		DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes)
+		{
 			if (!node->original) {
 				for (size_t i = 0; i < visitor->core->resources.size; ++i) {
 					de_resource_t* res = visitor->core->resources.data[i];
 					if (res->type == DE_RESOURCE_TYPE_MODEL && res == node->model_resource) {
 						de_model_t* model = &res->s.model;
-						DE_LINKED_LIST_FOR_EACH_T(de_node_t*, ref_node, model->scene->nodes) {
+						DE_LINKED_LIST_FOR_EACH_T(de_node_t*, ref_node, model->scene->nodes)
+						{
 							if (de_str8_eq_str8(&ref_node->name, &node->name)) {
 								node->original = ref_node;
 							}
@@ -151,7 +167,8 @@ bool de_scene_visit(de_object_visitor_t* visitor, de_scene_t* scene) {
 			}
 		}
 		/* resolve rest recursively starting from root nodes */
-		DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes) {
+		DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes)
+		{
 			if (!node->parent) {
 				de_node_resolve(node);
 			}
@@ -161,7 +178,8 @@ bool de_scene_visit(de_object_visitor_t* visitor, de_scene_t* scene) {
 	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Animations", scene->animations, de_animation_t, de_animation_visit);
 	if (visitor->is_reading) {
 		/* resolve animations */
-		DE_LINKED_LIST_FOR_EACH_T(de_animation_t*, anim, scene->animations) {
+		DE_LINKED_LIST_FOR_EACH_T(de_animation_t*, anim, scene->animations)
+		{
 			de_animation_resolve(anim);
 		}
 	}

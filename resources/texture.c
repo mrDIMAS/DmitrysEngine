@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-static void de_texture_init(de_resource_t* res) {
+static void de_texture_init(de_resource_t* res)
+{
 	de_texture_t* tex = de_resource_to_texture(res);
 	tex->width = 0;
 	tex->height = 0;
@@ -31,13 +32,15 @@ static void de_texture_init(de_resource_t* res) {
 	tex->need_upload = true;
 }
 
-static void de_texture_deinit(de_resource_t* res) {
+static void de_texture_deinit(de_resource_t* res)
+{
 	de_texture_t* tex = de_resource_to_texture(res);
 	de_renderer_remove_texture(res->core->renderer, tex);
 	de_free(tex->pixels);
 }
 
-static bool de_texture_load(de_resource_t* res) {
+static bool de_texture_load(de_resource_t* res)
+{
 	de_texture_t* tex = de_resource_to_texture(res);
 	de_image_t img = { 0 };
 	if (de_image_load_tga(de_path_cstr(&res->source), &img)) {
@@ -51,7 +54,8 @@ static bool de_texture_load(de_resource_t* res) {
 	return false;
 }
 
-void de_texture_alloc_pixels(de_texture_t* tex, int w, int h, size_t byte_per_pixel) {
+void de_texture_alloc_pixels(de_texture_t* tex, int w, int h, size_t byte_per_pixel)
+{
 	tex->width = w;
 	tex->height = h;
 	tex->byte_per_pixel = byte_per_pixel;
@@ -59,7 +63,8 @@ void de_texture_alloc_pixels(de_texture_t* tex, int w, int h, size_t byte_per_pi
 	tex->need_upload = true;
 }
 
-static bool de_texture_visit(de_object_visitor_t* visitor, de_resource_t* res) {
+static bool de_texture_visit(de_object_visitor_t* visitor, de_resource_t* res)
+{
 	de_texture_t* tex = de_resource_to_texture(res);
 	DE_UNUSED(tex);
 	DE_UNUSED(visitor);
@@ -68,12 +73,13 @@ static bool de_texture_visit(de_object_visitor_t* visitor, de_resource_t* res) {
 	return result;
 }
 
-de_resource_dispatch_table_t* de_texture_get_dispatch_table(void) {
+de_resource_dispatch_table_t* de_texture_get_dispatch_table(void)
+{
 	static de_resource_dispatch_table_t table = {
 		.init = de_texture_init,
 		.deinit = de_texture_deinit,
 		.load = de_texture_load,
-        .visit = de_texture_visit,
+		.visit = de_texture_visit,
 	};
 	return &table;
 }

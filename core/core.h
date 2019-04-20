@@ -113,7 +113,7 @@ de_scene_t* de_core_get_first_scene(de_core_t* core);
 void de_core_add_resource(de_core_t* core, de_resource_t* resource);
 
 /**
- * @brief Request external resource of specified type. If resource was loaded previously, 
+ * @brief Request external resource of specified type. If resource was loaded previously,
  * increases reference count and returns pointer to resource, if not - loads resource.
  */
 de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type, const de_path_t* path, uint32_t flags);
@@ -122,10 +122,10 @@ de_resource_t* de_core_find_resource_of_type(de_core_t* core, de_resource_type_t
 
 /**
  * @brief Visit core with specified object visitor.
- * 
+ *
  * Important notes: When visitor is set for read, then call of this function will
- * destroy every scene, every scene node, every resource (unless it marked 
- * DE_RESOURCE_FLAG_PERSISTENT) and then will load everything into clean core. In 
+ * destroy every scene, every scene node, every resource (unless it marked
+ * DE_RESOURCE_FLAG_PERSISTENT) and then will load everything into clean core. In
  * other words in this case core will be purged and then filled in with data from
  * specified file.
  */

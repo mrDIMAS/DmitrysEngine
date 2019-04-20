@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-static void de_gui_get_line_thickness_vector(const de_vec2_t* a, const de_vec2_t* b, float thickness, de_vec2_t* thickness_vec) {
+static void de_gui_get_line_thickness_vector(const de_vec2_t* a, const de_vec2_t* b, float thickness, de_vec2_t* thickness_vec)
+{
 	de_vec2_t dir;
 	de_vec2_sub(&dir, b, a);
 	de_vec2_normalize(&dir, &dir);
@@ -28,7 +29,8 @@ static void de_gui_get_line_thickness_vector(const de_vec2_t* a, const de_vec2_t
 }
 
 
-void de_gui_draw_list_push_line(de_gui_draw_list_t* draw_list, const de_vec2_t* a, const de_vec2_t* b, float thickness, const de_color_t* clr) {
+void de_gui_draw_list_push_line(de_gui_draw_list_t* draw_list, const de_vec2_t* a, const de_vec2_t* b, float thickness, const de_color_t* clr)
+{
 	de_vec2_t perp;
 	int index = de_gui_draw_list_get_next_index_origin(draw_list);
 	de_gui_vertex_t* v = de_gui_draw_list_reserve_vertices(draw_list, 4);
@@ -61,13 +63,15 @@ void de_gui_draw_list_push_line(de_gui_draw_list_t* draw_list, const de_vec2_t* 
 }
 
 
-void de_gui_polyline_init(de_gui_polyline_t* polyline) {
+void de_gui_polyline_init(de_gui_polyline_t* polyline)
+{
 	DE_ARRAY_INIT(polyline->points);
 	polyline->thickness = 1.0f;
 }
 
 
-void de_gui_polyline_draw(de_gui_polyline_t* polyline, de_gui_draw_list_t* draw_list) {
+void de_gui_polyline_draw(de_gui_polyline_t* polyline, de_gui_draw_list_t* draw_list)
+{
 	size_t i;
 	/* draw line bodies first */
 	for (i = 0; i < polyline->points.size - 1; ++i) {
@@ -146,12 +150,14 @@ void de_gui_polyline_draw(de_gui_polyline_t* polyline, de_gui_draw_list_t* draw_
 }
 
 
-void de_gui_polyline_free(de_gui_polyline_t* polyline) {
+void de_gui_polyline_free(de_gui_polyline_t* polyline)
+{
 	DE_ARRAY_FREE(polyline->points);
 }
 
 
-void de_gui_polyline_add_point(de_gui_polyline_t* polyline, float x, float y, const de_color_t* clr) {
+void de_gui_polyline_add_point(de_gui_polyline_t* polyline, float x, float y, const de_color_t* clr)
+{
 	de_gui_line_point_t* pt;
 	DE_ARRAY_GROW(polyline->points, 1);
 	pt = polyline->points.data + polyline->points.size - 1;
@@ -161,7 +167,8 @@ void de_gui_polyline_add_point(de_gui_polyline_t* polyline, float x, float y, co
 }
 
 
-void de_gui_draw_list_push_rect(de_gui_draw_list_t* draw_list, const de_vec2_t* pos, const de_vec2_t* size, float thickness, const de_color_t* clr) {
+void de_gui_draw_list_push_rect(de_gui_draw_list_t* draw_list, const de_vec2_t* pos, const de_vec2_t* size, float thickness, const de_color_t* clr)
+{
 	float offset = thickness * 0.5f;
 
 	de_vec2_t left_top;
@@ -208,7 +215,8 @@ void de_gui_draw_list_push_rect(de_gui_draw_list_t* draw_list, const de_vec2_t* 
 }
 
 
-void de_gui_draw_list_push_rect_vary(de_gui_draw_list_t* draw_list, const de_vec2_t* pos, const de_vec2_t* size, const de_gui_thickness_t* thickness, const de_color_t* clr) {
+void de_gui_draw_list_push_rect_vary(de_gui_draw_list_t* draw_list, const de_vec2_t* pos, const de_vec2_t* size, const de_gui_thickness_t* thickness, const de_color_t* clr)
+{
 	de_vec2_t left_top;
 	de_vec2_t right_top;
 	de_vec2_t right_bottom;
@@ -253,7 +261,8 @@ void de_gui_draw_list_push_rect_vary(de_gui_draw_list_t* draw_list, const de_vec
 }
 
 
-void de_gui_draw_list_ib_push_triangle(de_gui_draw_list_t* draw_list, int a, int b, int c) {
+void de_gui_draw_list_ib_push_triangle(de_gui_draw_list_t* draw_list, int a, int b, int c)
+{
 	DE_ARRAY_APPEND(draw_list->index_buffer, a);
 	DE_ARRAY_APPEND(draw_list->index_buffer, b);
 	DE_ARRAY_APPEND(draw_list->index_buffer, c);
@@ -261,18 +270,21 @@ void de_gui_draw_list_ib_push_triangle(de_gui_draw_list_t* draw_list, int a, int
 }
 
 
-de_gui_vertex_t* de_gui_draw_list_reserve_vertices(de_gui_draw_list_t* draw_list, size_t n) {
+de_gui_vertex_t* de_gui_draw_list_reserve_vertices(de_gui_draw_list_t* draw_list, size_t n)
+{
 	DE_ARRAY_GROW(draw_list->vertex_buffer, n);
 	return draw_list->vertex_buffer.data + draw_list->vertex_buffer.size - n;
 }
 
 
-int de_gui_draw_list_get_next_index_origin(de_gui_draw_list_t* draw_list) {
+int de_gui_draw_list_get_next_index_origin(de_gui_draw_list_t* draw_list)
+{
 	return draw_list->index_buffer.size ? DE_ARRAY_LAST(draw_list->index_buffer) + 1 : 0;
 }
 
 
-void de_gui_draw_list_push_rect_filled(de_gui_draw_list_t* draw_list, const de_vec2_t* pos, const de_vec2_t* size, const de_color_t* clr, const de_vec2_t* tex_coords) {
+void de_gui_draw_list_push_rect_filled(de_gui_draw_list_t* draw_list, const de_vec2_t* pos, const de_vec2_t* size, const de_color_t* clr, const de_vec2_t* tex_coords)
+{
 	int index = de_gui_draw_list_get_next_index_origin(draw_list);
 	de_gui_vertex_t* v = de_gui_draw_list_reserve_vertices(draw_list, 4);
 
@@ -326,7 +338,8 @@ void de_gui_draw_list_push_rect_filled(de_gui_draw_list_t* draw_list, const de_v
 }
 
 
-void de_gui_draw_list_commit(de_gui_draw_list_t* draw_list, de_gui_draw_command_type_t type, GLuint tex, de_gui_node_t* n) {
+void de_gui_draw_list_commit(de_gui_draw_list_t* draw_list, de_gui_draw_command_type_t type, de_texture_t* tex, de_gui_node_t* n)
+{
 	if (draw_list->triangles_to_commit) {
 		de_gui_draw_command_t* cmd;
 		DE_ARRAY_GROW(draw_list->commands, 1);
@@ -347,7 +360,8 @@ void de_gui_draw_list_commit(de_gui_draw_list_t* draw_list, de_gui_draw_command_
 }
 
 
-void de_gui_draw_list_push_text(de_gui_draw_list_t* draw_list, const de_font_t* font, const uint32_t* utf32_text, size_t text_len, const de_vec2_t* pos, const de_color_t* clr) {
+void de_gui_draw_list_push_text(de_gui_draw_list_t* draw_list, const de_font_t* font, const uint32_t* utf32_text, size_t text_len, const de_vec2_t* pos, const de_color_t* clr)
+{
 	size_t i;
 	de_vec2_t caret = *pos;
 	for (i = 0; i < text_len; ++i) {
@@ -369,13 +383,15 @@ void de_gui_draw_list_push_text(de_gui_draw_list_t* draw_list, const de_font_t* 
 }
 
 
-void de_gui_draw_list_commit_clip_geom(de_gui_draw_list_t* draw_list, de_gui_node_t* n) {
+void de_gui_draw_list_commit_clip_geom(de_gui_draw_list_t* draw_list, de_gui_node_t* n)
+{
 	de_gui_draw_list_commit(draw_list, DE_GUI_DRAW_COMMAND_TYPE_CLIP, 0, n);
 	DE_ARRAY_APPEND(draw_list->clip_cmd_stack, draw_list->commands.size - 1);
 }
 
 
-void de_gui_draw_list_revert_clip_geom(de_gui_draw_list_t* draw_list) {
+void de_gui_draw_list_revert_clip_geom(de_gui_draw_list_t* draw_list)
+{
 	int i;
 	if (draw_list->clip_cmd_stack.size == 0) {
 		de_fatal_error("mismatch push/pop clipping commands!");
@@ -391,7 +407,8 @@ void de_gui_draw_list_revert_clip_geom(de_gui_draw_list_t* draw_list) {
 }
 
 
-void de_gui_draw_list_commit_clip_rect(de_gui_draw_list_t* draw_list, float x, float y, float w, float h, de_gui_node_t* n) {
+void de_gui_draw_list_commit_clip_rect(de_gui_draw_list_t* draw_list, float x, float y, float w, float h, de_gui_node_t* n)
+{
 	de_vec2_t pos;
 	de_vec2_t size;
 	de_color_t clr = { 0, 0, 0, 0 };
@@ -408,11 +425,13 @@ void de_gui_draw_list_commit_clip_rect(de_gui_draw_list_t* draw_list, float x, f
 }
 
 
-void de_gui_draw_list_set_nesting(de_gui_draw_list_t* draw_list, uint8_t nesting) {
+void de_gui_draw_list_set_nesting(de_gui_draw_list_t* draw_list, uint8_t nesting)
+{
 	draw_list->current_nesting = nesting;
 }
 
-void de_gui_draw_list_clear(de_gui_draw_list_t* draw_list) {
+void de_gui_draw_list_clear(de_gui_draw_list_t* draw_list)
+{
 	DE_ARRAY_CLEAR(draw_list->commands);
 	DE_ARRAY_CLEAR(draw_list->vertex_buffer);
 	DE_ARRAY_CLEAR(draw_list->index_buffer);

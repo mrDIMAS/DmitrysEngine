@@ -20,7 +20,8 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 
-de_rectpack_node_t* de_rectpack_create_node(int x, int y, int w, int h) {
+de_rectpack_node_t* de_rectpack_create_node(int x, int y, int w, int h)
+{
 	de_rectpack_node_t* node = DE_NEW(de_rectpack_node_t);
 	node->x = x;
 	node->y = y;
@@ -30,7 +31,8 @@ de_rectpack_node_t* de_rectpack_create_node(int x, int y, int w, int h) {
 }
 
 
-de_rectpack_node_t* de_rectpack_get_free(de_rectpack_node_t* node, int w, int h, void* data) {
+de_rectpack_node_t* de_rectpack_get_free(de_rectpack_node_t* node, int w, int h, void* data)
+{
 	if (node->split) {
 		de_rectpack_node_t* newNode = de_rectpack_get_free(node->children[0], w, h, data);
 		if (newNode) {
@@ -57,7 +59,8 @@ de_rectpack_node_t* de_rectpack_get_free(de_rectpack_node_t* node, int w, int h,
 }
 
 
-void de_rectpack_free(de_rectpack_node_t * node) {
+void de_rectpack_free(de_rectpack_node_t * node)
+{
 	if (node && node->split) {
 		de_rectpack_free(node->children[0]);
 		de_rectpack_free(node->children[1]);

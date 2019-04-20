@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-de_surface_shared_data_t* de_surface_shared_data_create(size_t vertex_capacity, size_t index_capacity) {
+de_surface_shared_data_t* de_surface_shared_data_create(size_t vertex_capacity, size_t index_capacity)
+{
 	de_surface_shared_data_t* data = DE_NEW(de_surface_shared_data_t);
 
 	data->vertex_count = 0;
@@ -38,7 +39,8 @@ de_surface_shared_data_t* de_surface_shared_data_create(size_t vertex_capacity, 
 	return data;
 }
 
-void de_surface_shared_data_grow_vertices(de_surface_shared_data_t* data, size_t vertex_inc) {
+void de_surface_shared_data_grow_vertices(de_surface_shared_data_t* data, size_t vertex_inc)
+{
 	if (data->vertex_count + vertex_inc >= data->vertex_capacity) {
 		data->vertex_capacity = 2 * data->vertex_capacity + 1;
 		data->positions = de_realloc(data->positions, sizeof(*data->positions) * data->vertex_capacity);
@@ -50,14 +52,16 @@ void de_surface_shared_data_grow_vertices(de_surface_shared_data_t* data, size_t
 	}
 }
 
-void de_surface_shared_data_grow_indices(de_surface_shared_data_t* data, size_t index_inc) {
+void de_surface_shared_data_grow_indices(de_surface_shared_data_t* data, size_t index_inc)
+{
 	if (data->index_count + index_inc >= data->index_capacity) {
 		data->index_capacity = 2 * data->index_capacity + 1;
 		data->indices = de_realloc(data->indices, sizeof(*data->indices) * data->index_capacity);
 	}
 }
 
-void de_surface_data_shrink_to_fit(de_surface_shared_data_t* data) {
+void de_surface_data_shrink_to_fit(de_surface_shared_data_t* data)
+{
 	if (data->vertex_capacity != data->vertex_count) {
 		data->vertex_capacity = data->vertex_count;
 		data->positions = de_realloc(data->positions, sizeof(*data->positions) * data->vertex_capacity);
@@ -74,7 +78,8 @@ void de_surface_data_shrink_to_fit(de_surface_shared_data_t* data) {
 	}
 }
 
-void de_surface_shared_data_free(de_surface_shared_data_t* data) {
+void de_surface_shared_data_free(de_surface_shared_data_t* data)
+{
 	de_free(data->positions);
 	de_free(data->normals);
 	de_free(data->tex_coords);
@@ -85,11 +90,12 @@ void de_surface_shared_data_free(de_surface_shared_data_t* data) {
 	de_free(data);
 }
 
-de_surface_t* de_surface_copy(de_surface_t* surf) {
+de_surface_t* de_surface_copy(de_surface_t* surf)
+{
 	de_surface_t* copy = DE_NEW(de_surface_t);
 	copy->renderer = surf->renderer;
 	if (surf->diffuse_map) {
-		de_resource_add_ref(de_resource_from_texture(surf->diffuse_map));		
+		de_resource_add_ref(de_resource_from_texture(surf->diffuse_map));
 		copy->diffuse_map = surf->diffuse_map;
 	}
 	if (surf->normal_map) {
@@ -103,7 +109,8 @@ de_surface_t* de_surface_copy(de_surface_t* surf) {
 	return copy;
 }
 
-void de_surface_shared_data_release(de_surface_shared_data_t* data) {
+void de_surface_shared_data_release(de_surface_shared_data_t* data)
+{
 	if (data) {
 		--data->ref_count;
 		if (data->ref_count <= 0) {
@@ -112,38 +119,42 @@ void de_surface_shared_data_release(de_surface_shared_data_t* data) {
 	}
 }
 
-void de_surface_set_data(de_surface_t* surf, de_surface_shared_data_t* data) {
+void de_surface_set_data(de_surface_t* surf, de_surface_shared_data_t* data)
+{
 	de_surface_shared_data_release(surf->shared_data);
 	++data->ref_count;
 	surf->shared_data = data;
 	surf->need_upload = true;
 }
 
-void de_surface_upload(de_surface_t* surf) {
+void de_surface_upload(de_surface_t* surf)
+{
 	surf->need_upload = true;
 }
 
-void de_surface_set_diffuse_texture(de_surface_t * surf, de_texture_t *tex) {
+void de_surface_set_diffuse_texture(de_surface_t * surf, de_texture_t *tex)
+{
 	if (!surf || !tex) {
 		return;
 	}
 
 	if (surf->diffuse_map) {
-		de_resource_release(de_resource_from_texture(surf->diffuse_map));		
+		de_resource_release(de_resource_from_texture(surf->diffuse_map));
 	}
 
 	de_resource_add_ref(de_resource_from_texture(tex));
-	
+
 	surf->diffuse_map = tex;
 }
 
-void de_surface_set_normal_texture(de_surface_t * surf, de_texture_t *tex) {
+void de_surface_set_normal_texture(de_surface_t * surf, de_texture_t *tex)
+{
 	if (!surf || !tex) {
 		return;
 	}
 
 	if (surf->normal_map) {
-		de_resource_release(de_resource_from_texture(surf->normal_map));		
+		de_resource_release(de_resource_from_texture(surf->normal_map));
 	}
 
 	de_resource_add_ref(de_resource_from_texture(tex));
@@ -151,7 +162,8 @@ void de_surface_set_normal_texture(de_surface_t * surf, de_texture_t *tex) {
 	surf->normal_map = tex;
 }
 
-void de_surface_calculate_normals(de_surface_t * surf) {
+void de_surface_calculate_normals(de_surface_t * surf)
+{
 	de_surface_shared_data_t* data = surf->shared_data;
 	for (size_t m = 0; m < data->index_count; m += 3) {
 		int ia, ib, ic;
@@ -179,7 +191,8 @@ void de_surface_calculate_normals(de_surface_t * surf) {
 	}
 }
 
-bool de_surface_prepare_vertices_for_skinning(de_surface_t* surf) {
+bool de_surface_prepare_vertices_for_skinning(de_surface_t* surf)
+{
 	de_surface_shared_data_t* data = surf->shared_data;
 
 	/* ensure that surface can be skinned */
@@ -207,7 +220,8 @@ bool de_surface_prepare_vertices_for_skinning(de_surface_t* surf) {
 	return true;
 }
 
-bool de_surface_add_bone(de_surface_t* surf, de_node_t* bone) {
+bool de_surface_add_bone(de_surface_t* surf, de_node_t* bone)
+{
 	size_t i;
 
 	for (i = 0; i < surf->bones.size; ++i) {
@@ -221,7 +235,8 @@ bool de_surface_add_bone(de_surface_t* surf, de_node_t* bone) {
 	return true;
 }
 
-int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone) {
+int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone)
+{
 	size_t i;
 
 	for (i = 0; i < surf->bones.size; ++i) {
@@ -235,7 +250,8 @@ int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone) {
 	return -1;
 }
 
-void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* out_matrices, size_t max_matrices) {
+void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* out_matrices, size_t max_matrices)
+{
 	size_t i;
 
 	for (i = 0; i < surf->bones.size && i < max_matrices; ++i) {
@@ -249,11 +265,13 @@ void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* out_matrice
 	}
 }
 
-bool de_surface_is_skinned(de_surface_t* surf) {
+bool de_surface_is_skinned(de_surface_t* surf)
+{
 	return surf->bones.size > 0;
 }
 
-void de_surface_calculate_tangents(de_surface_t* surf) {
+void de_surface_calculate_tangents(de_surface_t* surf)
+{
 	de_surface_shared_data_t* data = surf->shared_data;
 	de_vec3_t *tan1 = (de_vec3_t *)de_calloc(data->vertex_count * 2, sizeof(de_vec3_t));
 	de_vec3_t *tan2 = tan1 + data->vertex_count;
@@ -340,7 +358,8 @@ void de_surface_calculate_tangents(de_surface_t* surf) {
 }
 
 #if 0
-void de_surface_make_cube(de_surface_t* surf) {
+void de_surface_make_cube(de_surface_t* surf)
+{
 	static de_vertex_t vertices[] = {
 		/* front */
 		{ { -0.5, -0.5, 0.5 }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f }, { 0.0f, 0.0f, 1.0f, 1.0f }, { 0 }, { 0 } },
@@ -406,7 +425,8 @@ void de_surface_make_cube(de_surface_t* surf) {
 #endif
 
 
-void de_surface_make_sphere(de_surface_t* surf, int slices, int stacks, float r) {
+void de_surface_make_sphere(de_surface_t* surf, int slices, int stacks, float r)
+{
 #if 0
 	int i, j;
 

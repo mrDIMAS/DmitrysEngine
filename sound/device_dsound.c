@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-void de_sound_device_send_data(de_sound_device_t* dev) {
+void de_sound_device_send_data(de_sound_device_t* dev)
+{
 	void * outputData;
 	int size;
 	int result = WaitForMultipleObjects(2, dev->points, 0, INFINITE);
@@ -34,7 +35,8 @@ void de_sound_device_send_data(de_sound_device_t* dev) {
 	}
 }
 
-bool de_sound_device_setup(de_sound_device_t* dev) {	
+bool de_sound_device_setup(de_sound_device_t* dev)
+{
 	WAVEFORMATEX bufferFormat = { 0 };
 	DSBUFFERDESC bufferDesc = { 0 };
 	DSBPOSITIONNOTIFY pPosNotify[2];
@@ -83,7 +85,7 @@ bool de_sound_device_setup(de_sound_device_t* dev) {
 	pPosNotify[0].hEventNotify = dev->points[0];
 
 	/* notify on center */
-	pPosNotify[1].dwOffset = bufferDesc.dwBufferBytes / 2; 
+	pPosNotify[1].dwOffset = bufferDesc.dwBufferBytes / 2;
 	pPosNotify[1].hEventNotify = dev->points[1];
 
 	IDirectSoundNotify_SetNotificationPositions(dev->notify, 2, pPosNotify);
@@ -93,7 +95,8 @@ bool de_sound_device_setup(de_sound_device_t* dev) {
 	return true;
 }
 
-void de_sound_device_shutdown(de_sound_device_t* dev) {
+void de_sound_device_shutdown(de_sound_device_t* dev)
+{
 	IDirectSoundNotify_Release(dev->notify);
 	IDirectSoundBuffer8_Release(dev->buffer);
 	IDirectSound8_Release(dev->dsound);

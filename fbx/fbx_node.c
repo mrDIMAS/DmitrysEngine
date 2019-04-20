@@ -20,7 +20,8 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 
-int de_fbx_get_int(de_fbx_node_t* node, int index) {
+int de_fbx_get_int(de_fbx_node_t* node, int index)
+{
 	int value;
 
 	if (node->is_binary) {
@@ -33,7 +34,8 @@ int de_fbx_get_int(de_fbx_node_t* node, int index) {
 }
 
 
-int64_t de_fbx_get_int64(de_fbx_node_t* node, int index) {
+int64_t de_fbx_get_int64(de_fbx_node_t* node, int index)
+{
 	int64_t value;
 
 	if (node->is_binary) {
@@ -46,7 +48,8 @@ int64_t de_fbx_get_int64(de_fbx_node_t* node, int index) {
 }
 
 
-float de_fbx_get_float(de_fbx_node_t* node, int index) {
+float de_fbx_get_float(de_fbx_node_t* node, int index)
+{
 	float value;
 
 	if (node->is_binary) {
@@ -58,7 +61,8 @@ float de_fbx_get_float(de_fbx_node_t* node, int index) {
 	return value;
 }
 
-double de_fbx_get_double(de_fbx_node_t* node, int index) {
+double de_fbx_get_double(de_fbx_node_t* node, int index)
+{
 	double value;
 
 	if (node->is_binary) {
@@ -71,32 +75,37 @@ double de_fbx_get_double(de_fbx_node_t* node, int index) {
 }
 
 
-void de_fbx_get_vec3(de_fbx_node_t* node, int index, de_vec3_t* out) {
+void de_fbx_get_vec3(de_fbx_node_t* node, int index, de_vec3_t* out)
+{
 	out->x = (float)de_fbx_get_double(node, index);
 	out->y = (float)de_fbx_get_double(node, index + 1);
 	out->z = (float)de_fbx_get_double(node, index + 2);
 }
 
 
-void de_fbx_get_vec2(de_fbx_node_t* node, int index, de_vec2_t* out) {
+void de_fbx_get_vec2(de_fbx_node_t* node, int index, de_vec2_t* out)
+{
 	out->x = (float)de_fbx_get_double(node, index);
 	out->y = (float)de_fbx_get_double(node, index + 1);
 }
 
 
-char* de_fbx_get_string(de_fbx_node_t* node, int index) {
+char* de_fbx_get_string(de_fbx_node_t* node, int index)
+{
 	return node->attributes.data[index];
 }
 
 
-de_fbx_node_t* de_fbx_create_node(const char* name) {
+de_fbx_node_t* de_fbx_create_node(const char* name)
+{
 	de_fbx_node_t* node = DE_NEW(de_fbx_node_t);
 	de_str8_set(&node->name, name);
 	return node;
 }
 
 
-de_fbx_node_t* de_fbx_node_find_child(de_fbx_node_t* node, const char* name) {
+de_fbx_node_t* de_fbx_node_find_child(de_fbx_node_t* node, const char* name)
+{
 	size_t i;
 
 	/* Look for the node in children nodes. */
@@ -116,7 +125,8 @@ de_fbx_node_t* de_fbx_node_find_child(de_fbx_node_t* node, const char* name) {
 }
 
 
-void de_fbx_node_free(de_fbx_node_t* node) {
+void de_fbx_node_free(de_fbx_node_t* node)
+{
 	size_t i;
 
 	/* Free name string. */
@@ -135,14 +145,16 @@ void de_fbx_node_free(de_fbx_node_t* node) {
 	de_free(node);
 }
 
-void de_fbx_buffer_init(de_fbx_buffer_t* buf, size_t size) {
+void de_fbx_buffer_init(de_fbx_buffer_t* buf, size_t size)
+{
 	buf->data = (char*)de_malloc(size);
 	buf->ptr = buf->data;
 	buf->end = (char*)buf->data + size;
 	buf->size = size;
 }
 
-de_fbx_node_t* de_fbx_node_get_child(de_fbx_node_t* node, const char* name) {
+de_fbx_node_t* de_fbx_node_get_child(de_fbx_node_t* node, const char* name)
+{
 	size_t i;
 
 	/* Look for the node in children nodes. */
@@ -156,7 +168,8 @@ de_fbx_node_t* de_fbx_node_get_child(de_fbx_node_t* node, const char* name) {
 	return NULL;
 }
 
-void* de_fbx_buffer_alloc(de_fbx_buffer_t* buf, size_t size) {
+void* de_fbx_buffer_alloc(de_fbx_buffer_t* buf, size_t size)
+{
 	void* ptr;
 
 	ptr = buf->ptr;
@@ -169,7 +182,8 @@ void* de_fbx_buffer_alloc(de_fbx_buffer_t* buf, size_t size) {
 	return ptr;
 }
 
-void de_fbx_buffer_free(de_fbx_buffer_t* buf) {
+void de_fbx_buffer_free(de_fbx_buffer_t* buf)
+{
 	de_free(buf->data);
 	buf->data = NULL;
 	buf->size = 0;

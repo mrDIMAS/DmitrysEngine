@@ -197,12 +197,14 @@ typedef struct de_fbx_t {
 #include "fbx/fbx_ascii.c"
 #include "fbx/fbx_binary.c"
 
-static int de_fbx_fix_index(int index) {
-	/* We have to convert last vertex index of face it’s because the original index is XOR’ed with -1 */
+static int de_fbx_fix_index(int index)
+{
+/* We have to convert last vertex index of face it’s because the original index is XOR’ed with -1 */
 	return index < 0 ? -index - 1 : index;
 }
 
-static de_fbx_mapping_t de_fbx_get_mapping(const char* str) {
+static de_fbx_mapping_t de_fbx_get_mapping(const char* str)
+{
 	if (strcmp(str, "ByPolygon") == 0) {
 		return DE_FBX_MAPPING_BY_POLYGON;
 	} else if (strcmp(str, "ByPolygonVertex") == 0) {
@@ -217,7 +219,8 @@ static de_fbx_mapping_t de_fbx_get_mapping(const char* str) {
 	return DE_FBX_MAPPING_UNKNOWN;
 }
 
-static void de_fbx_read_normals(de_fbx_node_t* geom_node, de_fbx_geom_t* geom) {
+static void de_fbx_read_normals(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
+{
 	int i, k;
 	de_fbx_node_t* normals_node = de_fbx_node_find_child(geom_node, "LayerElementNormal");
 	de_fbx_node_t* map_type = de_fbx_node_find_child(normals_node, "MappingInformationType");
@@ -235,7 +238,8 @@ static void de_fbx_read_normals(de_fbx_node_t* geom_node, de_fbx_geom_t* geom) {
 }
 
 
-static void de_fbx_read_tangents(de_fbx_node_t* geom_node, de_fbx_geom_t* geom) {
+static void de_fbx_read_tangents(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
+{
 	int i, k;
 	de_fbx_node_t* map_type, *ref_type, *tangents;
 	de_fbx_node_t* tangents_node = de_fbx_node_find_child(geom_node, "LayerElementTangent");
@@ -260,7 +264,8 @@ static void de_fbx_read_tangents(de_fbx_node_t* geom_node, de_fbx_geom_t* geom) 
 }
 
 
-static void de_fbx_read_faces(de_fbx_node_t* geom_node, de_fbx_geom_t* geom) {
+static void de_fbx_read_faces(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
+{
 	int i;
 	de_fbx_node_t* index_array;
 
@@ -275,7 +280,8 @@ static void de_fbx_read_faces(de_fbx_node_t* geom_node, de_fbx_geom_t* geom) {
 }
 
 
-static void de_fbx_read_vertices(de_fbx_node_t* geom_node, de_fbx_geom_t* geom) {
+static void de_fbx_read_vertices(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
+{
 	int i, k;
 	de_fbx_node_t* vertex_array;
 
@@ -290,7 +296,8 @@ static void de_fbx_read_vertices(de_fbx_node_t* geom_node, de_fbx_geom_t* geom) 
 }
 
 
-static void de_fbx_read_uvs(de_fbx_node_t* geom_node, de_fbx_geom_t* geom) {
+static void de_fbx_read_uvs(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
+{
 	int i, k;
 	size_t j;
 	de_fbx_node_t* map_type, *ref_type, *uvs;
@@ -328,7 +335,8 @@ static void de_fbx_read_uvs(de_fbx_node_t* geom_node, de_fbx_geom_t* geom) {
 }
 
 
-static void de_fbx_read_geom_materials(de_fbx_node_t* geom_node, de_fbx_geom_t* geom) {
+static void de_fbx_read_geom_materials(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
+{
 	size_t i;
 	de_fbx_node_t* material_node = de_fbx_node_get_child(geom_node, "LayerElementMaterial");
 	if (material_node) {
@@ -348,7 +356,8 @@ static void de_fbx_read_geom_materials(de_fbx_node_t* geom_node, de_fbx_geom_t* 
 }
 
 
-static de_fbx_component_t* de_fbx_alloc_component(de_fbx_component_type_t type, int index) {
+static de_fbx_component_t* de_fbx_alloc_component(de_fbx_component_type_t type, int index)
+{
 	de_fbx_component_t* comp = DE_NEW(de_fbx_component_t);
 	comp->type = type;
 	comp->index = index;
@@ -356,7 +365,8 @@ static de_fbx_component_t* de_fbx_alloc_component(de_fbx_component_type_t type, 
 }
 
 
-static de_fbx_component_t* de_fbx_read_geometry(de_fbx_node_t* geom_node) {
+static de_fbx_component_t* de_fbx_read_geometry(de_fbx_node_t* geom_node)
+{
 	de_fbx_component_t* comp = de_fbx_alloc_component(DE_FBX_COMPONENT_GEOM, de_fbx_get_int(geom_node, 0));
 	de_fbx_geom_t* geom = &comp->s.geom;
 
@@ -371,7 +381,8 @@ static de_fbx_component_t* de_fbx_read_geometry(de_fbx_node_t* geom_node) {
 }
 
 
-static void de_fbx_geom_free(de_fbx_geom_t* geom) {
+static void de_fbx_geom_free(de_fbx_geom_t* geom)
+{
 	de_free(geom->vertices);
 	de_free(geom->binormals);
 	de_free(geom->normals);
@@ -384,34 +395,28 @@ static void de_fbx_geom_free(de_fbx_geom_t* geom) {
 }
 
 
-static de_fbx_component_t* de_fbx_read_model(de_fbx_node_t* model_node) {
-	size_t i;
-	de_fbx_model_t* model;
-	de_fbx_node_t* props;
-	de_fbx_component_t* comp;
-	char* name;
-	char* name_separator;
+static de_fbx_component_t* de_fbx_read_model(de_fbx_node_t* model_node)
+{
+	de_fbx_component_t* comp = de_fbx_alloc_component(DE_FBX_COMPONENT_MODEL, de_fbx_get_int(model_node, 0));
 
-	comp = de_fbx_alloc_component(DE_FBX_COMPONENT_MODEL, de_fbx_get_int(model_node, 0));
-
-	model = &comp->s.model;
+	de_fbx_model_t* model = &comp->s.model;
 
 	model->scale = (de_vec3_t) { 1, 1, 1 };
 	model->geometric_scale = (de_vec3_t) { 1, 1, 1 };
 	de_mat4_identity(&model->inv_bind_transform);
 
 	/* Extract node name */
-	name = model_node->attributes.data[1];
-	name_separator = strrchr(name, ':');
-	if (name_separator) {
-		de_str8_set(&model->name, name_separator + 1);
+	char* name = model_node->attributes.data[1];
+	if (strncmp(name, "Model::", 7) == 0) {
+		/* remove prefix, 3ds max exporter always inserts such prefix */
+		de_str8_set(&model->name, name + 7);
 	} else {
 		de_str8_set(&model->name, name);
 	}
 
-	props = de_fbx_node_find_child(model_node, "Properties70");
+	de_fbx_node_t* props = de_fbx_node_find_child(model_node, "Properties70");
 
-	for (i = 0; i < props->children.size; ++i) {
+	for (size_t i = 0; i < props->children.size; ++i) {
 		de_fbx_node_t* prop = props->children.data[i];
 		char* property_name = prop->attributes.data[0];
 
@@ -446,7 +451,8 @@ static de_fbx_component_t* de_fbx_read_model(de_fbx_node_t* model_node) {
 }
 
 
-static void de_fbx_model_free(de_fbx_model_t* model) {
+static void de_fbx_model_free(de_fbx_model_t* model)
+{
 	de_str8_free(&model->name);
 	DE_ARRAY_FREE(model->geoms);
 	DE_ARRAY_FREE(model->materials);
@@ -455,7 +461,8 @@ static void de_fbx_model_free(de_fbx_model_t* model) {
 }
 
 
-static int de_fbx_component_index_comparer(const void* a, const void* b) {
+static int de_fbx_component_index_comparer(const void* a, const void* b)
+{
 	const de_fbx_component_t* comp_a = *(de_fbx_component_t**)a;
 	const de_fbx_component_t* comp_b = *(de_fbx_component_t**)b;
 	if (comp_a->index < comp_b->index) {
@@ -468,12 +475,14 @@ static int de_fbx_component_index_comparer(const void* a, const void* b) {
 }
 
 
-static void de_fbx_sort_components_by_index(de_fbx_t* fbx) {
+static void de_fbx_sort_components_by_index(de_fbx_t* fbx)
+{
 	DE_ARRAY_QSORT(fbx->components, de_fbx_component_index_comparer);
 }
 
 
-static int de_fbx_component_bsearch_comparer(const void* key_ptr, const void* comp_ptr) {
+static int de_fbx_component_bsearch_comparer(const void* key_ptr, const void* comp_ptr)
+{
 	const de_fbx_index_t index = *(de_fbx_index_t*)key_ptr;
 	const de_fbx_component_t* comp = *(de_fbx_component_t**)comp_ptr;
 	if (index < comp->index) {
@@ -485,23 +494,27 @@ static int de_fbx_component_bsearch_comparer(const void* key_ptr, const void* co
 	return 1;
 }
 
-static de_fbx_component_t* de_fbx_find_component(de_fbx_t* fbx, int index) {
+static de_fbx_component_t* de_fbx_find_component(de_fbx_t* fbx, int index)
+{
 	void** comp = (void**)DE_ARRAY_BSEARCH(fbx->components, &index, de_fbx_component_bsearch_comparer);
 	return comp ? (de_fbx_component_t*)(*comp) : NULL;
 }
 
 
-static de_fbx_component_t* de_fbx_read_material(de_fbx_node_t* mat_node) {
+static de_fbx_component_t* de_fbx_read_material(de_fbx_node_t* mat_node)
+{
 	return de_fbx_alloc_component(DE_FBX_COMPONENT_MATERIAL, de_fbx_get_int(mat_node, 0));
 }
 
 
-static void de_fbx_material_free(de_fbx_material_t* mat) {
+static void de_fbx_material_free(de_fbx_material_t* mat)
+{
 	DE_UNUSED(mat);
 }
 
 
-static de_fbx_component_t* de_fbx_read_texture(de_fbx_node_t* tex_node) {
+static de_fbx_component_t* de_fbx_read_texture(de_fbx_node_t* tex_node)
+{
 	de_fbx_texture_t* tex;
 	char* path;
 	char* filename;
@@ -521,12 +534,14 @@ static de_fbx_component_t* de_fbx_read_texture(de_fbx_node_t* tex_node) {
 }
 
 
-static void de_fbx_texture_free(de_fbx_texture_t* tex) {
+static void de_fbx_texture_free(de_fbx_texture_t* tex)
+{
 	de_str8_free(&tex->filename);
 }
 
 
-static de_fbx_component_t* de_fbx_read_light(de_fbx_node_t* light_node) {
+static de_fbx_component_t* de_fbx_read_light(de_fbx_node_t* light_node)
+{
 	size_t i;
 	de_fbx_light_t* light;
 	de_fbx_node_t* props;
@@ -572,13 +587,15 @@ static de_fbx_component_t* de_fbx_read_light(de_fbx_node_t* light_node) {
 }
 
 
-static void de_fbx_light_free(de_fbx_light_t* light) {
+static void de_fbx_light_free(de_fbx_light_t* light)
+{
 	DE_UNUSED(light);
 }
 
 
 /* Reads animation curve from AnimationCurve node */
-static de_fbx_component_t* de_fbx_read_animation_curve(de_fbx_node_t* anim_curve_node) {
+static de_fbx_component_t* de_fbx_read_animation_curve(de_fbx_node_t* anim_curve_node)
+{
 	size_t i;
 	de_fbx_animation_curve_t* curve;
 	de_fbx_node_t* key_time;
@@ -617,12 +634,14 @@ static de_fbx_component_t* de_fbx_read_animation_curve(de_fbx_node_t* anim_curve
 }
 
 
-static void de_fbx_animation_curve_free(de_fbx_animation_curve_t* curve) {
+static void de_fbx_animation_curve_free(de_fbx_animation_curve_t* curve)
+{
 	DE_ARRAY_FREE(curve->keys);
 }
 
 
-static de_fbx_component_t* de_fbx_read_animation_curve_node_t(de_fbx_node_t* anim_curve_fbx_node) {
+static de_fbx_component_t* de_fbx_read_animation_curve_node_t(de_fbx_node_t* anim_curve_fbx_node)
+{
 	de_fbx_animation_curve_node_t* anim_curve_node;
 	char* type_str;
 
@@ -646,12 +665,14 @@ static de_fbx_component_t* de_fbx_read_animation_curve_node_t(de_fbx_node_t* ani
 }
 
 
-static void de_fbx_animation_curve_node_free(de_fbx_animation_curve_node_t* curve_node) {
+static void de_fbx_animation_curve_node_free(de_fbx_animation_curve_node_t* curve_node)
+{
 	DE_ARRAY_FREE(curve_node->curves);
 }
 
 
-static de_fbx_component_t* de_fbx_read_sub_deformer(de_fbx_node_t* sub_deformer_node) {
+static de_fbx_component_t* de_fbx_read_sub_deformer(de_fbx_node_t* sub_deformer_node)
+{
 	size_t i;
 	de_fbx_sub_deformer_t* sub_deformer;
 	de_fbx_node_t* indices;
@@ -696,24 +717,28 @@ static de_fbx_component_t* de_fbx_read_sub_deformer(de_fbx_node_t* sub_deformer_
 }
 
 
-static void de_fbx_sub_deformer_free(de_fbx_sub_deformer_t* sub_deformer) {
+static void de_fbx_sub_deformer_free(de_fbx_sub_deformer_t* sub_deformer)
+{
 	DE_ARRAY_FREE(sub_deformer->indices);
 	DE_ARRAY_FREE(sub_deformer->weights);
 }
 
 
-static de_fbx_component_t* de_fbx_read_deformer(de_fbx_node_t* deformer_node) {
+static de_fbx_component_t* de_fbx_read_deformer(de_fbx_node_t* deformer_node)
+{
 	return de_fbx_alloc_component(DE_FBX_COMPONENT_DEFORMER, de_fbx_get_int(deformer_node, 0));
 }
 
 
-static void de_fbx_deformer_free(de_fbx_deformer_t* deformer) {
+static void de_fbx_deformer_free(de_fbx_deformer_t* deformer)
+{
 	DE_ARRAY_FREE(deformer->sub_deformers);
 }
 
 
 
-static void de_fbx_quat_from_euler(de_quat_t* out, const de_vec3_t * euler_angles) {
+static void de_fbx_quat_from_euler(de_quat_t* out, const de_vec3_t * euler_angles)
+{
 	de_vec3_t radians;
 
 	radians.x = de_deg_to_rad(euler_angles->x);
@@ -724,7 +749,8 @@ static void de_fbx_quat_from_euler(de_quat_t* out, const de_vec3_t * euler_angle
 }
 
 
-static de_fbx_t* de_fbx_read(de_fbx_node_t* root) {
+static de_fbx_t* de_fbx_read(de_fbx_node_t* root)
+{
 	size_t i;
 	int version_num;
 	de_fbx_node_t* objects;
@@ -838,7 +864,8 @@ static de_fbx_t* de_fbx_read(de_fbx_node_t* root) {
  * @brief Frees resources associated with fbx structure
  * @param fbx pointer
  */
-static void de_fbx_free(de_fbx_t* fbx) {
+static void de_fbx_free(de_fbx_t* fbx)
+{
 	size_t i;
 	for (i = 0; i < fbx->components.size; ++i) {
 		de_fbx_component_t* comp = fbx->components.data[i];
@@ -897,12 +924,13 @@ static void de_fbx_add_vertex_to_surface(de_surface_t* surf,
 	de_vec3_t* normal,
 	de_vec2_t* tex_coord,
 	de_vec4_t* tangent,
-	de_vertex_weight_group_t* vertex_weights) {
+	de_vertex_weight_group_t* vertex_weights)
+{
 	int i;
 	bool found_identic = false;
 
 	de_surface_shared_data_t* data = surf->shared_data;
-	/* reverse search is much faster, because it most likely that we'll find identic 
+	/* reverse search is much faster, because it most likely that we'll find identic
 	 * vertex nearby current in the list */
 	for (i = (int)data->vertex_count - 1; i >= 0; --i) {
 		if (de_vec3_equals(&data->positions[i], pos) &&
@@ -929,7 +957,7 @@ static void de_fbx_add_vertex_to_surface(de_surface_t* surf,
 
 	de_surface_shared_data_grow_indices(data, 1);
 	data->indices[data->index_count++] = i;
-	
+
 	surf->need_upload = true;
 }
 
@@ -939,7 +967,8 @@ static void de_fbx_add_vertex_to_surface(de_surface_t* surf,
 static float de_fbx_get_next_keyframe_time(float current_time,
 	de_fbx_animation_curve_node_t* t,
 	de_fbx_animation_curve_node_t* r,
-	de_fbx_animation_curve_node_t* s) {
+	de_fbx_animation_curve_node_t* s)
+{
 	int i;
 	size_t k, n;
 	float closest_time = FLT_MAX;
@@ -981,7 +1010,8 @@ static float de_fbx_get_next_keyframe_time(float current_time,
 /**
  * @brief Evaluates single float value at given time
  */
-static float de_fbx_eval_curve(float time, de_fbx_animation_curve_t* curve) {
+static float de_fbx_eval_curve(float time, de_fbx_animation_curve_t* curve)
+{
 	size_t i;
 	size_t key_count = curve->keys.size;
 	de_fbx_time_value_pair_t* keys;
@@ -1030,7 +1060,8 @@ static float de_fbx_eval_curve(float time, de_fbx_animation_curve_t* curve) {
 /**
  * @brief Evaluates curve node as float3 value at give time.
  */
-static void de_fbx_eval_float3_curve_node(float time, de_fbx_animation_curve_node_t* node, de_vec3_t* out) {
+static void de_fbx_eval_float3_curve_node(float time, de_fbx_animation_curve_node_t* node, de_vec3_t* out)
+{
 	de_fbx_animation_curve_t* x, *y, *z;
 
 	if (node->curves.size != 3) {
@@ -1058,7 +1089,8 @@ static void de_fbx_eval_keyframe(de_node_t* node,
 	de_fbx_animation_curve_node_t* t_node,
 	de_fbx_animation_curve_node_t* r_node,
 	de_fbx_animation_curve_node_t* s_node,
-	de_keyframe_t* out_key) {
+	de_keyframe_t* out_key)
+{
 	if (t_node) {
 		de_fbx_eval_float3_curve_node(time, t_node, &out_key->position);
 	} else {
@@ -1104,7 +1136,8 @@ static int de_fbx_prepare_next_face(de_fbx_geom_t* geom,
 	int* out_indices,
 	int* out_index_count,
 	int* out_relative_indices,
-	int out_rel_indices_buffer_size) {
+	int out_rel_indices_buffer_size)
+{
 	int i;
 	int vertex_per_face = 0;
 
@@ -1177,7 +1210,8 @@ static int de_fbx_prepare_next_face(de_fbx_geom_t* geom,
  *
  * @param out_vertices Array of vertices of size of total vertex count. Must be zero-ed memory!
  */
-void de_fbx_prepare_deformer(de_fbx_geom_t* geom, de_vertex_weight_group_t* out_vertices) {
+void de_fbx_prepare_deformer(de_fbx_geom_t* geom, de_vertex_weight_group_t* out_vertices)
+{
 	size_t i, j, k;
 
 	for (i = 0; i < geom->deformers.size; ++i) {
@@ -1207,8 +1241,9 @@ void de_fbx_prepare_deformer(de_fbx_geom_t* geom, de_vertex_weight_group_t* out_
 	}
 }
 
-static de_surface_t* de_fbx_create_surface(de_renderer_t* renderer, de_fbx_geom_t* geom) {
-	de_surface_t* surf = de_renderer_create_surface(renderer);	
+static de_surface_t* de_fbx_create_surface(de_renderer_t* renderer, de_fbx_geom_t* geom)
+{
+	de_surface_t* surf = de_renderer_create_surface(renderer);
 	de_surface_shared_data_t* data = de_surface_shared_data_create(geom->vertex_count, geom->index_count);
 	de_surface_set_data(surf, data);
 	return surf;
@@ -1219,7 +1254,8 @@ static de_surface_t* de_fbx_create_surface(de_renderer_t* renderer, de_fbx_geom_
  * @param fbx
  * @return
  */
-static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
+static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
+{
 	size_t i, k, j;
 	int n, m;
 	int material_index;
@@ -1491,8 +1527,8 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 
 					/* Put vertex into correct surface */
 					de_fbx_add_vertex_to_surface(mesh->surfaces.data[surface_index],
-						&vertex_position, 
-						&vertex_normal, 
+						&vertex_position,
+						&vertex_normal,
 						&vertex_tex_coord,
 						&vertex_tangent,
 						geom->deformers.size ? &bone_vertices[index] : NULL);
@@ -1506,7 +1542,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 			de_free(bone_vertices);
 
 			/* trim excess memory from surfaces */
-			for (m = 0; m < (int) mesh->surfaces.size; ++m) {
+			for (m = 0; m < (int)mesh->surfaces.size; ++m) {
 				de_surface_data_shrink_to_fit(mesh->surfaces.data[m]->shared_data);
 			}
 
@@ -1651,7 +1687,8 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx) {
 }
 
 
-de_node_t* de_fbx_load_to_scene(de_scene_t* scene, const char* file) {
+de_node_t* de_fbx_load_to_scene(de_scene_t* scene, const char* file)
+{
 	de_fbx_node_t* root;
 	de_fbx_t* fbx;
 	de_node_t* root_node;
@@ -1691,7 +1728,8 @@ de_node_t* de_fbx_load_to_scene(de_scene_t* scene, const char* file) {
 	return root_node;
 }
 
-bool de_fbx_is_binary(const char* filename) {
+bool de_fbx_is_binary(const char* filename)
+{
 	char magic[18];
 	bool result;
 

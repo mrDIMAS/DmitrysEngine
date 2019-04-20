@@ -19,27 +19,22 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-#define DE_GUI_SLIDE_SELECTOR_BUFFER_SIZE 1024
+typedef struct de_gui_image_t {
+	de_texture_t* texture;
+} de_gui_image_t;
 
-typedef void(*de_gui_item_text_getter)(void* items, int n, char* out_buffer, int out_buffer_size);
-typedef void(*de_gui_selection_changed)(de_gui_node_t* node, int new_item);
+typedef struct de_gui_image_descriptor_t {
+	de_texture_t* texture;
+} de_gui_image_descriptor_t;
 
-typedef struct de_gui_slide_selector_t {
-	de_gui_node_t* current_item;
-	int item_count;
-	int selection_index;
-	void* items;
-	void* selection;
-	de_gui_item_text_getter get_item_text;
-	de_gui_selection_changed selection_changed;
-} de_gui_slide_selector_t;
+struct de_gui_dispatch_table_t* de_gui_image_get_dispatch_table();
 
-struct de_gui_dispatch_table_t* de_gui_slide_selector_get_dispatch_table(void);
+/**
+ * @brief Sets texture for image widget. Automatically increases ref counter.
+ */
+void de_gui_image_set_texture(de_gui_node_t* n, de_texture_t* tex);
 
-void de_gui_slide_selector_set_items(de_gui_node_t* node, void* items, int item_count, de_gui_item_text_getter getter);
-
-void* de_gui_slide_selector_get_selection(de_gui_node_t* node);
-
-void de_gui_slide_selector_set_selection_changed(de_gui_node_t* node, de_gui_selection_changed callback);
-
-void de_gui_slide_selector_override_selection_text(de_gui_node_t* node, const char* text);
+/**
+ * @brief Returns texture image uses.
+ */
+de_texture_t* de_gui_image_get_texture(de_gui_node_t* n);

@@ -22,7 +22,8 @@
 /**
 * @brief Searches for root node that was instantiated from model resource.
 */
-static de_node_t* de_mesh_get_model_root(de_node_t* node) {
+static de_node_t* de_mesh_get_model_root(de_node_t* node)
+{
 	do {
 		if (!node->parent && node->model_resource) {
 			/* node is root */
@@ -33,7 +34,8 @@ static de_node_t* de_mesh_get_model_root(de_node_t* node) {
 	return node;
 }
 
-static void de_mesh_copy(de_node_t* src, de_node_t* dest) {
+static void de_mesh_copy(de_node_t* src, de_node_t* dest)
+{
 	de_mesh_t* src_mesh = de_node_to_mesh(src);
 	de_mesh_t* dest_mesh = de_node_to_mesh(dest);
 	for (size_t i = 0; i < src_mesh->surfaces.size; ++i) {
@@ -41,7 +43,8 @@ static void de_mesh_copy(de_node_t* src, de_node_t* dest) {
 	}
 }
 
-static void de_mesh_resolve(de_node_t* node) {
+static void de_mesh_resolve(de_node_t* node)
+{
 	de_mesh_t* mesh = de_node_to_mesh(node);
 	de_node_t* root = de_mesh_get_model_root(node);
 	if (!root) {
@@ -57,7 +60,8 @@ static void de_mesh_resolve(de_node_t* node) {
 	}
 }
 
-static bool de_mesh_visit(de_object_visitor_t* visitor, de_node_t* node) {
+static bool de_mesh_visit(de_object_visitor_t* visitor, de_node_t* node)
+{
 	de_mesh_t* mesh = de_node_to_mesh(node);
 	if (visitor->is_reading) {
 		/* resolve changes */
@@ -80,12 +84,14 @@ static bool de_mesh_visit(de_object_visitor_t* visitor, de_node_t* node) {
 	return result;
 }
 
-static void de_mesh_init(de_node_t* node) {
+static void de_mesh_init(de_node_t* node)
+{
 	de_mesh_t* mesh = de_node_to_mesh(node);
 	DE_ARRAY_INIT(mesh->surfaces);
 }
 
-static void de_mesh_free(de_node_t* node) {
+static void de_mesh_free(de_node_t* node)
+{
 	de_mesh_t* mesh = de_node_to_mesh(node);
 	/* Free surfaces */
 	for (size_t i = 0; i < mesh->surfaces.size; ++i) {
@@ -94,7 +100,8 @@ static void de_mesh_free(de_node_t* node) {
 	DE_ARRAY_FREE(mesh->surfaces);
 }
 
-struct de_node_dispatch_table_t* de_mesh_get_dispatch_table(void) {
+struct de_node_dispatch_table_t* de_mesh_get_dispatch_table(void)
+{
 	static de_node_dispatch_table_t tbl = {
 		.free = de_mesh_free,
 		.init = de_mesh_init,
@@ -105,7 +112,8 @@ struct de_node_dispatch_table_t* de_mesh_get_dispatch_table(void) {
 	return &tbl;
 }
 
-void de_mesh_calculate_normals(de_mesh_t * mesh) {
+void de_mesh_calculate_normals(de_mesh_t * mesh)
+{
 	size_t n;
 	for (n = 0; n < mesh->surfaces.size; ++n) {
 		de_surface_t * surf = mesh->surfaces.data[n];
@@ -113,7 +121,8 @@ void de_mesh_calculate_normals(de_mesh_t * mesh) {
 	}
 }
 
-void de_mesh_add_surface(de_mesh_t* mesh, de_surface_t* surf) {
+void de_mesh_add_surface(de_mesh_t* mesh, de_surface_t* surf)
+{
 	if (!mesh || !surf) {
 		return;
 	}
@@ -121,7 +130,8 @@ void de_mesh_add_surface(de_mesh_t* mesh, de_surface_t* surf) {
 	DE_ARRAY_APPEND(mesh->surfaces, surf);
 }
 
-bool de_mesh_is_skinned(de_mesh_t* mesh) {
+bool de_mesh_is_skinned(de_mesh_t* mesh)
+{
 	size_t i;
 
 	for (i = 0; i < mesh->surfaces.size; ++i) {
@@ -133,7 +143,8 @@ bool de_mesh_is_skinned(de_mesh_t* mesh) {
 	return false;
 }
 
-void de_mesh_set_texture(de_mesh_t* mesh, de_texture_t* texture) {
+void de_mesh_set_texture(de_mesh_t* mesh, de_texture_t* texture)
+{
 	size_t i;
 
 	if (!mesh || !texture) {

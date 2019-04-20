@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-static void de_gui_grid_apply_descriptor(de_gui_node_t* n, const de_gui_node_descriptor_t* desc) {
+static void de_gui_grid_apply_descriptor(de_gui_node_t* n, const de_gui_node_descriptor_t* desc)
+{
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_GRID);
 	const de_gui_grid_descriptor_t* grid_desc = &desc->s.grid;
 	for (size_t i = 0; i < DE_GUI_GRID_DESCRIPTOR_MAX_ROWS_COLUMNS && grid_desc->rows[i].size_mode != DE_GUI_SIZE_MODE_UNKNOWN; ++i) {
@@ -31,7 +32,8 @@ static void de_gui_grid_apply_descriptor(de_gui_node_t* n, const de_gui_node_des
 	de_gui_grid_enable_draw_borders(n, grid_desc->draw_borders);
 }
 
-static void de_gui_grid_perform_layout(de_gui_node_t* n) {
+static void de_gui_grid_perform_layout(de_gui_node_t* n)
+{
 	size_t i;
 	de_gui_grid_t* grid = &n->s.grid;
 
@@ -161,42 +163,19 @@ static void de_gui_grid_perform_layout(de_gui_node_t* n) {
 		de_gui_node_t* child = n->children.data[i];
 
 		if (grid->rows.size > 0 && grid->columns.size > 0) {
-			de_gui_grid_column_t* col;
-			de_gui_grid_row_t* row;
-			de_vec2_t new_size;
+			de_gui_grid_row_t* row = child->row < grid->rows.size ? grid->rows.data + child->row : grid->rows.data;
+			de_gui_grid_column_t* col = child->column < grid->columns.size ? grid->columns.data + child->column : grid->columns.data;
 
-			new_size.x = child->desired_size.x;
-			new_size.y = child->desired_size.y;
+			de_vec2_t child_pos;
+			de_vec2_t child_size = child->desired_size;
+			de_vec2_t parent_pos = { col->x, row->y };
+			de_vec2_t parent_size = { col->actual_width, row->actual_height };
 
-			/* find row */
-			if (child->row < grid->rows.size) {
-				row = grid->rows.data + child->row;
-			} else {
-				row = grid->rows.data + 0;
-			}
+			de_gui_align_rect_in_rect(&child_pos, &child_size, &parent_pos, &parent_size,
+				child->horizontal_alignment, child->vertical_alignment);
 
-			/* find column */
-			if (child->column < grid->columns.size) {
-				col = grid->columns.data + child->column;
-			} else {
-				col = grid->columns.data + 0;
-			}
-
-			de_gui_node_set_desired_local_position(child, col->x, row->y);
-
-			if (col->size_mode == DE_GUI_SIZE_MODE_STRETCH || col->size_mode == DE_GUI_SIZE_MODE_STRICT) {
-				new_size.x = col->actual_width;
-			}
-			if (row->size_mode == DE_GUI_SIZE_MODE_STRETCH || row->size_mode == DE_GUI_SIZE_MODE_STRICT) {
-				new_size.y = row->actual_height;
-			}
-
-			if (child->vertical_alignment == DE_GUI_VERTICAL_ALIGNMENT_STRETCH) {
-				de_gui_node_set_desired_size(child, child->desired_size.x, new_size.y);
-			}
-			if (child->horizontal_alignment == DE_GUI_HORIZONTAL_ALIGNMENT_STRETCH) {
-				de_gui_node_set_desired_size(child, new_size.x, child->desired_size.y);
-			}
+			de_gui_node_set_desired_local_position(child, child_pos.x, child_pos.y);
+			de_gui_node_set_desired_size(child, child_size.x, child_size.y);
 		} else {
 			/* no rows and columns, arrange and stretch to size of grid */
 			de_gui_node_set_desired_local_position(child, 0, 0);
@@ -211,14 +190,16 @@ static void de_gui_grid_perform_layout(de_gui_node_t* n) {
 	}
 }
 
-static void de_gui_grid_deinit(de_gui_node_t* n) {
+static void de_gui_grid_deinit(de_gui_node_t* n)
+{
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_GRID);
 
 	DE_ARRAY_FREE(n->s.grid.rows);
 	DE_ARRAY_FREE(n->s.grid.columns);
 }
 
-static void de_gui_grid_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting) {
+static void de_gui_grid_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting)
+{
 	size_t i;
 	const de_gui_grid_t* grid = &n->s.grid;
 	const de_vec2_t* scr_pos = &n->screen_position;
@@ -280,12 +261,14 @@ static void de_gui_grid_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t
 	de_gui_draw_list_commit(dl, DE_GUI_DRAW_COMMAND_TYPE_GEOMETRY, 0, n);
 }
 
-static void de_gui_grid_init(de_gui_node_t* n) {
+static void de_gui_grid_init(de_gui_node_t* n)
+{
 	de_gui_grid_t* grid = &n->s.grid;
 	grid->draw_borders = false;
 }
 
-de_gui_dispatch_table_t* de_gui_grid_get_dispatch_table(void) {
+de_gui_dispatch_table_t* de_gui_grid_get_dispatch_table(void)
+{
 	static de_gui_dispatch_table_t dispatch_table = {
 		.init = de_gui_grid_init,
 		.deinit = de_gui_grid_deinit,
@@ -296,7 +279,8 @@ de_gui_dispatch_table_t* de_gui_grid_get_dispatch_table(void) {
 	return &dispatch_table;
 }
 
-size_t de_gui_grid_find_child_on_column(de_gui_node_t* grid, size_t prev_child, size_t column) {
+size_t de_gui_grid_find_child_on_column(de_gui_node_t* grid, size_t prev_child, size_t column)
+{
 	size_t i;
 	DE_ASSERT_GUI_NODE_TYPE(grid, DE_GUI_NODE_GRID);
 	for (i = prev_child; i < grid->children.size; ++i) {
@@ -308,7 +292,8 @@ size_t de_gui_grid_find_child_on_column(de_gui_node_t* grid, size_t prev_child, 
 	return i;
 }
 
-size_t de_gui_grid_find_child_on_row(de_gui_node_t* grid, size_t prev_child, size_t row) {
+size_t de_gui_grid_find_child_on_row(de_gui_node_t* grid, size_t prev_child, size_t row)
+{
 	size_t i;
 	DE_ASSERT_GUI_NODE_TYPE(grid, DE_GUI_NODE_GRID);
 	for (i = prev_child; i < grid->children.size; ++i) {
@@ -320,23 +305,27 @@ size_t de_gui_grid_find_child_on_row(de_gui_node_t* grid, size_t prev_child, siz
 	return i;
 }
 
-void de_gui_grid_enable_draw_borders(de_gui_node_t* grid, bool state) {
+void de_gui_grid_enable_draw_borders(de_gui_node_t* grid, bool state)
+{
 	DE_ASSERT_GUI_NODE_TYPE(grid, DE_GUI_NODE_GRID);
 
 	grid->s.grid.draw_borders = state;
 }
 
-void de_gui_grid_clear_rows(de_gui_node_t* grid) {
+void de_gui_grid_clear_rows(de_gui_node_t* grid)
+{
 	DE_ASSERT_GUI_NODE_TYPE(grid, DE_GUI_NODE_GRID);
 	DE_ARRAY_CLEAR(grid->s.grid.rows);
 }
 
-void de_gui_grid_clear_columns(de_gui_node_t* grid) {
+void de_gui_grid_clear_columns(de_gui_node_t* grid)
+{
 	DE_ASSERT_GUI_NODE_TYPE(grid, DE_GUI_NODE_GRID);
 	DE_ARRAY_CLEAR(grid->s.grid.columns);
 }
 
-void de_gui_grid_add_row(de_gui_node_t* node, float desired_height, de_gui_size_mode_t size_mode) {
+void de_gui_grid_add_row(de_gui_node_t* node, float desired_height, de_gui_size_mode_t size_mode)
+{
 	de_gui_grid_row_t row;
 	de_zero(&row, sizeof(row));
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_GRID);
@@ -345,7 +334,8 @@ void de_gui_grid_add_row(de_gui_node_t* node, float desired_height, de_gui_size_
 	DE_ARRAY_APPEND(node->s.grid.rows, row);
 }
 
-void de_gui_grid_add_column(de_gui_node_t* node, float desired_width, de_gui_size_mode_t size_mode) {
+void de_gui_grid_add_column(de_gui_node_t* node, float desired_width, de_gui_size_mode_t size_mode)
+{
 	de_gui_grid_column_t col;
 	de_zero(&col, sizeof(col));
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_GRID);

@@ -21,7 +21,8 @@
 
 /* Postponed */
 
-static void de_editor_create_property_window(de_editor_t* ed) {
+static void de_editor_create_property_window(de_editor_t* ed)
+{
 	de_gui_t* gui = ed->core->gui;
 	de_editor_property_window_t* pw = &ed->prop;
 	pw->owner = ed;
@@ -44,12 +45,14 @@ static void de_editor_create_property_window(de_editor_t* ed) {
 	de_gui_node_set_column(pw->name_text, 1);
 }
 
-static void de_editor_free_property_window(de_editor_t* ed) {
+static void de_editor_free_property_window(de_editor_t* ed)
+{
 	de_editor_property_window_t* pw = &ed->prop;
 	de_gui_node_free(pw->window);
 }
 
-static void de_editor_setup_camera_controller(de_editor_t* ed) {
+static void de_editor_setup_camera_controller(de_editor_t* ed)
+{
 	de_editor_camera_controller_t* ctl = &ed->camera_ctrl;
 
 	ctl->camera_pivot = de_node_create(ed->scene, DE_NODE_TYPE_BASE);
@@ -58,29 +61,33 @@ static void de_editor_setup_camera_controller(de_editor_t* ed) {
 	de_node_attach(ctl->camera, ctl->camera_pivot);
 }
 
-static void de_editor_setup_scene(de_editor_t* ed) {
-	ed->scene = de_scene_create(ed->core);	
+static void de_editor_setup_scene(de_editor_t* ed)
+{
+	ed->scene = de_scene_create(ed->core);
 }
 
-de_editor_t* de_editor_create(de_core_t* core) {
+de_editor_t* de_editor_create(de_core_t* core)
+{
 	de_editor_t* ed = DE_NEW(de_editor_t);
 	ed->core = core;
 	de_editor_create_property_window(ed);
-    de_editor_setup_scene(ed);
-    de_editor_setup_camera_controller(ed);
+	de_editor_setup_scene(ed);
+	de_editor_setup_camera_controller(ed);
 	return ed;
 }
 
-void de_editor_free(de_editor_t* ed) {
+void de_editor_free(de_editor_t* ed)
+{
 	de_editor_free_property_window(ed);
 	de_free(ed);
 }
 
-void de_editor_process_event(de_editor_t* ed, const de_event_t* evt) {
+void de_editor_process_event(de_editor_t* ed, const de_event_t* evt)
+{
 	de_editor_camera_controller_t* ctl = &ed->camera_ctrl;
-	switch(evt->type) {
+	switch (evt->type) {
 		case DE_EVENT_TYPE_KEY_DOWN:
-			switch(evt->s.key.key) {
+			switch (evt->s.key.key) {
 				case DE_KEY_W:
 					ctl->move_forward = true;
 					break;
@@ -93,8 +100,8 @@ void de_editor_process_event(de_editor_t* ed, const de_event_t* evt) {
 				case DE_KEY_D:
 					ctl->move_right = true;
 					break;
-                default:
-                    break;
+				default:
+					break;
 			}
 			break;
 		case DE_EVENT_TYPE_KEY_UP:
@@ -111,20 +118,21 @@ void de_editor_process_event(de_editor_t* ed, const de_event_t* evt) {
 				case DE_KEY_D:
 					ctl->move_right = false;
 					break;
-                default:
-                    break;
+				default:
+					break;
 			}
 			break;
 		case DE_EVENT_TYPE_MOUSE_MOVE:
 			break;
-        default:
-            break;
+		default:
+			break;
 	}
 }
 
-void de_editor_update(de_editor_t* ed) {
+void de_editor_update(de_editor_t* ed)
+{
 	de_editor_camera_controller_t* ctl = &ed->camera_ctrl;
-	if(ctl->move_forward) {
+	if (ctl->move_forward) {
 
 	}
 }

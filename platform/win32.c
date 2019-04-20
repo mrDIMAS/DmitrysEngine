@@ -45,7 +45,8 @@ PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB;
 #define VK_OEM_PERIOD (0xBE)
 #endif
 
-static int de_win32_remap_key(WPARAM key, LPARAM flags) {
+static int de_win32_remap_key(WPARAM key, LPARAM flags)
+{
 	switch (key) {
 		case VK_SHIFT:
 		{
@@ -155,7 +156,8 @@ static int de_win32_remap_key(WPARAM key, LPARAM flags) {
 	return DE_KEY_UKNOWN;
 }
 
-static LRESULT CALLBACK de_win32_window_proc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+static LRESULT CALLBACK de_win32_window_proc(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
 	static int lastx, lasty;
 	static uint16_t surrogate;
 	de_core_t* core = (de_core_t*)GetWindowLongPtr(wnd, GWLP_USERDATA);
@@ -258,12 +260,12 @@ static LRESULT CALLBACK de_win32_window_proc(HWND wnd, UINT msg, WPARAM wParam, 
 				if (evt.s.text.code >= 0xD800 && evt.s.text.code <= 0xDBFF) {
 					/* first part of character surrogate */
 					surrogate = (uint16_t)evt.s.text.code;
-				} else {					
-					if ((evt.s.text.code >= 0xDC00) && (evt.s.text.code <= 0xDFFF))	{
-						/* todo: convert surrogate pair to utf32 */ 
+				} else {
+					if ((evt.s.text.code >= 0xDC00) && (evt.s.text.code <= 0xDFFF)) {
+						/* todo: convert surrogate pair to utf32 */
 						surrogate = 0;
-                        
-                        surrogate += surrogate; /* DELETE */
+
+						surrogate += surrogate; /* DELETE */
 					}
 					de_core_push_event(core, &evt);
 				}
@@ -281,13 +283,14 @@ static LRESULT CALLBACK de_win32_window_proc(HWND wnd, UINT msg, WPARAM wParam, 
 				evt.s.resize.w = LOWORD(lParam);
 				evt.s.resize.h = HIWORD(lParam);
 				de_core_push_event(core, &evt);
-				break;	
+				break;
 		}
 	}
 	return DefWindowProc(wnd, msg, wParam, lParam);
 }
 
-static void de_win32_load_wgl_extensions(void) {
+static void de_win32_load_wgl_extensions(void)
+{
 	int pixel_format;
 	WNDCLASSEX wcx;
 	PIXELFORMATDESCRIPTOR pfd;
@@ -355,7 +358,8 @@ static void de_win32_load_wgl_extensions(void) {
 	DestroyWindow(window);
 }
 
-void de_core_platform_init(de_core_t* core) {
+void de_core_platform_init(de_core_t* core)
+{
 	DWORD style;
 	int pixel_format;
 	unsigned int format_count;
@@ -444,12 +448,14 @@ void de_core_platform_init(de_core_t* core) {
 	}
 }
 
-void de_core_platform_shutdown(de_core_t* core) {
+void de_core_platform_shutdown(de_core_t* core)
+{
 	wglMakeCurrent(NULL, NULL);
 	wglDeleteContext(core->platform.gl_context);
 }
 
-void de_core_platform_poll_events(de_core_t* core) {
+void de_core_platform_poll_events(de_core_t* core)
+{
 	MSG message;
 	DE_UNUSED(core);
 	while (PeekMessage(&message, NULL, 0, 0, PM_REMOVE)) {
@@ -458,37 +464,44 @@ void de_core_platform_poll_events(de_core_t* core) {
 	}
 }
 
-de_proc de_core_platform_get_proc_address(const char* name) {
+de_proc de_core_platform_get_proc_address(const char* name)
+{
 	return (de_proc)wglGetProcAddress(name);
 }
 
-void de_core_platform_swap_buffers(de_core_t* core) {
+void de_core_platform_swap_buffers(de_core_t* core)
+{
 	SwapBuffers(core->platform.device_context);
 }
 
-double de_time_get_seconds() {
+double de_time_get_seconds()
+{
 	LARGE_INTEGER frequency, time;
 	QueryPerformanceFrequency(&frequency);
 	QueryPerformanceCounter(&time);
 	return time.QuadPart / (double)frequency.QuadPart;
 }
 
-void de_core_platform_message_box(de_core_t* core, const char* msg, const char* title) {
+void de_core_platform_message_box(de_core_t* core, const char* msg, const char* title)
+{
 	MessageBoxA(core->platform.window, msg, title, MB_OK | MB_ICONERROR);
 }
 
-void de_sleep(int milliseconds) {
+void de_sleep(int milliseconds)
+{
 	if (milliseconds >= 0) {
 		Sleep(milliseconds);
 	}
 }
 
-void de_core_platform_set_window_title(de_core_t* core, const char* title) {
+void de_core_platform_set_window_title(de_core_t* core, const char* title)
+{
 	SetWindowTextA(core->platform.window, title);
 }
 
-void de_core_set_video_mode(de_core_t* core, const de_video_mode_t* vm) {
-	HWND wnd = core->platform.window;	
+void de_core_set_video_mode(de_core_t* core, const de_video_mode_t* vm)
+{
+	HWND wnd = core->platform.window;
 	if (vm->fullscreen) {
 		DEVMODE mode;
 		mode.dmSize = sizeof(mode);
@@ -502,7 +515,7 @@ void de_core_set_video_mode(de_core_t* core, const de_video_mode_t* vm) {
 		}
 	}
 	core->params.video_mode = *vm;
-	if (vm->fullscreen) {		
+	if (vm->fullscreen) {
 		SetWindowLongA(wnd, GWL_STYLE, WS_POPUP | WS_CLIPSIBLINGS | WS_CLIPCHILDREN);
 		SetWindowLongA(wnd, GWL_EXSTYLE, WS_EX_APPWINDOW);
 	}
@@ -510,7 +523,8 @@ void de_core_set_video_mode(de_core_t* core, const de_video_mode_t* vm) {
 	ShowWindow(wnd, SW_SHOW);
 }
 
-void de_get_desktop_video_mode(de_video_mode_t* vm) {
+void de_get_desktop_video_mode(de_video_mode_t* vm)
+{
 	DEVMODE mode;
 	mode.dmSize = sizeof(mode);
 	EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &mode);
@@ -520,7 +534,8 @@ void de_get_desktop_video_mode(de_video_mode_t* vm) {
 	vm->bits_per_pixel = mode.dmBitsPerPel;
 }
 
-de_video_mode_array_t de_enum_video_modes() {
+de_video_mode_array_t de_enum_video_modes()
+{
 	size_t k;
 	int n = 0;
 	de_video_mode_array_t modes;
@@ -551,9 +566,10 @@ de_video_mode_array_t de_enum_video_modes() {
 	return modes;
 }
 
-char* de_clipboard_get_text() {
+char* de_clipboard_get_text()
+{
 	char* osdata, *data;
-    HANDLE handle;
+	HANDLE handle;
 	size_t len;
 	if (!OpenClipboard(NULL)) {
 		return NULL;
@@ -575,7 +591,8 @@ char* de_clipboard_get_text() {
 	return data;
 }
 
-void de_clipboard_set_text(char* data) {
+void de_clipboard_set_text(char* data)
+{
 	if (!OpenClipboard(NULL)) {
 		return;
 	}

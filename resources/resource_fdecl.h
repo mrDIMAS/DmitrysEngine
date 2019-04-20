@@ -32,22 +32,22 @@ DE_STATIC_ASSERT(sizeof(de_resource_type_t) == sizeof(uint32_t), invalid_resourc
 
 typedef enum de_resource_flag_t {
 	/**
-	 * Resource is created in runtime. Will be serialized unless 
+	 * Resource is created in runtime. Will be serialized unless
 	 * DE_RESOURCE_FLAG_PERSISTENT is set. Useful for dynamic resource like procedural
 	 * textures.
 	 */
-	DE_RESOURCE_FLAG_PROCEDURAL = DE_BIT(0), 
+	DE_RESOURCE_FLAG_PROCEDURAL = DE_BIT(0),
 
 	/**
 	 * Resource is will exist until core is destroyed. Such resource WON'T be serialized
 	 * by object visitor! For example such resources may be useful for UI textures which will
-	 * exist all the time game is running. 
+	 * exist all the time game is running.
 	 **/
 	DE_RESOURCE_FLAG_PERSISTENT = DE_BIT(1),
 
 	/**
-	 * Internal. Do not use. 
-	 * 
+	 * Internal. Do not use.
+	 *
 	 * Internal persistent engine resources will be marked with this flag.
 	 */
 	DE_RESOURCE_FLAG_INTERNAL = DE_BIT(2),

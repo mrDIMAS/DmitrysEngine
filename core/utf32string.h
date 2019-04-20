@@ -19,8 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/* UTF32 string 
- * 
+/* UTF32 string
+ *
  * WARNING: Unlike de_str8_t does NOT contain null-terminator! */
 
 /* Wrap-struct to prevent using string with DE_ARRAY_XXX functions
@@ -31,7 +31,7 @@ typedef struct de_str32_t {
 
 /**
  * @brief Prepares string.
- */ 
+ */
 void de_str32_init(de_str32_t* str);
 
 /**
@@ -41,14 +41,14 @@ void de_str32_free(de_str32_t* str);
 
 /**
  * @brief Moves source string to destination. @src will be empty array after.
- * 
+ *
  * Notes: Automatically frees memory from @dest if such was allocated.
  */
 void de_str32_move(de_str32_t* src, de_str32_t* dest);
 
 /**
  * @brief Inserts single character into @pos
- * 
+ *
  * Performs out-of-bounds checks! @pos will be clamped to [0; size]
  */
 void de_str32_insert(de_str32_t* str, int pos, uint32_t unicode);
@@ -60,7 +60,7 @@ void de_str32_append(de_str32_t* str, uint32_t unicode);
 
 /**
  * @brief Remove @amount of characters from string starting from @pos
- * 
+ *
  * Performs out-of-bounds checks, remove range will be clamped to [0; size].
  */
 void de_str32_remove(de_str32_t* str, int pos, int amount);
@@ -76,15 +76,15 @@ void de_str32_clear(de_str32_t* str);
 size_t de_str32_length(de_str32_t* str);
 
 /**
- * @brief Returns pointer to immutable string data. 
- * 
+ * @brief Returns pointer to immutable string data.
+ *
  * WARNING: DO NOT modify internals of string using returned pointer!
  */
 const uint32_t* de_str32_get_data(const de_str32_t* str);
 
 /**
- * @brief Returns single character from string. 
- * 
+ * @brief Returns single character from string.
+ *
  * WARNING: There is no out-of-bound checks!
  */
 uint32_t de_str32_at(const de_str32_t* str, size_t i);
@@ -109,13 +109,14 @@ void de_str32_append_cstr(de_str32_t* str, const char* cstr);
  */
 
 #if 0
-void de_str32_insert_utf8(de_str32_t* str, const de_str8_view_t* view) {
+void de_str32_insert_utf8(de_str32_t* str, const de_str8_view_t* view)
+{
 	size_t old_size, decoded;
 	int reserved_size = view->len * 4;
 	old_size = str->str.size;
 	DE_ARRAY_GROW(str->str, reserved_size);
-	memmove(str->str.data + old_size + reserved_size, str->str.data + old_size, old_size -  )
-	decoded = (size_t)de_utf8_to_utf32(view->data, view->len, str->str.data + old_size, reserved_size);
+	memmove(str->str.data + old_size + reserved_size, str->str.data + old_size, old_size - )
+		decoded = (size_t)de_utf8_to_utf32(view->data, view->len, str->str.data + old_size, reserved_size);
 	str->str.size = old_size + decoded;
 }
 #endif

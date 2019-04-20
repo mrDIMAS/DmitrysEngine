@@ -23,7 +23,7 @@ struct de_scene_t {
 	de_resource_t* res; /**< Resource which contains this scene. When not NULL, scene will be ignored in all calculations. */
 	de_core_t* core;
 	DE_LINKED_LIST_DECLARE(de_node_t, nodes);
-	DE_LINKED_LIST_DECLARE(de_body_t, bodies);	
+	DE_LINKED_LIST_DECLARE(de_body_t, bodies);
 	DE_LINKED_LIST_DECLARE(de_static_geometry_t, static_geometries);
 	DE_LINKED_LIST_DECLARE(de_animation_t, animations);
 	de_node_t* active_camera;

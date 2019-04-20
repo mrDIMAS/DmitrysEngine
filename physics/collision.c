@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-bool de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c) {
+bool de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c)
+{
 	de_vec3_t ca;
 	de_static_triangle_t triangle;
 
@@ -39,8 +40,8 @@ bool de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t
 		de_log("degenerated triangle found!");
 		return false;
 	}
-	
-    /* Find triangle edges */
+
+	/* Find triangle edges */
 	de_vec3_sub(&triangle.ab, a, b);
 	de_vec3_sub(&triangle.bc, b, c);
 	de_vec3_sub(&triangle.ca, c, a);
@@ -61,7 +62,8 @@ bool de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t
 	return true;
 }
 
-void de_static_geometry_fill(de_static_geometry_t* geom, const de_mesh_t* mesh, const de_mat4_t transform) {
+void de_static_geometry_fill(de_static_geometry_t* geom, const de_mesh_t* mesh, const de_mat4_t transform)
+{
 	size_t i, k;
 
 	if (!geom || !mesh) {
@@ -95,7 +97,8 @@ void de_static_geometry_fill(de_static_geometry_t* geom, const de_mesh_t* mesh, 
 	}
 }
 
-bool de_static_triangle_contains_point(const de_static_triangle_t* triangle, const de_vec3_t* point) {
+bool de_static_triangle_contains_point(const de_static_triangle_t* triangle, const de_vec3_t* point)
+{
 	de_vec3_t vp;
 	float dot02, dot12, u, v;
 
@@ -107,11 +110,14 @@ bool de_static_triangle_contains_point(const de_static_triangle_t* triangle, con
 	return (u >= 0.0f) && (v >= 0.0f) && (u + v < 1.0f);
 }
 
-void de_physics_step(de_core_t* core, double dt) {
+void de_physics_step(de_core_t* core, double dt)
+{
 	const float dt2 = (float)(dt * dt);
-	DE_LINKED_LIST_FOR_EACH_T(de_scene_t*, scene, core->scenes) {
-		DE_LINKED_LIST_FOR_EACH_T(de_body_t*, body, scene->bodies) {
-			/* Drop contact information */
+	DE_LINKED_LIST_FOR_EACH_T(de_scene_t*, scene, core->scenes)
+	{
+		DE_LINKED_LIST_FOR_EACH_T(de_body_t*, body, scene->bodies)
+		{
+/* Drop contact information */
 			body->contact_count = 0;
 			/* Apply gravity */
 			de_vec3_add(&body->acceleration, &body->acceleration, &body->gravity);
@@ -119,7 +125,8 @@ void de_physics_step(de_core_t* core, double dt) {
 			de_body_verlet(body, dt2);
 			/* Solve collisions */
 			de_static_geometry_t* geom;
-			DE_LINKED_LIST_FOR_EACH(scene->static_geometries, geom) {
+			DE_LINKED_LIST_FOR_EACH(scene->static_geometries, geom)
+			{
 				for (size_t j = 0; j < geom->triangles.size; ++j) {
 					de_body_triangle_collision(&geom->triangles.data[j], body);
 				}

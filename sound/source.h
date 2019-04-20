@@ -44,7 +44,7 @@ struct de_sound_source_t {
 	double buf_read_pos; /**< Read position in the buffer. Differs from @playback_pos if buffer is streaming. */
 	double playback_pos; /**< Real playback position */
 	double current_sample_rate;
-	float pan; 
+	float pan;
 	float pitch;
 	float gain;
 	bool loop;

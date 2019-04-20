@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-static void de_light_init(de_node_t* node) {
+static void de_light_init(de_node_t* node)
+{
 	de_light_t* light = de_node_to_light(node);
 	de_color_set(&light->color, 255, 255, 255, 255);
 	light->radius = 2.0f;
@@ -28,7 +29,8 @@ static void de_light_init(de_node_t* node) {
 	light->cone_angle_cos = -1.0f;
 }
 
-static void de_light_copy(de_node_t* src_node, de_node_t* dest_node) {	
+static void de_light_copy(de_node_t* src_node, de_node_t* dest_node)
+{
 	de_light_t* src = de_node_to_light(src_node);
 	de_light_t* dest = de_node_to_light(dest_node);
 	dest->color = src->color;
@@ -38,7 +40,8 @@ static void de_light_copy(de_node_t* src_node, de_node_t* dest_node) {
 	dest->type = src->type;
 }
 
-static bool de_light_visit(de_object_visitor_t* visitor, de_node_t* node) {
+static bool de_light_visit(de_object_visitor_t* visitor, de_node_t* node)
+{
 	de_light_t* light = de_node_to_light(node);
 	bool result = true;
 	result &= de_object_visitor_visit_uint32(visitor, "Type", (uint32_t*)&light->type);
@@ -49,7 +52,8 @@ static bool de_light_visit(de_object_visitor_t* visitor, de_node_t* node) {
 	return result;
 }
 
-struct de_node_dispatch_table_t* de_light_get_dispatch_table(void) {
+struct de_node_dispatch_table_t* de_light_get_dispatch_table(void)
+{
 	static de_node_dispatch_table_t tbl = {
 		.init = de_light_init,
 		.copy = de_light_copy,
@@ -58,15 +62,18 @@ struct de_node_dispatch_table_t* de_light_get_dispatch_table(void) {
 	return &tbl;
 }
 
-void de_light_set_radius(de_light_t* light, float radius) {
+void de_light_set_radius(de_light_t* light, float radius)
+{
 	light->radius = de_maxf(FLT_EPSILON, radius);
 }
 
-void de_light_set_cone_angle(de_light_t* light, float angle) {
+void de_light_set_cone_angle(de_light_t* light, float angle)
+{
 	light->cone_angle = angle;
 	light->cone_angle_cos = (float)cos(angle);
 }
 
-float de_light_get_cone_angle(const de_light_t* light) {
+float de_light_get_cone_angle(const de_light_t* light)
+{
 	return light->cone_angle;
 }

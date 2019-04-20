@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-bool de_config_parse_file(de_config_t* cfg, const de_path_t* path) {
+bool de_config_parse_file(de_config_t* cfg, const de_path_t* path)
+{
 	DE_ASSERT(path);
 	DE_ASSERT(cfg);
 	size_t size;
@@ -34,7 +35,8 @@ bool de_config_parse_file(de_config_t* cfg, const de_path_t* path) {
  * @brief Moves read pointer until find any of specified characters and sets read pointer on next
  * symbol right after last found. Returns false if end or source has reached.
  */
-static bool de_config_move_after(size_t* i, const char* src, size_t len, const char* chars) {
+static bool de_config_move_after(size_t* i, const char* src, size_t len, const char* chars)
+{
 	while (!strchr(chars, src[*i])) {
 		if (++(*i) >= len) {
 			return false;
@@ -50,7 +52,8 @@ static bool de_config_move_after(size_t* i, const char* src, size_t len, const c
 * @brief Moves read pointer while it points to any of specified characters.
 * Returns false if end has reached.
 */
-static bool de_config_ignore_while_contains_any(size_t* i, const char* src, size_t len, const char* chars) {
+static bool de_config_ignore_while_contains_any(size_t* i, const char* src, size_t len, const char* chars)
+{
 	while (strchr(chars, src[*i])) {
 		if (++(*i) >= len) {
 			return false;
@@ -59,7 +62,8 @@ static bool de_config_ignore_while_contains_any(size_t* i, const char* src, size
 	return true;
 }
 
-bool de_config_parse(de_config_t* cfg, char* src, size_t len) {
+bool de_config_parse(de_config_t* cfg, char* src, size_t len)
+{
 	DE_ASSERT(src);
 	DE_ASSERT(cfg);
 	size_t i = 0;
@@ -137,7 +141,8 @@ end:
 	return result;
 }
 
-de_config_entry_t* de_config_find(de_config_t* cfg, const char* name) {
+de_config_entry_t* de_config_find(de_config_t* cfg, const char* name)
+{
 	DE_ASSERT(cfg);
 	DE_ASSERT(name);
 	for (size_t i = 0; i < cfg->entries.size; ++i) {
@@ -149,7 +154,8 @@ de_config_entry_t* de_config_find(de_config_t* cfg, const char* name) {
 	return NULL;
 }
 
-bool de_config_get_float(de_config_t* cfg, const char* name, float* f) {
+bool de_config_get_float(de_config_t* cfg, const char* name, float* f)
+{
 	DE_ASSERT(cfg);
 	DE_ASSERT(name);
 	DE_ASSERT(f);
@@ -163,7 +169,8 @@ bool de_config_get_float(de_config_t* cfg, const char* name, float* f) {
 	return true;
 }
 
-bool de_config_get_int32(de_config_t* cfg, const char* name, int32_t* i) {
+bool de_config_get_int32(de_config_t* cfg, const char* name, int32_t* i)
+{
 	DE_ASSERT(cfg);
 	DE_ASSERT(name);
 	DE_ASSERT(i);
@@ -177,7 +184,8 @@ bool de_config_get_int32(de_config_t* cfg, const char* name, int32_t* i) {
 	return true;
 }
 
-bool de_config_get_int64(de_config_t* cfg, const char* name, int64_t* i) {
+bool de_config_get_int64(de_config_t* cfg, const char* name, int64_t* i)
+{
 	DE_ASSERT(cfg);
 	DE_ASSERT(name);
 	DE_ASSERT(i);
@@ -191,7 +199,8 @@ bool de_config_get_int64(de_config_t* cfg, const char* name, int64_t* i) {
 	return true;
 }
 
-bool de_config_get_str(de_config_t* cfg, const char* name, const char** str) {
+bool de_config_get_str(de_config_t* cfg, const char* name, const char** str)
+{
 	DE_ASSERT(cfg);
 	DE_ASSERT(name);
 	DE_ASSERT(str);
@@ -203,13 +212,15 @@ bool de_config_get_str(de_config_t* cfg, const char* name, const char** str) {
 	return true;
 }
 
-void de_config_free(de_config_t* cfg) {
+void de_config_free(de_config_t* cfg)
+{
 	DE_ASSERT(cfg);
 	de_free(cfg->data);
 	DE_ARRAY_FREE(cfg->entries);
 }
 
-void de_config_print(de_config_t* cfg) {
+void de_config_print(de_config_t* cfg)
+{
 	DE_ASSERT(cfg);
 	for (size_t i = 0; i < cfg->entries.size; ++i) {
 		de_config_entry_t* entry = cfg->entries.data + i;

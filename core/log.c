@@ -21,13 +21,15 @@
 
 static FILE* de_log_file;
 
-void de_log_open(const char* filename) {
+void de_log_open(const char* filename)
+{
 	if (!de_log_file) {
 		de_log_file = fopen(filename, "w");
 	}
 }
 
-static void de_write_log(const char* message, bool error) {
+static void de_write_log(const char* message, bool error)
+{
 	time_t rawtime;
 	struct tm* timeinfo;
 
@@ -49,7 +51,8 @@ static void de_write_log(const char* message, bool error) {
 	}
 }
 
-void de_log(const char* message, ...) {
+void de_log(const char* message, ...)
+{
 	static char format_buffer[32768];
 	va_list argument_list;
 	va_start(argument_list, message);
@@ -58,7 +61,8 @@ void de_log(const char* message, ...) {
 	de_write_log(format_buffer, false);
 }
 
-void de_fatal_error(const char* message, ...) {
+void de_fatal_error(const char* message, ...)
+{
 	static char format_buffer[32768];
 	va_list argument_list;
 	va_start(argument_list, message);
@@ -73,6 +77,7 @@ void de_fatal_error(const char* message, ...) {
 	exit(EXIT_FAILURE);
 }
 
-void de_log_close(void) {
+void de_log_close(void)
+{
 	fclose(de_log_file);
 }

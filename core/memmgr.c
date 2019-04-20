@@ -21,7 +21,8 @@
 
 static int de_alloc_count;
 
-void* de_malloc(size_t size) {
+void* de_malloc(size_t size)
+{
 	void* mem;
 
 	mem = malloc(size);
@@ -35,7 +36,8 @@ void* de_malloc(size_t size) {
 	return mem;
 }
 
-void* de_calloc(size_t count, size_t size) {
+void* de_calloc(size_t count, size_t size)
+{
 	void* mem;
 
 	mem = calloc(count, size);
@@ -49,7 +51,8 @@ void* de_calloc(size_t count, size_t size) {
 	return mem;
 }
 
-void* de_realloc(void* ptr, size_t size) {
+void* de_realloc(void* ptr, size_t size)
+{
 	void* mem;
 
 	if (ptr == NULL && size > 0) {
@@ -69,17 +72,20 @@ void* de_realloc(void* ptr, size_t size) {
 	return mem;
 }
 
-void de_free(void* ptr) {
+void de_free(void* ptr)
+{
 	if (ptr) {
 		--de_alloc_count;
 	}
 	free(ptr);
 }
 
-size_t de_get_alloc_count() {
+size_t de_get_alloc_count()
+{
 	return de_alloc_count;
 }
 
-void de_zero(void* data, size_t size) {
+void de_zero(void* data, size_t size)
+{
 	memset(data, 0, size);
 }

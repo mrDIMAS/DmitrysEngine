@@ -35,7 +35,7 @@ typedef struct de_gui_thickness_t {
 } de_gui_thickness_t;
 
 /**
- * @brief Initializes thickness with same values. Designed for use with 
+ * @brief Initializes thickness with same values. Designed for use with
  * designated initializers.
  */
 de_gui_thickness_t de_gui_thickness_uniform(float value);
@@ -86,6 +86,7 @@ typedef struct de_gui_callback_t {
 #include "gui/text_box.h"
 #include "gui/window.h"
 #include "gui/slide_selector.h"
+#include "gui/image.h"
 
 /**
  * @brief
@@ -101,10 +102,17 @@ typedef enum de_gui_node_type_t {
 	DE_GUI_NODE_SCROLL_BAR,
 	DE_GUI_NODE_SCROLL_VIEWER,
 	DE_GUI_NODE_TEXT_BOX,
+	DE_GUI_NODE_IMAGE,
 	DE_GUI_NODE_GRID,                    /**< Automatically arranges children by rows and columns */
 	DE_GUI_NODE_CANVAS,                  /**< Allows user to directly set position and size of a node */
 	DE_GUI_NODE_SCROLL_CONTENT_PRESENTER, /**< Allows user to scroll content */
 	DE_GUI_NODE_SLIDE_SELECTOR,
+	/**
+	 * Special isolated node which will be copied and inserted into visual tree. Very useful to
+	 * create your own look for standard controls. Template node will be never rendered or interacted
+	 * with user.
+	 */
+	DE_GUI_NODE_TEMPLATE,
 	DE_GUI_NODE_USER_CONTROL /* Use this as start index for type for your custom controls */
 } de_gui_node_type_t;
 
@@ -244,6 +252,7 @@ typedef struct de_gui_node_descriptor_t {
 		de_gui_scroll_bar_descriptor_t scroll_bar;
 		de_gui_grid_descriptor_t grid;
 		de_gui_button_descriptor_t button;
+		de_gui_image_descriptor_t image;
 	} s;
 } de_gui_node_descriptor_t;
 
@@ -258,6 +267,7 @@ typedef struct de_gui_dispatch_table_t {
 	bool(*set_property)(de_gui_node_t* n, const char* name, const void* value, size_t data_size);
 	bool(*parse_property)(de_gui_node_t* n, const char* name, const char* value);
 	void(*apply_descriptor)(de_gui_node_t* n, const de_gui_node_descriptor_t* desc);
+	void(*apply_template)(de_gui_node_t* node, const de_gui_node_t* ctemplate);
 } de_gui_dispatch_table_t;
 
 /**
@@ -314,6 +324,7 @@ struct de_gui_node_t {
 		de_gui_window_t window;
 		de_gui_text_box_t text_box;
 		de_gui_slide_selector_t slide_selector;
+		de_gui_image_t image;
 		void* user_control;
 	} s;
 };
@@ -569,3 +580,10 @@ void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* constraint);
  * node.
  */
 void de_gui_drop_focus(de_gui_t* gui);
+
+void de_gui_node_apply_template(de_gui_node_t* node, const de_gui_node_t* ctemplate);
+
+void de_gui_align_rect_in_rect(de_vec2_t* child_pos, de_vec2_t* child_size,
+	const de_vec2_t* parent_pos, const de_vec2_t* parent_size,
+	const de_gui_horizontal_alignment_t horizontal_alignment,
+	const de_gui_vertical_alignment_t vertical_alignment);

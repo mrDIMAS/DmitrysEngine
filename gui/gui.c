@@ -36,6 +36,8 @@ static bool de_gui_node_contains_point(de_gui_node_t* node, const de_vec2_t* poi
 #include "gui/text_box.c"
 #include "gui/window.c"
 #include "gui/slide_selector.c"
+#include "gui/image.c"
+
 #define DE_DECLARE_ROUTED_EVENT_TRACER(name__, event__) \
 	static void name__(de_gui_node_t* n, de_gui_routed_event_args_t* args) { \
 		if (n->event__) { \
@@ -55,7 +57,8 @@ DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_lost_focus, lost_focus)
 
 #undef DE_DECLARE_ROUTED_EVENT_TRACER
 
-static void de_gui_node_route_mouse_enter(de_gui_node_t* n, de_gui_routed_event_args_t* args) {
+static void de_gui_node_route_mouse_enter(de_gui_node_t* n, de_gui_routed_event_args_t* args)
+{
 	if (n->mouse_enter) {
 		n->mouse_enter(n, args);
 	}
@@ -64,7 +67,8 @@ static void de_gui_node_route_mouse_enter(de_gui_node_t* n, de_gui_routed_event_
 	}
 }
 
-static void de_gui_node_route_text_entered(de_gui_node_t* n, de_gui_routed_event_args_t* args) {
+static void de_gui_node_route_text_entered(de_gui_node_t* n, de_gui_routed_event_args_t* args)
+{
 	if (n->text_entered) {
 		n->text_entered(n, args);
 	}
@@ -73,7 +77,8 @@ static void de_gui_node_route_text_entered(de_gui_node_t* n, de_gui_routed_event
 	}
 }
 
-static void de_gui_node_route_key_down(de_gui_node_t* n, de_gui_routed_event_args_t* args) {
+static void de_gui_node_route_key_down(de_gui_node_t* n, de_gui_routed_event_args_t* args)
+{
 	if (n->key_down) {
 		n->key_down(n, args);
 	}
@@ -82,7 +87,8 @@ static void de_gui_node_route_key_down(de_gui_node_t* n, de_gui_routed_event_arg
 	}
 }
 
-static void de_gui_node_route_key_up(de_gui_node_t* n, de_gui_routed_event_args_t* args) {
+static void de_gui_node_route_key_up(de_gui_node_t* n, de_gui_routed_event_args_t* args)
+{
 	if (n->key_up) {
 		n->key_up(n, args);
 	}
@@ -91,12 +97,8 @@ static void de_gui_node_route_key_up(de_gui_node_t* n, de_gui_routed_event_args_
 	}
 }
 
-static void de_gui_node_apply_layout(de_gui_node_t* n) {
-	size_t i;
-
-	n->actual_local_position.x = n->desired_local_position.x + n->margin.left;
-	n->actual_local_position.y = n->desired_local_position.y + n->margin.top;
-
+static void de_gui_node_calculate_actual_size(de_gui_node_t* n)
+{
 	if (n->visibility == DE_GUI_NODE_VISIBILITY_COLLAPSED) {
 		n->actual_size.x = 0;
 		n->actual_size.y = 0;
@@ -104,85 +106,101 @@ static void de_gui_node_apply_layout(de_gui_node_t* n) {
 		n->actual_size.x = n->desired_size.x - 2 * n->margin.right;
 		n->actual_size.y = n->desired_size.y - 2 * n->margin.bottom;
 	}
+}
+
+static void de_gui_node_apply_layout(de_gui_node_t* n)
+{
+	n->actual_local_position.x = n->desired_local_position.x + n->margin.left;
+	n->actual_local_position.y = n->desired_local_position.y + n->margin.top;
+
+	de_gui_node_calculate_actual_size(n);
 
 	if (n->dispatch_table->layout_children) {
 		n->dispatch_table->layout_children(n);
 	} else {
-		for (i = 0; i < n->children.size; ++i) {
+		for (size_t i = 0; i < n->children.size; ++i) {
 			de_gui_node_default_layout(n->children.data[i]);
 		}
 	}
 
-	for (i = 0; i < n->children.size; ++i) {
+	for (size_t i = 0; i < n->children.size; ++i) {
 		de_gui_node_apply_layout(n->children.data[i]);
 	}
 }
 
-static void de_gui_node_default_layout(de_gui_node_t* n) {
-	float desired_x = 0;
-	float desired_y = 0;
-	float desired_width = n->desired_size.x;
-	float desired_height = n->desired_size.y;
+void de_gui_align_rect_in_rect(de_vec2_t* child_pos, de_vec2_t* child_size,
+	const de_vec2_t* parent_pos, const de_vec2_t* parent_size,
+	const de_gui_horizontal_alignment_t horizontal_alignment,
+	const de_gui_vertical_alignment_t vertical_alignment)
+{
+
+	if (child_size->x > parent_size->x) {
+		child_size->x = parent_size->x;
+	} else if (child_size->x < 0) { /* check if user gone mad */
+		child_size->x = 0;
+	}
+
+	if (child_size->y > parent_size->y) {
+		child_size->y = parent_size->y;
+	} else if (child_size->y < 0) { /* check if user gone mad */
+		child_size->y = 0;
+	}
+
+	/* apply vertical alignment */
+	switch (vertical_alignment) {
+		case DE_GUI_VERTICAL_ALIGNMENT_TOP:
+			child_pos->y = parent_pos->y;
+			break;
+		case DE_GUI_VERTICAL_ALIGNMENT_CENTER:
+			child_pos->y = parent_pos->y + (parent_size->y - child_size->y) * 0.5f;
+			break;
+		case DE_GUI_VERTICAL_ALIGNMENT_BOTTOM:
+			child_pos->y = parent_pos->y + (parent_size->y - child_size->y);
+			break;
+		case DE_GUI_VERTICAL_ALIGNMENT_STRETCH:
+			child_pos->y = parent_pos->y;
+			child_size->y = parent_size->y;
+			break;
+	}
+
+	/* apply horizontal alignment */
+	switch (horizontal_alignment) {
+		case DE_GUI_HORIZONTAL_ALIGNMENT_LEFT:
+			child_pos->x = parent_pos->x;
+			break;
+		case DE_GUI_HORIZONTAL_ALIGNMENT_CENTER:
+			child_pos->x = parent_pos->x + (parent_size->x - child_size->x) * 0.5f;
+			break;
+		case DE_GUI_HORIZONTAL_ALIGNMENT_RIGHT:
+			child_pos->x = parent_pos->x + (parent_size->x - child_size->x);
+			break;
+		case DE_GUI_HORIZONTAL_ALIGNMENT_STRETCH:
+			child_pos->x = parent_pos->x;
+			child_size->x = parent_size->x;
+			break;
+	}
+}
+
+static void de_gui_node_default_layout(de_gui_node_t* n)
+{
 	de_gui_node_t* parent = n->parent;
 
 	if (!parent) {
 		de_fatal_error("node must have parent here!");
 	}
 
-	/* apply vertical alignment */
-	switch (n->vertical_alignment) {
-		case DE_GUI_VERTICAL_ALIGNMENT_TOP:
-		{
-			desired_y = 0;
-			break;
-		}
-		case DE_GUI_VERTICAL_ALIGNMENT_CENTER:
-		{
-			desired_y = (parent->actual_size.y - n->actual_size.y) * 0.5f;
-			break;
-		}
-		case DE_GUI_VERTICAL_ALIGNMENT_BOTTOM:
-		{
-			desired_y = parent->actual_size.y - n->actual_size.y;
-			break;
-		}
-		case DE_GUI_VERTICAL_ALIGNMENT_STRETCH:
-		{
-			desired_height = parent->actual_size.y;
-			break;
-		}
-	}
+	de_vec2_t desired_pos = { 0, 0 };
+	de_vec2_t desired_size = n->desired_size;
+	de_gui_align_rect_in_rect(&desired_pos, &desired_size, &(de_vec2_t){0, 0},
+		&parent->actual_size, n->horizontal_alignment, n->vertical_alignment);
 
-	/* apply horizontal alignment */
-	switch (n->horizontal_alignment) {
-		case DE_GUI_HORIZONTAL_ALIGNMENT_LEFT:
-		{
-			desired_x = 0;
-			break;
-		}
-		case DE_GUI_HORIZONTAL_ALIGNMENT_CENTER:
-		{
-			desired_x = (parent->actual_size.x - n->actual_size.x) * 0.5f;
-			break;
-		}
-		case DE_GUI_HORIZONTAL_ALIGNMENT_RIGHT:
-		{
-			desired_x = parent->actual_size.x - n->actual_size.x;
-			break;
-		}
-		case DE_GUI_HORIZONTAL_ALIGNMENT_STRETCH:
-		{
-			desired_width = parent->actual_size.x;
-			break;
-		}
-	}
-
-	de_gui_node_set_desired_local_position(n, desired_x, desired_y);
-	de_gui_node_set_desired_size(n, desired_width, desired_height);
+	de_gui_node_set_desired_local_position(n, desired_pos.x, desired_pos.y);
+	de_gui_node_set_desired_size(n, desired_size.x, desired_size.y);
 }
 
 
-de_gui_t* de_gui_init(de_core_t* core) {
+de_gui_t* de_gui_init(de_core_t* core)
+{
 	de_gui_t* gui = DE_NEW(de_gui_t);
 	gui->core = core;
 
@@ -211,8 +229,9 @@ de_gui_t* de_gui_init(de_core_t* core) {
 	return gui;
 }
 
-void de_gui_shutdown(de_gui_t* gui) {
-	/* free nodes */
+void de_gui_shutdown(de_gui_t* gui)
+{
+/* free nodes */
 	while (gui->nodes.head) {
 		de_gui_node_free(gui->nodes.head);
 	}
@@ -230,7 +249,8 @@ void de_gui_shutdown(de_gui_t* gui) {
 	de_free(gui);
 }
 
-void de_gui_node_update_transform(de_gui_node_t* node) {
+void de_gui_node_update_transform(de_gui_node_t* node)
+{
 	size_t i;
 	if (!node) {
 		de_fatal_error("node cannot be null here");
@@ -247,7 +267,8 @@ void de_gui_node_update_transform(de_gui_node_t* node) {
 	}
 }
 
-static de_gui_node_t* de_gui_node_pick(de_gui_node_t* n, float x, float y, int* level) {
+static de_gui_node_t* de_gui_node_pick(de_gui_node_t* n, float x, float y, int* level)
+{
 	size_t i;
 	de_gui_node_t* picked = NULL;
 	int topmost_picked_level = 0;
@@ -277,7 +298,8 @@ static de_gui_node_t* de_gui_node_pick(de_gui_node_t* n, float x, float y, int* 
 	return picked;
 }
 
-static bool de_gui_draw_command_contains_point(const de_gui_draw_list_t* draw_list, const de_gui_draw_command_t* cmd, const de_vec2_t* pos) {
+static bool de_gui_draw_command_contains_point(const de_gui_draw_list_t* draw_list, const de_gui_draw_command_t* cmd, const de_vec2_t* pos)
+{
 	size_t j;
 	int* indices = draw_list->index_buffer.data;
 	de_gui_vertex_t* vertices = draw_list->vertex_buffer.data;
@@ -328,11 +350,13 @@ static bool de_gui_draw_command_contains_point(const de_gui_draw_list_t* draw_li
 	return false;
 }
 
-de_gui_thickness_t de_gui_thickness_uniform(float value) {
+de_gui_thickness_t de_gui_thickness_uniform(float value)
+{
 	return (de_gui_thickness_t) { .left = value, .right = value, .top = value, .bottom = value };
 }
 
-static bool de_gui_node_is_clipped(de_gui_node_t* node, const de_vec2_t* point) {
+static bool de_gui_node_is_clipped(de_gui_node_t* node, const de_vec2_t* point)
+{
 	size_t i;
 	de_gui_draw_list_t* draw_list = &node->gui->draw_list;
 
@@ -364,11 +388,12 @@ static bool de_gui_node_is_clipped(de_gui_node_t* node, const de_vec2_t* point) 
 	return clipped;
 }
 
-static bool de_gui_node_contains_point(de_gui_node_t* node, const de_vec2_t* point) {
+static bool de_gui_node_contains_point(de_gui_node_t* node, const de_vec2_t* point)
+{
 	size_t i;
 	de_gui_draw_list_t* draw_list = &node->gui->draw_list;
 
-	if(node->visibility != DE_GUI_NODE_VISIBILITY_VISIBLE) {
+	if (node->visibility != DE_GUI_NODE_VISIBILITY_VISIBLE) {
 		return false;
 	}
 
@@ -387,7 +412,8 @@ static bool de_gui_node_contains_point(de_gui_node_t* node, const de_vec2_t* poi
 	return false;
 }
 
-static void de_gui_node_fire_mouse_move_event(de_gui_node_t* n, const de_vec2_t* mouse_pos) {
+static void de_gui_node_fire_mouse_move_event(de_gui_node_t* n, const de_vec2_t* mouse_pos)
+{
 	de_gui_routed_event_args_t args;
 	de_zero(&args, sizeof(args));
 	args.source = n;
@@ -396,7 +422,8 @@ static void de_gui_node_fire_mouse_move_event(de_gui_node_t* n, const de_vec2_t*
 	de_gui_node_route_mouse_move(n, &args);
 }
 
-static void de_gui_node_fire_mouse_enter_event(de_gui_node_t* n) {
+static void de_gui_node_fire_mouse_enter_event(de_gui_node_t* n)
+{
 	de_gui_routed_event_args_t args;
 	de_zero(&args, sizeof(args));
 	args.source = n;
@@ -404,7 +431,8 @@ static void de_gui_node_fire_mouse_enter_event(de_gui_node_t* n) {
 	de_gui_node_route_mouse_enter(n, &args);
 }
 
-static void de_gui_node_fire_mouse_up_event(de_gui_node_t* n, const de_vec2_t* mouse_pos) {
+static void de_gui_node_fire_mouse_up_event(de_gui_node_t* n, const de_vec2_t* mouse_pos)
+{
 	de_gui_routed_event_args_t evt;
 	de_zero(&evt, sizeof(evt));
 	evt.source = n;
@@ -414,7 +442,8 @@ static void de_gui_node_fire_mouse_up_event(de_gui_node_t* n, const de_vec2_t* m
 	de_gui_node_route_mouse_up(n, &evt);
 }
 
-static void de_gui_node_fire_mouse_down_event(de_gui_node_t* n, const de_vec2_t* mouse_pos) {
+static void de_gui_node_fire_mouse_down_event(de_gui_node_t* n, const de_vec2_t* mouse_pos)
+{
 	de_gui_routed_event_args_t evt;
 	de_zero(&evt, sizeof(evt));
 	evt.source = n;
@@ -424,7 +453,8 @@ static void de_gui_node_fire_mouse_down_event(de_gui_node_t* n, const de_vec2_t*
 	de_gui_node_route_mouse_down(n, &evt);
 }
 
-static void de_gui_node_fire_lost_focus_event(de_gui_node_t* n) {
+static void de_gui_node_fire_lost_focus_event(de_gui_node_t* n)
+{
 	de_gui_routed_event_args_t evt;
 	de_zero(&evt, sizeof(evt));
 	evt.type = DE_GUI_ROUTED_EVENT_LOST_FOCUS;
@@ -432,7 +462,8 @@ static void de_gui_node_fire_lost_focus_event(de_gui_node_t* n) {
 	de_gui_node_route_lost_focus(n, &evt);
 }
 
-static void de_gui_node_fire_got_focus_event(de_gui_node_t* n) {
+static void de_gui_node_fire_got_focus_event(de_gui_node_t* n)
+{
 	de_gui_routed_event_args_t evt;
 	de_zero(&evt, sizeof(evt));
 	evt.source = n;
@@ -440,13 +471,15 @@ static void de_gui_node_fire_got_focus_event(de_gui_node_t* n) {
 	de_gui_node_route_got_focus(n, &evt);
 }
 
-void de_gui_drop_focus(de_gui_t* gui) {
+void de_gui_drop_focus(de_gui_t* gui)
+{
 	gui->keyboard_focus->is_focused = false;
 	de_gui_node_fire_lost_focus_event(gui->keyboard_focus);
 	gui->keyboard_focus = NULL;
 }
 
-static bool de_gui_node_process_event(de_gui_node_t* n, const de_event_t* evt) {
+static bool de_gui_node_process_event(de_gui_node_t* n, const de_event_t* evt)
+{
 	bool processed = false;
 	de_gui_t* gui = n->gui;
 	de_vec2_t p;
@@ -490,16 +523,19 @@ static bool de_gui_node_process_event(de_gui_node_t* n, const de_event_t* evt) {
 	return processed;
 }
 
-void de_gui_node_set_user_data(de_gui_node_t* node, void* user_data) {
+void de_gui_node_set_user_data(de_gui_node_t* node, void* user_data)
+{
 	node->user_data = user_data;
 }
 
-de_gui_node_t* de_gui_hit_test(de_gui_t* gui, float x, float y) {
+de_gui_node_t* de_gui_hit_test(de_gui_t* gui, float x, float y)
+{
 	de_gui_node_t* n;
 	de_gui_node_t* picked_node = gui->captured_node;
 	if (!picked_node) {
 		int topmost_picked_level = 0;
-		DE_LINKED_LIST_FOR_EACH(gui->nodes, n) {
+		DE_LINKED_LIST_FOR_EACH(gui->nodes, n)
+		{
 			if (!n->parent && n->visibility == DE_GUI_NODE_VISIBILITY_VISIBLE) {
 				int level = 0;
 				de_gui_node_t* picked = de_gui_node_pick(n, x, y, &level);
@@ -513,7 +549,8 @@ de_gui_node_t* de_gui_hit_test(de_gui_t* gui, float x, float y) {
 	return picked_node;
 }
 
-bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt) {
+bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt)
+{
 	bool processed = false;
 	de_vec2_t p;
 	switch (evt->type) {
@@ -589,35 +626,53 @@ bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt) {
 	return processed;
 }
 
-void de_gui_update(de_gui_t* gui) {
+void de_gui_update(de_gui_t* gui)
+{
 	de_gui_node_t* n;
 
-	/* TODO: layout update MUST be performed only if it is actually needed, 
-	 * right now there is annoying bug which requires *two* calls of layout 
-	 * update to correctly layout everything. This must be fixed! For now 
-	 * we will sacrifice performance to get correct layout. */
-	DE_LINKED_LIST_FOR_EACH(gui->nodes, n) {
-		if (n->parent == NULL) {
-			de_gui_node_apply_layout(n);
+	static int count = 0;
+
+	/* TODO: layout update MUST be performed  only if it is actually  needed,
+	* right  now there  is annoying bug which requires *two* calls  of layout
+	* update  to correctly layout everything. This must be fixed! For  now we
+	* will sacrifice  performance  to get  correct  layout. Also this must be
+	* refactored to split layout in two steps: Measure and Arrange, currently
+	* user should define desired size of a node manually which is not optimal,
+	* because in some situations automatic measure is preferred. */
+	{
+		/* prepass which fills in actual size of each node based on desired size and margin */
+		DE_LINKED_LIST_FOR_EACH(gui->nodes, n)
+		{
+			de_gui_node_calculate_actual_size(n);
+		}
+
+		DE_LINKED_LIST_FOR_EACH(gui->nodes, n)
+		{
+			if (n->parent == NULL) {
+				de_gui_node_apply_layout(n);
+			}
 		}
 	}
 
-	DE_LINKED_LIST_FOR_EACH(gui->nodes, n) {
+	DE_LINKED_LIST_FOR_EACH(gui->nodes, n)
+	{
 		if (n->dispatch_table->update) {
 			n->dispatch_table->update(n);
 		}
 	}
 
 	/* calculate screen position */
-	DE_LINKED_LIST_FOR_EACH(gui->nodes, n) {
-		/* update transform from root nodes */
+	DE_LINKED_LIST_FOR_EACH(gui->nodes, n)
+	{
+/* update transform from root nodes */
 		if (n->parent == NULL) {
 			de_gui_node_update_transform(n);
 		}
 	}
 }
 
-static de_gui_dispatch_table_t* de_gui_node_get_dispatch_table_by_type(de_gui_node_type_t type) {
+static de_gui_dispatch_table_t* de_gui_node_get_dispatch_table_by_type(de_gui_node_type_t type)
+{
 	static de_gui_dispatch_table_t stub;
 	switch (type) {
 		case DE_GUI_NODE_BASE: return &stub;
@@ -632,18 +687,23 @@ static de_gui_dispatch_table_t* de_gui_node_get_dispatch_table_by_type(de_gui_no
 		case DE_GUI_NODE_CANVAS: return de_gui_canvas_get_dispatch_table();
 		case DE_GUI_NODE_SCROLL_CONTENT_PRESENTER: return de_gui_scroll_content_presenter_get_dispatch_table();
 		case DE_GUI_NODE_SLIDE_SELECTOR: return de_gui_slide_selector_get_dispatch_table();
-        case DE_GUI_NODE_USER_CONTROL: return &stub; // TODO
+		case DE_GUI_NODE_IMAGE: return de_gui_image_get_dispatch_table();
+		case DE_GUI_NODE_USER_CONTROL: return &stub; // TODO
 	}
 	de_log("unhandled type");
 	return NULL;
 }
 
-de_gui_node_t* de_gui_node_create(de_gui_t* gui, de_gui_node_type_t type) {
+de_gui_node_t* de_gui_node_create(de_gui_t* gui, de_gui_node_type_t type)
+{
 	de_gui_node_t* n;
 	n = DE_NEW(de_gui_node_t);
 	n->gui = gui;
 	n->dispatch_table = de_gui_node_get_dispatch_table_by_type(type);
-	DE_LINKED_LIST_APPEND(gui->nodes, n);
+	if (type != DE_GUI_NODE_TEMPLATE) {
+		/* templates just live in memory and does not participate in any routines */
+		DE_LINKED_LIST_APPEND(gui->nodes, n);
+	}
 	n->type = type;
 	DE_ARRAY_INIT(n->children);
 	de_vec2_set(&n->desired_size, 200, 200);
@@ -658,26 +718,31 @@ de_gui_node_t* de_gui_node_create(de_gui_t* gui, de_gui_node_type_t type) {
 	return n;
 }
 
-de_gui_node_t* de_gui_node_create_with_desc(de_gui_t* gui, de_gui_node_type_t type, const de_gui_node_descriptor_t* desc) {
+de_gui_node_t* de_gui_node_create_with_desc(de_gui_t* gui, de_gui_node_type_t type, const de_gui_node_descriptor_t* desc)
+{
 	de_gui_node_t* node = de_gui_node_create(gui, type);
 	de_gui_node_apply_descriptor(node, desc);
 	return node;
 }
 
-void de_gui_node_set_desired_local_position(de_gui_node_t* node, float x, float y) {
+void de_gui_node_set_desired_local_position(de_gui_node_t* node, float x, float y)
+{
 	node->desired_local_position.x = x;
 	node->desired_local_position.y = y;
 }
 
-void de_gui_node_set_column(de_gui_node_t* node, size_t col) {
+void de_gui_node_set_column(de_gui_node_t* node, size_t col)
+{
 	node->column = col;
 }
 
-void de_gui_node_set_margin_uniform(de_gui_node_t* node, float margin) {
+void de_gui_node_set_margin_uniform(de_gui_node_t* node, float margin)
+{
 	de_gui_node_set_margin(node, margin, margin, margin, margin);
 }
 
-de_gui_node_t* de_gui_node_find_parent_of_type(de_gui_node_t* node, de_gui_node_type_t type) {
+de_gui_node_t* de_gui_node_find_parent_of_type(de_gui_node_t* node, de_gui_node_type_t type)
+{
 	if (!node) {
 		return NULL;
 	}
@@ -694,7 +759,8 @@ de_gui_node_t* de_gui_node_find_parent_of_type(de_gui_node_t* node, de_gui_node_
 	return NULL;
 }
 
-de_gui_node_t* de_gui_node_find_direct_child_of_type(de_gui_node_t* node, de_gui_node_type_t type) {
+de_gui_node_t* de_gui_node_find_direct_child_of_type(de_gui_node_t* node, de_gui_node_type_t type)
+{
 	size_t i;
 	if (!node) {
 		return NULL;
@@ -707,7 +773,8 @@ de_gui_node_t* de_gui_node_find_direct_child_of_type(de_gui_node_t* node, de_gui
 	return NULL;
 }
 
-de_gui_node_t* de_gui_node_find_child_of_type(de_gui_node_t* node, de_gui_node_type_t type) {
+de_gui_node_t* de_gui_node_find_child_of_type(de_gui_node_t* node, de_gui_node_type_t type)
+{
 	size_t i;
 	de_gui_node_t* result;
 	if (!node) {
@@ -735,7 +802,8 @@ de_gui_node_t* de_gui_node_find_child_of_type(de_gui_node_t* node, de_gui_node_t
 	return result;
 }
 
-void de_gui_node_capture_mouse(de_gui_node_t* node) {
+void de_gui_node_capture_mouse(de_gui_node_t* node)
+{
 	de_gui_t* gui = node->gui;
 
 	/* release previous captured node */
@@ -748,7 +816,8 @@ void de_gui_node_capture_mouse(de_gui_node_t* node) {
 	}
 }
 
-void de_gui_node_release_mouse_capture(de_gui_node_t* node) {
+void de_gui_node_release_mouse_capture(de_gui_node_t* node)
+{
 	de_gui_t* gui = node->gui;
 	if (!gui->captured_node) {
 		return;
@@ -760,57 +829,67 @@ void de_gui_node_release_mouse_capture(de_gui_node_t* node) {
 	}
 }
 
-void de_gui_node_set_mouse_down(de_gui_node_t* node, de_mouse_down_event_t evt) {
+void de_gui_node_set_mouse_down(de_gui_node_t* node, de_mouse_down_event_t evt)
+{
 	node->mouse_down = evt;
 }
 
-void de_gui_node_set_mouse_up(de_gui_node_t* node, de_mouse_up_event_t evt) {
+void de_gui_node_set_mouse_up(de_gui_node_t* node, de_mouse_up_event_t evt)
+{
 	node->mouse_up = evt;
 }
 
-void de_gui_node_set_mouse_move(de_gui_node_t* node, de_mouse_move_event_t evt) {
+void de_gui_node_set_mouse_move(de_gui_node_t* node, de_mouse_move_event_t evt)
+{
 	node->mouse_move = evt;
 }
 
-static void de_gui_node_drop_keyboard_focus(de_gui_node_t* node) {
+static void de_gui_node_drop_keyboard_focus(de_gui_node_t* node)
+{
 	if (node->gui->keyboard_focus == node) {
-		de_gui_drop_focus(node->gui);		
+		de_gui_drop_focus(node->gui);
 	} else {
-		for(size_t i = 0; i < node->children.size; ++i) {
+		for (size_t i = 0; i < node->children.size; ++i) {
 			de_gui_node_drop_keyboard_focus(node->children.data[i]);
 		}
 	}
 }
 
-void de_gui_node_set_visibility(de_gui_node_t* node, de_gui_node_visibility_t vis) {
+void de_gui_node_set_visibility(de_gui_node_t* node, de_gui_node_visibility_t vis)
+{
 	node->visibility = vis;
 	if (vis != DE_GUI_NODE_VISIBILITY_VISIBLE) {
 		de_gui_node_drop_keyboard_focus(node);
 	}
 }
 
-void de_gui_node_set_vertical_alignment(de_gui_node_t* node, de_gui_vertical_alignment_t va) {
+void de_gui_node_set_vertical_alignment(de_gui_node_t* node, de_gui_vertical_alignment_t va)
+{
 	node->vertical_alignment = va;
 }
 
-void de_gui_node_set_horizontal_alignment(de_gui_node_t* node, de_gui_horizontal_alignment_t ha) {
+void de_gui_node_set_horizontal_alignment(de_gui_node_t* node, de_gui_horizontal_alignment_t ha)
+{
 	node->horizontal_alignment = ha;
 }
 
-void de_gui_node_set_margin(de_gui_node_t* node, float left, float top, float right, float bottom) {
+void de_gui_node_set_margin(de_gui_node_t* node, float left, float top, float right, float bottom)
+{
 	node->margin.left = left;
 	node->margin.top = top;
 	node->margin.right = right;
 	node->margin.bottom = bottom;
 }
 
-void de_gui_node_set_desired_size(de_gui_node_t* node, float w, float h) {
+void de_gui_node_set_desired_size(de_gui_node_t* node, float w, float h)
+{
 	node->desired_size.x = w;
 	node->desired_size.y = h;
 }
 
-bool de_gui_node_set_property(de_gui_node_t* n, const char* name, const void* value, size_t data_size) {
-	/* handle type-specific properties */
+bool de_gui_node_set_property(de_gui_node_t* n, const char* name, const void* value, size_t data_size)
+{
+/* handle type-specific properties */
 	if (n->dispatch_table->set_property) {
 		if (n->dispatch_table->set_property(n, name, value, data_size)) {
 			return true;
@@ -821,7 +900,8 @@ bool de_gui_node_set_property(de_gui_node_t* n, const char* name, const void* va
 	return false;
 }
 
-bool de_gui_node_parse_property(de_gui_node_t* n, const char* name, const char* value) {
+bool de_gui_node_parse_property(de_gui_node_t* n, const char* name, const char* value)
+{
 	de_str8_t str;
 	de_str8_view_array_t tokens;
 	bool result = false;
@@ -842,8 +922,9 @@ bool de_gui_node_parse_property(de_gui_node_t* n, const char* name, const char* 
 	return result;
 }
 
-bool de_gui_node_get_property(de_gui_node_t* n, const char* name, void* value, size_t data_size) {
-	/* handle type-specific properties */
+bool de_gui_node_get_property(de_gui_node_t* n, const char* name, void* value, size_t data_size)
+{
+/* handle type-specific properties */
 	if (n->dispatch_table->get_property) {
 		if (n->dispatch_table->get_property(n, name, value, data_size)) {
 			return true;
@@ -856,36 +937,42 @@ bool de_gui_node_get_property(de_gui_node_t* n, const char* name, void* value, s
 	return false;
 }
 
-void de_gui_node_set_hit_test_visible(de_gui_node_t* n, bool visibility) {
+void de_gui_node_set_hit_test_visible(de_gui_node_t* n, bool visibility)
+{
 	n->is_hit_test_visible = visibility;
 }
 
-void de_gui_node_set_color(de_gui_node_t* node, const de_color_t* color) {
+void de_gui_node_set_color(de_gui_node_t* node, const de_color_t* color)
+{
 	node->color = *color;
 }
 
-void de_gui_node_set_color_rgba(de_gui_node_t* node, uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+void de_gui_node_set_color_rgba(de_gui_node_t* node, uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+{
 	node->color.r = r;
 	node->color.g = g;
 	node->color.b = b;
 	node->color.a = a;
 }
 
-bool de_gui_node_attach(de_gui_node_t* node, de_gui_node_t* parent) {
+bool de_gui_node_attach(de_gui_node_t* node, de_gui_node_t* parent)
+{
 	de_gui_node_detach(node);
 	DE_ARRAY_APPEND(parent->children, node);
 	node->parent = parent;
 	return true;
 }
 
-void de_gui_node_detach(de_gui_node_t* node) {
+void de_gui_node_detach(de_gui_node_t* node)
+{
 	if (node->parent) {
 		DE_ARRAY_REMOVE(node->parent->children, node);
 		node->parent = NULL;
 	}
 }
 
-void de_gui_node_free(de_gui_node_t* n) {
+void de_gui_node_free(de_gui_node_t* n)
+{
 	size_t i;
 	if (n->dispatch_table->deinit) {
 		n->dispatch_table->deinit(n);
@@ -900,7 +987,8 @@ void de_gui_node_free(de_gui_node_t* n) {
 	de_free(n);
 }
 
-void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* constraint) {
+void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* constraint)
+{
 	size_t i;
 	if (node->dispatch_table->measure) {
 		/* delegate to override method */
@@ -925,11 +1013,13 @@ void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* constraint) {
 	}
 }
 
-void de_gui_node_set_row(de_gui_node_t* node, size_t row) {
+void de_gui_node_set_row(de_gui_node_t* node, size_t row)
+{
 	node->row = row;
 }
 
-static bool de_gui_node_needs_rendering(const de_gui_node_t* n) {
+static bool de_gui_node_needs_rendering(const de_gui_node_t* n)
+{
 	bool result;
 	/* node is degenerated (collapsed) */
 	if (n->actual_size.x == 0 && n->actual_size.y == 0) {
@@ -942,7 +1032,8 @@ static bool de_gui_node_needs_rendering(const de_gui_node_t* n) {
 	return result;
 }
 
-static void de_gui_node_draw(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting) {
+static void de_gui_node_draw(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting)
+{
 	size_t i;
 	const de_vec2_t* scr_pos = &n->screen_position;
 	const float bias = 0.01f;
@@ -970,7 +1061,8 @@ static void de_gui_node_draw(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t n
 	de_gui_draw_list_revert_clip_geom(dl);
 }
 
-de_gui_draw_list_t* de_gui_render(de_gui_t* gui) {
+de_gui_draw_list_t* de_gui_render(de_gui_t* gui)
+{
 	de_gui_node_t* n;
 	de_gui_draw_list_t* dl = &gui->draw_list;
 	de_core_t* core = gui->core;
@@ -983,7 +1075,8 @@ de_gui_draw_list_t* de_gui_render(de_gui_t* gui) {
 	de_gui_draw_list_commit_clip_rect(dl, 0, 0, (float)core->params.video_mode.width, (float)core->params.video_mode.height, NULL);
 
 	/* render nodes down by visual tree starting from root nodes */
-	DE_LINKED_LIST_FOR_EACH(gui->nodes, n) {
+	DE_LINKED_LIST_FOR_EACH(gui->nodes, n)
+	{
 		if (!n->parent) {
 			de_gui_node_draw(dl, n, 1);
 		}
@@ -1010,7 +1103,8 @@ de_gui_draw_list_t* de_gui_render(de_gui_t* gui) {
 	return dl;
 }
 
-void de_gui_node_apply_descriptor(de_gui_node_t* n, const de_gui_node_descriptor_t* desc) {
+void de_gui_node_apply_descriptor(de_gui_node_t* n, const de_gui_node_descriptor_t* desc)
+{
 	de_gui_node_set_column(n, desc->column);
 	de_gui_node_set_row(n, desc->row);
 	de_gui_node_set_desired_local_position(n, desc->desired_position.x, desc->desired_position.y);
@@ -1021,11 +1115,23 @@ void de_gui_node_apply_descriptor(de_gui_node_t* n, const de_gui_node_descriptor
 	de_gui_node_set_vertical_alignment(n, desc->vertical_alignment);
 	de_gui_node_set_visibility(n, desc->visibility);
 	de_gui_node_set_margin(n, desc->margin.left, desc->margin.top, desc->margin.right, desc->margin.bottom);
-	if(desc->parent) {
+	if (desc->parent) {
 		de_gui_node_attach(n, desc->parent);
 	}
 	de_gui_node_set_user_data(n, desc->user_data);
-	if(n->dispatch_table->apply_descriptor) {
+	if (n->dispatch_table->apply_descriptor) {
 		n->dispatch_table->apply_descriptor(n, desc);
+	}
+}
+
+void de_gui_node_apply_template(de_gui_node_t* node, const de_gui_node_t* ctemplate)
+{
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_TEMPLATE);
+	/* purge node */
+	for (size_t i = 0; i < node->children.size; ++i) {
+		de_gui_node_free(node->children.data[i]);
+	}
+	if (node->dispatch_table->apply_template) {
+		node->dispatch_table->apply_template(node, ctemplate);
 	}
 }

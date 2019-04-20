@@ -94,8 +94,9 @@
 //    Node5->Node4 and Node2->Node3 will become Node4->Node3.
 //
 
-void de_node_free(de_node_t* node) {
-	/* Free children first */
+void de_node_free(de_node_t* node)
+{
+/* Free children first */
 	while (node->children.size) {
 		de_node_free(node->children.data[0]);
 	}
@@ -121,7 +122,8 @@ void de_node_free(de_node_t* node) {
 	de_free(node);
 }
 
-static de_node_dispatch_table_t* de_node_get_dispatch_table_by_type(de_node_type_t type) {
+static de_node_dispatch_table_t* de_node_get_dispatch_table_by_type(de_node_type_t type)
+{
 	static de_node_dispatch_table_t stub_table;
 	switch (type) {
 		case DE_NODE_TYPE_BASE: return &stub_table;
@@ -136,13 +138,16 @@ static de_node_dispatch_table_t* de_node_get_dispatch_table_by_type(de_node_type
 	return NULL;
 }
 
-de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type) {
+de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type)
+{
 	de_node_t* node = DE_NEW(de_node_t);
 	node->dispatch_table = de_node_get_dispatch_table_by_type(type);
 	node->type = type;
 	node->scene = scene;
 	de_mat4_identity(&node->global_matrix);
 	de_mat4_identity(&node->local_matrix);
+	node->local_visibility = true;
+	node->global_visibility = true;
 	node->scale = (de_vec3_t) { 1, 1, 1 };
 	node->rotation = (de_quat_t) { 0, 0, 0, 1 };
 	node->pre_rotation = (de_quat_t) { 0, 0, 0, 1 };
@@ -153,7 +158,8 @@ de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type) {
 	return node;
 }
 
-static de_node_t* de_node_copy_internal(de_scene_t* dest_scene, de_node_t* node) {
+static de_node_t* de_node_copy_internal(de_scene_t* dest_scene, de_node_t* node)
+{
 	de_node_t* copy = DE_NEW(de_node_t);
 	copy->dispatch_table = node->dispatch_table;
 	copy->type = node->type;
@@ -173,7 +179,8 @@ static de_node_t* de_node_copy_internal(de_scene_t* dest_scene, de_node_t* node)
 	copy->scaling_pivot = node->scaling_pivot;
 	copy->need_update = true;
 	copy->parent = NULL;
-	copy->visible = node->visible;
+	copy->local_visibility = node->local_visibility;
+	copy->global_visibility = node->global_visibility;
 	copy->is_bone = node->is_bone;
 	copy->model_resource = node->model_resource;
 	if (copy->model_resource) {
@@ -194,8 +201,9 @@ static de_node_t* de_node_copy_internal(de_scene_t* dest_scene, de_node_t* node)
 	return copy;
 }
 
-void de_node_resolve(de_node_t* node) {
-	/* resolve hierarchy changes */
+void de_node_resolve(de_node_t* node)
+{
+/* resolve hierarchy changes */
 	de_node_t* original = node->original;
 	if (original && original->parent && node->parent) {
 		/* parent has changed if names of parents in both model resource and
@@ -223,27 +231,31 @@ void de_node_resolve(de_node_t* node) {
 	}
 }
 
-de_node_t* de_node_copy(de_scene_t* dest_scene, de_node_t* node) {
+de_node_t* de_node_copy(de_scene_t* dest_scene, de_node_t* node)
+{
 	de_node_t* root = de_node_copy_internal(dest_scene, node);
 	/* Resolve after copy */
 	de_node_resolve(root);
 	return root;
 }
 
-void de_node_attach(de_node_t* node, de_node_t* parent) {
+void de_node_attach(de_node_t* node, de_node_t* parent)
+{
 	de_node_detach(node);
 	DE_ARRAY_APPEND(parent->children, node);
 	node->parent = parent;
 }
 
-void de_node_detach(de_node_t* node) {
+void de_node_detach(de_node_t* node)
+{
 	if (node->parent) {
 		DE_ARRAY_REMOVE(node->parent->children, node);
 		node->parent = NULL;
 	}
 }
 
-void de_node_calculate_local_transform(de_node_t* node) {
+void de_node_calculate_local_transform(de_node_t* node)
+{
 	if (node->body) {
 		de_body_get_position(node->body, &node->position);
 	}
@@ -308,7 +320,8 @@ void de_node_calculate_local_transform(de_node_t* node) {
 	de_mat4_mul(&node->local_matrix, &node->local_matrix, &scale_pivot_inv);
 }
 
-de_mat4_t* de_node_calculate_transforms_ascending(de_node_t* node) {
+de_mat4_t* de_node_calculate_transforms_ascending(de_node_t* node)
+{
 	de_node_calculate_local_transform(node);
 
 	if (node->parent) {
@@ -320,7 +333,8 @@ de_mat4_t* de_node_calculate_transforms_ascending(de_node_t* node) {
 	return &node->global_matrix;
 }
 
-void de_node_calculate_transforms_descending(de_node_t* node) {
+void de_node_calculate_transforms_descending(de_node_t* node)
+{
 	de_node_calculate_local_transform(node);
 
 	if (node->parent) {
@@ -334,24 +348,28 @@ void de_node_calculate_transforms_descending(de_node_t* node) {
 	}
 }
 
-void de_node_get_look_vector(const de_node_t* node, de_vec3_t* look) {
+void de_node_get_look_vector(const de_node_t* node, de_vec3_t* look)
+{
 	DE_ASSERT(node);
 	de_mat4_look(&node->global_matrix, look);
 }
 
-void de_node_get_up_vector(const de_node_t* node, de_vec3_t* up) {
+void de_node_get_up_vector(const de_node_t* node, de_vec3_t* up)
+{
 	DE_ASSERT(node);
 	DE_ASSERT(up);
 	de_mat4_up(&node->global_matrix, up);
 }
 
-void de_node_get_side_vector(const de_node_t* node, de_vec3_t* side) {
+void de_node_get_side_vector(const de_node_t* node, de_vec3_t* side)
+{
 	DE_ASSERT(node);
 	DE_ASSERT(side);
 	de_mat4_side(&node->global_matrix, side);
 }
 
-void de_node_get_global_position(const de_node_t* node, de_vec3_t* pos) {
+void de_node_get_global_position(const de_node_t* node, de_vec3_t* pos)
+{
 	DE_ASSERT(node);
 	DE_ASSERT(pos);
 	pos->x = node->global_matrix.f[12];
@@ -359,7 +377,8 @@ void de_node_get_global_position(const de_node_t* node, de_vec3_t* pos) {
 	pos->z = node->global_matrix.f[14];
 }
 
-void de_node_set_local_position(de_node_t* node, const de_vec3_t* pos) {
+void de_node_set_local_position(de_node_t* node, const de_vec3_t* pos)
+{
 	DE_ASSERT(node);
 	DE_ASSERT(pos);
 	de_body_t* body = node->body;
@@ -370,30 +389,35 @@ void de_node_set_local_position(de_node_t* node, const de_vec3_t* pos) {
 	}
 }
 
-void de_node_set_body(de_node_t* node, de_body_t* body) {
+void de_node_set_body(de_node_t* node, de_body_t* body)
+{
 	DE_ASSERT(node);
 	node->body = body;
 }
 
-void de_node_move(de_node_t* node, de_vec3_t* offset) {
+void de_node_move(de_node_t* node, de_vec3_t* offset)
+{
 	DE_ASSERT(node);
 	DE_ASSERT(offset);
 	de_vec3_add(&node->position, &node->position, offset);
 }
 
-void de_node_set_local_rotation(de_node_t* node, de_quat_t* rot) {
+void de_node_set_local_rotation(de_node_t* node, de_quat_t* rot)
+{
 	DE_ASSERT(node);
 	DE_ASSERT(rot);
 	node->rotation = *rot;
 }
 
-void de_node_set_local_scale(de_node_t* node, de_vec3_t* scl) {
+void de_node_set_local_scale(de_node_t* node, de_vec3_t* scl)
+{
 	DE_ASSERT(node);
 	DE_ASSERT(scl);
 	node->scale = *scl;
 }
 
-de_node_t* de_node_find(de_node_t* node, const char* name) {
+de_node_t* de_node_find(de_node_t* node, const char* name)
+{
 	DE_ASSERT(node);
 	if (node) {
 		if (de_str8_eq(&node->name, name)) {
@@ -411,40 +435,47 @@ de_node_t* de_node_find(de_node_t* node, const char* name) {
 	return NULL;
 }
 
-de_mesh_t* de_node_to_mesh(de_node_t* node) {
+de_mesh_t* de_node_to_mesh(de_node_t* node)
+{
 	DE_ASSERT(node);
 	DE_ASSERT(node->type == DE_NODE_TYPE_MESH);
 	return &node->s.mesh;
 }
 
-de_node_t* de_node_from_mesh(de_mesh_t* mesh) {
+de_node_t* de_node_from_mesh(de_mesh_t* mesh)
+{
 	DE_ASSERT(mesh);
 	return (de_node_t*)((char*)mesh - offsetof(de_node_t, s.mesh));
 }
 
-de_light_t* de_node_to_light(de_node_t* node) {
+de_light_t* de_node_to_light(de_node_t* node)
+{
 	DE_ASSERT(node);
 	DE_ASSERT(node->type == DE_NODE_TYPE_LIGHT);
 	return &node->s.light;
 }
 
-de_node_t* de_node_from_light(de_mesh_t* light) {
+de_node_t* de_node_from_light(de_mesh_t* light)
+{
 	DE_ASSERT(light);
 	return (de_node_t*)((char*)light - offsetof(de_node_t, s.light));
 }
 
-de_camera_t* de_node_to_camera(de_node_t* node) {
+de_camera_t* de_node_to_camera(de_node_t* node)
+{
 	DE_ASSERT(node);
 	DE_ASSERT(node->type == DE_NODE_TYPE_CAMERA);
 	return &node->s.camera;
 }
 
-de_node_t* de_node_from_camera(de_camera_t* camera) {
+de_node_t* de_node_from_camera(de_camera_t* camera)
+{
 	DE_ASSERT(camera);
 	return (de_node_t*)((char*)camera - offsetof(de_node_t, s.camera));
 }
 
-bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node) {
+bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node)
+{
 	DE_ASSERT(node);
 	bool result = true;
 	result &= de_object_visitor_visit_uint32(visitor, "Type", (uint32_t*)&node->type);
@@ -466,6 +497,8 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node) {
 	result &= de_object_visitor_visit_vec3(visitor, "RotationPivot", &node->rotation_pivot);
 	result &= de_object_visitor_visit_vec3(visitor, "ScalingOffset", &node->scaling_offset);
 	result &= de_object_visitor_visit_vec3(visitor, "ScalingPivot", &node->scaling_pivot);
+	result &= de_object_visitor_visit_float(visitor, "DepthHack", &node->depth_hack);
+	result &= de_object_visitor_visit_bool(visitor, "LocalVisibility", &node->local_visibility);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "ModelResource", &node->model_resource, de_resource_visit);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Body", &node->body, de_body_visit);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Scene", &node->scene, de_scene_visit);
@@ -482,11 +515,13 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node) {
 	return result;
 }
 
-void de_node_set_name(de_node_t* node, const char* name) {
+void de_node_set_name(de_node_t* node, const char* name)
+{
 	de_str8_set(&node->name, name);
 }
 
-static void de_node_find_copy_of_internal(de_node_t* root, de_node_t* node, de_node_t** out) {
+static void de_node_find_copy_of_internal(de_node_t* root, de_node_t* node, de_node_t** out)
+{
 	if (root->original == node) {
 		*out = root;
 	} else {
@@ -496,8 +531,60 @@ static void de_node_find_copy_of_internal(de_node_t* root, de_node_t* node, de_n
 	}
 }
 
-de_node_t* de_node_find_copy_of(de_node_t* root, de_node_t* node) {
+de_node_t* de_node_find_copy_of(de_node_t* root, de_node_t* node)
+{
+	DE_ASSERT(node);
+	DE_ASSERT(root);
 	de_node_t* result = NULL;
 	de_node_find_copy_of_internal(root, node, &result);
 	return result;
+}
+
+void de_node_set_depth_hack(de_node_t* node, float value)
+{
+	DE_ASSERT(node);
+	node->depth_hack = value;
+	for (size_t i = 0; i < node->children.size; ++i) {
+		de_node_set_depth_hack(node->children.data[i], value);
+	}
+}
+
+float de_node_get_depth_hack(de_node_t* node)
+{
+	DE_ASSERT(node);
+	return node->depth_hack;
+}
+
+void de_node_set_local_visibility(de_node_t* node, bool visibility)
+{
+	DE_ASSERT(node);
+	node->local_visibility = visibility;
+}
+
+bool de_node_get_local_visibility(de_node_t* node)
+{
+	DE_ASSERT(node);
+	return node->local_visibility;
+}
+
+bool de_node_get_global_visibility(de_node_t* node)
+{
+	DE_ASSERT(node);
+	node->global_visibility = node->local_visibility;
+	if (node->parent) {
+		node->global_visibility &= de_node_get_global_visibility(node->parent);
+	}
+	return node->global_visibility;
+}
+
+void de_node_calculate_visibility_descending(de_node_t* node)
+{
+	DE_ASSERT(node);
+	node->global_visibility = node->local_visibility;
+	if (node->parent) {
+		node->global_visibility &= node->parent->global_visibility;
+	}
+	for (size_t i = 0; i < node->children.size; ++i) {
+		de_node_calculate_visibility_descending(node->children.data[i]);
+	}
 }

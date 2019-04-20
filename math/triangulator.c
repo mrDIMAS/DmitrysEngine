@@ -23,7 +23,8 @@ static bool de_is_ear(
 	const de_triangulator_polygon_t* polygon,
 	const de_triangulator_vertex_t* vprev,
 	const de_triangulator_vertex_t* vear,
-	const de_triangulator_vertex_t* vnext) {
+	const de_triangulator_vertex_t* vnext)
+{
 
 	float angle;
 	de_triangulator_vertex_t* v;
@@ -60,11 +61,13 @@ static bool de_is_ear(
 	return true;
 }
 
-int de_triangulate_get_approx_index_count(size_t vertex_count) {
+int de_triangulate_get_approx_index_count(size_t vertex_count)
+{
 	return vertex_count * 4;
 }
 
-int de_triangulate(de_vec3_t* polygon, size_t vertex_count, int* out_indices, int buffer_size) {
+int de_triangulate(de_vec3_t* polygon, size_t vertex_count, int* out_indices, int buffer_size)
+{
 	if (vertex_count < 3) {
 		de_log("triangulator: trying to triangulate a line or point???");
 		return -1;
@@ -195,7 +198,8 @@ int de_triangulate(de_vec3_t* polygon, size_t vertex_count, int* out_indices, in
 /**
  * Shallow tests, more complex tests were done in FBX loader
  */
-void de_triangulator_tests(void) {
+void de_triangulator_tests(void)
+{
 	int i;
 	int index_count;
 	int indices[1024];

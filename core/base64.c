@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-char* de_base64_encode(const void* data, size_t size, size_t* out_size) {
+char* de_base64_encode(const void* data, size_t size, size_t* out_size)
+{
 	size_t i, k;
 	char* bytes;
 	char* buffer;
@@ -73,7 +74,8 @@ char* de_base64_encode(const void* data, size_t size, size_t* out_size) {
 	return buffer;
 }
 
-void* de_base64_decode(const char* data, size_t size, size_t* out_size) {
+void* de_base64_decode(const char* data, size_t size, size_t* out_size)
+{
 	char* bytes;
 	size_t i, k;
 	size_t data_size;
@@ -119,8 +121,8 @@ void* de_base64_decode(const char* data, size_t size, size_t* out_size) {
 	bytes = (char*)de_malloc(data_size);
 
 	for (i = 0, k = 0; i < size; ) {
-        uint8_t b0, b1, b2, b3;
-        
+		uint8_t b0, b1, b2, b3;
+
 		b0 = data[i] == '=' ? 0 : decode_table[(int)data[i]];
 		++i;
 
@@ -149,7 +151,8 @@ void* de_base64_decode(const char* data, size_t size, size_t* out_size) {
 	return bytes;
 }
 
-void de_base64_test(void) {
+void de_base64_test(void)
+{
 	int i;
 	const char* str[] = {
 		"abc",

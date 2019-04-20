@@ -27,14 +27,14 @@
   * - Engine uses right-handed coordinate system which means Z axis points towards
   *   screen, Y axis points up, and X axis points right.
   * - Vectors are single-column matrices.
-  * 
-  * VERY IMPORTANT NOTES: 
+  *
+  * VERY IMPORTANT NOTES:
   * 1) Every method in engine is *NOT* thread-safe unless noted otherwise.
   *    For example most of sound-related functions are thread-safe and they're marked as such
   *    in comments, keep this in mind please.
-  * 2) If method marked as Internal it means you should never use it directly. 
+  * 2) If method marked as Internal it means you should never use it directly.
   * 3) Use get/set functions instead of accessing fields of engine structures directly.
-  * 
+  *
   **/
 
 #ifndef DE_DENGINE_H
@@ -56,7 +56,7 @@ extern "C" {
 /* Compiler-specific defines */
 #ifdef _MSC_VER
 #  define _CRT_SECURE_NO_WARNINGS
-/* nonstandard extension used: non-constant aggregate initializer. 
+/* nonstandard extension used: non-constant aggregate initializer.
  * useless warning, because project is C99, where this limitation
  * was dropped */
 #  pragma warning(disable: 4204) 
@@ -68,7 +68,7 @@ extern "C" {
 #endif
 
 #define _USE_MATH_DEFINES
-#define DE_UNUSED(x) ((void)x)
+#define DE_UNUSED(...) ((void)(__VA_ARGS__))
 #define DE_BIT(n) (1 << n)
 #define DE_STRINGIZE_(x) #x
 #define DE_STRINGIZE(x) DE_STRINGIZE_(x)
@@ -80,9 +80,9 @@ extern "C" {
 #  define DE_ASSERT(expression) if(!(expression)) de_fatal_error("assertion failed: '" DE_STRINGIZE(expression) "' at line " DE_STRINGIZE(__LINE__) " in " __FILE__)
 #endif
 
-typedef void(*de_proc)(void);
+	typedef void(*de_proc)(void);
 
-/* Standard library */
+	/* Standard library */
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -133,30 +133,30 @@ typedef void(*de_proc)(void);
 #endif
 
 /* Forward declarations */
-typedef struct de_renderer_t de_renderer_t;
-typedef struct de_node_t de_node_t;
-typedef struct de_surface_t de_surface_t;
-typedef struct de_animation_track_t de_animation_track_t;
-typedef struct de_texture_t de_texture_t;
-typedef struct de_static_triangle_t de_static_triangle_t;
-typedef struct de_static_geometry_t de_static_geometry_t;
-typedef struct de_mesh_t de_mesh_t;
-typedef struct de_body_t de_body_t;
-typedef struct de_light_t de_light_t;
-typedef struct de_gui_t de_gui_t;
-typedef struct de_core_t de_core_t;
-typedef struct de_scene_t de_scene_t;
-typedef struct de_sound_device_t de_sound_device_t;
-typedef struct de_sound_source_t de_sound_source_t;
-typedef struct de_sound_buffer_t de_sound_buffer_t;
-typedef struct de_sound_context_t de_sound_context_t;
-typedef struct de_sound_decoder_t de_sound_decoder_t;
-typedef struct de_resource_t de_resource_t;
+	typedef struct de_renderer_t de_renderer_t;
+	typedef struct de_node_t de_node_t;
+	typedef struct de_surface_t de_surface_t;
+	typedef struct de_animation_track_t de_animation_track_t;
+	typedef struct de_texture_t de_texture_t;
+	typedef struct de_static_triangle_t de_static_triangle_t;
+	typedef struct de_static_geometry_t de_static_geometry_t;
+	typedef struct de_mesh_t de_mesh_t;
+	typedef struct de_body_t de_body_t;
+	typedef struct de_light_t de_light_t;
+	typedef struct de_gui_t de_gui_t;
+	typedef struct de_core_t de_core_t;
+	typedef struct de_scene_t de_scene_t;
+	typedef struct de_sound_device_t de_sound_device_t;
+	typedef struct de_sound_source_t de_sound_source_t;
+	typedef struct de_sound_buffer_t de_sound_buffer_t;
+	typedef struct de_sound_context_t de_sound_context_t;
+	typedef struct de_sound_decoder_t de_sound_decoder_t;
+	typedef struct de_resource_t de_resource_t;
 
-/**
-* Order is important here, because some parts depends on other
-* Modules with minimum dependencies should be placed before others.
-**/
+	/**
+	* Order is important here, because some parts depends on other
+	* Modules with minimum dependencies should be placed before others.
+	**/
 #include "core/log.h"
 #include "core/byteorder.h"
 #include "core/memmgr.h"

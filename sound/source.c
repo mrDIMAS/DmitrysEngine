@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-de_sound_source_t* de_sound_source_create(de_sound_context_t* ctx, de_sound_source_type_t type) {
+de_sound_source_t* de_sound_source_create(de_sound_context_t* ctx, de_sound_source_type_t type)
+{
 	de_sound_source_t* src;
 	de_sound_context_lock(ctx);
 	src = DE_NEW(de_sound_source_t);
@@ -39,7 +40,8 @@ de_sound_source_t* de_sound_source_create(de_sound_context_t* ctx, de_sound_sour
 	return src;
 }
 
-void de_sound_source_free(de_sound_source_t* src) {
+void de_sound_source_free(de_sound_source_t* src)
+{
 	de_sound_context_t* ctx = src->ctx;
 	de_sound_context_lock(ctx);
 	if (src->buffer) {
@@ -50,7 +52,8 @@ void de_sound_source_free(de_sound_source_t* src) {
 	de_sound_context_unlock(ctx);
 }
 
-void de_sound_source_set_buffer(de_sound_source_t* src, de_sound_buffer_t* buf) {
+void de_sound_source_set_buffer(de_sound_source_t* src, de_sound_buffer_t* buf)
+{
 	de_sound_context_lock(src->ctx);
 	if (src->buffer) {
 		de_resource_release(de_resource_from_sound_buffer(src->buffer));
@@ -64,7 +67,8 @@ void de_sound_source_set_buffer(de_sound_source_t* src, de_sound_buffer_t* buf) 
 	de_sound_context_unlock(src->ctx);
 }
 
-void de_sound_source_sample(de_sound_source_t* src, float* left, float* right) {
+void de_sound_source_sample(de_sound_source_t* src, float* left, float* right)
+{
 	uint64_t i;
 
 	/* source can be stopped during mixing, in this case write silence out */
@@ -104,12 +108,14 @@ void de_sound_source_sample(de_sound_source_t* src, float* left, float* right) {
 	}
 }
 
-bool de_sound_source_can_produce_samples(de_sound_source_t* src) {
+bool de_sound_source_can_produce_samples(de_sound_source_t* src)
+{
 	return src->buffer && (src->status == DE_SOUND_SOURCE_STATUS_PLAYING) &&
 		(src->left_gain > 0.0005f || src->right_gain > 0.0005f);
 }
 
-void de_sound_source_play(de_sound_source_t* src) {
+void de_sound_source_play(de_sound_source_t* src)
+{
 	DE_ASSERT(src);
 	if (src->status != DE_SOUND_SOURCE_STATUS_PLAYING) {
 		de_sound_context_lock(src->ctx);
@@ -118,13 +124,15 @@ void de_sound_source_play(de_sound_source_t* src) {
 	}
 }
 
-void de_sound_source_set_position(de_sound_source_t* src, const de_vec3_t* pos) {
+void de_sound_source_set_position(de_sound_source_t* src, const de_vec3_t* pos)
+{
 	de_sound_context_lock(src->ctx);
 	src->position = *pos;
 	de_sound_context_unlock(src->ctx);
 }
 
-void de_sound_source_stop(de_sound_source_t* src) {
+void de_sound_source_stop(de_sound_source_t* src)
+{
 	DE_ASSERT(src);
 	de_sound_context_lock(src->ctx);
 	src->status = DE_SOUND_SOURCE_STATUS_STOPPED;
@@ -134,21 +142,24 @@ void de_sound_source_stop(de_sound_source_t* src) {
 	de_sound_context_unlock(src->ctx);
 }
 
-void de_sound_source_pause(de_sound_source_t* src) {
+void de_sound_source_pause(de_sound_source_t* src)
+{
 	DE_ASSERT(src);
 	de_sound_context_lock(src->ctx);
 	src->status = DE_SOUND_SOURCE_STATUS_PAUSED;
 	de_sound_context_unlock(src->ctx);
 }
 
-void de_sound_source_set_type(de_sound_source_t* src, de_sound_source_type_t type) {
+void de_sound_source_set_type(de_sound_source_t* src, de_sound_source_type_t type)
+{
 	DE_ASSERT(src);
 	de_sound_context_lock(src->ctx);
 	src->type = type;
 	de_sound_context_unlock(src->ctx);
 }
 
-void de_sound_source_update(de_sound_source_t* src) {
+void de_sound_source_update(de_sound_source_t* src)
+{
 	float dist_gain;
 	de_listener_t* lst;
 	de_vec3_t dir;
@@ -172,23 +183,24 @@ void de_sound_source_update(de_sound_source_t* src) {
 	src->right_gain = dist_gain * (1.0f - src->pan);
 }
 
-bool de_sound_source_visit(de_object_visitor_t* visitor, de_sound_source_t* src) {
+bool de_sound_source_visit(de_object_visitor_t* visitor, de_sound_source_t* src)
+{
 	bool result = true;
 	if (visitor->is_reading) {
 		src->ctx = visitor->core->sound_context;
-	}		
+	}
 	de_sound_context_lock(src->ctx);
 	result &= de_object_visitor_visit_uint32(visitor, "Type", (uint32_t*)&src->type);
 	if (visitor->is_reading) {
 		de_resource_t* res_buf;
 		result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Buffer", &res_buf, de_resource_visit);
 		src->buffer = de_resource_to_sound_buffer(res_buf);
-		if(res_buf) {
+		if (res_buf) {
 			de_resource_add_ref(res_buf);
 		}
 	} else {
 		de_resource_t* res_buf = de_resource_from_sound_buffer(src->buffer);
-		result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Buffer", &res_buf, de_resource_visit);		
+		result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Buffer", &res_buf, de_resource_visit);
 	}
 	result &= de_object_visitor_visit_uint32(visitor, "Status", (uint32_t*)&src->status);
 	result &= de_object_visitor_visit_double(visitor, "BufReadPos", &src->buf_read_pos);

@@ -24,7 +24,7 @@
 */
 typedef enum de_gui_scroll_bar_orientation_t {
 	DE_GUI_SCROLL_BAR_ORIENTATION_HORIZONTAL,
-	DE_GUI_SCROLL_BAR_ORIENTATION_VERTICAL,	
+	DE_GUI_SCROLL_BAR_ORIENTATION_VERTICAL,
 } de_gui_scroll_bar_orientation_t;
 
 typedef void(*de_scroll_bar_value_changed_event_t)(de_gui_node_t*, float old_value, float new_value);

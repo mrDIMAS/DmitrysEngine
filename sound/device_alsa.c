@@ -19,7 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-void de_sound_device_send_data(de_sound_device_t* dev) {
+void de_sound_device_send_data(de_sound_device_t* dev)
+{
 	int err;
 	if ((err = snd_pcm_writei(dev->playbackDevice, dev->out_buffer, dev->frameCount)) < 0) {
 		if (err == -EPIPE) {
@@ -35,12 +36,13 @@ void de_sound_device_send_data(de_sound_device_t* dev) {
 	}
 }
 
-bool de_sound_device_setup(de_sound_device_t* dev) {
+bool de_sound_device_setup(de_sound_device_t* dev)
+{
 	snd_pcm_hw_params_t *hw_params;
 	snd_pcm_sw_params_t *sw_params;
-    snd_pcm_access_t access;
-    unsigned int exactRate;
-    long unsigned int exactSize;
+	snd_pcm_access_t access;
+	unsigned int exactRate;
+	long unsigned int exactSize;
 	int err;
 
 	dev->frameCount = dev->buffer_len_bytes / 4; /* 16-bit stereo is 4 bytes, so frame count is bufferHalfSize / 4 */
@@ -119,6 +121,7 @@ bool de_sound_device_setup(de_sound_device_t* dev) {
 	return true;
 }
 
-void de_sound_device_shutdown(de_sound_device_t* dev) {
+void de_sound_device_shutdown(de_sound_device_t* dev)
+{
 	snd_pcm_close(dev->playbackDevice);
 }

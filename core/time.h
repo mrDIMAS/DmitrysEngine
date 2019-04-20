@@ -22,7 +22,7 @@
 /**
 * @brief Returns current process time in seconds
 * @return time in seconds
-* 
+*
 * Note: Implementation is platform specific.
 */
 double de_time_get_seconds(void);

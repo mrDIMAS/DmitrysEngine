@@ -21,7 +21,7 @@
 
 
 /**
- * 
+ *
  */
 typedef struct de_gui_text_descriptor_t {
 	char* text;
@@ -40,7 +40,7 @@ typedef struct de_gui_text_line_t {
 } de_gui_text_line_t;
 
 /**
-* @brief Lightweight text block. 
+* @brief Lightweight text block.
 */
 typedef struct de_gui_text_t {
 	de_str32_t str;

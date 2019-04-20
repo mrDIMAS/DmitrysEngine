@@ -34,7 +34,8 @@ typedef struct de_tga_header_t {
 	char imageDescriptor;
 } de_tga_header_t;
 
-bool de_image_load_tga(const char* filename, de_image_t* img) {
+bool de_image_load_tga(const char* filename, de_image_t* img)
+{
 	FILE* file;
 	size_t i, byte_count;
 	unsigned char temp;
@@ -63,12 +64,12 @@ bool de_image_load_tga(const char* filename, de_image_t* img) {
 	READ_VAR(header.imageDescriptor);
 #undef READ_VAR
 
-	if(header.dataTypeCode != 2) {
+	if (header.dataTypeCode != 2) {
 		de_log("tga: only uncompressed, rgb/rgba images are supported!");
 		return false;
 	}
 
-	if(header.bitsPerPixel != 24 && header.bitsPerPixel != 32) {
+	if (header.bitsPerPixel != 24 && header.bitsPerPixel != 32) {
 		de_log("tga: only 32/24 bit images are supported!");
 		return false;
 	}
@@ -97,15 +98,16 @@ bool de_image_load_tga(const char* filename, de_image_t* img) {
 		img->data[i + 2] = temp;
 	}
 
-	/* Some images can have Y origin at bottom left corner, flip them */ 
-	if(header.imageDescriptor & 32) {
+	/* Some images can have Y origin at bottom left corner, flip them */
+	if (header.imageDescriptor & 32) {
 		de_image_flip_y(img);
 	}
 
 	return true;
 }
 
-void de_image_flip_y(de_image_t* img) {
+void de_image_flip_y(de_image_t* img)
+{
 	char* new_data = (char*)de_malloc(img->byte_per_pixel * img->width * img->height);
 	for (int y_src = (int)img->height - 1, y_dest = 0; y_src >= 0; --y_src, ++y_dest) {
 		for (int x = 0; x < (int)img->width; ++x) {

@@ -101,7 +101,7 @@ static void de_gui_window_init(de_gui_node_t* n)
 	de_gui_node_attach(wnd->header, wnd->grid);
 	de_gui_node_set_row(wnd->header, 0);
 	de_gui_node_set_horizontal_alignment(wnd->header, DE_GUI_HORIZONTAL_ALIGNMENT_STRETCH);
-	de_gui_node_set_desired_size(wnd->header, 0, header_height);
+	de_gui_node_set_size(wnd->header, 0, header_height);
 	wnd->header->mouse_down = de_gui_window_header_mouse_down;
 	wnd->header->mouse_up = de_gui_window_header_mouse_up;
 	wnd->header->mouse_move = de_gui_window_header_mouse_move;

@@ -73,7 +73,7 @@ Please note, that this engine is at early development stage and some features ma
 - miniz_tinfl - to decompress FBX compressed data.
 
 ## Code statistics
-- ~18000 lines of code
+- ~18200 lines of code
 - Pure C99
 
 ## Supported compilers

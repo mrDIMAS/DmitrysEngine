@@ -22,7 +22,7 @@
 /* Inspired by WPF */
 
 /* Set to non-zero to enable visual debugging of GUI */
-#define DE_GUI_ENABLE_GUI_DEBUGGING 0
+#define DE_GUI_ENABLE_GUI_DEBUGGING 1
 
 typedef struct de_gui_node_t de_gui_node_t;
 typedef struct de_gui_draw_list_t de_gui_draw_list_t;
@@ -242,8 +242,10 @@ typedef struct de_gui_node_descriptor_t {
 	de_gui_vertical_alignment_t vertical_alignment;
 	de_gui_horizontal_alignment_t horizontal_alignment;
 	de_gui_node_visibility_t visibility;
-	de_vec2_t desired_size;
-	de_vec2_t desired_position;
+	float width;
+	float height;
+	float x; /**< Desired local x of node */
+	float y; /**< Desired local y of node */
 	de_gui_thickness_t margin;
 	de_gui_node_t* parent;
 	void* user_data;
@@ -259,8 +261,8 @@ typedef struct de_gui_node_descriptor_t {
 typedef struct de_gui_dispatch_table_t {
 	void(*init)(de_gui_node_t* n);
 	void(*deinit)(de_gui_node_t* n);
-	void(*measure)(de_gui_node_t* n, const de_vec2_t* constraint);
-	void(*layout_children)(de_gui_node_t* n);
+	de_vec2_t(*measure_override)(de_gui_node_t* n, const de_vec2_t* available_size);
+	de_vec2_t(*arrange_override)(de_gui_node_t* n, const de_vec2_t* final_size);
 	void(*update)(de_gui_node_t* n);
 	void(*render)(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting);
 	bool(*get_property)(de_gui_node_t* n, const char* name, void* value, size_t data_size);
@@ -276,11 +278,13 @@ typedef struct de_gui_dispatch_table_t {
 struct de_gui_node_t {
 	de_gui_node_type_t type; /**< Actual type of the node */
 	de_gui_dispatch_table_t* dispatch_table; /**< Table of pointers to type-related functions (vtable) */
-	de_vec2_t desired_local_position; /**< Desired position relative to parent node */
-	de_vec2_t actual_local_position; /**< Position that will be used in layout */
+	de_vec2_t desired_local_position; /**< Desired position relative to parent node */	
+	float width; /**< Explicit width for node or automatic if NaN (means value is undefined). Default is NaN */
+	float height; /**< Explicit height for node or automatic if NaN (means value is undefined). Default is NaN */
 	de_vec2_t screen_position; /**< Screen position of the node */
-	de_vec2_t desired_size; /**< Desired size of the node */
-	de_vec2_t actual_size; /**< Size that will be used in layout */
+	de_vec2_t desired_size; /**< Desired size of the node after Measure pass. */
+	de_vec2_t actual_local_position; /**< Actual node local position after Arrange pass. */
+	de_vec2_t actual_size; /**< Actual size of the node after Arrange pass. */
 	de_color_t color; /**< Overlay color of the node */
 	size_t row; /**< Index of row to which this node belongs */
 	size_t column; /**< Index of column to which this node belongs */
@@ -381,7 +385,7 @@ void de_gui_node_set_desired_local_position(de_gui_node_t* node, float x, float 
 /**
  * @brief Sets desired size of a node. Actual size can be different. It depends on alignment settings and type of layout.
  */
-void de_gui_node_set_desired_size(de_gui_node_t* node, float w, float h);
+void de_gui_node_set_size(de_gui_node_t* node, float w, float h);
 
 bool de_gui_node_set_property(de_gui_node_t* n, const char* name, const void* value, size_t data_size);
 
@@ -570,10 +574,16 @@ de_gui_node_t* de_gui_hit_test(de_gui_t* gui, float x, float y);
  */
 void de_gui_node_set_user_data(de_gui_node_t* node, void* user_data);
 
+de_vec2_t de_gui_node_default_measure_override(de_gui_node_t* n, const de_vec2_t* available_size);
+
 /**
  * @brief TODO
  */
-void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* constraint);
+void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* available_size);
+
+de_vec2_t de_gui_node_default_arrange_override(de_gui_node_t* n, const de_vec2_t* final_size);
+
+void de_gui_node_arrange(de_gui_node_t* node, const de_rectf_t* final_rect);
 
 /**
  * @brief Drops focus from current focused ui node, raises LOST_FOCUS event for focused
@@ -582,8 +592,3 @@ void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* constraint);
 void de_gui_drop_focus(de_gui_t* gui);
 
 void de_gui_node_apply_template(de_gui_node_t* node, const de_gui_node_t* ctemplate);
-
-void de_gui_align_rect_in_rect(de_vec2_t* child_pos, de_vec2_t* child_size,
-	const de_vec2_t* parent_pos, const de_vec2_t* parent_size,
-	const de_gui_horizontal_alignment_t horizontal_alignment,
-	const de_gui_vertical_alignment_t vertical_alignment);

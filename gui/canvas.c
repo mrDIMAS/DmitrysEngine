@@ -25,6 +25,30 @@ static void de_gui_canvas_perform_layout(de_gui_node_t* n)
 	DE_UNUSED(n);
 }
 
+de_vec2_t de_gui_canvas_measure_override(de_gui_node_t* n, const de_vec2_t* available_size)
+{
+	DE_UNUSED(available_size);
+
+	const de_vec2_t size_for_child = { INFINITY, INFINITY };
+	for (size_t i = 0; i < n->children.size; ++i) {
+		de_gui_node_t* child = n->children.data[i];
+		de_gui_node_measure(child, &size_for_child);
+	}
+
+	return (de_vec2_t) { 0, 0 };
+}
+
+de_vec2_t de_gui_canvas_arrange_override(de_gui_node_t* n, const de_vec2_t* final_size)
+{
+	for (size_t i = 0; i < n->children.size; ++i) {
+		de_gui_node_t* child = n->children.data[i];
+		const de_rectf_t rect = { child->desired_local_position.x, child->desired_local_position.y, child->desired_size.x, child->desired_size.y };
+		de_gui_node_arrange(child, &rect);
+	}
+
+	return *final_size;
+}
+
 static void de_gui_canvas_init(de_gui_node_t* n)
 {
 	DE_UNUSED(n);
@@ -34,7 +58,8 @@ de_gui_dispatch_table_t* de_gui_canvas_get_dispatch_table()
 {
 	static de_gui_dispatch_table_t dispatch_table = {
 		.init = de_gui_canvas_init,
-		.layout_children = de_gui_canvas_perform_layout,
+		.measure_override = de_gui_canvas_measure_override,
+		.arrange_override = de_gui_canvas_arrange_override,
 	};
 	return &dispatch_table;
 }

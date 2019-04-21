@@ -45,8 +45,8 @@ static void de_gui_scroll_bar_update_indicator(de_gui_node_t* node)
 			sb->indicator->desired_local_position.x = percent * de_maxf(0.0f, sb->indicator->parent->actual_size.x - sb->indicator->actual_size.x);
 			sb->indicator->desired_local_position.y = 0;
 
-			sb->indicator->desired_size.x = 20;
-			sb->indicator->desired_size.y = sb->indicator->parent->actual_size.y;
+			sb->indicator->width = 20;
+			sb->indicator->height = sb->indicator->parent->actual_size.y;
 			break;
 		}
 		case DE_GUI_SCROLL_BAR_ORIENTATION_VERTICAL:
@@ -54,8 +54,8 @@ static void de_gui_scroll_bar_update_indicator(de_gui_node_t* node)
 			sb->indicator->desired_local_position.x = 0;
 			sb->indicator->desired_local_position.y = percent * de_maxf(0.0f, sb->indicator->parent->actual_size.y - sb->indicator->actual_size.y);
 
-			sb->indicator->desired_size.x = sb->indicator->parent->actual_size.x;
-			sb->indicator->desired_size.y = 20;
+			sb->indicator->width = sb->indicator->parent->actual_size.x;
+			sb->indicator->height = 20;
 			break;
 		}
 	}
@@ -158,7 +158,7 @@ static void de_gui_scroll_bar_init(de_gui_node_t* n)
 
 	sb->indicator = de_gui_node_create(n->gui, DE_GUI_NODE_BORDER);
 	de_gui_node_attach(sb->indicator, sb->canvas);
-	de_gui_node_set_desired_size(sb->indicator, 30, 30);
+	de_gui_node_set_size(sb->indicator, 30, 30);
 	de_gui_node_set_color_rgba(sb->indicator, 100, 100, 100, 255);
 	de_gui_border_set_stroke_color_rgba(sb->indicator, 80, 80, 80, 255);
 	de_gui_node_set_mouse_down(sb->indicator, de_gui_scroll_bar_indicator_mouse_down);

@@ -20,7 +20,6 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 /* Forward declarations for controls */
-static void de_gui_node_default_layout(de_gui_node_t* n);
 static bool de_gui_node_contains_point(de_gui_node_t* node, const de_vec2_t* point);
 
 /* Insert logic of all controls */
@@ -96,108 +95,6 @@ static void de_gui_node_route_key_up(de_gui_node_t* n, de_gui_routed_event_args_
 		de_gui_node_route_key_up(n->parent, args);
 	}
 }
-
-static void de_gui_node_calculate_actual_size(de_gui_node_t* n)
-{
-	if (n->visibility == DE_GUI_NODE_VISIBILITY_COLLAPSED) {
-		n->actual_size.x = 0;
-		n->actual_size.y = 0;
-	} else {
-		n->actual_size.x = n->desired_size.x - 2 * n->margin.right;
-		n->actual_size.y = n->desired_size.y - 2 * n->margin.bottom;
-	}
-}
-
-static void de_gui_node_apply_layout(de_gui_node_t* n)
-{
-	n->actual_local_position.x = n->desired_local_position.x + n->margin.left;
-	n->actual_local_position.y = n->desired_local_position.y + n->margin.top;
-
-	de_gui_node_calculate_actual_size(n);
-
-	if (n->dispatch_table->layout_children) {
-		n->dispatch_table->layout_children(n);
-	} else {
-		for (size_t i = 0; i < n->children.size; ++i) {
-			de_gui_node_default_layout(n->children.data[i]);
-		}
-	}
-
-	for (size_t i = 0; i < n->children.size; ++i) {
-		de_gui_node_apply_layout(n->children.data[i]);
-	}
-}
-
-void de_gui_align_rect_in_rect(de_vec2_t* child_pos, de_vec2_t* child_size,
-	const de_vec2_t* parent_pos, const de_vec2_t* parent_size,
-	const de_gui_horizontal_alignment_t horizontal_alignment,
-	const de_gui_vertical_alignment_t vertical_alignment)
-{
-
-	if (child_size->x > parent_size->x) {
-		child_size->x = parent_size->x;
-	} else if (child_size->x < 0) { /* check if user gone mad */
-		child_size->x = 0;
-	}
-
-	if (child_size->y > parent_size->y) {
-		child_size->y = parent_size->y;
-	} else if (child_size->y < 0) { /* check if user gone mad */
-		child_size->y = 0;
-	}
-
-	/* apply vertical alignment */
-	switch (vertical_alignment) {
-		case DE_GUI_VERTICAL_ALIGNMENT_TOP:
-			child_pos->y = parent_pos->y;
-			break;
-		case DE_GUI_VERTICAL_ALIGNMENT_CENTER:
-			child_pos->y = parent_pos->y + (parent_size->y - child_size->y) * 0.5f;
-			break;
-		case DE_GUI_VERTICAL_ALIGNMENT_BOTTOM:
-			child_pos->y = parent_pos->y + (parent_size->y - child_size->y);
-			break;
-		case DE_GUI_VERTICAL_ALIGNMENT_STRETCH:
-			child_pos->y = parent_pos->y;
-			child_size->y = parent_size->y;
-			break;
-	}
-
-	/* apply horizontal alignment */
-	switch (horizontal_alignment) {
-		case DE_GUI_HORIZONTAL_ALIGNMENT_LEFT:
-			child_pos->x = parent_pos->x;
-			break;
-		case DE_GUI_HORIZONTAL_ALIGNMENT_CENTER:
-			child_pos->x = parent_pos->x + (parent_size->x - child_size->x) * 0.5f;
-			break;
-		case DE_GUI_HORIZONTAL_ALIGNMENT_RIGHT:
-			child_pos->x = parent_pos->x + (parent_size->x - child_size->x);
-			break;
-		case DE_GUI_HORIZONTAL_ALIGNMENT_STRETCH:
-			child_pos->x = parent_pos->x;
-			child_size->x = parent_size->x;
-			break;
-	}
-}
-
-static void de_gui_node_default_layout(de_gui_node_t* n)
-{
-	de_gui_node_t* parent = n->parent;
-
-	if (!parent) {
-		de_fatal_error("node must have parent here!");
-	}
-
-	de_vec2_t desired_pos = { 0, 0 };
-	de_vec2_t desired_size = n->desired_size;
-	de_gui_align_rect_in_rect(&desired_pos, &desired_size, &(de_vec2_t){0, 0},
-		&parent->actual_size, n->horizontal_alignment, n->vertical_alignment);
-
-	de_gui_node_set_desired_local_position(n, desired_pos.x, desired_pos.y);
-	de_gui_node_set_desired_size(n, desired_size.x, desired_size.y);
-}
-
 
 de_gui_t* de_gui_init(de_core_t* core)
 {
@@ -630,27 +527,29 @@ void de_gui_update(de_gui_t* gui)
 {
 	de_gui_node_t* n;
 
-	static int count = 0;
-
-	/* TODO: layout update MUST be performed  only if it is actually  needed,
-	* right  now there  is annoying bug which requires *two* calls  of layout
-	* update  to correctly layout everything. This must be fixed! For  now we
-	* will sacrifice  performance  to get  correct  layout. Also this must be
-	* refactored to split layout in two steps: Measure and Arrange, currently
-	* user should define desired size of a node manually which is not optimal,
-	* because in some situations automatic measure is preferred. */
+	/* Step 1. Recursive Measure pass from root nodes with screen size as constraint. */
+	const de_vec2_t size_for_child = {
+		(float)de_core_get_window_width(gui->core),
+		(float)de_core_get_window_height(gui->core)
+	};
+	DE_LINKED_LIST_FOR_EACH(gui->nodes, n)
 	{
-		/* prepass which fills in actual size of each node based on desired size and margin */
-		DE_LINKED_LIST_FOR_EACH(gui->nodes, n)
-		{
-			de_gui_node_calculate_actual_size(n);
+		if (n->parent == NULL) {
+			de_gui_node_measure(n, &size_for_child);
 		}
+	}
 
-		DE_LINKED_LIST_FOR_EACH(gui->nodes, n)
-		{
-			if (n->parent == NULL) {
-				de_gui_node_apply_layout(n);
-			}
+	/* Step 2. Recursive Arrange pass from root nodes with screen rect as final rect. */
+	DE_LINKED_LIST_FOR_EACH(gui->nodes, n)
+	{
+		if (n->parent == NULL) {
+			const de_rectf_t rect = {
+				n->desired_local_position.x,
+				n->desired_local_position.y,
+				(float)de_core_get_window_width(gui->core),
+				(float)de_core_get_window_height(gui->core)
+			};
+			de_gui_node_arrange(n, &rect);
 		}
 	}
 
@@ -664,7 +563,7 @@ void de_gui_update(de_gui_t* gui)
 	/* calculate screen position */
 	DE_LINKED_LIST_FOR_EACH(gui->nodes, n)
 	{
-/* update transform from root nodes */
+		/* update transform from root nodes */
 		if (n->parent == NULL) {
 			de_gui_node_update_transform(n);
 		}
@@ -706,7 +605,10 @@ de_gui_node_t* de_gui_node_create(de_gui_t* gui, de_gui_node_type_t type)
 	}
 	n->type = type;
 	DE_ARRAY_INIT(n->children);
-	de_vec2_set(&n->desired_size, 200, 200);
+	/* Set width and height to NaN to mark them as undefined, so layout system won't
+	 * take these values into account. */
+	n->width = NAN;
+	n->height = NAN;
 	de_color_set(&n->color, 255, 255, 255, 255);
 	n->is_hit_test_visible = true;
 	n->visibility = DE_GUI_NODE_VISIBILITY_VISIBLE;
@@ -881,10 +783,10 @@ void de_gui_node_set_margin(de_gui_node_t* node, float left, float top, float ri
 	node->margin.bottom = bottom;
 }
 
-void de_gui_node_set_desired_size(de_gui_node_t* node, float w, float h)
+void de_gui_node_set_size(de_gui_node_t* node, float w, float h)
 {
-	node->desired_size.x = w;
-	node->desired_size.y = h;
+	node->width = w;
+	node->height = h;
 }
 
 bool de_gui_node_set_property(de_gui_node_t* n, const char* name, const void* value, size_t data_size)
@@ -987,30 +889,148 @@ void de_gui_node_free(de_gui_node_t* n)
 	de_free(n);
 }
 
-void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* constraint)
+de_vec2_t de_gui_node_default_measure_override(de_gui_node_t* n, const de_vec2_t* available_size)
 {
-	size_t i;
-	if (node->dispatch_table->measure) {
-		/* delegate to override method */
-		node->dispatch_table->measure(node, constraint);
-	} else {
-		/* standard measure */
-		node->desired_size.x = 0;
-		node->desired_size.y = 0;
-		for (i = 0; i < node->children.size; ++i) {
-			de_gui_node_t* child = node->children.data[i];
-			de_vec2_t child_constraint;
-			child_constraint.x = de_maxf(0.0f, constraint->x - (node->margin.left + node->margin.right));
-			child_constraint.y = de_maxf(0.0f, constraint->y - (node->margin.top + node->margin.bottom));
-			de_gui_node_measure(child, &child_constraint);
-			if (child->desired_size.x > node->desired_size.x) {
-				node->desired_size.x = child->desired_size.x;
-			}
-			if (child->desired_size.y > node->desired_size.y) {
-				node->desired_size.y = child->desired_size.y;
-			}
+	de_vec2_t size = { 0, 0 };
+	for (size_t i = 0; i < n->children.size; ++i) {
+		de_gui_node_t* child = n->children.data[i];
+
+		de_gui_node_measure(child, available_size);
+
+		if (child->desired_size.x > size.x) {
+			size.x = child->desired_size.x;
+		}
+		if (child->desired_size.y > size.y) {
+			size.y = child->desired_size.y;
 		}
 	}
+	return size;
+}
+
+void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* available_size)
+{
+	const float margin_x = node->margin.left + node->margin.right;
+	const float margin_y = node->margin.top + node->margin.bottom;
+
+	const de_vec2_t size_for_child = {
+		node->width > 0 ? node->width : de_maxf(0.0f, available_size->x - margin_x),
+		node->height > 0 ? node->height : de_maxf(0.0f, available_size->y - margin_y)
+	};
+
+	if (node->visibility != DE_GUI_NODE_VISIBILITY_VISIBLE) {
+		node->desired_size = (de_vec2_t) { 0, 0 };
+	} else {
+		if (node->dispatch_table->measure_override) {
+			/* use custom override */
+			node->desired_size = node->dispatch_table->measure_override(node, &size_for_child);
+		} else {
+			/* use standard override */
+			node->desired_size = de_gui_node_default_measure_override(node, &size_for_child);
+		}
+	}
+
+	/* Set desired size to Width and Height only if they have well defined values. */
+	if (!isnan(node->width)) {
+		node->desired_size.x = node->width;
+	}
+	if (!isnan(node->height)) {
+		node->desired_size.y = node->height;
+	}
+
+	node->desired_size.x += margin_x;
+	node->desired_size.y += margin_y;
+
+	/* Make sure that node won't go outside of available bounds. */
+	if (node->desired_size.x > available_size->x) {
+		node->desired_size.x = available_size->x;
+	}
+	if (node->desired_size.y > available_size->y) {
+		node->desired_size.y = available_size->y;
+	}
+}
+
+de_vec2_t de_gui_node_default_arrange_override(de_gui_node_t* n, const de_vec2_t* final_size)
+{
+	const de_rectf_t rect = { 0, 0, final_size->x, final_size->y };
+	for (size_t i = 0; i < n->children.size; ++i) {
+		de_gui_node_t* child = n->children.data[i];
+		de_gui_node_arrange(child, &rect);
+	}
+	return *final_size;
+}
+
+void de_gui_node_arrange(de_gui_node_t* node, const de_rectf_t* final_rect)
+{
+	if (node->visibility != DE_GUI_NODE_VISIBILITY_VISIBLE) {
+		return;
+	}
+
+	const float margin_x = node->margin.left + node->margin.right;
+	const float margin_y = node->margin.top + node->margin.bottom;
+
+	float origin_x = final_rect->x + node->margin.left;
+	float origin_y = final_rect->y + node->margin.top;
+
+	de_vec2_t size = {
+		de_maxf(0.0f, final_rect->w - margin_x),
+		de_maxf(0.0f, final_rect->h - margin_y)
+	};
+
+	const de_vec2_t size_without_margin = size;
+
+	if (node->horizontal_alignment != DE_GUI_HORIZONTAL_ALIGNMENT_STRETCH) {
+		size.x = de_minf(size.x, node->desired_size.x - margin_x);
+	}
+	if (node->vertical_alignment != DE_GUI_VERTICAL_ALIGNMENT_STRETCH) {
+		size.y = de_minf(size.y, node->desired_size.y - margin_y);
+	}
+
+	if (node->width > 0) {
+		size.x = node->width;
+	}
+	if (node->height > 0) {
+		size.y = node->height;
+	}
+
+	if (node->dispatch_table->arrange_override) {
+		size = node->dispatch_table->arrange_override(node, &size);
+	} else {
+		size = de_gui_node_default_arrange_override(node, &size);
+	}
+
+	if (size.x > final_rect->w) {
+		size.x = final_rect->w;
+	}
+	if (size.y > final_rect->h) {
+		size.y = final_rect->h;
+	}
+
+	switch (node->horizontal_alignment) {
+		case DE_GUI_HORIZONTAL_ALIGNMENT_CENTER:
+		case DE_GUI_HORIZONTAL_ALIGNMENT_STRETCH:
+			origin_x += (size_without_margin.x - size.x) * 0.5f;
+			break;
+		case DE_GUI_HORIZONTAL_ALIGNMENT_RIGHT:
+			origin_x += size_without_margin.x - size.x;
+			break;
+		default:
+			break;
+	}
+
+	switch (node->vertical_alignment) {
+		case DE_GUI_VERTICAL_ALIGNMENT_CENTER:
+		case DE_GUI_VERTICAL_ALIGNMENT_STRETCH:
+			origin_y += (size_without_margin.y - size.y) * 0.5f;
+			break;
+		case DE_GUI_VERTICAL_ALIGNMENT_BOTTOM:
+			origin_y += size_without_margin.y - size.y;
+			break;
+		default:
+			break;
+	}
+
+	node->actual_size = size;
+	node->actual_local_position = (de_vec2_t) { origin_x, origin_y };
 }
 
 void de_gui_node_set_row(de_gui_node_t* node, size_t row)
@@ -1107,9 +1127,9 @@ void de_gui_node_apply_descriptor(de_gui_node_t* n, const de_gui_node_descriptor
 {
 	de_gui_node_set_column(n, desc->column);
 	de_gui_node_set_row(n, desc->row);
-	de_gui_node_set_desired_local_position(n, desc->desired_position.x, desc->desired_position.y);
-	if (desc->desired_size.x != 0 && desc->desired_size.y != 0) {
-		de_gui_node_set_desired_size(n, desc->desired_size.x, desc->desired_size.y);
+	de_gui_node_set_desired_local_position(n, desc->x, desc->y);
+	if (desc->width != 0 && desc->height != 0) {
+		de_gui_node_set_size(n, desc->width, desc->height);
 	}
 	de_gui_node_set_horizontal_alignment(n, desc->horizontal_alignment);
 	de_gui_node_set_vertical_alignment(n, desc->vertical_alignment);

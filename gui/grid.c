@@ -32,18 +32,28 @@ static void de_gui_grid_apply_descriptor(de_gui_node_t* n, const de_gui_node_des
 	de_gui_grid_enable_draw_borders(n, grid_desc->draw_borders);
 }
 
-static void de_gui_grid_perform_layout(de_gui_node_t* n)
+de_vec2_t de_gui_grid_measure_override(de_gui_node_t* n, const de_vec2_t* available_size)
 {
-	size_t i;
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_GRID);
 	de_gui_grid_t* grid = &n->s.grid;
 
+	/* In case of no rows or columns, grid acts like default panel. */
+	if (grid->columns.size == 0 || grid->rows.size == 0) {
+		return de_gui_node_default_measure_override(n, available_size);
+	}
+
+	/* Step 1. Measure every children with relaxed constraints (size of grid). */
+	for (size_t i = 0; i < n->children.size; ++i) {
+		de_gui_node_t* child = n->children.data[i];
+		de_gui_node_measure(child, available_size);
+	}
+
+	/* Step 2. Calculate width of columns and heights of rows. */
 	float preset_width = 0;
 	float preset_height = 0;
 
-	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_GRID);
-
-	/* calculate size of strict-sized and auto-sized rows and columns */
-	for (i = 0; i < grid->columns.size; ++i) {
+	/* Step 2.1. Calculate size of strict-sized and auto-sized columns. */
+	for (size_t i = 0; i < grid->columns.size; ++i) {
 		de_gui_grid_column_t* col = grid->columns.data + i;
 		if (col->size_mode == DE_GUI_SIZE_MODE_STRICT) {
 			col->actual_width = col->desired_width;
@@ -56,8 +66,7 @@ static void de_gui_grid_perform_layout(de_gui_node_t* n)
 				} else {
 					while (child_index < n->children.size) {
 						de_gui_node_t* node_on_col = n->children.data[child_index];
-						float desired_width;
-						desired_width = node_on_col->actual_size.x;
+						float desired_width = node_on_col->desired_size.x;
 						if (desired_width > col->actual_width) {
 							col->actual_width = desired_width;
 						}
@@ -70,7 +79,9 @@ static void de_gui_grid_perform_layout(de_gui_node_t* n)
 			preset_width += col->actual_width;
 		}
 	}
-	for (i = 0; i < grid->rows.size; ++i) {
+
+	/* Step 2.2. Calculate size of strict-sized and auto-sized rows. */
+	for (size_t i = 0; i < grid->rows.size; ++i) {
 		de_gui_grid_row_t* row = grid->rows.data + i;
 		if (row->size_mode == DE_GUI_SIZE_MODE_STRICT) {
 			row->actual_height = row->desired_height;
@@ -83,8 +94,7 @@ static void de_gui_grid_perform_layout(de_gui_node_t* n)
 				} else {
 					while (child_index < n->children.size) {
 						de_gui_node_t* node_on_row = n->children.data[child_index];
-						float desired_height;
-						desired_height = node_on_row->actual_size.y;
+						float desired_height = node_on_row->desired_size.y;
 						if (desired_height > row->actual_height) {
 							row->actual_height = desired_height;
 						}
@@ -98,96 +108,110 @@ static void de_gui_grid_perform_layout(de_gui_node_t* n)
 		}
 	}
 
-	/* then fit stretch-sized rows and columns */
-	{
-		size_t stretch_sized_columns = 0;
-		float rest_width = n->actual_size.x - preset_width;
-		float width_per_col;
-		/* count columns first */
-		for (i = 0; i < grid->columns.size; ++i) {
-			if (grid->columns.data[i].size_mode == DE_GUI_SIZE_MODE_STRETCH) {
-				++stretch_sized_columns;
-			}
-		}
-		if (stretch_sized_columns) {
-			width_per_col = rest_width / stretch_sized_columns;
-			for (i = 0; i < grid->columns.size; ++i) {
-				de_gui_grid_column_t* col = grid->columns.data + i;
-				if (col->size_mode == DE_GUI_SIZE_MODE_STRETCH) {
-					col->actual_width = width_per_col;
-				}
-			}
+	/* Step 2.3. Fit stretch-sized columns */
+	size_t stretch_sized_columns = 0;
+	float rest_width = n->actual_size.x - preset_width;
+	float width_per_col;
+	/* count columns first */
+	for (size_t i = 0; i < grid->columns.size; ++i) {
+		if (grid->columns.data[i].size_mode == DE_GUI_SIZE_MODE_STRETCH) {
+			++stretch_sized_columns;
 		}
 	}
-	{
-		size_t stretch_sized_rows = 0;
-		float height_per_row;
-		float rest_height = n->actual_size.y - preset_height;
-		/* count rows first */
-		for (i = 0; i < grid->rows.size; ++i) {
-			if (grid->rows.data[i].size_mode == DE_GUI_SIZE_MODE_STRETCH) {
-				++stretch_sized_rows;
-			}
-		}
-		if (stretch_sized_rows) {
-			height_per_row = rest_height / stretch_sized_rows;
-			for (i = 0; i < grid->rows.size; ++i) {
-				de_gui_grid_row_t* row = grid->rows.data + i;
-				if (row->size_mode == DE_GUI_SIZE_MODE_STRETCH) {
-					row->actual_height = height_per_row;
-				}
-			}
-		}
-	}
-
-	/* finally compute positions of each row and column */
-	{
-		float y = 0;
-		for (i = 0; i < grid->rows.size; ++i) {
-			de_gui_grid_row_t* row = grid->rows.data + i;
-			row->y = y;
-			y += row->actual_height;
-		}
-	}
-	{
-		float x = 0;
-		for (i = 0; i < grid->columns.size; ++i) {
+	if (stretch_sized_columns) {
+		width_per_col = rest_width / stretch_sized_columns;
+		for (size_t i = 0; i < grid->columns.size; ++i) {
 			de_gui_grid_column_t* col = grid->columns.data + i;
-			col->x = x;
-			x += col->actual_width;
+			if (col->size_mode == DE_GUI_SIZE_MODE_STRETCH) {
+				col->actual_width = width_per_col;
+			}
 		}
 	}
 
-	/* now arrange children */
-	for (i = 0; i < n->children.size; ++i) {
+	/* Step 2.4. Fit stretch-sized rows. */
+	size_t stretch_sized_rows = 0;
+	float height_per_row;
+	float rest_height = n->actual_size.y - preset_height;
+	/* count rows first */
+	for (size_t i = 0; i < grid->rows.size; ++i) {
+		if (grid->rows.data[i].size_mode == DE_GUI_SIZE_MODE_STRETCH) {
+			++stretch_sized_rows;
+		}
+	}
+	if (stretch_sized_rows) {
+		height_per_row = rest_height / stretch_sized_rows;
+		for (size_t i = 0; i < grid->rows.size; ++i) {
+			de_gui_grid_row_t* row = grid->rows.data + i;
+			if (row->size_mode == DE_GUI_SIZE_MODE_STRETCH) {
+				row->actual_height = height_per_row;
+			}
+		}
+	}
+
+	/* Step 2.5. Calculate positions of each column. */
+	float y = 0;
+	for (size_t i = 0; i < grid->rows.size; ++i) {
+		de_gui_grid_row_t* row = grid->rows.data + i;
+		row->y = y;
+		y += row->actual_height;
+	}
+
+	/* Step 2.6. Calculate positions of each row. */
+	float x = 0;
+	for (size_t i = 0; i < grid->columns.size; ++i) {
+		de_gui_grid_column_t* col = grid->columns.data + i;
+		col->x = x;
+		x += col->actual_width;
+	}
+
+	/* Step 3. Re-measure children with new constraints. */
+	for (size_t i = 0; i < n->children.size; ++i) {
 		de_gui_node_t* child = n->children.data[i];
 
-		if (grid->rows.size > 0 && grid->columns.size > 0) {
-			de_gui_grid_row_t* row = child->row < grid->rows.size ? grid->rows.data + child->row : grid->rows.data;
-			de_gui_grid_column_t* col = child->column < grid->columns.size ? grid->columns.data + child->column : grid->columns.data;
+		const de_gui_grid_row_t* row = child->row < grid->rows.size ? grid->rows.data + child->row : grid->rows.data;
+		const de_gui_grid_column_t* col = child->column < grid->columns.size ? grid->columns.data + child->column : grid->columns.data;
 
-			de_vec2_t child_pos;
-			de_vec2_t child_size = child->desired_size;
-			de_vec2_t parent_pos = { col->x, row->y };
-			de_vec2_t parent_size = { col->actual_width, row->actual_height };
-
-			de_gui_align_rect_in_rect(&child_pos, &child_size, &parent_pos, &parent_size,
-				child->horizontal_alignment, child->vertical_alignment);
-
-			de_gui_node_set_desired_local_position(child, child_pos.x, child_pos.y);
-			de_gui_node_set_desired_size(child, child_size.x, child_size.y);
-		} else {
-			/* no rows and columns, arrange and stretch to size of grid */
-			de_gui_node_set_desired_local_position(child, 0, 0);
-
-			if (child->vertical_alignment == DE_GUI_VERTICAL_ALIGNMENT_STRETCH) {
-				de_gui_node_set_desired_size(child, child->desired_size.x, n->actual_size.y);
-			}
-			if (child->horizontal_alignment == DE_GUI_HORIZONTAL_ALIGNMENT_STRETCH) {
-				de_gui_node_set_desired_size(child, n->actual_size.x, child->desired_size.y);
-			}
-		}
+		const de_vec2_t size_for_child = { col->actual_width, row->actual_height };
+		de_gui_node_measure(child, &size_for_child);
 	}
+
+	/* Step 4. Calculate desired size of grid. */
+	de_vec2_t desired_size = { 0, 0 };
+	for (size_t i = 0; i < grid->columns.size; ++i) {
+		desired_size.x += grid->columns.data[i].actual_width;
+	}
+	for (size_t i = 0; i < grid->rows.size; ++i) {
+		desired_size.y += grid->rows.data[i].actual_height;
+	}
+
+	return desired_size;
+}
+
+de_vec2_t de_gui_grid_arrange_override(de_gui_node_t* n, const de_vec2_t* final_size)
+{
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_GRID);
+	de_gui_grid_t* grid = &n->s.grid;
+
+	if (grid->columns.size == 0 || grid->rows.size == 0) {
+		const de_rectf_t rect = { 0, 0, final_size->x, final_size->y };
+		for (size_t i = 0; i < n->children.size; ++i) {
+			de_gui_node_t* child = n->children.data[i];			
+			de_gui_node_arrange(child, &rect);
+		}
+		return *final_size;
+	}
+
+	for (size_t i = 0; i < n->children.size; ++i) {
+		de_gui_node_t* child = n->children.data[i];
+		
+		de_gui_grid_row_t* row = child->row < grid->rows.size ? grid->rows.data + child->row : grid->rows.data;
+		de_gui_grid_column_t* col = child->column < grid->columns.size ? grid->columns.data + child->column : grid->columns.data;
+
+		const de_rectf_t rect = { col->x, row->y, col->actual_width, row->actual_height };
+		de_gui_node_arrange(child, &rect);
+	}
+
+	return *final_size;
 }
 
 static void de_gui_grid_deinit(de_gui_node_t* n)
@@ -272,9 +296,10 @@ de_gui_dispatch_table_t* de_gui_grid_get_dispatch_table(void)
 	static de_gui_dispatch_table_t dispatch_table = {
 		.init = de_gui_grid_init,
 		.deinit = de_gui_grid_deinit,
-		.layout_children = de_gui_grid_perform_layout,
 		.render = de_gui_grid_render,
-		.apply_descriptor = de_gui_grid_apply_descriptor
+		.apply_descriptor = de_gui_grid_apply_descriptor,
+		.measure_override = de_gui_grid_measure_override,
+		.arrange_override = de_gui_grid_arrange_override,
 	};
 	return &dispatch_table;
 }

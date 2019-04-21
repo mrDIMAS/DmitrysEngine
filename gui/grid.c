@@ -110,7 +110,19 @@ de_vec2_t de_gui_grid_measure_override(de_gui_node_t* n, const de_vec2_t* availa
 
 	/* Step 2.3. Fit stretch-sized columns */
 	size_t stretch_sized_columns = 0;
-	float rest_width = n->actual_size.x - preset_width;
+	float rest_width;
+	if (isinf(available_size->x)) {
+		rest_width = 0;
+		for (size_t i = 0; i < n->children.size; ++i) {
+			de_gui_node_t* child = n->children.data[i];
+			de_gui_grid_column_t* col = grid->columns.data + child->column;
+			if(col->size_mode == DE_GUI_SIZE_MODE_STRETCH) {
+				rest_width += child->desired_size.x;
+			}
+		}
+	} else {
+		rest_width = (available_size->x - preset_width);
+	}
 	float width_per_col;
 	/* count columns first */
 	for (size_t i = 0; i < grid->columns.size; ++i) {
@@ -130,8 +142,20 @@ de_vec2_t de_gui_grid_measure_override(de_gui_node_t* n, const de_vec2_t* availa
 
 	/* Step 2.4. Fit stretch-sized rows. */
 	size_t stretch_sized_rows = 0;
-	float height_per_row;
-	float rest_height = n->actual_size.y - preset_height;
+	float rest_height;
+	if (isinf(available_size->y)) {
+		rest_height = 0;
+		for (size_t i = 0; i < n->children.size; ++i) {
+			de_gui_node_t* child = n->children.data[i];
+			de_gui_grid_row_t* row = grid->rows.data + child->column;
+			if (row->size_mode == DE_GUI_SIZE_MODE_STRETCH) {
+				rest_height += child->desired_size.y;
+			}
+		}
+	} else {
+		rest_height = available_size->y - preset_height;
+	}
+	float height_per_row;	
 	/* count rows first */
 	for (size_t i = 0; i < grid->rows.size; ++i) {
 		if (grid->rows.data[i].size_mode == DE_GUI_SIZE_MODE_STRETCH) {
@@ -207,7 +231,12 @@ de_vec2_t de_gui_grid_arrange_override(de_gui_node_t* n, const de_vec2_t* final_
 		de_gui_grid_row_t* row = child->row < grid->rows.size ? grid->rows.data + child->row : grid->rows.data;
 		de_gui_grid_column_t* col = child->column < grid->columns.size ? grid->columns.data + child->column : grid->columns.data;
 
-		const de_rectf_t rect = { col->x, row->y, col->actual_width, row->actual_height };
+		const de_rectf_t rect = { 
+			col->x, 
+			row->y, 
+			col->actual_width,
+			row->actual_height
+		};
 		de_gui_node_arrange(child, &rect);
 	}
 

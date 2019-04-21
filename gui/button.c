@@ -91,6 +91,7 @@ static bool de_gui_button_get_property(de_gui_node_t* n, const char* name, void*
 static void de_gui_button_init(de_gui_node_t* n)
 {
 	de_gui_button_t* b = &n->s.button;
+	n->min_size = (de_vec2_t) { 20, 20 };
 	de_color_set(&b->normal_color, 120, 120, 120, 255);
 	de_color_set(&b->pressed_color, 100, 100, 100, 255);
 	de_color_set(&b->hover_color, 140, 140, 140, 255);

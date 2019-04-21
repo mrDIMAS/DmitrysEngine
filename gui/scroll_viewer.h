@@ -41,3 +41,7 @@ struct de_gui_dispatch_table_t* de_gui_scroll_viewer_get_dispatch_table(void);
 * @param content
 */
 void de_gui_scroll_viewer_set_content(de_gui_node_t* sv_node, de_gui_node_t* content);
+
+void de_gui_scroll_viewer_enable_vertical_scroll(de_gui_node_t* n, bool value);
+
+void de_gui_scroll_viewer_enable_horizontal_scroll(de_gui_node_t* n, bool value);

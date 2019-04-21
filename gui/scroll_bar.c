@@ -258,6 +258,18 @@ void de_gui_scroll_bar_set_max_value(de_gui_node_t* node, float max)
 	de_gui_scroll_bar_update_indicator(node);
 }
 
+float de_gui_scroll_bar_get_min_value(de_gui_node_t* node)
+{
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
+	return node->s.scroll_bar.min;
+}
+
+float de_gui_scroll_bar_get_max_value(de_gui_node_t* node)
+{
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
+	return node->s.scroll_bar.max;
+}
+
 void de_gui_scroll_bar_set_value_changed(de_gui_node_t* node, de_scroll_bar_value_changed_event_t evt)
 {
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
@@ -284,4 +296,10 @@ void de_gui_scroll_bar_set_value(de_gui_node_t* node, float value)
 	if (old_value != value && sb->value_changed) {
 		sb->value_changed(node, old_value, value);
 	}
+}
+
+float de_gui_scroll_bar_get_value(de_gui_node_t* node) {
+	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_SCROLL_BAR);
+	de_gui_scroll_bar_t* sb = &node->s.scroll_bar;
+	return sb->value;
 }

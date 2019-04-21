@@ -52,3 +52,17 @@ de_gui_node_t* de_gui_window_get_content(de_gui_node_t* window);
 void de_gui_window_set_flags(de_gui_node_t* window, uint32_t flags);
 
 bool de_gui_window_is_flags_set(de_gui_node_t* window, uint32_t flags);
+
+/**
+ * @brief Enables or disables vertical scroll for window content. If scroll
+ * is enabled infinite bounds will be provided for content, so it can contain
+ * control of any size.
+ */
+void de_gui_window_enable_vertical_scroll(de_gui_node_t* window, bool value);
+
+/**
+ * @brief Enables or disables horizontal scroll for window content. If scroll
+ * is enabled infinite bounds will be provided for content, so it can contain
+ * control of any size.
+ */
+void de_gui_window_enable_horizontal_scroll(de_gui_node_t* window, bool value);

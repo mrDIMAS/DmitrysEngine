@@ -74,6 +74,10 @@ void de_gui_scroll_bar_set_orientation(de_gui_node_t* node, de_gui_scroll_bar_or
 */
 void de_gui_scroll_bar_set_min_value(de_gui_node_t* node, float min);
 
+float de_gui_scroll_bar_get_min_value(de_gui_node_t* node);
+
+float de_gui_scroll_bar_get_max_value(de_gui_node_t* node);
+
 /**
 * @brief
 * @param node
@@ -89,5 +93,7 @@ void de_gui_scroll_bar_set_max_value(de_gui_node_t* node, float max);
 void de_gui_scroll_bar_set_value_changed(de_gui_node_t* node, de_scroll_bar_value_changed_event_t evt);
 
 void de_gui_scroll_bar_set_value(de_gui_node_t* node, float value);
+
+float de_gui_scroll_bar_get_value(de_gui_node_t* node);
 
 void de_gui_scroll_bar_set_step(de_gui_node_t* node, float value);

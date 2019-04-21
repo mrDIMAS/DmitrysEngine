@@ -176,3 +176,17 @@ bool de_gui_window_is_flags_set(de_gui_node_t* window, uint32_t flags)
 	DE_ASSERT_GUI_NODE_TYPE(window, DE_GUI_NODE_WINDOW);
 	return (window->s.window.flags & flags) == flags;
 }
+
+void de_gui_window_enable_vertical_scroll(de_gui_node_t* window, bool value)
+{
+	DE_ASSERT_GUI_NODE_TYPE(window, DE_GUI_NODE_WINDOW);
+	de_gui_window_t* wnd = &window->s.window;
+	de_gui_scroll_viewer_enable_vertical_scroll(wnd->scroll_viewer, value);
+}
+
+void de_gui_window_enable_horizontal_scroll(de_gui_node_t* window, bool value)
+{
+	DE_ASSERT_GUI_NODE_TYPE(window, DE_GUI_NODE_WINDOW);
+	de_gui_window_t* wnd = &window->s.window;
+	de_gui_scroll_viewer_enable_horizontal_scroll(wnd->scroll_viewer, value);
+}

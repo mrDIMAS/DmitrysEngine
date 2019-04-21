@@ -53,6 +53,7 @@ DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_mouse_leave, mouse_leave)
 DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_mouse_move, mouse_move)
 DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_got_focus, got_focus)
 DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_lost_focus, lost_focus)
+DE_DECLARE_ROUTED_EVENT_TRACER(de_gui_node_route_mouse_wheel, mouse_wheel)
 
 #undef DE_DECLARE_ROUTED_EVENT_TRACER
 
@@ -510,6 +511,17 @@ bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt)
 				de_gui_node_route_key_up(gui->keyboard_focus, &revt);
 			}
 			break;
+		case DE_EVENT_TYPE_MOUSE_WHEEL:
+			if(gui->picked_node) {
+				de_gui_routed_event_args_t revt;
+				de_zero(&revt, sizeof(revt));
+				revt.type = DE_GUI_ROUTED_EVENT_MOUSE_WHEEL;
+				revt.source = gui->picked_node;
+				revt.s.wheel.delta = evt->s.mouse_wheel.delta;
+				revt.s.wheel.pos = (de_vec2_t) { (float)evt->s.mouse_wheel.x, (float)evt->s.mouse_wheel.y };
+				de_gui_node_route_mouse_wheel(gui->picked_node, &revt);
+			}
+			break;
 		default:
 			break;
 	}
@@ -609,6 +621,8 @@ de_gui_node_t* de_gui_node_create(de_gui_t* gui, de_gui_node_type_t type)
 	 * take these values into account. */
 	n->width = NAN;
 	n->height = NAN;
+	n->min_size = (de_vec2_t) { 0, 0 };
+	n->max_size = (de_vec2_t) { INFINITY, INFINITY };
 	de_color_set(&n->color, 255, 255, 255, 255);
 	n->is_hit_test_visible = true;
 	n->visibility = DE_GUI_NODE_VISIBILITY_VISIBLE;
@@ -912,10 +926,22 @@ void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* available_size)
 	const float margin_x = node->margin.left + node->margin.right;
 	const float margin_y = node->margin.top + node->margin.bottom;
 
-	const de_vec2_t size_for_child = {
+	de_vec2_t size_for_child = {
 		node->width > 0 ? node->width : de_maxf(0.0f, available_size->x - margin_x),
 		node->height > 0 ? node->height : de_maxf(0.0f, available_size->y - margin_y)
 	};
+
+	if (size_for_child.x > node->max_size.x) {
+		size_for_child.x = node->max_size.x;
+	} else if (size_for_child.x < node->min_size.x) {
+		size_for_child.x = node->min_size.x;
+	}
+
+	if (size_for_child.y > node->max_size.y) {
+		size_for_child.y = node->max_size.y;
+	} else if (size_for_child.y < node->min_size.y) {
+		size_for_child.y = node->min_size.y;
+	}
 
 	if (node->visibility != DE_GUI_NODE_VISIBILITY_VISIBLE) {
 		node->desired_size = (de_vec2_t) { 0, 0 };
@@ -933,10 +959,23 @@ void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* available_size)
 	if (!isnan(node->width)) {
 		node->desired_size.x = node->width;
 	}
+
+	if (node->desired_size.x > node->max_size.x) {
+		node->desired_size.x = node->max_size.x;
+	} else if (node->desired_size.x < node->min_size.x) {
+		node->desired_size.x = node->min_size.x;
+	}
+
+	if (node->desired_size.y > node->max_size.y) {
+		node->desired_size.y = node->max_size.y;
+	} else if (node->desired_size.y < node->min_size.y) {
+		node->desired_size.y = node->min_size.y;
+	}
+
 	if (!isnan(node->height)) {
 		node->desired_size.y = node->height;
 	}
-
+	
 	node->desired_size.x += margin_x;
 	node->desired_size.y += margin_y;
 
@@ -1128,8 +1167,11 @@ void de_gui_node_apply_descriptor(de_gui_node_t* n, const de_gui_node_descriptor
 	de_gui_node_set_column(n, desc->column);
 	de_gui_node_set_row(n, desc->row);
 	de_gui_node_set_desired_local_position(n, desc->x, desc->y);
-	if (desc->width != 0 && desc->height != 0) {
-		de_gui_node_set_size(n, desc->width, desc->height);
+	if (desc->width != 0) {
+		n->width = desc->width;
+	}
+	if (desc->height != 0) {
+		n->height = desc->height;
 	}
 	de_gui_node_set_horizontal_alignment(n, desc->horizontal_alignment);
 	de_gui_node_set_vertical_alignment(n, desc->vertical_alignment);

@@ -129,6 +129,7 @@ typedef enum de_gui_routed_event_type_t {
 	DE_GUI_ROUTED_EVENT_GOT_FOCUS,
 	DE_GUI_ROUTED_EVENT_KEY_DOWN,
 	DE_GUI_ROUTED_EVENT_KEY_UP,
+	DE_GUI_ROUTED_EVENT_MOUSE_WHEEL,
 	DE_GUI_ROUTED_EVENT_TEXT
 } de_gui_routed_event_type_t;
 
@@ -161,6 +162,10 @@ typedef struct de_gui_routed_event_args_t {
 			int shift : 1;
 			int system : 1;
 		} key;
+		struct {
+			int delta;
+			de_vec2_t pos;
+		} wheel;
 	} s;
 } de_gui_routed_event_args_t;
 
@@ -205,6 +210,7 @@ typedef void(*de_got_focus_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*)
 typedef void(*de_text_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*);
 typedef void(*de_key_down_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*);
 typedef void(*de_key_up_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*);
+typedef void(*de_mouse_wheel_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*);
 
 #define DE_DECLARE_PROPERTY_SETTER(type__, field__, passed_name__, field_name__, value__, data_size__, object__) \
 	if (strcmp(field_name__, passed_name__) == 0) { \
@@ -285,6 +291,8 @@ struct de_gui_node_t {
 	de_vec2_t desired_size; /**< Desired size of the node after Measure pass. */
 	de_vec2_t actual_local_position; /**< Actual node local position after Arrange pass. */
 	de_vec2_t actual_size; /**< Actual size of the node after Arrange pass. */
+	de_vec2_t min_size;
+	de_vec2_t max_size;
 	de_color_t color; /**< Overlay color of the node */
 	size_t row; /**< Index of row to which this node belongs */
 	size_t column; /**< Index of column to which this node belongs */
@@ -310,6 +318,7 @@ struct de_gui_node_t {
 	de_text_event_t text_entered;
 	de_key_down_event_t key_down;
 	de_key_up_event_t key_up;
+	de_mouse_wheel_event_t mouse_wheel;
 	bool is_focused;
 	bool is_mouse_over;
 	/* intrusive linked list */

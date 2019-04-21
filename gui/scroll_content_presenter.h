@@ -24,6 +24,8 @@
 */
 typedef struct de_gui_scroll_content_presenter_t {
 	de_vec2_t scroll;
+	bool can_horizontally_scroll;
+	bool can_vertically_scroll;
 } de_gui_scroll_content_presenter_t;
 
 struct de_gui_dispatch_table_t* de_gui_scroll_content_presenter_get_dispatch_table(void);
@@ -42,3 +44,16 @@ void de_gui_scroll_content_presenter_set_v_scroll(de_gui_node_t* node, float val
 */
 void de_gui_scroll_content_presenter_set_h_scroll(de_gui_node_t* node, float val);
 
+/**
+* @brief Enables or disables vertical scroll for content. If scroll
+* is enabled infinite bounds will be provided for content, so it can contain
+* control of any size.
+*/
+void de_gui_scroll_content_presenter_enable_vertical_scroll(de_gui_node_t* n, bool value);
+
+/**
+* @brief Enables or disables horizontal scroll for content. If scroll
+* is enabled infinite bounds will be provided for content, so it can contain
+* control of any size.
+*/
+void de_gui_scroll_content_presenter_enable_horizontal_scroll(de_gui_node_t* n, bool value);

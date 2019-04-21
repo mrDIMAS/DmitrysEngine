@@ -50,7 +50,7 @@ void de_gui_scroll_viewer_update(de_gui_node_t* n)
 
 	/* hide/show horizontal scroll bar */
 	if (sv->content) {
-		if (sv->content->actual_size.x <= sv->scroll_content_presenter->actual_size.x) {
+		if (sv->content->desired_size.x <= sv->scroll_content_presenter->desired_size.x) {
 			vis = DE_GUI_NODE_VISIBILITY_COLLAPSED;
 		} else {
 			vis = DE_GUI_NODE_VISIBILITY_VISIBLE;
@@ -63,7 +63,7 @@ void de_gui_scroll_viewer_update(de_gui_node_t* n)
 
 	/* hide/show vertical scroll bar */
 	if (sv->content) {
-		if (sv->content->actual_size.y <= sv->scroll_content_presenter->actual_size.y) {
+		if (sv->content->desired_size.y <= sv->scroll_content_presenter->desired_size.y) {
 			vis = DE_GUI_NODE_VISIBILITY_COLLAPSED;
 		} else {
 			vis = DE_GUI_NODE_VISIBILITY_VISIBLE;
@@ -76,17 +76,26 @@ void de_gui_scroll_viewer_update(de_gui_node_t* n)
 
 	/* update scroll info */
 	if (sv->content) {
-		float max = de_maxf(0.0f, sv->content->actual_size.x - sv->scroll_content_presenter->actual_size.x);
+		float max = de_maxf(0.0f, sv->content->desired_size.x - sv->scroll_content_presenter->desired_size.x);
 		de_gui_scroll_bar_set_max_value(sv->hor_scroll_bar, max);
 
-		max = de_maxf(0.0f, sv->content->actual_size.y - sv->scroll_content_presenter->actual_size.y);
+		max = de_maxf(0.0f, sv->content->desired_size.y - sv->scroll_content_presenter->desired_size.y);
 		de_gui_scroll_bar_set_max_value(sv->ver_scroll_bar, max);
 	}
+}
+
+static void de_gui_scroll_viewer_mouse_wheel(de_gui_node_t* n, de_gui_routed_event_args_t* args)
+{
+	de_gui_scroll_viewer_t* sv = &n->s.scroll_viewer;
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_SCROLL_VIEWER);	
+	de_gui_scroll_bar_set_value(sv->ver_scroll_bar, de_gui_scroll_bar_get_value(sv->ver_scroll_bar) - 10 * args->s.wheel.delta);	
 }
 
 static void de_gui_scroll_viewer_init(de_gui_node_t* n)
 {
 	de_gui_scroll_viewer_t* sv = &n->s.scroll_viewer;
+	
+	n->mouse_wheel = de_gui_scroll_viewer_mouse_wheel;
 
 	sv->border = de_gui_node_create(n->gui, DE_GUI_NODE_BORDER);
 	de_gui_node_set_color_rgba(sv->border, 100, 100, 100, 255);
@@ -143,4 +152,18 @@ void de_gui_scroll_viewer_set_content(de_gui_node_t* n, de_gui_node_t* content)
 	}
 
 	sv->content = content;
+}
+
+void de_gui_scroll_viewer_enable_vertical_scroll(de_gui_node_t* n, bool value)
+{
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_SCROLL_VIEWER);
+	de_gui_scroll_viewer_t* sv = &n->s.scroll_viewer;
+	de_gui_scroll_content_presenter_enable_vertical_scroll(sv->scroll_content_presenter, value);
+}
+
+void de_gui_scroll_viewer_enable_horizontal_scroll(de_gui_node_t* n, bool value)
+{
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_SCROLL_VIEWER);
+	de_gui_scroll_viewer_t* sv = &n->s.scroll_viewer;
+	de_gui_scroll_content_presenter_enable_horizontal_scroll(sv->scroll_content_presenter, value);
 }

@@ -41,4 +41,4 @@ typedef struct de_gui_text_box_t {
 	de_gui_text_changed_event_t text_changed;
 } de_gui_text_box_t;
 
-struct de_gui_dispatch_table_t* de_gui_text_box_get_dispatch_table(void);
+struct de_gui_node_dispatch_table_t* de_gui_text_box_get_dispatch_table(void);

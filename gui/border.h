@@ -19,6 +19,11 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+typedef struct de_gui_border_descriptor_t {
+	de_color_t stroke_color;
+	de_gui_thickness_t thickness;
+} de_gui_border_descriptor_t;
+
 /**
 * @brief
 */
@@ -27,7 +32,7 @@ typedef struct de_gui_border_t {
 	de_gui_thickness_t thickness;
 } de_gui_border_t;
 
-struct de_gui_dispatch_table_t* de_gui_border_get_dispatch_table();
+struct de_gui_node_dispatch_table_t* de_gui_border_get_dispatch_table();
 
 /**
 * @brief

@@ -22,7 +22,7 @@
 /* Inspired by WPF */
 
 /* Set to non-zero to enable visual debugging of GUI */
-#define DE_GUI_ENABLE_GUI_DEBUGGING 1
+#define DE_GUI_ENABLE_GUI_DEBUGGING 0
 
 typedef struct de_gui_node_t de_gui_node_t;
 typedef struct de_gui_draw_list_t de_gui_draw_list_t;
@@ -87,9 +87,10 @@ typedef struct de_gui_callback_t {
 #include "gui/window.h"
 #include "gui/slide_selector.h"
 #include "gui/image.h"
+#include "gui/check_box.h"
 
 /**
- * @brief
+ * @brief Possible types of built-in UI nodes.
  *
  * Custom types should use DE_GUI_NODE_USER_CONTROL as origin point.
  */
@@ -107,8 +108,9 @@ typedef enum de_gui_node_type_t {
 	DE_GUI_NODE_CANVAS,                  /**< Allows user to directly set position and size of a node */
 	DE_GUI_NODE_SCROLL_CONTENT_PRESENTER, /**< Allows user to scroll content */
 	DE_GUI_NODE_SLIDE_SELECTOR,
+	DE_GUI_NODE_CHECK_BOX,
 	/**
-	 * Special isolated node which will be copied and inserted into visual tree. Very useful to
+	 * TODO. Special isolated node which will be copied and inserted into visual tree. Very useful to
 	 * create your own look for standard controls. Template node will be never rendered or interacted
 	 * with user.
 	 */
@@ -248,6 +250,7 @@ typedef struct de_gui_node_descriptor_t {
 	de_gui_vertical_alignment_t vertical_alignment;
 	de_gui_horizontal_alignment_t horizontal_alignment;
 	de_gui_node_visibility_t visibility;
+	de_color_t color;
 	float width;
 	float height;
 	float x; /**< Desired local x of node */
@@ -261,10 +264,12 @@ typedef struct de_gui_node_descriptor_t {
 		de_gui_grid_descriptor_t grid;
 		de_gui_button_descriptor_t button;
 		de_gui_image_descriptor_t image;
+		de_gui_border_descriptor_t border;
+		de_gui_check_box_descriptor_t check_box;
 	} s;
 } de_gui_node_descriptor_t;
 
-typedef struct de_gui_dispatch_table_t {
+typedef struct de_gui_node_dispatch_table_t {
 	void(*init)(de_gui_node_t* n);
 	void(*deinit)(de_gui_node_t* n);
 	de_vec2_t(*measure_override)(de_gui_node_t* n, const de_vec2_t* available_size);
@@ -276,14 +281,14 @@ typedef struct de_gui_dispatch_table_t {
 	bool(*parse_property)(de_gui_node_t* n, const char* name, const char* value);
 	void(*apply_descriptor)(de_gui_node_t* n, const de_gui_node_descriptor_t* desc);
 	void(*apply_template)(de_gui_node_t* node, const de_gui_node_t* ctemplate);
-} de_gui_dispatch_table_t;
+} de_gui_node_dispatch_table_t;
 
 /**
  * @brief GUI node. Tagged union (https://en.wikipedia.org/wiki/Tagged_union)
  */
 struct de_gui_node_t {
 	de_gui_node_type_t type; /**< Actual type of the node */
-	de_gui_dispatch_table_t* dispatch_table; /**< Table of pointers to type-related functions (vtable) */
+	de_gui_node_dispatch_table_t* dispatch_table; /**< Table of pointers to type-related functions (vtable) */
 	de_vec2_t desired_local_position; /**< Desired position relative to parent node */	
 	float width; /**< Explicit width for node or automatic if NaN (means value is undefined). Default is NaN */
 	float height; /**< Explicit height for node or automatic if NaN (means value is undefined). Default is NaN */
@@ -338,6 +343,7 @@ struct de_gui_node_t {
 		de_gui_text_box_t text_box;
 		de_gui_slide_selector_t slide_selector;
 		de_gui_image_t image;
+		de_gui_check_box_t check_box;
 		void* user_control;
 	} s;
 };
@@ -585,9 +591,6 @@ void de_gui_node_set_user_data(de_gui_node_t* node, void* user_data);
 
 de_vec2_t de_gui_node_default_measure_override(de_gui_node_t* n, const de_vec2_t* available_size);
 
-/**
- * @brief TODO
- */
 void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* available_size);
 
 de_vec2_t de_gui_node_default_arrange_override(de_gui_node_t* n, const de_vec2_t* final_size);
@@ -600,4 +603,23 @@ void de_gui_node_arrange(de_gui_node_t* node, const de_rectf_t* final_rect);
  */
 void de_gui_drop_focus(de_gui_t* gui);
 
+/**
+ * TODO
+ */
 void de_gui_node_apply_template(de_gui_node_t* node, const de_gui_node_t* ctemplate);
+
+void de_gui_node_set_min_width(de_gui_node_t* node, float min_width);
+
+void de_gui_node_set_min_height(de_gui_node_t* node, float min_height);
+
+void de_gui_node_set_max_width(de_gui_node_t* node, float max_width);
+
+void de_gui_node_set_max_height(de_gui_node_t* node, float max_height);
+
+float de_gui_node_get_min_width(de_gui_node_t* node);
+
+float de_gui_node_get_min_height(de_gui_node_t* node);
+
+float de_gui_node_get_max_width(de_gui_node_t* node);
+
+float de_gui_node_get_max_height(de_gui_node_t* node);

@@ -19,8 +19,20 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+static void de_gui_border_apply_descriptor(de_gui_node_t* n, const de_gui_node_descriptor_t* desc)
+{
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_BORDER);
+	de_gui_border_t* b = &n->s.border;
+	const de_gui_border_descriptor_t* bdesc = &desc->s.border;
+	b->stroke_color = bdesc->stroke_color;
+	b->thickness = bdesc->thickness;
+}
+
 static void de_gui_border_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting)
 {
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_BORDER);
+	DE_UNUSED(nesting);
+
 	const de_vec2_t* scr_pos = &n->screen_position;
 	const de_gui_border_t* b = &n->s.border;
 	de_vec2_t tex_coords[4] = {
@@ -29,10 +41,6 @@ static void de_gui_border_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8
 		{ 1, 1 },
 		{ 0, 1 }
 	};
-
-	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_BORDER);
-
-	DE_UNUSED(nesting);
 
 	de_gui_draw_list_push_rect_filled(dl, scr_pos, &n->actual_size, &n->color, tex_coords);
 	de_gui_draw_list_push_rect_vary(dl, scr_pos, &n->actual_size, &b->thickness, &b->stroke_color);
@@ -78,7 +86,7 @@ static de_vec2_t de_gui_border_arrange_override(de_gui_node_t* n, const de_vec2_
 
 	const de_rectf_t rect_for_child = {
 		b->thickness.left, b->thickness.top,
-		final_size->x - (b->thickness.right + b->thickness.left ),
+		final_size->x - (b->thickness.right + b->thickness.left),
 		final_size->y - (b->thickness.bottom + b->thickness.top),
 	};
 	for (size_t i = 0; i < n->children.size; ++i) {
@@ -95,13 +103,14 @@ static void de_gui_border_init(de_gui_node_t* n)
 	de_color_set(&b->stroke_color, 150, 150, 150, 255);
 }
 
-de_gui_dispatch_table_t* de_gui_border_get_dispatch_table()
+de_gui_node_dispatch_table_t* de_gui_border_get_dispatch_table()
 {
-	static de_gui_dispatch_table_t dispatch_table = {
+	static de_gui_node_dispatch_table_t dispatch_table = {
 		.init = de_gui_border_init,
 		.render = de_gui_border_render,
 		.measure_override = de_gui_border_measure_override,
-		.arrange_override = de_gui_border_arrange_override
+		.arrange_override = de_gui_border_arrange_override,
+		.apply_descriptor = de_gui_border_apply_descriptor,
 	};
 	return &dispatch_table;
 }

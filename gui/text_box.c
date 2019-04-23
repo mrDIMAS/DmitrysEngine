@@ -393,9 +393,9 @@ static void de_gui_text_box_init(de_gui_node_t* n)
 	de_str32_init(&tb->str);
 }
 
-de_gui_dispatch_table_t* de_gui_text_box_get_dispatch_table(void)
+de_gui_node_dispatch_table_t* de_gui_text_box_get_dispatch_table(void)
 {
-	static de_gui_dispatch_table_t dispatch_table = {
+	static de_gui_node_dispatch_table_t dispatch_table = {
 		.init = de_gui_text_box_init,
 		.deinit = de_gui_text_box_deinit,
 		.render = de_gui_text_box_render,

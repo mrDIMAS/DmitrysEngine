@@ -61,13 +61,22 @@ static void de_gui_scroll_bar_update_indicator(de_gui_node_t* node)
 	}
 }
 
+static de_vec2_t de_gui_scroll_bar_measure_override(de_gui_node_t* n, const de_vec2_t* available_size)
+{
+	const de_vec2_t desired_size = de_gui_node_default_measure_override(n, available_size);
+
+	de_gui_scroll_bar_update_indicator(n);
+
+	return desired_size;
+}
+
+
 static void de_gui_scroll_bar_on_up_click(de_gui_node_t* node, void* user_data)
 {
 	de_gui_node_t* scroll_bar_node = de_gui_node_find_parent_of_type(node, DE_GUI_NODE_SCROLL_BAR);
 	de_gui_scroll_bar_t* sb = &scroll_bar_node->s.scroll_bar;
 	DE_UNUSED(user_data);
 	de_gui_scroll_bar_set_value(scroll_bar_node, sb->value - sb->step);
-	de_gui_scroll_bar_update_indicator(scroll_bar_node);
 }
 
 static void de_gui_scroll_bar_on_down_click(de_gui_node_t* node, void* user_data)
@@ -76,7 +85,6 @@ static void de_gui_scroll_bar_on_down_click(de_gui_node_t* node, void* user_data
 	de_gui_scroll_bar_t* sb = &scroll_bar_node->s.scroll_bar;
 	DE_UNUSED(user_data);
 	de_gui_scroll_bar_set_value(scroll_bar_node, sb->value + sb->step);
-	de_gui_scroll_bar_update_indicator(scroll_bar_node);
 }
 
 static void de_gui_scroll_bar_indicator_mouse_down(de_gui_node_t* node, de_gui_routed_event_args_t* args)
@@ -179,11 +187,12 @@ static void de_gui_scroll_bar_init(de_gui_node_t* n)
 	de_gui_scroll_bar_update_indicator(n);
 }
 
-de_gui_dispatch_table_t* de_gui_scroll_bar_get_dispatch_table(void)
+de_gui_node_dispatch_table_t* de_gui_scroll_bar_get_dispatch_table(void)
 {
-	static de_gui_dispatch_table_t dispatch_table = {
+	static de_gui_node_dispatch_table_t dispatch_table = {
 		.init = de_gui_scroll_bar_init,
-		.apply_descriptor = de_gui_scroll_bar_apply_descriptor
+		.apply_descriptor = de_gui_scroll_bar_apply_descriptor,
+		.measure_override = de_gui_scroll_bar_measure_override
 	};
 	return &dispatch_table;
 }
@@ -296,6 +305,7 @@ void de_gui_scroll_bar_set_value(de_gui_node_t* node, float value)
 	if (old_value != value && sb->value_changed) {
 		sb->value_changed(node, old_value, value);
 	}
+	de_gui_scroll_bar_update_indicator(node);
 }
 
 float de_gui_scroll_bar_get_value(de_gui_node_t* node) {

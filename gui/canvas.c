@@ -54,9 +54,9 @@ static void de_gui_canvas_init(de_gui_node_t* n)
 	DE_UNUSED(n);
 }
 
-de_gui_dispatch_table_t* de_gui_canvas_get_dispatch_table()
+de_gui_node_dispatch_table_t* de_gui_canvas_get_dispatch_table()
 {
-	static de_gui_dispatch_table_t dispatch_table = {
+	static de_gui_node_dispatch_table_t dispatch_table = {
 		.init = de_gui_canvas_init,
 		.measure_override = de_gui_canvas_measure_override,
 		.arrange_override = de_gui_canvas_arrange_override,

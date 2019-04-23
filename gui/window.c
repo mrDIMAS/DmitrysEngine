@@ -139,9 +139,9 @@ static void de_gui_window_init(de_gui_node_t* n)
 	de_gui_node_set_row(wnd->scroll_viewer, 1);
 }
 
-de_gui_dispatch_table_t* de_gui_window_get_dispatch_table()
+de_gui_node_dispatch_table_t* de_gui_window_get_dispatch_table()
 {
-	static de_gui_dispatch_table_t dispatch_table = {
+	static de_gui_node_dispatch_table_t dispatch_table = {
 		.init = de_gui_window_init
 	};
 	return &dispatch_table;

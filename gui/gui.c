@@ -36,6 +36,7 @@ static bool de_gui_node_contains_point(de_gui_node_t* node, const de_vec2_t* poi
 #include "gui/window.c"
 #include "gui/slide_selector.c"
 #include "gui/image.c"
+#include "gui/check_box.c"
 
 #define DE_DECLARE_ROUTED_EVENT_TRACER(name__, event__) \
 	static void name__(de_gui_node_t* n, de_gui_routed_event_args_t* args) { \
@@ -512,7 +513,7 @@ bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt)
 			}
 			break;
 		case DE_EVENT_TYPE_MOUSE_WHEEL:
-			if(gui->picked_node) {
+			if (gui->picked_node) {
 				de_gui_routed_event_args_t revt;
 				de_zero(&revt, sizeof(revt));
 				revt.type = DE_GUI_ROUTED_EVENT_MOUSE_WHEEL;
@@ -582,9 +583,9 @@ void de_gui_update(de_gui_t* gui)
 	}
 }
 
-static de_gui_dispatch_table_t* de_gui_node_get_dispatch_table_by_type(de_gui_node_type_t type)
+static de_gui_node_dispatch_table_t* de_gui_node_get_dispatch_table_by_type(de_gui_node_type_t type)
 {
-	static de_gui_dispatch_table_t stub;
+	static de_gui_node_dispatch_table_t stub;
 	switch (type) {
 		case DE_GUI_NODE_BASE: return &stub;
 		case DE_GUI_NODE_TEXT: return de_gui_text_get_dispatch_table();
@@ -599,6 +600,7 @@ static de_gui_dispatch_table_t* de_gui_node_get_dispatch_table_by_type(de_gui_no
 		case DE_GUI_NODE_SCROLL_CONTENT_PRESENTER: return de_gui_scroll_content_presenter_get_dispatch_table();
 		case DE_GUI_NODE_SLIDE_SELECTOR: return de_gui_slide_selector_get_dispatch_table();
 		case DE_GUI_NODE_IMAGE: return de_gui_image_get_dispatch_table();
+		case DE_GUI_NODE_CHECK_BOX: return de_gui_check_box_get_dispatch_table();
 		case DE_GUI_NODE_USER_CONTROL: return &stub; // TODO
 	}
 	de_log("unhandled type");
@@ -975,7 +977,7 @@ void de_gui_node_measure(de_gui_node_t* node, const de_vec2_t* available_size)
 	if (!isnan(node->height)) {
 		node->desired_size.y = node->height;
 	}
-	
+
 	node->desired_size.x += margin_x;
 	node->desired_size.y += margin_y;
 
@@ -1184,10 +1186,14 @@ void de_gui_node_apply_descriptor(de_gui_node_t* n, const de_gui_node_descriptor
 	if (n->dispatch_table->apply_descriptor) {
 		n->dispatch_table->apply_descriptor(n, desc);
 	}
+	if (desc->color.r != 0 && desc->color.g != 0 && desc->color.b != 0) {
+		de_gui_node_set_color(n, &desc->color);
+	}
 }
 
 void de_gui_node_apply_template(de_gui_node_t* node, const de_gui_node_t* ctemplate)
 {
+	/* TODO */
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_TEMPLATE);
 	/* purge node */
 	for (size_t i = 0; i < node->children.size; ++i) {
@@ -1196,4 +1202,56 @@ void de_gui_node_apply_template(de_gui_node_t* node, const de_gui_node_t* ctempl
 	if (node->dispatch_table->apply_template) {
 		node->dispatch_table->apply_template(node, ctemplate);
 	}
+}
+
+void de_gui_node_set_min_width(de_gui_node_t* node, float min_width)
+{
+	DE_ASSERT(node);
+	DE_ASSERT(min_width >= 0);
+	node->min_size.x = min_width;
+}
+
+void de_gui_node_set_min_height(de_gui_node_t* node, float min_height)
+{
+	DE_ASSERT(node);
+	DE_ASSERT(min_height >= 0);
+	node->min_size.y = min_height;
+}
+
+void de_gui_node_set_max_width(de_gui_node_t* node, float max_width)
+{
+	DE_ASSERT(node);
+	DE_ASSERT(!isnan(max_width));
+	node->max_size.x = max_width;
+}
+
+void de_gui_node_set_max_height(de_gui_node_t* node, float max_height)
+{
+	DE_ASSERT(node);
+	DE_ASSERT(!isnan(max_height));
+	node->max_size.y = max_height;
+}
+
+float de_gui_node_get_min_width(de_gui_node_t* node)
+{
+	DE_ASSERT(node);
+	return node->min_size.x;
+}
+
+float de_gui_node_get_min_height(de_gui_node_t* node)
+{
+	DE_ASSERT(node);
+	return node->min_size.y;
+}
+
+float de_gui_node_get_max_width(de_gui_node_t* node)
+{
+	DE_ASSERT(node);
+	return node->max_size.x;
+}
+
+float de_gui_node_get_max_height(de_gui_node_t* node)
+{
+	DE_ASSERT(node);
+	return node->max_size.y;
 }

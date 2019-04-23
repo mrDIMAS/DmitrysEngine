@@ -45,9 +45,9 @@ static void de_gui_image_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_
 	de_gui_draw_list_commit(dl, DE_GUI_DRAW_COMMAND_TYPE_GEOMETRY, img->texture, n);
 }
 
-struct de_gui_dispatch_table_t* de_gui_image_get_dispatch_table()
+struct de_gui_node_dispatch_table_t* de_gui_image_get_dispatch_table()
 {
-	static de_gui_dispatch_table_t dispatch_table = {
+	static de_gui_node_dispatch_table_t dispatch_table = {
 		.render = de_gui_image_render,
 		.apply_descriptor = de_gui_image_apply_descriptor
 	};

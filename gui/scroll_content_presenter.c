@@ -84,9 +84,9 @@ static void de_gui_scroll_content_presenter_init(de_gui_node_t* n)
 	scp->scroll.y = 0;
 }
 
-de_gui_dispatch_table_t* de_gui_scroll_content_presenter_get_dispatch_table(void)
+de_gui_node_dispatch_table_t* de_gui_scroll_content_presenter_get_dispatch_table(void)
 {
-	static de_gui_dispatch_table_t dispatch_table = {
+	static de_gui_node_dispatch_table_t dispatch_table = {
 		.init = de_gui_scroll_content_presenter_init,
 		.measure_override = de_gui_scroll_content_presenter_measure_override,
 		.arrange_override = de_gui_scroll_content_presenter_arrange_override,

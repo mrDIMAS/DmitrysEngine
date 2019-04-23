@@ -26,4 +26,4 @@ typedef struct de_gui_canvas_t {
 	int dummy;
 } de_gui_canvas_t;
 
-struct de_gui_dispatch_table_t* de_gui_canvas_get_dispatch_table();
+struct de_gui_node_dispatch_table_t* de_gui_canvas_get_dispatch_table();

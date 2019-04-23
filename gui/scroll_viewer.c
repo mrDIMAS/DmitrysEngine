@@ -129,9 +129,9 @@ static void de_gui_scroll_viewer_init(de_gui_node_t* n)
 	de_gui_scroll_bar_set_value_changed(sv->ver_scroll_bar, de_gui_scroll_viewer_ver_scroll_changed);
 }
 
-de_gui_dispatch_table_t* de_gui_scroll_viewer_get_dispatch_table(void)
+de_gui_node_dispatch_table_t* de_gui_scroll_viewer_get_dispatch_table(void)
 {
-	static de_gui_dispatch_table_t dispatch_table = {
+	static de_gui_node_dispatch_table_t dispatch_table = {
 		.init = de_gui_scroll_viewer_init,
 		.update = de_gui_scroll_viewer_update,
 	};

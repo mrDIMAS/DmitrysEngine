@@ -320,9 +320,9 @@ static void de_gui_grid_init(de_gui_node_t* n)
 	grid->draw_borders = false;
 }
 
-de_gui_dispatch_table_t* de_gui_grid_get_dispatch_table(void)
+de_gui_node_dispatch_table_t* de_gui_grid_get_dispatch_table(void)
 {
-	static de_gui_dispatch_table_t dispatch_table = {
+	static de_gui_node_dispatch_table_t dispatch_table = {
 		.init = de_gui_grid_init,
 		.deinit = de_gui_grid_deinit,
 		.render = de_gui_grid_render,

@@ -27,7 +27,7 @@ typedef struct de_gui_image_descriptor_t {
 	de_texture_t* texture;
 } de_gui_image_descriptor_t;
 
-struct de_gui_dispatch_table_t* de_gui_image_get_dispatch_table();
+struct de_gui_node_dispatch_table_t* de_gui_image_get_dispatch_table();
 
 /**
  * @brief Sets texture for image widget. Automatically increases ref counter.

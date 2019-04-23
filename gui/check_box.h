@@ -18,3 +18,19 @@
 * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
+
+typedef struct de_gui_check_box_descriptor_t {
+	bool checked;
+} de_gui_check_box_descriptor_t;
+
+typedef struct de_gui_check_box_t {
+	de_gui_node_t* border;
+	de_gui_node_t* check_mark;
+	bool checked;
+} de_gui_check_box_t;
+
+struct de_gui_node_dispatch_table_t* de_gui_check_box_get_dispatch_table();
+
+void de_gui_check_box_set_value(de_gui_node_t* node, bool value);
+
+bool de_gui_check_box_get_value(de_gui_node_t* node);

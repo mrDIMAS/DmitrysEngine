@@ -111,9 +111,9 @@ static void de_gui_button_init(de_gui_node_t* n)
 	de_gui_node_attach(b->text, n);
 }
 
-de_gui_dispatch_table_t* de_gui_button_get_dispatch_table()
+de_gui_node_dispatch_table_t* de_gui_button_get_dispatch_table()
 {
-	static de_gui_dispatch_table_t dispatch_table = {
+	static de_gui_node_dispatch_table_t dispatch_table = {
 		.init = de_gui_button_init,
 		.set_property = de_gui_button_set_property,
 		.get_property = de_gui_button_get_property,

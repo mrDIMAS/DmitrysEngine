@@ -108,16 +108,28 @@ bool de_core_visit(de_object_visitor_t* visitor, de_core_t* core)
 
 de_core_t* de_core_init(const de_engine_params_t* params)
 {
-	de_core_t* core;
-	core = DE_NEW(de_core_t);
+	de_core_t* core = DE_NEW(de_core_t);
 	de_log("Dmitry's Engine - Logging Started");
 	core->params = *params;
 	core->is_running = true;
-	de_core_platform_init(core);
 	DE_LINKED_LIST_INIT(core->scenes);
+
+	double last_time = de_time_get_seconds();
+	de_core_platform_init(core);
+	de_log("platform initialized in %f seconds", de_time_get_seconds() - last_time);
+	
+	last_time = de_time_get_seconds();
 	core->sound_context = de_sound_context_create(core);
+	de_log("sound context initialized in %f seconds", de_time_get_seconds() - last_time);
+
+	last_time = de_time_get_seconds();
 	core->renderer = de_renderer_init(core);
+	de_log("renderer initialized in %f seconds", de_time_get_seconds() - last_time);
+
+	last_time = de_time_get_seconds();
 	core->gui = de_gui_init(core);
+	de_log("gui initialized in %f seconds", de_time_get_seconds() - last_time);
+
 	return core;
 }
 

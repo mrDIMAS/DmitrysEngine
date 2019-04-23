@@ -30,7 +30,7 @@ Please note, that this engine is at early development stage and some features ma
 	* WAV format support 
 	* Streaming for large sounds 
 * TTF fonts support (compound characters support is not implemented yet)
-* GUI (inspired by WPF) with these widgets
+* Advanced GUI (inspired by WPF) with declarative UI creation using designated initializers with these widgets:
 	* Window
 	* Text box
 	* Text block
@@ -43,6 +43,7 @@ Please note, that this engine is at early development stage and some features ma
 	* Grid
 	* Slide selector	
 	* Image
+	* Check box
 * TGA image loading
 * Position-based physics
 * Built-in save/load functionality via object visitor.
@@ -73,7 +74,7 @@ Please note, that this engine is at early development stage and some features ma
 - miniz_tinfl - to decompress FBX compressed data.
 
 ## Code statistics
-- ~18200 lines of code
+- ~18700 lines of code
 - Pure C99
 
 ## Supported compilers

@@ -96,7 +96,7 @@
 
 void de_node_free(de_node_t* node)
 {
-/* Free children first */
+	/* Free children first */
 	while (node->children.size) {
 		de_node_free(node->children.data[0]);
 	}
@@ -144,14 +144,20 @@ de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type)
 	node->dispatch_table = de_node_get_dispatch_table_by_type(type);
 	node->type = type;
 	node->scene = scene;
+	de_node_invalidate_transforms(node);
 	de_mat4_identity(&node->global_matrix);
 	de_mat4_identity(&node->local_matrix);
 	node->local_visibility = true;
 	node->global_visibility = true;
-	node->scale = (de_vec3_t) { 1, 1, 1 };
-	node->rotation = (de_quat_t) { 0, 0, 0, 1 };
-	node->pre_rotation = (de_quat_t) { 0, 0, 0, 1 };
-	node->post_rotation = (de_quat_t) { 0, 0, 0, 1 };
+	de_node_set_local_scale(node, &(de_vec3_t) { 1, 1, 1 });
+	de_node_set_local_rotation(node, &(de_quat_t) { 0, 0, 0, 1 });
+	de_node_set_scaling_offset(node, &(de_vec3_t){ 0, 0, 0 });
+	de_node_set_rotation_pivot(node, &(de_vec3_t) { 0, 0, 0});
+	de_node_set_pre_rotation(node, &(de_quat_t) { 0, 0, 0, 1 });
+	de_node_set_post_rotation(node, &(de_quat_t) { 0, 0, 0, 1 });
+	de_node_set_rotation_offset(node, &(de_vec3_t) { 0, 0, 0 });
+	de_node_set_scaling_pivot(node, &(de_vec3_t) { 0, 0, 0 });
+
 	if (node->dispatch_table->init) {
 		node->dispatch_table->init(node);
 	}
@@ -177,7 +183,7 @@ static de_node_t* de_node_copy_internal(de_scene_t* dest_scene, de_node_t* node)
 	copy->rotation_pivot = node->rotation_pivot;
 	copy->scaling_offset = node->scaling_offset;
 	copy->scaling_pivot = node->scaling_pivot;
-	copy->need_update = true;
+	de_node_invalidate_transforms(copy);
 	copy->parent = NULL;
 	copy->local_visibility = node->local_visibility;
 	copy->global_visibility = node->global_visibility;
@@ -203,7 +209,7 @@ static de_node_t* de_node_copy_internal(de_scene_t* dest_scene, de_node_t* node)
 
 void de_node_resolve(de_node_t* node)
 {
-/* resolve hierarchy changes */
+	/* resolve hierarchy changes */
 	de_node_t* original = node->original;
 	if (original && original->parent && node->parent) {
 		/* parent has changed if names of parents in both model resource and
@@ -244,6 +250,7 @@ void de_node_attach(de_node_t* node, de_node_t* parent)
 	de_node_detach(node);
 	DE_ARRAY_APPEND(parent->children, node);
 	node->parent = parent;
+	node->transform_flags |= DE_TRANSFORM_FLAGS_LOCAL_TRANSFORM_NEED_UPDATE;
 }
 
 void de_node_detach(de_node_t* node)
@@ -251,6 +258,7 @@ void de_node_detach(de_node_t* node)
 	if (node->parent) {
 		DE_ARRAY_REMOVE(node->parent->children, node);
 		node->parent = NULL;
+		node->transform_flags |= DE_TRANSFORM_FLAGS_LOCAL_TRANSFORM_NEED_UPDATE;
 	}
 }
 
@@ -270,54 +278,57 @@ void de_node_calculate_local_transform(de_node_t* node)
 	* So to exclude weird transformations behaviour when using FBX, I just decided
 	* to use all these matrices. This is not optimized at all, for example 70% of
 	* these multiplications and matrices creation can be done only once on load.
-	*
-	* TODO: OPTIMIZE THIS ASAP!
 	*/
+	
+	if (node->transform_flags & DE_TRANSFORM_FLAGS_POST_ROTATION_NEED_UPDATE) {		
+		de_mat4_rotation(&node->m_post_rotation, &node->post_rotation);
+		de_mat4_inverse(&node->m_post_rotation, &node->m_post_rotation);
+		node->transform_flags &= ~DE_TRANSFORM_FLAGS_POST_ROTATION_NEED_UPDATE;
+	}
 
-	de_mat4_t pre_rotation;
-	de_mat4_rotation(&pre_rotation, &node->pre_rotation);
+	if (node->transform_flags & DE_TRANSFORM_FLAGS_ROTATION_PIVOT_NEED_UPDATE) {
+		de_mat4_translation(&node->m_rotation_pivot, &node->rotation_pivot);
+		de_mat4_inverse(&node->m_rotation_pivot_inv, &node->m_rotation_pivot);
+		node->transform_flags &= ~DE_TRANSFORM_FLAGS_ROTATION_PIVOT_NEED_UPDATE;
+	}
 
-	de_mat4_t post_rotation;
-	de_mat4_rotation(&post_rotation, &node->post_rotation);
-	de_mat4_inverse(&post_rotation, &post_rotation);
+	if (node->transform_flags & DE_TRANSFORM_FLAGS_SCALE_PIVOT_NEED_UPDATE) {
+		de_mat4_translation(&node->m_scale_pivot, &node->scaling_pivot);
+		de_mat4_inverse(&node->m_scale_pivot_inv, &node->m_scale_pivot);
+		node->transform_flags &= ~DE_TRANSFORM_FLAGS_SCALE_PIVOT_NEED_UPDATE;
+	}
+	
+	if (node->body || (node->transform_flags & DE_TRANSFORM_FLAGS_LOCAL_TRANSFORM_NEED_UPDATE)) {
+		de_mat4_t pre_rotation;
+		de_mat4_rotation(&pre_rotation, &node->pre_rotation);
 
-	de_mat4_t rotation;
-	de_mat4_rotation(&rotation, &node->rotation);
+		de_mat4_t rotation;
+		de_mat4_rotation(&rotation, &node->rotation);
 
-	de_mat4_t scale;
-	de_mat4_scale(&scale, &node->scale);
+		de_mat4_t scale;
+		de_mat4_scale(&scale, &node->scale);
 
-	de_mat4_t translation;
-	de_mat4_translation(&translation, &node->position);
+		de_mat4_t translation;
+		de_mat4_translation(&translation, &node->position);
 
-	de_mat4_t rotation_offset;
-	de_mat4_translation(&rotation_offset, &node->rotation_offset);
+		de_mat4_t rotation_offset;
+		de_mat4_translation(&rotation_offset, &node->rotation_offset);
 
-	de_mat4_t rotation_pivot;
-	de_mat4_translation(&rotation_pivot, &node->rotation_pivot);
+		de_mat4_t scale_offset;
+		de_mat4_translation(&scale_offset, &node->scaling_offset);
 
-	de_mat4_t rotation_pivot_inv;
-	de_mat4_inverse(&rotation_pivot_inv, &rotation_pivot);
-
-	de_mat4_t scale_offset;
-	de_mat4_translation(&scale_offset, &node->scaling_offset);
-
-	de_mat4_t scale_pivot;
-	de_mat4_translation(&scale_pivot, &node->scaling_pivot);
-
-	de_mat4_t scale_pivot_inv;
-	de_mat4_inverse(&scale_pivot_inv, &scale_pivot);
-
-	de_mat4_mul(&node->local_matrix, &translation, &rotation_offset);
-	de_mat4_mul(&node->local_matrix, &node->local_matrix, &rotation_pivot);
-	de_mat4_mul(&node->local_matrix, &node->local_matrix, &pre_rotation);
-	de_mat4_mul(&node->local_matrix, &node->local_matrix, &rotation);
-	de_mat4_mul(&node->local_matrix, &node->local_matrix, &post_rotation);
-	de_mat4_mul(&node->local_matrix, &node->local_matrix, &rotation_pivot_inv);
-	de_mat4_mul(&node->local_matrix, &node->local_matrix, &scale_offset);
-	de_mat4_mul(&node->local_matrix, &node->local_matrix, &scale_pivot);
-	de_mat4_mul(&node->local_matrix, &node->local_matrix, &scale);
-	de_mat4_mul(&node->local_matrix, &node->local_matrix, &scale_pivot_inv);
+		de_mat4_mul(&node->local_matrix, &translation, &rotation_offset);
+		de_mat4_mul(&node->local_matrix, &node->local_matrix, &node->m_rotation_pivot);
+		de_mat4_mul(&node->local_matrix, &node->local_matrix, &pre_rotation);
+		de_mat4_mul(&node->local_matrix, &node->local_matrix, &rotation);
+		de_mat4_mul(&node->local_matrix, &node->local_matrix, &node->m_post_rotation);
+		de_mat4_mul(&node->local_matrix, &node->local_matrix, &node->m_rotation_pivot_inv);
+		de_mat4_mul(&node->local_matrix, &node->local_matrix, &scale_offset);
+		de_mat4_mul(&node->local_matrix, &node->local_matrix, &node->m_scale_pivot);
+		de_mat4_mul(&node->local_matrix, &node->local_matrix, &scale);
+		de_mat4_mul(&node->local_matrix, &node->local_matrix, &node->m_scale_pivot_inv);
+		node->transform_flags &= ~DE_TRANSFORM_FLAGS_LOCAL_TRANSFORM_NEED_UPDATE;
+	}
 }
 
 de_mat4_t* de_node_calculate_transforms_ascending(de_node_t* node)
@@ -387,6 +398,7 @@ void de_node_set_local_position(de_node_t* node, const de_vec3_t* pos)
 	} else {
 		node->position = *pos;
 	}
+	node->transform_flags |= DE_TRANSFORM_FLAGS_LOCAL_TRANSFORM_NEED_UPDATE;
 }
 
 void de_node_set_body(de_node_t* node, de_body_t* body)
@@ -400,6 +412,7 @@ void de_node_move(de_node_t* node, de_vec3_t* offset)
 	DE_ASSERT(node);
 	DE_ASSERT(offset);
 	de_vec3_add(&node->position, &node->position, offset);
+	node->transform_flags |= DE_TRANSFORM_FLAGS_LOCAL_TRANSFORM_NEED_UPDATE;
 }
 
 void de_node_set_local_rotation(de_node_t* node, de_quat_t* rot)
@@ -407,6 +420,7 @@ void de_node_set_local_rotation(de_node_t* node, de_quat_t* rot)
 	DE_ASSERT(node);
 	DE_ASSERT(rot);
 	node->rotation = *rot;
+	node->transform_flags |= DE_TRANSFORM_FLAGS_LOCAL_TRANSFORM_NEED_UPDATE;
 }
 
 void de_node_set_local_scale(de_node_t* node, de_vec3_t* scl)
@@ -414,6 +428,7 @@ void de_node_set_local_scale(de_node_t* node, de_vec3_t* scl)
 	DE_ASSERT(node);
 	DE_ASSERT(scl);
 	node->scale = *scl;
+	node->transform_flags |= DE_TRANSFORM_FLAGS_LOCAL_TRANSFORM_NEED_UPDATE;
 }
 
 de_node_t* de_node_find(de_node_t* node, const char* name)
@@ -445,7 +460,9 @@ de_mesh_t* de_node_to_mesh(de_node_t* node)
 de_node_t* de_node_from_mesh(de_mesh_t* mesh)
 {
 	DE_ASSERT(mesh);
-	return (de_node_t*)((char*)mesh - offsetof(de_node_t, s.mesh));
+	de_node_t* node = (de_node_t*)((char*)mesh - offsetof(de_node_t, s.mesh));
+	DE_ASSERT(node->type == DE_NODE_TYPE_MESH);
+	return node;
 }
 
 de_light_t* de_node_to_light(de_node_t* node)
@@ -455,10 +472,12 @@ de_light_t* de_node_to_light(de_node_t* node)
 	return &node->s.light;
 }
 
-de_node_t* de_node_from_light(de_mesh_t* light)
+de_node_t* de_node_from_light(de_light_t* light)
 {
 	DE_ASSERT(light);
-	return (de_node_t*)((char*)light - offsetof(de_node_t, s.light));
+	de_node_t* node = (de_node_t*)((char*)light - offsetof(de_node_t, s.light));
+	DE_ASSERT(node->type == DE_NODE_TYPE_LIGHT);
+	return node;
 }
 
 de_camera_t* de_node_to_camera(de_node_t* node)
@@ -471,7 +490,9 @@ de_camera_t* de_node_to_camera(de_node_t* node)
 de_node_t* de_node_from_camera(de_camera_t* camera)
 {
 	DE_ASSERT(camera);
-	return (de_node_t*)((char*)camera - offsetof(de_node_t, s.camera));
+	de_node_t* node = (de_node_t*)((char*)camera - offsetof(de_node_t, s.camera));
+	DE_ASSERT(node->type == DE_NODE_TYPE_CAMERA);
+	return node;
 }
 
 bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node)
@@ -508,6 +529,7 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node)
 		node->dispatch_table->visit(visitor, node);
 	}
 	if (visitor->is_reading) {
+		de_node_invalidate_transforms(node);
 		if (node->model_resource) {
 			de_resource_add_ref(node->model_resource);
 		}
@@ -587,4 +609,104 @@ void de_node_calculate_visibility_descending(de_node_t* node)
 	for (size_t i = 0; i < node->children.size; ++i) {
 		de_node_calculate_visibility_descending(node->children.data[i]);
 	}
+}
+
+void de_node_set_pre_rotation(de_node_t* node, const de_quat_t* q)
+{
+	DE_ASSERT(node);
+	DE_ASSERT(q);
+	node->pre_rotation = *q;
+	node->transform_flags |= DE_TRANSFORM_FLAGS_LOCAL_TRANSFORM_NEED_UPDATE;
+}
+
+void de_node_get_pre_rotation(de_node_t* node, de_quat_t* q)
+{
+	DE_ASSERT(node);
+	DE_ASSERT(q);
+	*q = node->pre_rotation;
+}
+
+void de_node_set_post_rotation(de_node_t* node, const de_quat_t* q)
+{
+	DE_ASSERT(node);
+	DE_ASSERT(q);
+	node->post_rotation = *q;
+	node->transform_flags |= DE_TRANSFORM_FLAGS_LOCAL_TRANSFORM_NEED_UPDATE | DE_TRANSFORM_FLAGS_POST_ROTATION_NEED_UPDATE;
+}
+
+void de_node_get_post_rotation(de_node_t* node, de_quat_t* q)
+{
+	DE_ASSERT(node);
+	DE_ASSERT(q);
+	*q = node->post_rotation;
+}
+
+void de_node_set_rotation_offset(de_node_t* node, const de_vec3_t* v)
+{
+	DE_ASSERT(node);
+	DE_ASSERT(v);
+	node->rotation_offset = *v;
+	node->transform_flags |= DE_TRANSFORM_FLAGS_LOCAL_TRANSFORM_NEED_UPDATE;
+}
+
+void de_node_get_rotation_offset(de_node_t* node, de_vec3_t* v)
+{
+	DE_ASSERT(node);
+	DE_ASSERT(v);
+	*v = node->rotation_offset;
+}
+
+void de_node_set_rotation_pivot(de_node_t* node, const de_vec3_t* v)
+{
+	DE_ASSERT(node);
+	DE_ASSERT(v);
+	node->rotation_pivot = *v;
+	node->transform_flags |= DE_TRANSFORM_FLAGS_LOCAL_TRANSFORM_NEED_UPDATE | DE_TRANSFORM_FLAGS_ROTATION_PIVOT_NEED_UPDATE;
+}
+
+void de_node_get_rotation_pivot(de_node_t* node, de_vec3_t* v)
+{
+	DE_ASSERT(node);
+	DE_ASSERT(v);
+	*v = node->rotation_pivot;
+}
+
+void de_node_set_scaling_offset(de_node_t* node, const de_vec3_t* v)
+{
+	DE_ASSERT(node);
+	DE_ASSERT(v);
+	node->scaling_offset = *v;
+	node->transform_flags |= DE_TRANSFORM_FLAGS_LOCAL_TRANSFORM_NEED_UPDATE;
+}
+
+void de_node_get_scaling_offset(de_node_t* node, de_vec3_t* v)
+{
+	DE_ASSERT(node);
+	DE_ASSERT(v);
+	*v = node->scaling_offset;
+}
+
+void de_node_set_scaling_pivot(de_node_t* node, const de_vec3_t* v)
+{
+	DE_ASSERT(node);
+	DE_ASSERT(v);
+	node->scaling_pivot = *v;
+	node->transform_flags |= DE_TRANSFORM_FLAGS_LOCAL_TRANSFORM_NEED_UPDATE | DE_TRANSFORM_FLAGS_SCALE_PIVOT_NEED_UPDATE;
+}
+
+void de_node_get_scaling_pivot(de_node_t* node, de_vec3_t* v)
+{
+	DE_ASSERT(node);
+	DE_ASSERT(v);
+	*v = node->scaling_pivot;
+}
+
+void de_node_invalidate_transforms(de_node_t* node)
+{
+	DE_ASSERT(node);
+	node->transform_flags |=
+		DE_TRANSFORM_FLAGS_LOCAL_TRANSFORM_NEED_UPDATE |
+		DE_TRANSFORM_FLAGS_ROTATION_PIVOT_NEED_UPDATE |
+		DE_TRANSFORM_FLAGS_SCALE_PIVOT_NEED_UPDATE |
+		DE_TRANSFORM_FLAGS_POST_ROTATION_NEED_UPDATE;
 }

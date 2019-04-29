@@ -54,11 +54,13 @@ void de_mat4_identity(de_mat4_t * out)
 
 void de_mat4_transpose(de_mat4_t * out, const de_mat4_t * m)
 {
+	de_mat4_t temp;
 	for (int j = 0; j < 4; ++j) {
 		for (int i = 0; i < 4; ++i) {
-			out->f[(j * 4) + i] = m->f[(i * 4) + j];
+			temp.f[(j * 4) + i] = m->f[(i * 4) + j];
 		}
 	}
+	*out = temp;
 }
 
 void de_mat4_mul(de_mat4_t * out, const de_mat4_t * a, const de_mat4_t * b)
@@ -1103,13 +1105,13 @@ float de_quat_get_angle(const de_quat_t* q)
 	return 2.0f * (float)acos(q->w);
 }
 
-de_plane_t* de_plane_setCoef(de_plane_t* p, float a, float b, float c, float d)
+de_plane_t* de_plane_set_abcd(de_plane_t* p, float a, float b, float c, float d)
 {
 	p->n.x = a;
 	p->n.y = b;
-	p->n.z = c;
-	de_vec3_normalize(&p->n, &p->n);
+	p->n.z = c;	
 	p->d = d;
+	de_plane_normalize(p);
 	return p;
 }
 
@@ -1130,6 +1132,20 @@ float de_plane_dot(const de_plane_t* p, const de_vec3_t* point)
 	return de_vec3_dot(&p->n, point) + p->d;
 }
 
+bool de_frustum_sphere_intersection(const de_frustum_t* f, const de_vec3_t* p, float r)
+{
+	for (int i = 0; i < 6; ++i) {
+		float d = de_plane_dot(&f->planes[i], p);
+		if (d < -r) {
+			return false;
+		}
+		if ((float)fabs(d) < r) {
+			return true;
+		}
+	}
+	return true;
+}
+
 de_plane_t* de_plane_normalize(de_plane_t* p)
 {
 	float d = 1.0f / de_vec3_len(&p->n);
@@ -1140,12 +1156,12 @@ de_plane_t* de_plane_normalize(de_plane_t* p)
 
 de_frustum_t* de_frustum_from_matrix(de_frustum_t* f, const de_mat4_t* m)
 {
-	de_plane_setCoef(&f->planes[0], m->f[3] + m->f[0], m->f[7] + m->f[4], m->f[11] + m->f[8], m->f[15] + m->f[12]); /* left plane */
-	de_plane_setCoef(&f->planes[1], m->f[3] - m->f[0], m->f[7] - m->f[4], m->f[11] - m->f[8], m->f[15] - m->f[12]); /* right plane */
-	de_plane_setCoef(&f->planes[2], m->f[3] - m->f[1], m->f[7] - m->f[5], m->f[11] - m->f[9], m->f[15] - m->f[13]); /* top plane */
-	de_plane_setCoef(&f->planes[3], m->f[3] + m->f[1], m->f[7] + m->f[5], m->f[11] + m->f[9], m->f[15] + m->f[13]); /* bottom plane */
-	de_plane_setCoef(&f->planes[4], m->f[3] - m->f[2], m->f[7] - m->f[6], m->f[11] - m->f[10], m->f[15] - m->f[14]);                                            /* far plane */
-	de_plane_setCoef(&f->planes[5], m->f[2], m->f[6], m->f[10], m->f[14]); /* near plane */
+	de_plane_set_abcd(&f->planes[0], m->f[3] + m->f[0], m->f[7] + m->f[4], m->f[11] + m->f[8], m->f[15] + m->f[12]); /* left plane */
+	de_plane_set_abcd(&f->planes[1], m->f[3] - m->f[0], m->f[7] - m->f[4], m->f[11] - m->f[8], m->f[15] - m->f[12]); /* right plane */
+	de_plane_set_abcd(&f->planes[2], m->f[3] - m->f[1], m->f[7] - m->f[5], m->f[11] - m->f[9], m->f[15] - m->f[13]); /* top plane */
+	de_plane_set_abcd(&f->planes[3], m->f[3] + m->f[1], m->f[7] + m->f[5], m->f[11] + m->f[9], m->f[15] + m->f[13]); /* bottom plane */
+	de_plane_set_abcd(&f->planes[4], m->f[3] - m->f[2], m->f[7] - m->f[6], m->f[11] - m->f[10], m->f[15] - m->f[14]); /* far plane */
+	de_plane_set_abcd(&f->planes[5], m->f[3] + m->f[2], m->f[7] + m->f[6], m->f[11] + m->f[10], m->f[15] + m->f[14]); /* near plane */
 	return f;
 }
 

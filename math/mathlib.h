@@ -811,7 +811,7 @@ float de_quat_get_angle(const de_quat_t* q);
  * @param d
  * @return
  */
-de_plane_t* de_plane_setCoef(de_plane_t* p, float a, float b, float c, float d);
+de_plane_t* de_plane_set_abcd(de_plane_t* p, float a, float b, float c, float d);
 
 /**
  * @brief
@@ -878,6 +878,8 @@ int de_frustum_box_intersection_transform(const de_frustum_t* f, const de_aabb_t
  * @return
  */
 int de_frustum_contains_point(const de_frustum_t* f, const de_vec3_t* p);
+
+bool de_frustum_sphere_intersection(const de_frustum_t* f, const de_vec3_t* p, float r);
 
 /**
  * @brief

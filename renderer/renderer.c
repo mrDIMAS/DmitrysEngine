@@ -203,11 +203,11 @@ static void de_create_gbuffer(de_renderer_t* r, int width, int height)
 
 static void de_create_builtin_shaders(de_renderer_t* r)
 {
-/* Built-in shaders */
+	/* Built-in shaders */
 
-/**
- * Flat (no lighting) shader.
- **/
+	/**
+	 * Flat (no lighting) shader.
+	 **/
 	static const char* de_flat_fs =
 		"#version 330 core\n"
 
@@ -844,7 +844,7 @@ de_surface_t* de_renderer_create_surface(de_renderer_t* r)
 
 void de_renderer_free_surface(de_surface_t* surf)
 {
-/* Unref texture */
+	/* Unref texture */
 	if (surf->diffuse_map) {
 		de_resource_release(de_resource_from_texture(surf->diffuse_map));
 	}
@@ -1047,20 +1047,20 @@ void de_renderer_render(de_renderer_t* r)
 	/* render each scene */
 	DE_LINKED_LIST_FOR_EACH_T(de_scene_t*, scene, core->scenes)
 	{
-		de_camera_t* camera;
-		de_vec3_t camera_position;
-
-		camera_position = (de_vec3_t) { 0 };
-
 		if (!scene->active_camera) {
 			continue;
 		}
 
-		camera = &scene->active_camera->s.camera;
+		de_camera_t* camera = &scene->active_camera->s.camera;
 
+		de_vec3_t camera_position = (de_vec3_t) { 0 };
 		de_node_get_global_position(de_node_from_camera(camera), &camera_position);
 
 		de_camera_update(camera);
+
+		/* build frustum */
+		de_frustum_t frustum;
+		de_frustum_from_matrix(&frustum, &camera->view_projection_matrix);
 
 		de_renderer_set_viewport(&camera->viewport, core->params.video_mode.width, core->params.video_mode.height);
 
@@ -1071,7 +1071,7 @@ void de_renderer_render(de_renderer_t* r)
 				de_mesh_t* mesh = &node->s.mesh;
 				bool is_skinned = de_mesh_is_skinned(mesh);
 
-				if(node->depth_hack != 0) {
+				if (node->depth_hack != 0) {
 					de_camera_enter_depth_hack(camera, node->depth_hack);
 				}
 
@@ -1083,7 +1083,7 @@ void de_renderer_render(de_renderer_t* r)
 
 				de_renderer_draw_mesh(r, mesh);
 
-				if(camera->in_depth_hack_mode) {
+				if (camera->in_depth_hack_mode) {
 					de_camera_leave_depth_hack(camera);
 				}
 			}
@@ -1132,28 +1132,37 @@ void de_renderer_render(de_renderer_t* r)
 		DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes)
 		{
 			if (node->type == DE_NODE_TYPE_LIGHT) {
-				de_vec3_t pos, dir;
-				de_light_t* light;
-				float clr[4];
+				de_light_t* light = &node->s.light;
 
-				light = &node->s.light;
-
+				de_vec3_t pos;
 				de_node_get_global_position(node, &pos);
 
-				clr[0] = light->color.r / 255.0f;
-				clr[1] = light->color.g / 255.0f;
-				clr[2] = light->color.b / 255.0f;
-				clr[3] = 1.0f;
+				if (light->type == DE_LIGHT_TYPE_POINT || light->type == DE_LIGHT_TYPE_SPOT) {
+					/* todo: spot light can be culled more accurately, but for now we cull it as
+					   if it point light with some radius. */
+					if (!de_frustum_sphere_intersection(&frustum, &pos, light->radius)) {
+						continue;
+					}
+				}
 
+				const float clr[] = {
+					light->color.r / 255.0f,
+					light->color.g / 255.0f,
+					light->color.b / 255.0f,
+					1.0f
+				};
+
+				de_vec3_t dir;
 				de_node_get_up_vector(node, &dir);
 				de_vec3_normalize(&dir, &dir);
 
-				DE_GL_CALL(glUniform3f(r->lighting_shader.light_position, pos.x, pos.y, pos.z));
-				DE_GL_CALL(glUniform1f(r->lighting_shader.light_radius, light->radius));
-				DE_GL_CALL(glUniformMatrix4fv(r->lighting_shader.inv_view_proj_matrix, 1, GL_FALSE, camera->inv_view_proj.f));
-				DE_GL_CALL(glUniform4f(r->lighting_shader.light_color, clr[0], clr[1], clr[2], clr[3]));
-				DE_GL_CALL(glUniform1f(r->lighting_shader.light_cone_angle_cos, light->cone_angle_cos));
-				DE_GL_CALL(glUniform3f(r->lighting_shader.light_direction, dir.x, dir.y, dir.z));
+				de_deferred_light_shader_t* s = &r->lighting_shader;
+				DE_GL_CALL(glUniform3f(s->light_position, pos.x, pos.y, pos.z));
+				DE_GL_CALL(glUniform1f(s->light_radius, light->radius));
+				DE_GL_CALL(glUniformMatrix4fv(s->inv_view_proj_matrix, 1, GL_FALSE, camera->inv_view_proj.f));
+				DE_GL_CALL(glUniform4f(s->light_color, clr[0], clr[1], clr[2], clr[3]));
+				DE_GL_CALL(glUniform1f(s->light_cone_angle_cos, light->cone_angle_cos));
+				DE_GL_CALL(glUniform3f(s->light_direction, dir.x, dir.y, dir.z));
 
 				de_renderer_draw_fullscreen_quad(r);
 			}

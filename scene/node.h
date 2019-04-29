@@ -40,6 +40,13 @@ typedef struct de_node_dispatch_table_t {
 	void(*copy)(de_node_t* src, de_node_t* dst);
 } de_node_dispatch_table_t;
 
+typedef enum de_transform_flags_t {
+	DE_TRANSFORM_FLAGS_LOCAL_TRANSFORM_NEED_UPDATE = DE_BIT(0),
+	DE_TRANSFORM_FLAGS_ROTATION_PIVOT_NEED_UPDATE = DE_BIT(1),
+	DE_TRANSFORM_FLAGS_SCALE_PIVOT_NEED_UPDATE = DE_BIT(2),
+	DE_TRANSFORM_FLAGS_POST_ROTATION_NEED_UPDATE = DE_BIT(3)
+} de_transform_flags_t;
+
 /**
  * @class de_node_t
  * @brief Common scene node. Tagged union.
@@ -56,7 +63,7 @@ struct de_node_t {
 	de_scene_t* scene;
 	de_mat4_t local_matrix; /**< Matrix of local transform of the node. Read-only. */
 	de_mat4_t global_matrix; /**< Matrix of global transform of the node. Read-only. */
-	de_mat4_t inv_bind_pose_matrix; /**< Matrix for meshes with skeletal animaton */
+	de_mat4_t inv_bind_pose_matrix; /**< Matrix for meshes with skeletal animation */
 	de_vec3_t position; /**< Position of the node relative to parent node (if exists) */
 	de_vec3_t scale; /**< Scale of the node relative to parent node (if exists) */
 	de_quat_t rotation; /**< Rotation of the node relative to parent node (if exists) */
@@ -66,7 +73,13 @@ struct de_node_t {
 	de_vec3_t rotation_pivot;
 	de_vec3_t scaling_offset;
 	de_vec3_t scaling_pivot;
-	bool need_update; /**< Indicates that node's transform needs to be updated */
+	/* Cached matrices - its too inefficient to compute three inverse matrices every frame for each node. */
+	de_mat4_t m_rotation_pivot;
+	de_mat4_t m_rotation_pivot_inv;
+	de_mat4_t m_post_rotation;
+	de_mat4_t m_scale_pivot;
+	de_mat4_t m_scale_pivot_inv;
+	de_transform_flags_t transform_flags;
 	de_node_t* parent; /**< Pool reference to parent node */
 	DE_ARRAY_DECLARE(de_node_t*, children); /**< Array of pool references to child nodes */
 	bool local_visibility; /**< Local visibility. Actual visibility defined by hierarchy. So if parent node is invisible, then child node will be too */
@@ -235,7 +248,7 @@ de_light_t* de_node_to_light(de_node_t* node);
 /**
  * @brief Restores node pointer by given light pointer.
  */
-de_node_t* de_node_from_light(de_mesh_t* light);
+de_node_t* de_node_from_light(de_light_t* light);
 
 /**
  * @brief Tries to get camera component out of the node, will throw an error if node is not a camera!
@@ -281,3 +294,29 @@ bool de_node_get_local_visibility(de_node_t* node);
 bool de_node_get_global_visibility(de_node_t* node);
 
 void de_node_calculate_visibility_descending(de_node_t* node);
+
+void de_node_set_pre_rotation(de_node_t* node, const de_quat_t* q);
+
+void de_node_get_pre_rotation(de_node_t* node, de_quat_t* q);
+
+void de_node_set_post_rotation(de_node_t* node, const de_quat_t* q);
+
+void de_node_get_post_rotation(de_node_t* node, de_quat_t* q);
+
+void de_node_set_rotation_offset(de_node_t* node, const de_vec3_t* v);
+
+void de_node_get_rotation_offset(de_node_t* node, de_vec3_t* v);
+
+void de_node_set_rotation_pivot(de_node_t* node, const de_vec3_t* v);
+
+void de_node_get_rotation_pivot(de_node_t* node, de_vec3_t* v);
+
+void de_node_set_scaling_offset(de_node_t* node, const de_vec3_t* v);
+
+void de_node_get_scaling_offset(de_node_t* node, de_vec3_t* v);
+
+void de_node_set_scaling_pivot(de_node_t* node, const de_vec3_t* v);
+
+void de_node_get_scaling_pivot(de_node_t* node, de_vec3_t* v);
+
+void de_node_invalidate_transforms(de_node_t* node);

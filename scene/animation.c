@@ -91,15 +91,15 @@ bool de_animation_track_visit(de_object_visitor_t* visitor, de_animation_track_t
 
 void de_animation_resolve(de_animation_t* anim)
 {
-/* no need to resolve resource dependencies if there is no resource */
-/* TODO: support more resource types */
+	/* no need to resolve resource dependencies if there is no resource */
+	/* TODO: support more resource types */
 	if (anim->resource && anim->resource->type == DE_RESOURCE_TYPE_MODEL) {
 		de_model_t* model = de_resource_to_model(anim->resource);
 		for (size_t i = 0; i < anim->tracks.size; ++i) {
 			de_animation_track_t* track = anim->tracks.data[i];
 			DE_LINKED_LIST_FOR_EACH_T(de_animation_t*, ref_anim, model->scene->animations)
 			{
-/* find ref track */
+				/* find ref track */
 				de_animation_track_t* ref_track = NULL;
 				for (size_t k = 0; k < ref_anim->tracks.size; ++k) {
 					de_animation_track_t* other_track = ref_anim->tracks.data[k];
@@ -263,11 +263,10 @@ void de_animation_add_track(de_animation_t* anim, de_animation_track_t* track)
 }
 
 void de_animation_update(de_animation_t* anim, float dt)
-{
-	size_t i;
+{	
 	float nextTimePos = anim->time_position + dt * anim->speed;
 
-	for (i = 0; i < anim->tracks.size; ++i) {
+	for (size_t i = 0; i < anim->tracks.size; ++i) {
 		de_animation_track_t* track;
 		de_keyframe_t keyframe;
 		de_node_t* node;
@@ -284,7 +283,7 @@ void de_animation_update(de_animation_t* anim, float dt)
 
 		/* Accumulate position */
 		de_vec3_add(&node->position, &node->position, &keyframe.position);
-
+		
 		/* Accumulate rotation */
 		de_quat_mul(&node->rotation, &node->rotation, &keyframe.rotation);
 
@@ -292,6 +291,8 @@ void de_animation_update(de_animation_t* anim, float dt)
 		node->scale.x *= keyframe.scale.x;
 		node->scale.y *= keyframe.scale.y;
 		node->scale.z *= keyframe.scale.z;
+
+		node->transform_flags |= DE_TRANSFORM_FLAGS_LOCAL_TRANSFORM_NEED_UPDATE;
 	}
 
 	de_animation_set_time_position(anim, nextTimePos);

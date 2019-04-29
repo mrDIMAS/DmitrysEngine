@@ -1306,12 +1306,12 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 
 		de_str8_copy(&mdl->name, &node->name);
 
-		node->position = mdl->translation;
-		node->rotation_offset = mdl->rotation_offset;
-		node->rotation_pivot = mdl->rotation_pivot;
-		node->scaling_offset = mdl->scaling_offset;
-		node->scaling_pivot = mdl->scaling_pivot;
-		node->scale = mdl->scale;
+		de_node_set_local_position(node, &mdl->translation);
+		de_node_set_rotation_offset(node, &mdl->rotation_offset);
+		de_node_set_rotation_pivot(node, &mdl->rotation_pivot);
+		de_node_set_scaling_offset(node, &mdl->scaling_offset);
+		de_node_set_scaling_pivot(node, &mdl->scaling_pivot);
+		de_node_set_local_scale(node, &mdl->scale);
 		de_fbx_quat_from_euler(&node->pre_rotation, &mdl->pre_rotation);
 		de_fbx_quat_from_euler(&node->rotation, &mdl->rotation);
 		de_fbx_quat_from_euler(&node->post_rotation, &mdl->post_rotation);

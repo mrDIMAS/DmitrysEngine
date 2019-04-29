@@ -57,7 +57,7 @@ static void de_camera_init(de_node_t* node)
 	de_rectf_t viewport = { 0, 0, 1, 1 };
 	de_camera_set_viewport(c, &viewport);
 	c->fov = 75.0f;
-	c->z_far = 1024.0f;
+	c->z_far = 2048.0f;
 	c->z_near = 0.005f;
 	c->aspect = core->params.video_mode.width / (float)core->params.video_mode.height;
 }

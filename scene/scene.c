@@ -72,6 +72,7 @@ void de_scene_free_static_geometry(de_scene_t* s, de_static_geometry_t* geom)
 	assert(s);
 	DE_LINKED_LIST_REMOVE(s->static_geometries, geom);
 	DE_ARRAY_FREE(geom->triangles);
+	de_octree_free(geom->octree);
 	de_free(geom);
 }
 

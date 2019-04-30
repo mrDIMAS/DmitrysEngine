@@ -158,8 +158,9 @@ struct de_renderer_t {
 	de_deferred_light_shader_t lighting_shader;
 
 	de_surface_t* quad;
+	de_surface_t* light_unit_sphere;
 
-	de_surface_t * test_surface;
+	de_surface_t * test_surface;	
 	de_texture_t* white_dummy;
 	de_texture_t* normal_map_dummy;
 

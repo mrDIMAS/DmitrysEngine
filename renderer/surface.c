@@ -424,55 +424,75 @@ void de_surface_make_cube(de_surface_t* surf)
 }
 #endif
 
+static void de_surface_add_vertex_pos_tex(de_surface_t* surf, de_vec3_t* pos, de_vec2_t* tex_coord)
+{
+	int i;
+	bool found_identic = false;
+
+	de_surface_shared_data_t* data = surf->shared_data;
+	/* reverse search is much faster, because it most likely that we'll find identic
+	* vertex nearby current in the list */
+	for (i = (int)data->vertex_count - 1; i >= 0; --i) {
+		if (de_vec3_equals(&data->positions[i], pos) && de_vec2_equals(&data->tex_coords[i], tex_coord)) {
+			found_identic = true;
+			break;
+		}
+	}
+
+	if (!found_identic) {
+		i = data->vertex_count;
+		size_t k = data->vertex_count;
+		de_surface_shared_data_grow_vertices(data, 1);
+		data->positions[k] = *pos;
+		data->tex_coords[k] = *tex_coord;
+		++data->vertex_count;
+	}
+
+	de_surface_shared_data_grow_indices(data, 1);
+	data->indices[data->index_count++] = i;
+
+	surf->need_upload = true;
+}
 
 void de_surface_make_sphere(de_surface_t* surf, int slices, int stacks, float r)
 {
-#if 0
-	int i, j;
-
-	float d_theta = M_PI / slices;
-	float d_phi = 2.0f * M_PI / stacks;
+	float d_theta = (float)M_PI / slices;
+	float d_phi = 2.0f * (float)M_PI / stacks;
 	float d_tc_y = 1.0f / stacks;
 	float d_tc_x = 1.0f / slices;
-	de_vertex_t* v;
 
-	for (i = 0; i < stacks; ++i) {
-		for (j = 0; j < slices; ++j) {
+	de_surface_shared_data_t* data = de_surface_shared_data_create(4, 6);
+	de_surface_set_data(surf, data);
+
+	for (int i = 0; i < stacks; ++i) {
+		for (int j = 0; j < slices; ++j) {
 			int nj = j + 1;
 			int ni = i + 1;
 
-			float k0 = r * sin(d_theta * i);
-			float k1 = cos(d_phi * j);
-			float k2 = sin(d_phi * j);
-			float k3 = r * cos(d_theta * i);
+			float k0 = r * (float)sin(d_theta * i);
+			float k1 = (float)cos(d_phi * j);
+			float k2 = (float)sin(d_phi * j);
+			float k3 = r * (float)cos(d_theta * i);
 
-			float k4 = r * sin(d_theta * ni);
-			float k5 = cos(d_phi * nj);
-			float k6 = sin(d_phi * nj);
-			float k7 = r * cos(d_theta * ni);
+			float k4 = r * (float)sin(d_theta * ni);
+			float k5 = (float)cos(d_phi * nj);
+			float k6 = (float)sin(d_phi * nj);
+			float k7 = r * (float)cos(d_theta * ni);
 
 			if (i != (stacks - 1)) {
-				DE_MAKE_VERTEX(surf, k0 * k1, k0 * k2, k3, d_tc_x * j, d_tc_y * i);
-				DE_MAKE_VERTEX(surf, k4 * k1, k4 * k2, k7, d_tc_x * j, d_tc_y * ni);
-				DE_MAKE_VERTEX(surf, k4 * k5, k4 * k6, k7, d_tc_x * nj, d_tc_y * ni);
+				de_surface_add_vertex_pos_tex(surf, &(de_vec3_t){ k0 * k1, k0 * k2, k3 }, &(de_vec2_t){ d_tc_x * j, d_tc_y * i });
+				de_surface_add_vertex_pos_tex(surf, &(de_vec3_t){ k4 * k1, k4 * k2, k7 }, &(de_vec2_t){ d_tc_x * j, d_tc_y * ni });
+				de_surface_add_vertex_pos_tex(surf, &(de_vec3_t){ k4 * k5, k4 * k6, k7 }, &(de_vec2_t){ d_tc_x * nj, d_tc_y * ni });
 			}
 
 			if (i != 0) {
-				DE_MAKE_VERTEX(surf, k4 * k5, k4 * k6, k7, d_tc_x * nj, d_tc_y * ni);
-				DE_MAKE_VERTEX(surf, k0 * k5, k0 * k6, k3, d_tc_x * nj, d_tc_y * i);
-				DE_MAKE_VERTEX(surf, k0 * k1, k0 * k2, k3, d_tc_x * j, d_tc_y * i);
+				de_surface_add_vertex_pos_tex(surf, &(de_vec3_t){ k4 * k5, k4 * k6, k7 }, &(de_vec2_t){ d_tc_x * nj, d_tc_y * ni });
+				de_surface_add_vertex_pos_tex(surf, &(de_vec3_t){ k0 * k5, k0 * k6, k3 }, &(de_vec2_t){ d_tc_x * nj, d_tc_y * i });
+				de_surface_add_vertex_pos_tex(surf, &(de_vec3_t){ k0 * k1, k0 * k2, k3 }, &(de_vec2_t){ d_tc_x * j, d_tc_y * i });
 			}
 		}
 	}
 
 	de_surface_calculate_normals(surf);
 	de_surface_calculate_tangents(surf);
-#endif 
-	DE_UNUSED(surf);
-	DE_UNUSED(slices);
-
-	DE_UNUSED(stacks);
-	DE_UNUSED(r);
 }
-
-#undef DE_MAKE_VERTEX

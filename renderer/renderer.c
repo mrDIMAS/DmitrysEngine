@@ -20,7 +20,12 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 #define DE_RENDERER_MAX_SKINNING_MATRICES 60
-#define DE_GL_CALL(func) func; de_check_opengl_error(#func, __FILE__, __LINE__)
+
+#ifdef NDEBUG
+#  define DE_GL_CALL(func) func
+#else
+#  define DE_GL_CALL(func) func; de_check_opengl_error(#func, __FILE__, __LINE__)
+#endif
 
 void de_check_opengl_error(const char* func, const char* file, int line)
 {
@@ -587,6 +592,13 @@ de_renderer_t* de_renderer_init(de_core_t* core)
 		de_renderer_upload_surface(r->quad);
 	}
 
+	/* Create light sphere */
+	{
+		r->light_unit_sphere = de_renderer_create_surface(r);
+		de_surface_make_sphere(r->light_unit_sphere, 6, 6, 1);
+		de_renderer_upload_surface(r->light_unit_sphere);
+	}
+
 	glGenVertexArrays(1, &r->gui_render_buffers.vao);
 	glGenBuffers(1, &r->gui_render_buffers.vbo);
 	glGenBuffers(1, &r->gui_render_buffers.ebo);
@@ -1008,6 +1020,28 @@ static void de_renderer_upload_textures(de_renderer_t* r)
 	}
 }
 
+static void de_renderer_draw_light_sphere(de_renderer_t* r, de_camera_t* camera, de_light_t* light)
+{
+	de_node_t* node = de_node_from_light(light);
+
+	de_vec3_t pos;
+	de_node_get_global_position(node, &pos);
+
+	de_mat4_t world;
+	de_mat4_translation(&world, &pos);
+
+	de_mat4_t scale;
+	float s = light->radius * 1.05f;
+	de_mat4_scale(&scale, &(de_vec3_t){ s, s, s });
+	de_mat4_mul(&world, &world, &scale);
+
+	de_mat4_t wvp_matrix;
+	de_mat4_mul(&wvp_matrix, &camera->view_projection_matrix, &world);
+
+	DE_GL_CALL(glUniformMatrix4fv(r->lighting_shader.wvp_matrix, 1, GL_FALSE, wvp_matrix.f));
+	de_renderer_render_surface(r, r->light_unit_sphere);
+}
+
 void de_renderer_render(de_renderer_t* r)
 {
 	de_core_t* core = r->core;
@@ -1089,19 +1123,21 @@ void de_renderer_render(de_renderer_t* r)
 			}
 		}
 
-		DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-		DE_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
-
-		de_mat4_ortho(&y_flip_ortho, 0, w, h, 0, -1, 1);
-
-		DE_GL_CALL(glEnable(GL_BLEND));
-		DE_GL_CALL(glBlendFunc(GL_ONE, GL_ONE));
+		DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, r->gbuffer.opt_fbo));
+		const GLenum lightBuffers[] = { GL_COLOR_ATTACHMENT0_EXT };
+		DE_GL_CALL(glDrawBuffers(1, lightBuffers));		
+		DE_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
+				
+		DE_GL_CALL(glDisable(GL_BLEND));
+		DE_GL_CALL(glDepthMask(GL_FALSE));
+		DE_GL_CALL(glDisable(GL_STENCIL_TEST));
+		DE_GL_CALL(glStencilMask(0xFF));
 		DE_GL_CALL(glDisable(GL_CULL_FACE));
-		DE_GL_CALL(glDisable(GL_DEPTH_TEST));
 
 		/* add ambient lighting */
 		DE_GL_CALL(glUseProgram(r->ambient_shader.program));
 
+		de_mat4_ortho(&y_flip_ortho, 0, w, h, 0, -1, 1);
 		DE_GL_CALL(glUniformMatrix4fv(r->ambient_shader.wvp_matrix, 1, GL_FALSE, y_flip_ortho.f));
 
 		DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
@@ -1111,10 +1147,11 @@ void de_renderer_render(de_renderer_t* r)
 
 		de_renderer_draw_fullscreen_quad(r);
 
-		/* add lighting */
+		/* add lighting */		
+		DE_GL_CALL(glEnable(GL_BLEND));
+		DE_GL_CALL(glBlendFunc(GL_ONE, GL_ONE));
 		DE_GL_CALL(glUseProgram(r->lighting_shader.program));
-
-		DE_GL_CALL(glUniformMatrix4fv(r->lighting_shader.wvp_matrix, 1, GL_FALSE, y_flip_ortho.f));
+				
 		DE_GL_CALL(glUniform3f(r->lighting_shader.camera_position, camera_position.x, camera_position.y, camera_position.z));
 
 		DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
@@ -1128,6 +1165,8 @@ void de_renderer_render(de_renderer_t* r)
 		DE_GL_CALL(glActiveTexture(GL_TEXTURE2));
 		DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.normal_texture));
 		DE_GL_CALL(glUniform1i(r->lighting_shader.normal_sampler, 2));
+
+		DE_GL_CALL(glEnable(GL_STENCIL_TEST));
 
 		DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes)
 		{
@@ -1155,6 +1194,27 @@ void de_renderer_render(de_renderer_t* r)
 				de_vec3_t dir;
 				de_node_get_up_vector(node, &dir);
 				de_vec3_normalize(&dir, &dir);
+				
+				DE_GL_CALL(glColorMask(0, 0, 0, 0));
+
+				DE_GL_CALL(glEnable(GL_CULL_FACE));
+
+				DE_GL_CALL(glCullFace(GL_FRONT));
+				DE_GL_CALL(glStencilFunc(GL_ALWAYS, 0, 0xFF));
+				DE_GL_CALL(glStencilOp(GL_KEEP, GL_INCR, GL_KEEP));
+				de_renderer_draw_light_sphere(r, camera, light);
+
+				DE_GL_CALL(glCullFace(GL_BACK));
+				DE_GL_CALL(glStencilFunc(GL_ALWAYS, 0, 0xFF));
+				DE_GL_CALL(glStencilOp(GL_KEEP, GL_DECR, GL_KEEP));
+				de_renderer_draw_light_sphere(r, camera, light);
+
+				DE_GL_CALL(glStencilFunc(GL_NOTEQUAL, 0, 0xFF));
+				DE_GL_CALL(glStencilOp(GL_KEEP, GL_KEEP, GL_ZERO));
+
+				DE_GL_CALL(glColorMask(1, 1, 1, 1));
+
+				DE_GL_CALL(glDisable(GL_CULL_FACE));
 
 				de_deferred_light_shader_t* s = &r->lighting_shader;
 				DE_GL_CALL(glUniform3f(s->light_position, pos.x, pos.y, pos.z));
@@ -1163,13 +1223,16 @@ void de_renderer_render(de_renderer_t* r)
 				DE_GL_CALL(glUniform4f(s->light_color, clr[0], clr[1], clr[2], clr[3]));
 				DE_GL_CALL(glUniform1f(s->light_cone_angle_cos, light->cone_angle_cos));
 				DE_GL_CALL(glUniform3f(s->light_direction, dir.x, dir.y, dir.z));
+				DE_GL_CALL(glUniformMatrix4fv(s->wvp_matrix, 1, GL_FALSE, y_flip_ortho.f));
 
 				de_renderer_draw_fullscreen_quad(r);
 			}
 		}
 
-		DE_GL_CALL(glEnable(GL_DEPTH_TEST));
+		DE_GL_CALL(glDisable(GL_STENCIL_TEST));
 		DE_GL_CALL(glDisable(GL_BLEND));
+
+		DE_GL_CALL(glDepthMask(GL_TRUE));
 
 		/* Debug render, renders node data even if node is invisible */
 		if (r->render_normals) {
@@ -1218,8 +1281,18 @@ void de_renderer_render(de_renderer_t* r)
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 	DE_GL_CALL(glActiveTexture(GL_TEXTURE2));
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
+	
+	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+	DE_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
 	de_renderer_set_viewport(&gui_viewport, core->params.video_mode.width, core->params.video_mode.height);
+
+	DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
+	DE_GL_CALL(glUseProgram(r->flat_shader.program));
+	DE_GL_CALL(glUniformMatrix4fv(r->flat_shader.wvp_matrix, 1, GL_FALSE, y_flip_ortho.f));
+	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.frame_texture));
+
+	de_renderer_draw_fullscreen_quad(r);
 
 	DE_GL_CALL(glDisable(GL_DEPTH_TEST));
 	DE_GL_CALL(glEnable(GL_BLEND));

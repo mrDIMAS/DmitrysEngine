@@ -20,22 +20,22 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 typedef struct de_octree_node_t {
-	int * indices;
-	int indexCount;
+	int * triangle_indices;
+	int index_count;
 	char split;
 	de_vec3_t min;
 	de_vec3_t max;
-	struct de_octree_node_t * children[8];
+	struct de_octree_node_t* children[8];
 } de_octree_node_t;
 
 typedef struct de_trace_buffer {
-	de_octree_node_t ** nodes;
+	de_octree_node_t** nodes;
 	int size;
 } de_trace_buffer;
 
 typedef struct de_octree_t {
-	de_trace_buffer traceBuffer;
-	de_octree_node_t * root;
+	de_trace_buffer trace_buffer;
+	de_octree_node_t* root;
 } de_octree_t;
 
 /**
@@ -45,7 +45,7 @@ typedef struct de_octree_t {
  * @param index_count Count of indices
  * @param
  */
-de_octree_t * de_octree_build(const void* vertices, int stride, int* indices, size_t index_count, size_t max_triangles_per_node);
+de_octree_t * de_octree_build(const void* src_triangles, size_t triangle_count, int pos_stride, size_t max_triangles_per_node);
 
 /**
  * @brief

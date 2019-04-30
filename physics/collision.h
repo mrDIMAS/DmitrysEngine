@@ -52,6 +52,7 @@ struct de_static_triangle_t {
 struct de_static_geometry_t {
 	DE_LINKED_LIST_ITEM(struct de_static_geometry_t);
 	de_scene_t* scene;
+	de_octree_t* octree;
 	DE_ARRAY_DECLARE(de_static_triangle_t, triangles); /**< Array of de_static_triangle_t. All geometry stored here */
 };
 

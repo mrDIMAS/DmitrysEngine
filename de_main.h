@@ -133,30 +133,30 @@ extern "C" {
 #endif
 
 /* Forward declarations */
-	typedef struct de_renderer_t de_renderer_t;
-	typedef struct de_node_t de_node_t;
-	typedef struct de_surface_t de_surface_t;
-	typedef struct de_animation_track_t de_animation_track_t;
-	typedef struct de_texture_t de_texture_t;
-	typedef struct de_static_triangle_t de_static_triangle_t;
-	typedef struct de_static_geometry_t de_static_geometry_t;
-	typedef struct de_mesh_t de_mesh_t;
-	typedef struct de_body_t de_body_t;
-	typedef struct de_light_t de_light_t;
-	typedef struct de_gui_t de_gui_t;
-	typedef struct de_core_t de_core_t;
-	typedef struct de_scene_t de_scene_t;
-	typedef struct de_sound_device_t de_sound_device_t;
-	typedef struct de_sound_source_t de_sound_source_t;
-	typedef struct de_sound_buffer_t de_sound_buffer_t;
-	typedef struct de_sound_context_t de_sound_context_t;
-	typedef struct de_sound_decoder_t de_sound_decoder_t;
-	typedef struct de_resource_t de_resource_t;
+typedef struct de_renderer_t de_renderer_t;
+typedef struct de_node_t de_node_t;
+typedef struct de_surface_t de_surface_t;
+typedef struct de_animation_track_t de_animation_track_t;
+typedef struct de_texture_t de_texture_t;
+typedef struct de_static_triangle_t de_static_triangle_t;
+typedef struct de_static_geometry_t de_static_geometry_t;
+typedef struct de_mesh_t de_mesh_t;
+typedef struct de_body_t de_body_t;
+typedef struct de_light_t de_light_t;
+typedef struct de_gui_t de_gui_t;
+typedef struct de_core_t de_core_t;
+typedef struct de_scene_t de_scene_t;
+typedef struct de_sound_device_t de_sound_device_t;
+typedef struct de_sound_source_t de_sound_source_t;
+typedef struct de_sound_buffer_t de_sound_buffer_t;
+typedef struct de_sound_context_t de_sound_context_t;
+typedef struct de_sound_decoder_t de_sound_decoder_t;
+typedef struct de_resource_t de_resource_t;
 
-	/**
-	* Order is important here, because some parts depends on other
-	* Modules with minimum dependencies should be placed before others.
-	**/
+/**
+* Order is important here, because some parts depends on other
+* Modules with minimum dependencies should be placed before others.
+**/
 #include "core/log.h"
 #include "core/byteorder.h"
 #include "core/memmgr.h"
@@ -184,6 +184,7 @@ extern "C" {
 #include "scene/camera.h"
 #include "scene/mesh.h"
 #include "scene/light.h"
+#include "scene/particle_system.h"
 #include "scene/node.h"
 #include "scene/animation.h"
 #include "scene/scene.h"

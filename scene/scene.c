@@ -109,7 +109,7 @@ de_node_t* de_scene_find_node(const de_scene_t* s, const char* name)
 
 void de_scene_update(de_scene_t* s, double dt)
 {
-/* Animations prepass - reset local transform of associated track nodes for blending */
+	/* Animations prepass - reset local transform of associated track nodes for blending */
 	DE_LINKED_LIST_FOR_EACH_T(de_animation_t*, anim, s->animations)
 	{
 		if (de_animation_is_flags_set(anim, DE_ANIMATION_FLAG_ENABLED)) {
@@ -129,6 +129,13 @@ void de_scene_update(de_scene_t* s, double dt)
 	DE_LINKED_LIST_FOR_EACH_T(de_animation_t*, anim, s->animations)
 	{
 		de_animation_update(anim, (float)dt);
+	}
+
+	DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, s->nodes)
+	{
+		if (node->type == DE_NODE_TYPE_PARTICLE_SYSTEM) {
+			de_particle_system_update(de_node_to_particle_system(node), (float)dt);
+		}
 	}
 
 	/* Calculate transforms and visibility of nodes starting from root nodes */

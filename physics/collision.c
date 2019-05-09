@@ -121,9 +121,8 @@ void de_physics_step(de_core_t* core, double dt)
 			de_vec3_add(&body->acceleration, &body->acceleration, &body->gravity);
 			/* Do Verlet integration */
 			de_body_verlet(body, dt2);
-			/* Solve collisions */
-			de_static_geometry_t* geom;
-			DE_LINKED_LIST_FOR_EACH(scene->static_geometries, geom)
+			/* Solve sphere-mesh collisions */			
+			DE_LINKED_LIST_FOR_EACH_T(de_static_geometry_t*, geom, scene->static_geometries)
 			{
 				de_octree_trace_sphere(geom->octree, &body->position, body->radius);
 				for (int i = 0; i < geom->octree->trace_buffer.size; ++i) {
@@ -131,6 +130,13 @@ void de_physics_step(de_core_t* core, double dt)
 					for (int k = 0; k < node->index_count; ++k) {
 						de_body_triangle_collision(&geom->triangles.data[node->triangle_indices[k]], body);
 					}
+				}
+			}
+			/* Solve sphere-sphere collisions */
+			DE_LINKED_LIST_FOR_EACH_T(de_body_t*, other, scene->bodies)
+			{
+				if (other != body) {
+					de_body_body_collision(body, other);
 				}
 			}
 		}

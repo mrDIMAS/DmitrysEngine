@@ -144,6 +144,19 @@ typedef struct de_gui_shader_t {
 	GLint diffuse_texture;
 } de_gui_shader_t;
 
+typedef struct de_particle_system_shader_t {
+	GLuint program;
+	struct {
+		GLint view_projection_matrix;
+		GLint world_matrix;
+		GLint camera_up_vector;
+		GLint camera_side_vector;
+	} vs;
+	struct {
+		GLint diffuse_texture;
+	} fs;
+} de_particle_system_shader_t;
+
 struct de_renderer_t {
 	de_core_t* core;
 
@@ -152,6 +165,7 @@ struct de_renderer_t {
 	de_flat_shader_t flat_shader;
 	de_gui_shader_t gui_shader;
 	de_ambient_shader_t ambient_shader;
+	de_particle_system_shader_t particle_system_shader;
 
 	de_gbuffer_t gbuffer;
 	de_gbuffer_shader_t gbuffer_shader;
@@ -160,7 +174,7 @@ struct de_renderer_t {
 	de_surface_t* quad;
 	de_surface_t* light_unit_sphere;
 
-	de_surface_t * test_surface;	
+	de_surface_t * test_surface;
 	de_texture_t* white_dummy;
 	de_texture_t* normal_map_dummy;
 
@@ -174,9 +188,14 @@ struct de_renderer_t {
 		GLuint ebo;      /**< Element buffer object id */
 	} gui_render_buffers;
 
-	/* statistics (time in milliseconds) */
-	double frame_time;
-	size_t frames_per_second;
+	/* Statistics (time in milliseconds) */
+	double frame_time; /**< Actual time amount last frame took to be rendered. */
+	double frame_time_accumulator; /**< Total time of frames since last FPS was committed. */
+	size_t frame_time_measurements; /**< Count of render calls since last FPS value was committed. */
+	double time_last_fps_measured; /**< Time when FPS was committed. */
+	size_t mean_fps; /**< Mean FPS. */
+	size_t min_fps; /**< Minimum FPS. */
+	size_t current_fps; /**< Current FPS. */
 };
 
 /**
@@ -218,7 +237,7 @@ void de_renderer_render(de_renderer_t* r);
 /**
  * @brief Returns FPS.
  */
-size_t de_renderer_get_fps(de_renderer_t* r);
+size_t de_renderer_get_mean_fps(de_renderer_t* r);
 
 /**
  * @brief Returns time consumed by the renderer to draw one frame.

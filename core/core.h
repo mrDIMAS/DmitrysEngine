@@ -34,6 +34,7 @@ typedef enum de_core_flags_t {
 
 typedef struct de_engine_params_t {
 	de_video_mode_t video_mode;
+	const char* data_path;
 	uint32_t flags;
 } de_engine_params_t;
 

@@ -92,7 +92,7 @@ If compling as C++, you will need C++98 or higher compiler.
 
 Required packages: None.
 
-Options for linker: `opengl32; dsound; gdi32; dxguid`
+Options for linker: `opengl32; dsound; gdi32; dxguid; winmm`
 
 ### Linux
 Required packages: `libx11-dev, mesa-common-dev, libgl1-mesa-dev, libxrandr-dev.`

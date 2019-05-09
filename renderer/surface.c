@@ -162,6 +162,21 @@ void de_surface_set_normal_texture(de_surface_t * surf, de_texture_t *tex)
 	surf->normal_map = tex;
 }
 
+void de_surface_set_specular_texture(de_surface_t * surf, de_texture_t* tex)
+{
+	if (!surf || !tex) {
+		return;
+	}
+
+	if (surf->specular_map) {
+		de_resource_release(de_resource_from_texture(surf->specular_map));
+	}
+
+	de_resource_add_ref(de_resource_from_texture(tex));
+
+	surf->specular_map = tex;
+}
+
 void de_surface_calculate_normals(de_surface_t * surf)
 {
 	de_surface_shared_data_t* data = surf->shared_data;

@@ -155,6 +155,9 @@ void de_str8_move(de_str8_t* src, de_str8_t* dest)
 
 void de_str8_append_cstr(de_str8_t* str, const char* utf8str)
 {
+	if (!utf8str) {
+		return;
+	}
 	de_str8_view_t view;
 	view.data = utf8str;
 	view.len = strlen(utf8str);

@@ -79,14 +79,21 @@ bool de_path_eq(const de_path_t* a, const de_path_t* b)
 	return de_str8_eq_str8(&a->str, &b->str);
 }
 
+bool de_path_is_empty(const de_path_t* src)
+{
+	return !src || src->str.str.size == 0;
+}
+
 void de_path_extension(const de_path_t* p, de_str8_view_t* ext)
 {
-	const char* dot_pos = strrchr(de_path_cstr(p), '.');
-	if (dot_pos) {
-		de_str8_view_set(ext, dot_pos, strlen(dot_pos));
-	} else {
-		de_str8_view_set(ext, NULL, 0);
+	if(!de_path_is_empty(p)) {
+		const char* dot_pos = strrchr(de_path_cstr(p), '.');
+		if (dot_pos) {
+			de_str8_view_set(ext, dot_pos, strlen(dot_pos));
+			return;
+		}
 	}
+	de_str8_view_set(ext, NULL, 0);	
 }
 
 void de_path_file_name(const de_path_t* p, de_str8_view_t* name)
@@ -94,12 +101,14 @@ void de_path_file_name(const de_path_t* p, de_str8_view_t* name)
 	const char* dot_pos, *slash_pos, *str;
 
 	if (!p) {
+		de_str8_view_set(name, NULL, 0);
 		return;
 	}
 
 	str = de_path_cstr(p);
 
 	if (!str) {
+		de_str8_view_set(name, NULL, 0);
 		return;
 	}
 

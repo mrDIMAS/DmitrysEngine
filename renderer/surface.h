@@ -53,9 +53,9 @@ typedef struct de_surface_shared_data_t {
 	size_t index_capacity;
 	int* indices;
 	int ref_count; /* Count of surfaces that sharing this data. */
-	GLuint vao; /**< Vertex array object id */
-	GLuint vbo; /**< Shared GPU vertex-data buffer */
-	GLuint ebo; /**< Shared GPU indices buffer object id */
+	GLuint vertex_array_object;
+	GLuint vertex_buffer;
+	GLuint index_buffer;
 } de_surface_shared_data_t;
 
 /**
@@ -66,8 +66,9 @@ typedef struct de_surface_shared_data_t {
 */
 struct de_surface_t {
 	de_renderer_t* renderer;
-	de_texture_t* diffuse_map; /**< Pointer to texture */
+	de_texture_t* diffuse_map; 
 	de_texture_t* normal_map;
+	de_texture_t* specular_map;
 	bool need_upload; /**< Indicates that surface needs to be uploaded to GPU */
 	DE_ARRAY_DECLARE(de_vertex_weight_group_t, vertex_weights); /**< Additional skinning data */
 	DE_ARRAY_DECLARE(de_node_t*, bones); /**< List of bones that affects this surface */
@@ -125,6 +126,13 @@ void de_surface_set_diffuse_texture(de_surface_t* surf, de_texture_t* tex);
  * @param tex pointer to texture
  */
 void de_surface_set_normal_texture(de_surface_t* surf, de_texture_t* tex);
+
+/**
+ * @brief Applies specular texture to surface. Increases ref counter of texture
+ * @param surf pointer to surface
+ * @param tex pointer to texture
+ */
+void de_surface_set_specular_texture(de_surface_t * surf, de_texture_t* tex);
 
 /**
 * @brief Uploads buffers to GPU

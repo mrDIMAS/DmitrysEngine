@@ -1514,3 +1514,8 @@ void de_vec3_to_vec2_by_plane(de_plane_class_t plane, const de_vec3_t* normal, c
 		}
 	}
 }
+
+float de_frand(float min, float max)
+{
+	return min + rand() / (float)RAND_MAX * (max - min);
+}

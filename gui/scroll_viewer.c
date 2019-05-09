@@ -41,8 +41,10 @@ static void de_gui_scroll_viewer_hor_scroll_changed(de_gui_node_t* sv_node, floa
 	de_gui_scroll_content_presenter_set_h_scroll(sv->scroll_content_presenter, new_value);
 }
 
-void de_gui_scroll_viewer_update(de_gui_node_t* n)
+static de_vec2_t de_gui_scroll_viewer_measure_override(de_gui_node_t* n, const de_vec2_t* available_size)
 {
+	de_vec2_t desired_size = de_gui_node_default_measure_override(n, available_size);
+
 	de_gui_scroll_viewer_t* sv = &n->s.scroll_viewer;
 	de_gui_node_visibility_t vis;
 
@@ -82,6 +84,8 @@ void de_gui_scroll_viewer_update(de_gui_node_t* n)
 		max = de_maxf(0.0f, sv->content->desired_size.y - sv->scroll_content_presenter->desired_size.y);
 		de_gui_scroll_bar_set_max_value(sv->ver_scroll_bar, max);
 	}
+
+	return desired_size;
 }
 
 static void de_gui_scroll_viewer_mouse_wheel(de_gui_node_t* n, de_gui_routed_event_args_t* args)
@@ -132,8 +136,8 @@ static void de_gui_scroll_viewer_init(de_gui_node_t* n)
 de_gui_node_dispatch_table_t* de_gui_scroll_viewer_get_dispatch_table(void)
 {
 	static de_gui_node_dispatch_table_t dispatch_table = {
-		.init = de_gui_scroll_viewer_init,
-		.update = de_gui_scroll_viewer_update,
+		.init = de_gui_scroll_viewer_init,		
+		.measure_override = de_gui_scroll_viewer_measure_override,
 	};
 	return &dispatch_table;
 }

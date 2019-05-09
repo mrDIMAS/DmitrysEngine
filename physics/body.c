@@ -193,6 +193,39 @@ void de_body_triangle_collision(de_static_triangle_t* triangle, de_body_t* spher
 	}
 }
 
+void de_body_body_collision(de_body_t* body, de_body_t* other)
+{
+	de_vec3_t dir;
+	de_vec3_sub(&dir, &other->position, &body->position);
+	const float distance = de_vec3_len(&dir);
+	const float radius_sum = body->radius + other->radius;
+	if (distance <= radius_sum) {
+		de_vec3_t push_vec;
+		de_vec3_scale(&dir, &dir, 1.0f / distance);
+		de_vec3_scale(&push_vec, &dir, (distance - radius_sum) * 0.5f);
+		de_vec3_add(&body->position, &body->position, &push_vec);
+		de_vec3_sub(&other->position, &other->position, &push_vec);
+
+		/* Write contact info */
+		de_vec3_t center;
+		de_vec3_middle(&center, &body->position, &other->position);
+		de_contact_t* contact = de_body_add_contact(body);
+		if (contact) {
+			contact->body = other;
+			contact->normal = dir;
+			contact->position = center;
+			contact->triangle = NULL;
+		}
+		contact = de_body_add_contact(other);
+		if (contact) {
+			contact->body = body;
+			de_vec3_negate(&contact->normal, &dir);
+			contact->position = center;
+			contact->triangle = NULL;
+		}
+	}
+}
+
 void de_body_set_gravity(de_body_t* body, const de_vec3_t * gravity)
 {
 	DE_ASSERT(body);

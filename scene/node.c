@@ -130,6 +130,7 @@ static de_node_dispatch_table_t* de_node_get_dispatch_table_by_type(de_node_type
 		case DE_NODE_TYPE_CAMERA: return de_camera_get_dispatch_table();
 		case DE_NODE_TYPE_MESH: return de_mesh_get_dispatch_table();
 		case DE_NODE_TYPE_LIGHT: return de_light_get_dispatch_table();
+		case DE_NODE_TYPE_PARTICLE_SYSTEM: return de_particle_system_get_dispatch_table();
 		default:
 			de_log("unhandled node type!");
 			break;
@@ -493,6 +494,21 @@ de_node_t* de_node_from_camera(de_camera_t* camera)
 	de_node_t* node = (de_node_t*)((char*)camera - offsetof(de_node_t, s.camera));
 	DE_ASSERT(node->type == DE_NODE_TYPE_CAMERA);
 	return node;
+}
+
+de_node_t* de_node_from_particle_system(de_particle_system_t* ps)
+{
+	DE_ASSERT(ps);
+	de_node_t* node = (de_node_t*)((char*)ps - offsetof(de_node_t, s.particle_system));
+	DE_ASSERT(node->type == DE_NODE_TYPE_PARTICLE_SYSTEM);
+	return node;
+}
+
+de_particle_system_t* de_node_to_particle_system(de_node_t* node)
+{
+	DE_ASSERT(node);
+	DE_ASSERT(node->type == DE_NODE_TYPE_PARTICLE_SYSTEM);
+	return &node->s.particle_system;
 }
 
 bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node)

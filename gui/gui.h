@@ -41,7 +41,7 @@ typedef struct de_gui_thickness_t {
 de_gui_thickness_t de_gui_thickness_uniform(float value);
 
 /**
-* @brief
+* @brief Vertical alignment.
 */
 typedef enum de_gui_vertical_alignment_t {
 	DE_GUI_VERTICAL_ALIGNMENT_STRETCH, /**< Top alignment with vertical stretch */
@@ -51,7 +51,7 @@ typedef enum de_gui_vertical_alignment_t {
 } de_gui_vertical_alignment_t;
 
 /**
-* @brief
+* @brief Horizontal alignment.
 */
 typedef enum de_gui_horizontal_alignment_t {
 	DE_GUI_HORIZONTAL_ALIGNMENT_STRETCH, /**< Left alignment with horizontal stretch */
@@ -296,8 +296,8 @@ struct de_gui_node_t {
 	de_vec2_t desired_size; /**< Desired size of the node after Measure pass. */
 	de_vec2_t actual_local_position; /**< Actual node local position after Arrange pass. */
 	de_vec2_t actual_size; /**< Actual size of the node after Arrange pass. */
-	de_vec2_t min_size;
-	de_vec2_t max_size;
+	de_vec2_t min_size; /**< Minimum width and height */
+	de_vec2_t max_size; /**< Maximum width and height */
 	de_color_t color; /**< Overlay color of the node */
 	size_t row; /**< Index of row to which this node belongs */
 	size_t column; /**< Index of column to which this node belongs */
@@ -326,7 +326,8 @@ struct de_gui_node_t {
 	de_mouse_wheel_event_t mouse_wheel;
 	bool is_focused;
 	bool is_mouse_over;
-	/* intrusive linked list */
+	bool is_measure_valid;
+	bool is_arrange_valid;	
 	DE_LINKED_LIST_ITEM(struct de_gui_node_t);
 	de_gui_t* gui;
 	/* Specialization (type-specific data) */

@@ -490,7 +490,11 @@ void de_core_platform_message_box(de_core_t* core, const char* msg, const char* 
 void de_sleep(int milliseconds)
 {
 	if (milliseconds >= 0) {
+		TIMECAPS tc;
+		timeGetDevCaps(&tc, sizeof(TIMECAPS));
+		timeBeginPeriod(tc.wPeriodMin);
 		Sleep(milliseconds);
+		timeEndPeriod(tc.wPeriodMin);
 	}
 }
 

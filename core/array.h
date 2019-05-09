@@ -32,6 +32,15 @@
 /* Initializes array. Can be omitted if memory block containing array will filled with zeros */
 #define DE_ARRAY_INIT(a) de_array_init_((void**)&(a).data, &(a).size, &(a)._capacity)
 
+/* Prepares memory for n elements in array. Returns pointer to last array element.
+ * Typical usage is to reserve memory for some elements and then fill it:
+ *   foo_t* element = DE_ARRAY_GROW(foos, 3);
+ *   element->bar = 123;
+ *   ++element;
+ *   element->bar = 543;
+ *   ++element;
+ +   element->bar = 42;
+ */
 #define DE_ARRAY_GROW(a, n) de_array_grow_((void**)&(a).data, &(a).size, &(a)._capacity, sizeof(*(a).data), n);
 
 /* Appends new item into array. Array capacity will be increased if needed */
@@ -138,7 +147,7 @@
 /* Internals functions. Do not use directly! Use macro instead. Macro designed to automatically
  * calculate size of array elements and required pointers to array elements. */
 void de_array_init_(void** data, size_t* size, size_t* capacity);
-void de_array_grow_(void** data, size_t* size, size_t* capacity, size_t item_size, size_t n);
+void* de_array_grow_(void** data, size_t* size, size_t* capacity, size_t item_size, size_t n);
 void de_array_reserve_(void** data, size_t* size, size_t* capacity, size_t item_size, size_t new_capacity);
 void de_array_insert_(void** data, size_t* size, size_t* capacity, size_t item_size, void* item, size_t pos);
 void de_array_free_(void** data, size_t* size, size_t* capacity);

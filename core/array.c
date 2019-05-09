@@ -26,13 +26,15 @@ void de_array_init_(void** data, size_t* size, size_t* capacity)
 	*capacity = 0;
 }
 
-void de_array_grow_(void** data, size_t* size, size_t* capacity, size_t item_size, size_t n)
-{
+void* de_array_grow_(void** data, size_t* size, size_t* capacity, size_t item_size, size_t n)
+{	
+	const size_t old_size = *size;
 	*size += n;
 	if (*size >= *capacity && *size > 0) {
 		*capacity = *capacity * 2u + n;
 		*data = de_realloc(*data, *capacity * item_size);
 	}
+	return ((char*)*data) + old_size * item_size;
 }
 
 void de_array_reserve_(void** data, size_t* size, size_t* capacity, size_t item_size, size_t new_capacity)

@@ -48,6 +48,7 @@
 #include "scene/light.c"
 #include "scene/mesh.c"
 #include "scene/node.c"
+#include "scene/particle_system.c"
 #include "scene/scene.c"
 #include "renderer/renderer.c"
 #include "renderer/surface.c"

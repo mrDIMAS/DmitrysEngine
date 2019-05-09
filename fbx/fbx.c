@@ -1382,11 +1382,11 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 					de_fbx_material_t* mat = mdl->materials.data[k];
 					if (mat->diffuse_tex) {
 						de_path_t path, path_view;
-						de_str8_view_t diffuse_tex_name, diffuse_tex_extension;
+						de_str8_view_t tex_name, tex_extension;
 
 						de_path_as_str8_view(&path_view, &mat->diffuse_tex->filename);
-						de_path_file_name(&path_view, &diffuse_tex_name);
-						de_path_extension(&path_view, &diffuse_tex_extension);
+						de_path_file_name(&path_view, &tex_name);
+						de_path_extension(&path_view, &tex_extension);
 
 						/* diffuse texture */
 						de_path_init(&path);
@@ -1400,12 +1400,23 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 						/* normal texture */
 						de_path_clear(&path);
 						de_path_append_cstr(&path, "data/textures/");
-						de_path_append_str_view(&path, &diffuse_tex_name);
+						de_path_append_str_view(&path, &tex_name);
 						de_path_append_cstr(&path, "_normal");
-						de_path_append_str_view(&path, &diffuse_tex_extension);
+						de_path_append_str_view(&path, &tex_extension);
 						res = de_core_request_resource(scene->core, DE_RESOURCE_TYPE_TEXTURE, &path, 0);
 						if (res) {
 							de_surface_set_normal_texture(surf, de_resource_to_texture(res));
+						}
+
+						/* specular texture */
+						de_path_clear(&path);
+						de_path_append_cstr(&path, "data/textures/");
+						de_path_append_str_view(&path, &tex_name);
+						de_path_append_cstr(&path, "_specular");
+						de_path_append_str_view(&path, &tex_extension);
+						res = de_core_request_resource(scene->core, DE_RESOURCE_TYPE_TEXTURE, &path, 0);
+						if (res) {
+							de_surface_set_specular_texture(surf, de_resource_to_texture(res));
 						}
 
 						de_path_free(&path);

@@ -24,6 +24,7 @@ typedef enum de_node_type_t {
 	DE_NODE_TYPE_LIGHT,
 	DE_NODE_TYPE_MESH,
 	DE_NODE_TYPE_CAMERA,
+	DE_NODE_TYPE_PARTICLE_SYSTEM,
 	DE_NODE_TYPE_FORCE_SIZE = INT32_MAX,
 } de_node_type_t;
 
@@ -97,6 +98,7 @@ struct de_node_t {
 		de_mesh_t mesh;
 		de_light_t light;
 		de_camera_t camera;
+		de_particle_system_t particle_system;
 	} s;
 };
 
@@ -259,6 +261,16 @@ de_camera_t* de_node_to_camera(de_node_t* node);
  * @brief Restores node pointer by given camera pointer.
  */
 de_node_t* de_node_from_camera(de_camera_t* camera);
+
+/**
+ * @brief Tries to get particle system component out of the node, will throw an error if node is not a particle system!
+ */
+de_node_t* de_node_from_particle_system(de_particle_system_t* ps);
+
+/**
+ * @brief Restores node pointer by given particle system pointer.
+ */
+de_particle_system_t* de_node_to_particle_system(de_node_t* node);
 
 /**
  * @brief Serializes scene node.

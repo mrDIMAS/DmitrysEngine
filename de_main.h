@@ -121,11 +121,16 @@ extern "C" {
 
 /* OpenGL */
 #include <GL/gl.h>
-#include <GL/glext.h>
+#ifdef _WIN32
+/* Windows does not have glext.h since it support only OpenGL 1.1 by default. */
+#  include "external/GL/glext.h"
+#else
+#  include <GL/glext.h>
+#endif
 
 /* External header-only dependencies */
 #ifdef _WIN32
-#  include "GL/wglext.h"
+#  include "external/GL/wglext.h"
 #  include <mmsystem.h>
 #  include "external/dsound.h"
 #else

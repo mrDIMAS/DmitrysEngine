@@ -24,6 +24,8 @@
 PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB;
 PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB;
 
+#define DE_WINDOW_CLASS_NAME "DmitrysEngine"
+
 /* Make old compilers happy */
 #ifndef MAPVK_VK_TO_VSC
 #define MAPVK_VK_TO_VSC (0)
@@ -165,7 +167,7 @@ static LRESULT CALLBACK de_win32_window_proc(HWND wnd, UINT msg, WPARAM wParam, 
 	POINT pos;
 	if (core) {
 		switch (msg) {
-			case WM_CLOSE:
+			case WM_CLOSE:				
 			case WM_DESTROY:
 				evt.type = DE_EVENT_TYPE_CLOSE;
 				de_core_push_event(core, &evt);
@@ -286,6 +288,11 @@ static LRESULT CALLBACK de_win32_window_proc(HWND wnd, UINT msg, WPARAM wParam, 
 				break;
 		}
 	}
+
+	if (msg == WM_CLOSE) {
+		return 0;
+	}
+
 	return DefWindowProc(wnd, msg, wParam, lParam);
 }
 
@@ -384,13 +391,13 @@ void de_core_platform_init(de_core_t* core)
 	};
 
 	de_win32_load_wgl_extensions();
-
+	
 	de_zero(&wcx, sizeof(wcx));
 	wcx.cbSize = sizeof(wcx);
 	wcx.hCursor = LoadCursor(NULL, IDC_ARROW);
 	wcx.hInstance = GetModuleHandle(0);
 	wcx.lpfnWndProc = de_win32_window_proc;
-	wcx.lpszClassName = TEXT("DEngine");
+	wcx.lpszClassName = TEXT(DE_WINDOW_CLASS_NAME);
 	wcx.style = CS_HREDRAW | CS_VREDRAW;
 	RegisterClassEx(&wcx);
 
@@ -408,7 +415,7 @@ void de_core_platform_init(de_core_t* core)
 
 	/* Create window */
 	de_log("Win32: Creating window");
-	core->platform.window = CreateWindow(TEXT("DEngine"), TEXT("DEngine"), style, 0, 0, wRect.right - wRect.left, wRect.bottom - wRect.top, 0, 0, wcx.hInstance, 0);
+	core->platform.window = CreateWindow(TEXT(DE_WINDOW_CLASS_NAME), TEXT(DE_WINDOW_CLASS_NAME), style, 0, 0, wRect.right - wRect.left, wRect.bottom - wRect.top, 0, 0, wcx.hInstance, 0);
 	SetWindowLongPtr(core->platform.window, GWLP_USERDATA, (LONG)core);
 	core->platform.device_context = GetDC(core->platform.window);
 
@@ -450,6 +457,8 @@ void de_core_platform_init(de_core_t* core)
 
 void de_core_platform_shutdown(de_core_t* core)
 {
+	DestroyWindow(core->platform.window);
+	UnregisterClass(TEXT(DE_WINDOW_CLASS_NAME), GetModuleHandle(NULL));
 	wglMakeCurrent(NULL, NULL);
 	wglDeleteContext(core->platform.gl_context);
 }
@@ -604,3 +613,4 @@ void de_clipboard_set_text(char* data)
 	CloseClipboard();
 }
 
+#undef DE_WINDOW_CLASS_NAME

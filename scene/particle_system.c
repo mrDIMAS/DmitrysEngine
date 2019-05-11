@@ -19,6 +19,8 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+static bool de_particle_system_visit(de_object_visitor_t* visitor, de_node_t* node);
+
 static void de_particle_system_init(de_node_t* node)
 {
 	DE_UNUSED(node);
@@ -41,8 +43,16 @@ static bool de_particle_visit(de_object_visitor_t* visitor, de_particle_t* p)
 	result &= de_object_visitor_visit_vec3(visitor, "Position", &p->position);
 	result &= de_object_visitor_visit_vec3(visitor, "Velocity", &p->velocity);
 	result &= de_object_visitor_visit_float(visitor, "Size", &p->size);
-	result &= de_object_visitor_visit_float(visitor, "Lifetime", &p->lifetime);	
-	result &= de_object_visitor_visit_uint32(visitor, "Color", (uint32_t*)&p->color);	
+	result &= de_object_visitor_visit_float(visitor, "Lifetime", &p->lifetime);
+	result &= de_object_visitor_visit_uint32(visitor, "Color", (uint32_t*)&p->color);
+	return result;
+}
+
+static bool de_particle_system_emitter_visit(de_object_visitor_t* visitor, de_particle_system_emitter_t* emitter)
+{
+	bool result = true;
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "ParticleSystem", &emitter->particle_system, de_particle_system_visit);
+	result &= de_object_visitor_visit_int32(visitor, "Type", (int32_t*)&emitter->type);
 	return result;
 }
 
@@ -56,7 +66,27 @@ static bool de_particle_system_visit(de_object_visitor_t* visitor, de_node_t* no
 	if (visitor->is_reading && tex_resource) {
 		de_particle_system_set_texture(particle_system, de_resource_to_texture(tex_resource));
 	}
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Emitters", particle_system->emitters, de_particle_system_emitter_visit);
 	return result;
+}
+
+static void de_particle_system_emitter_emit(de_particle_system_emitter_t* emitter, float dt)
+{
+	emitter->time += dt;
+
+	const int particle_count = (int)(emitter->particle_spawn_rate * emitter->time);
+	if (particle_count > 0) {
+		emitter->time = 0;
+	}
+
+	switch (emitter->type) {
+		case DE_PARTICLE_SYSTEM_EMITTER_TYPE_BOX:
+			break;
+		case DE_PARTICLE_SYSTEM_EMITTER_TYPE_POINT:
+			break;
+		case DE_PARTICLE_SYSTEM_EMITTER_TYPE_SPHERE:
+			break;
+	}
 }
 
 de_node_dispatch_table_t* de_particle_system_get_dispatch_table()
@@ -71,9 +101,9 @@ de_node_dispatch_table_t* de_particle_system_get_dispatch_table()
 
 void de_particle_system_create_particles(de_particle_system_t* particle_system, size_t n)
 {
-	DE_ARRAY_CLEAR(particle_system->particles);	
+	DE_ARRAY_CLEAR(particle_system->particles);
 	for (size_t i = 0; i < n; ++i) {
-		de_particle_t particle = {			
+		de_particle_t particle = {
 			.lifetime = 1000.0f,
 			.position = (de_vec3_t) { de_frand(-1.0f, 1.0f), de_frand(-1.0f, 1.0f), de_frand(-1.0f, 1.0f) },
 			.color = (de_color_t) { 255, 255, 255, 255 },
@@ -86,6 +116,11 @@ void de_particle_system_create_particles(de_particle_system_t* particle_system, 
 
 void de_particle_system_update(de_particle_system_t* particle_system, float dt)
 {
+	for (size_t i = 0; i < particle_system->emitters.size; ++i) {
+		de_particle_system_emitter_t* emitter = particle_system->emitters.data[i];
+		de_particle_system_emitter_emit(emitter, dt);
+	}	
+
 	for (size_t i = 0; i < particle_system->particles.size; ++i) {
 		de_particle_t* particle = particle_system->particles.data + i;
 		particle->lifetime -= dt;
@@ -165,4 +200,10 @@ void de_particle_system_set_texture(de_particle_system_t* particle_system, de_te
 	if (particle_system->texture) {
 		de_resource_add_ref(de_resource_from_texture(particle_system->texture));
 	}
+}
+
+void de_particle_system_add_emitter(de_particle_system_t* particle_system, de_particle_system_emitter_t* emitter)
+{
+	emitter->particle_system = particle_system;
+	DE_ARRAY_APPEND(particle_system->emitters, emitter);
 }

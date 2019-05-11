@@ -26,7 +26,7 @@ struct de_core_t {
 	de_gui_t* gui;
 	DE_LINKED_LIST_DECLARE(de_scene_t, scenes);
 	DE_LINKED_LIST_DECLARE(de_font_t, fonts);
-	de_engine_params_t params;
+	de_core_config_t params;
 	bool is_running;
 	void* user_pointer;
 	DE_ARRAY_DECLARE(de_event_t, events_queue);
@@ -106,7 +106,7 @@ bool de_core_visit(de_object_visitor_t* visitor, de_core_t* core)
 	return result;
 }
 
-de_core_t* de_core_init(const de_engine_params_t* params)
+de_core_t* de_core_init(const de_core_config_t* params)
 {
 	de_core_t* core = DE_NEW(de_core_t);
 	de_log("Dmitry's Engine - Logging Started");

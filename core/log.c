@@ -79,5 +79,7 @@ void de_fatal_error(const char* message, ...)
 
 void de_log_close(void)
 {
-	fclose(de_log_file);
+	if (de_log_file) {
+		fclose(de_log_file);
+	}
 }

@@ -7,6 +7,9 @@ Please note, that this engine is at early development stage and some features ma
 ## Projects on this engine
 * [Shooter](https://github.com/mrDIMAS/Shooter) - 3d shooter game that I writing using this engine.
 
+## Tutorials
+* Can be found in `tutorials` folder.
+
 ## Features
 * Single compilation unit - no need to build as separate library: just add `de_main.h` and `de_main.c` to your project.
 * C99 with full compatibility with C++.
@@ -25,6 +28,7 @@ Please note, that this engine is at early development stage and some features ma
     * Normal mapping
 	* Skeletal animation
 	* Instancing
+	* Particle systems (very simple for now)
 * Sound
 	* 2D + 3D 
 	* WAV format support 
@@ -56,8 +60,7 @@ Please note, that this engine is at early development stage and some features ma
 	* Shadows
 	* Frustum culling
 	* Performance optimizations
-	* Levels of details (LODs)
-	* Particle systems
+	* Levels of details (LODs)	
 	* Instancing optimizations (batching, etc.)
 * GUI improvements
 	* Styles		
@@ -74,7 +77,7 @@ Please note, that this engine is at early development stage and some features ma
 - miniz_tinfl - to decompress FBX compressed data.
 
 ## Code statistics
-- ~18700 lines of code
+- ~19300 lines of code
 - Pure C99
 
 ## Supported compilers
@@ -92,7 +95,7 @@ If compling as C++, you will need C++98 or higher compiler.
 
 Required packages: None.
 
-Options for linker: `opengl32; dsound; gdi32; dxguid; winmm`
+Options for linker: `opengl32.lib; dsound.lib; gdi32.lib; dxguid.lib; winmm.lib`
 
 ### Linux
 Required packages: `libx11-dev, mesa-common-dev, libgl1-mesa-dev, libxrandr-dev.`

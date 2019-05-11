@@ -32,16 +32,17 @@ typedef enum de_core_flags_t {
 	DE_CORE_FLAGS_BORDERLESS = DE_BIT(0)
 } de_core_flags_t;
 
-typedef struct de_engine_params_t {
+typedef struct de_core_config_t {
 	de_video_mode_t video_mode;
 	const char* data_path;
 	uint32_t flags;
-} de_engine_params_t;
+	const char* title;
+} de_core_config_t;
 
 /**
 * @brief Creates window and initializes OpenGL
 */
-de_core_t* de_core_init(const de_engine_params_t* params);
+de_core_t* de_core_init(const de_core_config_t* params);
 
 /**
 * @brief Destroys window and OpenGL context

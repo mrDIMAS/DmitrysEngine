@@ -9,6 +9,10 @@
 *.db
 *.user
 *.opendb
+*.tlog
+*.idb
+*.obj
+*.suo
 
 /tests/codeliteproj/.codelite
 /tests/codeliteproj/Debug

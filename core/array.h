@@ -84,6 +84,8 @@
 /* Reverses array members order */
 #define DE_ARRAY_REVERSE(a) de_array_reverse_((void**)&(a).data, &(a).size, sizeof(*(a).data))
 
+#define DE_ARRAY_POP(a) ((a).data[(a).size-- - 1])
+
 /* Makes array memory block size equals to real size of array's content */
 #define DE_ARRAY_COMPACT(a) \
 	do { \

@@ -19,7 +19,6 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-
 static de_object_visitor_node_t* de_object_visitor_node_create(const char* name)
 {
 	de_object_visitor_node_t* node = DE_NEW(de_object_visitor_node_t);
@@ -27,10 +26,9 @@ static de_object_visitor_node_t* de_object_visitor_node_create(const char* name)
 	return node;
 }
 
-
 static void de_object_visitor_node_free(de_object_visitor_node_t* node)
 {
-/* free children */
+	/* free children */
 	for (size_t i = 0; i < node->children.size; ++i) {
 		de_object_visitor_node_free(node->children.data[i]);
 	}
@@ -46,13 +44,11 @@ static void de_object_visitor_node_free(de_object_visitor_node_t* node)
 	de_free(node);
 }
 
-
 static void de_object_visitor_node_add_child(de_object_visitor_node_t* node, de_object_visitor_node_t* child)
 {
 	DE_ARRAY_APPEND(node->children, child);
 	child->parent = node;
 }
-
 
 static de_object_visitor_field_t* de_object_visitor_node_find_record(de_object_visitor_node_t* node, const char* name)
 {
@@ -68,7 +64,6 @@ static de_object_visitor_field_t* de_object_visitor_node_find_record(de_object_v
 
 	return NULL;
 }
-
 
 static bool de_object_visitor_visit_data(de_object_visitor_t* visitor,
 	const char* name,
@@ -122,15 +117,12 @@ static bool de_object_visitor_visit_data(de_object_visitor_t* visitor,
 	return true;
 }
 
-
 bool de_object_visitor_enter_node(de_object_visitor_t* visitor, const char* node_name)
 {
-	size_t i;
-
 	if (visitor->is_reading) {
 		bool found = false;
 
-		for (i = 0; i < visitor->current_node->children.size; ++i) {
+		for (size_t i = 0; i < visitor->current_node->children.size; ++i) {
 			de_object_visitor_node_t* child = visitor->current_node->children.data[i];
 
 			if (de_str8_eq(&child->name, node_name)) {
@@ -156,7 +148,6 @@ bool de_object_visitor_enter_node(de_object_visitor_t* visitor, const char* node
 	return true;
 }
 
-
 void de_object_visitor_leave_node(de_object_visitor_t* visitor)
 {
 	if (visitor->current_node && visitor->current_node->parent) {
@@ -165,7 +156,6 @@ void de_object_visitor_leave_node(de_object_visitor_t* visitor)
 		de_log("serialization: mismatch calls of enter/leave node!");
 	}
 }
-
 
 bool de_object_visitor_visit_pointer(de_object_visitor_t* visitor, const char* name, void** pointer_ptr, size_t pointee_size, de_visit_callback_t pointee_visitor)
 {
@@ -235,18 +225,15 @@ bool de_object_visitor_visit_pointer(de_object_visitor_t* visitor, const char* n
 	return true;
 }
 
-
 bool de_object_visitor_visit_int32(de_object_visitor_t* visitor, const char* name, int32_t* integer)
 {
 	return de_object_visitor_visit_data(visitor, name, integer, sizeof(*integer), DE_OBJECT_VISITOR_DATA_TYPE_INT32);
 }
 
-
 bool de_object_visitor_visit_int16(de_object_visitor_t* visitor, const char* name, int16_t* integer)
 {
 	return de_object_visitor_visit_data(visitor, name, integer, sizeof(*integer), DE_OBJECT_VISITOR_DATA_TYPE_INT16);
 }
-
 
 bool de_object_visitor_visit_int8(de_object_visitor_t* visitor, const char* name, int8_t* integer)
 {
@@ -263,60 +250,50 @@ bool de_object_visitor_visit_uint32(de_object_visitor_t* visitor, const char* na
 	return de_object_visitor_visit_data(visitor, name, integer, sizeof(*integer), DE_OBJECT_VISITOR_DATA_TYPE_UINT32);
 }
 
-
 bool de_object_visitor_visit_uint16(de_object_visitor_t* visitor, const char* name, uint16_t* integer)
 {
 	return de_object_visitor_visit_data(visitor, name, integer, sizeof(*integer), DE_OBJECT_VISITOR_DATA_TYPE_UINT16);
 }
-
 
 bool de_object_visitor_visit_uint8(de_object_visitor_t* visitor, const char* name, uint8_t* integer)
 {
 	return de_object_visitor_visit_data(visitor, name, integer, sizeof(*integer), DE_OBJECT_VISITOR_DATA_TYPE_UINT8);
 }
 
-
 bool de_object_visitor_visit_float(de_object_visitor_t* visitor, const char* name, float* flt)
 {
 	return de_object_visitor_visit_data(visitor, name, flt, sizeof(*flt), DE_OBJECT_VISITOR_DATA_TYPE_FLOAT);
 }
-
 
 bool de_object_visitor_visit_double(de_object_visitor_t* visitor, const char* name, double* dbl)
 {
 	return de_object_visitor_visit_data(visitor, name, dbl, sizeof(*dbl), DE_OBJECT_VISITOR_DATA_TYPE_DOUBLE);
 }
 
-
 bool de_object_visitor_visit_vec2(de_object_visitor_t* visitor, const char* name, de_vec2_t* vec)
 {
 	return de_object_visitor_visit_data(visitor, name, vec, sizeof(*vec), DE_OBJECT_VISITOR_DATA_TYPE_VECTOR2);
 }
-
 
 bool de_object_visitor_visit_vec3(de_object_visitor_t* visitor, const char* name, de_vec3_t* vec)
 {
 	return de_object_visitor_visit_data(visitor, name, vec, sizeof(*vec), DE_OBJECT_VISITOR_DATA_TYPE_VECTOR3);
 }
 
-
 bool de_object_visitor_visit_vec4(de_object_visitor_t* visitor, const char* name, de_vec4_t* vec)
 {
 	return de_object_visitor_visit_data(visitor, name, vec, sizeof(*vec), DE_OBJECT_VISITOR_DATA_TYPE_VECTOR4);
 }
-
 
 bool de_object_visitor_visit_quat(de_object_visitor_t* visitor, const char* name, de_quat_t* quat)
 {
 	return de_object_visitor_visit_data(visitor, name, quat, sizeof(*quat), DE_OBJECT_VISITOR_DATA_TYPE_QUATERNION);
 }
 
-
 bool de_object_visitor_visit_mat3(de_object_visitor_t* visitor, const char* name, de_mat3_t* mat3)
 {
 	return de_object_visitor_visit_data(visitor, name, mat3, sizeof(*mat3), DE_OBJECT_VISITOR_DATA_TYPE_MATRIX3);
 }
-
 
 bool de_object_visitor_visit_mat4(de_object_visitor_t* visitor, const char* name, de_mat4_t* mat4)
 {
@@ -376,7 +353,6 @@ bool de_object_visitor_visit_string(de_object_visitor_t* visitor, const char* na
 	return true;
 }
 
-
 void de_object_visitor_init(de_core_t* core, de_object_visitor_t* visitor)
 {
 	memset(visitor, 0, sizeof(*visitor));
@@ -386,14 +362,12 @@ void de_object_visitor_init(de_core_t* core, de_object_visitor_t* visitor)
 	visitor->core = core;
 }
 
-
 void de_object_visitor_free(de_object_visitor_t* visitor)
 {
 	de_object_visitor_node_free(visitor->root);
 	de_free(visitor->data);
 	DE_ARRAY_FREE(visitor->pointerPairs);
 }
-
 
 static void de_object_visitor_field_save_binary(de_object_visitor_field_t* field, FILE* file)
 {
@@ -411,7 +385,6 @@ static void de_object_visitor_field_save_binary(de_object_visitor_field_t* field
 	fwrite(&data_type, sizeof(data_type), 1, file);
 	fwrite(&field->data_offset, sizeof(field->data_offset), 1, file);
 }
-
 
 static void de_object_visitor_node_save_binary(de_object_visitor_node_t* node, FILE* file)
 {
@@ -438,7 +411,6 @@ static void de_object_visitor_node_save_binary(de_object_visitor_node_t* node, F
 	}
 }
 
-
 void de_object_visitor_save_binary(de_object_visitor_t* visitor, const char* file_path)
 {
 	FILE* file = fopen(file_path, "wb");
@@ -451,7 +423,6 @@ void de_object_visitor_save_binary(de_object_visitor_t* visitor, const char* fil
 
 	fclose(file);
 }
-
 
 static void de_object_visitor_field_load_binary(de_object_visitor_field_t* field, FILE* file)
 {
@@ -469,7 +440,6 @@ static void de_object_visitor_field_load_binary(de_object_visitor_field_t* field
 	field->data_type = (de_object_visitor_data_type_t)data_type;
 	fread(&field->data_offset, sizeof(field->data_offset), 1, file);
 }
-
 
 static void de_object_visitor_node_load_binary(de_object_visitor_node_t* node, FILE* file)
 {
@@ -497,7 +467,6 @@ static void de_object_visitor_node_load_binary(de_object_visitor_node_t* node, F
 		de_object_visitor_node_add_child(node, child);
 	}
 }
-
 
 void de_object_visitor_load_binary(de_core_t* core, de_object_visitor_t* visitor, const char* file_path)
 {
@@ -528,6 +497,31 @@ void de_object_visitor_load_binary(de_core_t* core, de_object_visitor_t* visitor
 	fclose(file);
 }
 
+bool de_object_visitor_visit_primitive_array(de_object_visitor_t* visitor, const char* name, void** array, size_t* item_count, size_t item_size)
+{
+	if (!de_object_visitor_enter_node(visitor, name)) {
+		return false;
+	}
+
+	uint32_t length;
+	if (!visitor->is_reading) {
+		length = (uint32_t)(*item_count);
+	}
+	de_object_visitor_visit_uint32(visitor, "Length", &length);
+	if (visitor->is_reading) {
+		*item_count = length;
+	}
+
+	if (visitor->is_reading) {
+		*array = de_malloc(item_size * length);
+	}
+
+	de_object_visitor_visit_data(visitor, "Bytes", *array, (*item_count) * item_size, DE_OBJECT_VISITOR_DATA_TYPE_DATA);
+
+	de_object_visitor_leave_node(visitor);
+
+	return true;
+}
 
 bool de_object_visitor_visit_array(de_object_visitor_t* visitor, const char* name, void** array, size_t* item_count, size_t item_size, de_visit_callback_t callback)
 {
@@ -563,7 +557,6 @@ bool de_object_visitor_visit_array(de_object_visitor_t* visitor, const char* nam
 
 	return true;
 }
-
 
 bool de_object_visitor_visit_pointer_array(de_object_visitor_t* visitor, const char* name, void** array, size_t* item_count, size_t pointee_size, de_visit_callback_t callback)
 {
@@ -605,7 +598,6 @@ bool de_object_visitor_visit_pointer_array(de_object_visitor_t* visitor, const c
 	return true;
 }
 
-
 bool de_object_visitor_visit_array_ex(de_object_visitor_t* visitor, const char* name, void** array, size_t* item_count, size_t item_size, size_t* capacity, de_visit_callback_t callback)
 {
 	bool result = true;
@@ -617,6 +609,16 @@ bool de_object_visitor_visit_array_ex(de_object_visitor_t* visitor, const char* 
 	return result;
 }
 
+bool de_object_visitor_visit_primitive_array_ex(de_object_visitor_t* visitor, const char* name, void** array, size_t* item_count, size_t item_size, size_t* capacity)
+{
+	bool result = true;
+
+	result &= de_object_visitor_visit_primitive_array(visitor, name, array, item_count, item_size);
+
+	*capacity = *item_count;
+
+	return result;
+}
 
 bool de_object_visitor_visit_pointer_array_ex(de_object_visitor_t* visitor, const char* name, void** array, size_t* item_count, size_t pointee_size, size_t* capacity, de_visit_callback_t callback)
 {
@@ -687,7 +689,6 @@ bool de_object_visitor_visit_intrusive_linked_list(de_object_visitor_t* visitor,
 	return result;
 }
 
-
 static void de_object_visitor_node_print(de_object_visitor_t* visitor, de_object_visitor_node_t* node, FILE* stream, int level)
 {
 	int i;
@@ -724,8 +725,8 @@ static void de_object_visitor_node_print(de_object_visitor_t* visitor, de_object
 			case DE_OBJECT_VISITOR_DATA_TYPE_UINT32:
 				fprintf(stream, "<%s|u32:%" PRIu32 ">", de_str8_cstr(&field->name), *((uint32_t*)field_data));
 				break;
-/* temporarily suppress annoying GCC warning about unsupported format. PRIi64/PRIu64 are absolutely safe,
- * but GCC whines about them */
+			/* temporarily suppress annoying GCC warning about unsupported format. PRIi64/PRIu64 are absolutely safe,
+			 * but GCC whines about them */
 			#ifdef __GNUC__
 			#pragma GCC diagnostic ignored "-Wformat"
 			#endif
@@ -801,7 +802,6 @@ static void de_object_visitor_node_print(de_object_visitor_t* visitor, de_object
 		de_object_visitor_node_print(visitor, node->children.data[i], stream, level + 1);
 	}
 }
-
 
 void de_object_visitor_print_tree(de_object_visitor_t* visitor, FILE* stream)
 {

@@ -264,10 +264,9 @@ static LRESULT CALLBACK de_win32_window_proc(HWND wnd, UINT msg, WPARAM wParam, 
 					surrogate = (uint16_t)evt.s.text.code;
 				} else {
 					if ((evt.s.text.code >= 0xDC00) && (evt.s.text.code <= 0xDFFF)) {
-						/* todo: convert surrogate pair to utf32 */
+						uint16_t utf16[] = { surrogate, (uint16_t)wParam };
+						de_utf16_to_utf32(utf16, 2, &evt.s.text.code, 1);
 						surrogate = 0;
-
-						surrogate += surrogate; /* DELETE */
 					}
 					de_core_push_event(core, &evt);
 				}
@@ -427,7 +426,9 @@ void de_core_platform_init(de_core_t* core)
 	UpdateWindow(core->platform.window);
 	SetActiveWindow(core->platform.window);
 	SetForegroundWindow(core->platform.window);
-
+	if (core->params.title) {
+		de_core_platform_set_window_title(core, core->params.title);
+	}
 	/* Initialize OpenGL */
 	de_log("Win32: Initializing OpenGL");
 
@@ -509,7 +510,15 @@ void de_sleep(int milliseconds)
 
 void de_core_platform_set_window_title(de_core_t* core, const char* title)
 {
-	SetWindowTextA(core->platform.window, title);
+	DE_ASSERT(core);
+	DE_ASSERT(title);
+
+	uint16_t utf16[4096];
+	int count = de_utf8_to_utf16(title, strlen(title), utf16, sizeof(utf16) / sizeof(utf16[0]));
+	if (count > 0) {
+		utf16[count] = 0;
+		SetWindowText(core->platform.window, utf16);
+	}
 }
 
 void de_core_set_video_mode(de_core_t* core, const de_video_mode_t* vm)

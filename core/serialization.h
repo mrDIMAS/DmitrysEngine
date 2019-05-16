@@ -279,6 +279,11 @@ bool de_object_visitor_visit_path(de_object_visitor_t* visitor, const char* name
 bool de_object_visitor_visit_array(de_object_visitor_t* visitor, const char* name, void** array, size_t* item_count, size_t item_size, de_visit_callback_t callback);
 
 /**
+* @brief Visits array of primitive types (int, float, or other similar data). For engine arrays use macro DE_OBJECT_VISITOR_VISIT_PRIMITIVE_ARRAY.
+*/
+bool de_object_visitor_visit_primitive_array(de_object_visitor_t* visitor, const char* name, void** array, size_t* item_count, size_t item_size);
+
+/**
  * @brief Internal. Do not use directly, only for macro DE_OBJECT_VISITOR_VISIT_ARRAY.
  */
 bool de_object_visitor_visit_array_ex(de_object_visitor_t* visitor, const char* name, void** array, size_t* item_count, size_t item_size, size_t* capacity, de_visit_callback_t callback);
@@ -288,6 +293,17 @@ bool de_object_visitor_visit_array_ex(de_object_visitor_t* visitor, const char* 
  */
 #define DE_OBJECT_VISITOR_VISIT_ARRAY(visitor, name, array, callback) \
 	de_object_visitor_visit_array_ex(visitor, name, (void**)&(array).data, &(array).size, sizeof(*(array).data), &(array)._capacity, callback)
+
+ /**
+ * @brief Internal. Do not use directly, only for macro DE_OBJECT_VISITOR_VISIT_PRIMITIVE_ARRAY.
+ */
+bool de_object_visitor_visit_primitive_array_ex(de_object_visitor_t* visitor, const char* name, void** array, size_t* item_count, size_t item_size, size_t* capacity);
+
+ /**
+  * @brief Useful macro for engine array visiting which automatically calculates item size.
+  */
+#define DE_OBJECT_VISITOR_VISIT_PRIMITIVE_ARRAY(visitor, name, array) \
+	de_object_visitor_visit_primitive_array_ex(visitor, name, (void**)&(array).data, &(array).size, sizeof(*(array).data), &(array)._capacity)
 
  /**
   * @brief Visits array of pointers. For engine arrays use macro DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY.

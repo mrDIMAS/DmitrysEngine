@@ -27,13 +27,11 @@
 #define MASK5BYTES 0xF8
 #define MASK6BYTES 0xFC
 
-int de_utf8_to_utf32(const char* inString, size_t in_str_len, uint32_t* out, int bufferSize)
+int de_utf8_to_utf32(const char* in, size_t in_length, uint32_t* out, int out_length)
 {
-	size_t i;
 	int n = 0;
-	unsigned char * in = (unsigned char *)inString;
 
-	for (i = 0; i < in_str_len; ) {
+	for (size_t i = 0; i < in_length; ) {
 		uint32_t ch = 0;
 
 		if ((in[i] & MASK6BYTES) == MASK6BYTES) {
@@ -66,7 +64,7 @@ int de_utf8_to_utf32(const char* inString, size_t in_str_len, uint32_t* out, int
 
 		out[n++] = ch;
 
-		if (n >= bufferSize) {
+		if (n >= out_length) {
 			return n - 1;
 		}
 	}
@@ -81,3 +79,91 @@ int de_utf8_to_utf32(const char* inString, size_t in_str_len, uint32_t* out, int
 #undef MASK4BYTES
 #undef MASK5BYTES
 #undef MASK6BYTES
+
+int de_utf8_to_utf16(const char* in, int in_length, uint16_t* out, int out_length)
+{
+	uint16_t* out_start = out;
+	const char* in_end = in + in_length;
+	uint16_t* out_end = out + (out_length / 2);
+	while (in < in_end) {
+		int trailing;
+		uint32_t c;
+		uint32_t d = *in++;
+		if (d < 0x80) {
+			c = d;
+			trailing = 0;
+		} else if (d < 0xC0) {
+			/* Trailing byte in leading position */
+			return -2;
+		} else if (d < 0xE0) {
+			c = d & 0x1F;
+			trailing = 1;
+		} else if (d < 0xF0) {
+			c = d & 0x0F;
+			trailing = 2;
+		} else if (d < 0xF8) {
+			c = d & 0x07;
+			trailing = 3;
+		} else {
+			/* Not valid for UTF-16 */
+			return -2;
+		}
+
+		if (in_end - in < trailing) {
+			break;
+		}
+
+		for (; trailing; trailing--) {
+			if ((in >= in_end) || (((d = *in++) & 0xC0) != 0x80)) {
+				break;
+			}
+			c <<= 6;
+			c |= d & 0x3F;
+		}
+
+		if (c < 0x10000) {
+			if (out >= out_end) {
+				break;
+			}
+			*out++ = (uint16_t)c;
+		} else if (c < 0x110000) {
+			if (out + 1 >= out_end) {
+				break;
+			}
+			c -= 0x10000;
+			*out++ = (uint16_t)(0xD800 | (c >> 10));
+			*out++ = (uint16_t)(0xDC00 | (c & 0x03FF));
+		} else {
+			break;
+		}
+	}
+
+	return (ptrdiff_t)(out - out_start);
+}
+
+int de_utf16_to_utf32(const uint16_t* in, size_t in_length, uint32_t* out, int out_length)
+{
+	const uint16_t* begin = in;
+	const uint16_t* end = in + in_length;
+	const uint32_t* out_end = out + out_length;
+	while (in < end) {
+		const uint16_t uc = *in++;
+		if ((uc - 0xd800u) < 2048u) {
+			if ((uc & 0xfffffc00) == 0xd800 && in < end && (*in & 0xfffffc00) == 0xdc00) {
+				if (out + 1 >= out_end) {
+					break;
+				}
+				*out++ = (uc << 10) + *in - 0x35fdc00;
+				++in;
+			} else {
+				return 0;
+			}
+		} else {
+			if(out + 1 >= out_end) {
+				break;
+			}
+			*out++ = uc;
+		}
+	}
+	return (ptrdiff_t)(in - begin);
+}

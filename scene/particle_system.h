@@ -28,9 +28,12 @@ typedef struct de_particle_vertex_t {
 } de_particle_vertex_t;
 
 typedef struct de_particle_t {
+	struct de_particle_system_emitter_t* owner;
 	de_vec3_t position;
 	de_vec3_t velocity;
 	float size;	
+	bool alive;
+	float size_modifier; /**< Modifier for size which will be added to size each update tick. */
 	float lifetime; /**< Particle is alive if lifetime > 0 */
 	de_color_t color;
 } de_particle_t;
@@ -45,9 +48,9 @@ typedef enum de_particle_system_emitter_type_t {
 DE_STATIC_ASSERT(sizeof(de_particle_system_emitter_type_t) == sizeof(int32_t), invalid_particle_system_emitter_type);
 
 typedef struct de_particle_system_box_emitter_t {
-	float width;
-	float height;
-	float depth;
+	float half_width;
+	float half_height;
+	float half_depth;
 } de_particle_system_box_emitter_t;
 
 typedef struct de_particle_system_sphere_emitter_t {
@@ -55,14 +58,20 @@ typedef struct de_particle_system_sphere_emitter_t {
 } de_particle_system_sphere_emitter_t;
 
 typedef struct de_particle_system_emitter_t {
-	struct de_particle_system_t* particle_system;
+	struct de_particle_system_t* particle_system; /** Owning particle system */
 	de_particle_system_emitter_type_t type; /**< Actual type of emitter. */
-	de_vec3_t position; /**< Offset from center of particle system. */
-	bool auto_resurrect_particles; /**< True if emitter should constantly resurrect dead particles. */
-	int initial_particle_count; /**< Initial particle count at the moment of creation of emitter. */
-	int particle_spawn_rate; /**< Particle spawn rate in unit-per-second. */	
-	int max_particles; /**< Maximum amount of particles emitter can emit. */
-	float time;
+	de_vec3_t position; /**< Offset from center of particle system. */	
+	int32_t particle_spawn_rate; /**< Particle spawn rate in unit-per-second. If < 0, spawns 'max_particles', spawns nothing if 'max_particles' < 0 */
+	int32_t max_particles; /**< Maximum amount of particles emitter can emit. Unlimited if < 0 */
+	float min_lifetime, max_lifetime;
+	float min_size, max_size;
+	float min_x_velocity, max_x_velocity;
+	float min_y_velocity, max_y_velocity;
+	float min_z_velocity, max_z_velocity;
+	float min_size_modifier, max_size_modifier;
+	/* Private */
+	int32_t alive_particles; /**< Count of particle already spawned by this emitter. */
+	float time; /**< Time accumulator for update purposes. */	
 	union {
 		de_particle_system_box_emitter_t box;
 		de_particle_system_sphere_emitter_t sphere;
@@ -71,26 +80,37 @@ typedef struct de_particle_system_emitter_t {
 
 typedef struct de_particle_system_t {
 	DE_ARRAY_DECLARE(de_particle_t, particles);
-	DE_ARRAY_DECLARE(de_particle_vertex_t, vertices);
-	DE_ARRAY_DECLARE(int, indices);	
+	DE_ARRAY_DECLARE(int, free_particles);
 	DE_ARRAY_DECLARE(de_particle_system_emitter_t*, emitters);
+	DE_ARRAY_DECLARE(de_particle_vertex_t, vertices);	
+	DE_ARRAY_DECLARE(int, indices);	
 	de_texture_t* texture;
 	unsigned int vertex_buffer;
 	unsigned int index_buffer;
 	unsigned int vertex_array_object;
 } de_particle_system_t;
 
+/**
+ * @brief Internal. Returns vtable for particle system.
+ */
 struct de_node_dispatch_table_t* de_particle_system_get_dispatch_table();
-
-void de_particle_system_create_particles(de_particle_system_t* particle_system, size_t n);
 
 /**
  * @brief Update emitters and particles. 
  */
 void de_particle_system_update(de_particle_system_t* particle_system, float dt);
 
+/**
+ * @brief Internal. Generates vertices and indices for particles for rendering.
+ */
 void de_particle_system_generate_vertices(de_particle_system_t* particle_system);
 
+/**
+ * @brief Sets mask texture for particles. Only Red channel will be used as alpha value.
+ */
 void de_particle_system_set_texture(de_particle_system_t* particle_system, de_texture_t* texture);
 
-void de_particle_system_add_emitter(de_particle_system_t* particle_system, de_particle_system_emitter_t* emitter);
+/**
+ * @brief Creates and adds new emitter to particle system.
+ */
+de_particle_system_emitter_t* de_particle_system_emitter_create(de_particle_system_t* particle_system, de_particle_system_emitter_type_t type);

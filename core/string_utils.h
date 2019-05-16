@@ -22,4 +22,14 @@
 /**
  * @brief Converts UTF-8 string to UTF-32 string.
  */
-int de_utf8_to_utf32(const char* inString, size_t in_str_len, uint32_t* out, int bufferSize);
+int de_utf8_to_utf32(const char* in, size_t in_length, uint32_t* out, int out_length);
+
+/**
+ * @brief Converts UTF-8 string to UTF-16 string.
+ */
+int de_utf8_to_utf16(const char* in, int in_length, uint16_t* out, int out_length);
+
+/**
+ * @brief Converts UTF-16 string to UTF-32 string.
+ */
+int de_utf16_to_utf32(const uint16_t* in, size_t in_length, uint32_t* out, int out_length);

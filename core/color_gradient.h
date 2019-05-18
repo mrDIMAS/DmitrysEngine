@@ -19,21 +19,31 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+typedef struct de_color_gradient_point_t {
+	float location;
+	de_color_t color;
+} de_color_gradient_point_t;
+
 /**
-* @brief RGBA color
+* @brief 1D color gradient.
 */
-typedef struct de_color_s {
-	uint8_t r; /**< Red component */
-	uint8_t g; /**< Green component */
-	uint8_t b; /**< Blue component */
-	uint8_t a; /**< Alpha (opacity) component */
-} de_color_t;
+typedef struct de_color_gradient_t {
+	DE_ARRAY_DECLARE(de_color_gradient_point_t, points);
+} de_color_gradient_t;
+
+void de_color_gradient_init(de_color_gradient_t* gradient);
 
 /**
- * @brief Initializes RGBA color.
- */
-void de_color_set(de_color_t* color, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+* @brief Adds new color point to gradient at specified location. Location must be in [0; 1] range!
+*/
+void de_color_gradient_add_point(de_color_gradient_t* gradient, float location, const de_color_t* color);
 
-uint32_t de_color_to_int(const de_color_t* color);
+de_color_t de_color_gradient_get_color(const de_color_gradient_t* gradient, float location);
 
-de_color_t de_color_interpolate(const de_color_t* a, const de_color_t* b, float t);
+void de_color_gradient_clear(de_color_gradient_t* gradient);
+
+void de_color_gradient_free(de_color_gradient_t* gradient);
+
+bool de_color_gradient_visit(de_object_visitor_t* visitor, de_color_gradient_t* gradient);
+
+void de_color_gradient_tests();

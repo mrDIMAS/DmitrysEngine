@@ -31,3 +31,12 @@ uint32_t de_color_to_int(const de_color_t* color)
 {
 	return *((uint32_t*)color); /* CAVEAT: will fail if struct will be changed! */
 }
+
+de_color_t de_color_interpolate(const de_color_t* a, const de_color_t* b, float t) {
+	return (de_color_t) {
+		.r = (uint8_t)((int)a->r + (int)(t * ((int)b->r - (int)a->r))),
+		.g = (uint8_t)((int)a->g + (int)(t * ((int)b->g - (int)a->g))),
+		.b = (uint8_t)((int)a->b + (int)(t * ((int)b->b - (int)a->b))),
+		.a = (uint8_t)((int)a->a + (int)(t * ((int)b->a - (int)a->a))),
+	};
+}

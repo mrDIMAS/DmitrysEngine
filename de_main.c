@@ -25,6 +25,7 @@
 #include "core/byteorder.c"
 #include "core/array.c"
 #include "core/color.c"
+#include "core/color_gradient.c"
 #include "core/log.c" 
 #include "core/config.c"
 #include "core/memmgr.c"

@@ -19,6 +19,7 @@ Please note, that this engine is at early development stage and some features ma
 	* Mesh
 	* Light
 	* Camera
+	* Particle system
 * Automatic assets (resources) management 
 	* Textures
 	* Models
@@ -77,7 +78,7 @@ Please note, that this engine is at early development stage and some features ma
 - miniz_tinfl - to decompress FBX compressed data.
 
 ## Code statistics
-- ~19300 lines of code
+- ~19900 lines of code
 - Pure C99
 
 ## Supported compilers

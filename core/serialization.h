@@ -99,7 +99,7 @@ typedef struct de_pointer_pair_t {
 	void* current;
 } de_pointer_pair_t;
 
-typedef struct de_object_visitor_t {
+struct de_object_visitor_t {
 	de_core_t* core;
 	char* data;
 	uint32_t version;
@@ -108,7 +108,7 @@ typedef struct de_object_visitor_t {
 	de_object_visitor_node_t* root;
 	de_object_visitor_node_t* current_node;
 	DE_ARRAY_DECLARE(de_pointer_pair_t, pointerPairs);
-} de_object_visitor_t;
+};
 
 typedef bool(*de_visit_callback_t)(de_object_visitor_t* visitor, void* pointer);
 
@@ -131,12 +131,12 @@ bool de_object_visitor_enter_node(de_object_visitor_t* visitor, const char* node
 void de_object_visitor_leave_node(de_object_visitor_t* visitor);
 
 /**
- * @brief Loads data into object visitor from binary file.
+ * @brief Saves object visitor data tree into binary file.
  */
 void de_object_visitor_save_binary(de_object_visitor_t* visitor, const char* file_path);
 
 /**
- * @brief Saves object visitor data tree into binary file.
+ * @brief Loads data into object visitor from binary file.
  */
 void de_object_visitor_load_binary(de_core_t* core, de_object_visitor_t* visitor, const char* file_path);
 

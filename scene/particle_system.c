@@ -43,6 +43,7 @@ static void de_particle_system_free(de_node_t* node)
 	DE_ARRAY_FREE(particle_system->vertices);
 	DE_ARRAY_FREE(particle_system->indices);
 	DE_ARRAY_FREE(particle_system->free_particles);
+	de_color_gradient_free(&particle_system->color_gradient_over_lifetime);
 	if (particle_system->texture) {
 		de_resource_release(de_resource_from_texture(particle_system->texture));
 	}
@@ -55,8 +56,10 @@ static bool de_particle_visit(de_object_visitor_t* visitor, de_particle_t* parti
 	result &= de_object_visitor_visit_vec3(visitor, "Position", &particle->position);
 	result &= de_object_visitor_visit_vec3(visitor, "Velocity", &particle->velocity);
 	result &= de_object_visitor_visit_float(visitor, "Size", &particle->size);
+	result &= de_object_visitor_visit_bool(visitor, "Alive", &particle->alive);
 	result &= de_object_visitor_visit_float(visitor, "SizeMod", &particle->size_modifier);
 	result &= de_object_visitor_visit_float(visitor, "Lifetime", &particle->lifetime);
+	result &= de_object_visitor_visit_float(visitor, "InitialLifetime", &particle->initial_lifetime);
 	result &= de_object_visitor_visit_uint32(visitor, "Color", (uint32_t*)&particle->color);
 	return result;
 }
@@ -90,6 +93,23 @@ static bool de_particle_system_emitter_visit(de_object_visitor_t* visitor, de_pa
 	result &= de_object_visitor_visit_float(visitor, "MaxZVelocity", &emitter->max_z_velocity);
 	result &= de_object_visitor_visit_float(visitor, "MinSizeModifier", &emitter->min_size_modifier);
 	result &= de_object_visitor_visit_float(visitor, "MaxSizeModifier", &emitter->max_size_modifier);
+	switch(emitter->type) {
+		case DE_PARTICLE_SYSTEM_EMITTER_TYPE_BOX: {
+			de_particle_system_box_emitter_t* box_emitter = &emitter->s.box;
+			result &= de_object_visitor_visit_float(visitor, "HalfWidth", &box_emitter->half_width);
+			result &= de_object_visitor_visit_float(visitor, "HalfHeight", &box_emitter->half_height);
+			result &= de_object_visitor_visit_float(visitor, "HalfDepth", &box_emitter->half_depth);
+			break;
+		}
+		case DE_PARTICLE_SYSTEM_EMITTER_TYPE_SPHERE: {
+			de_particle_system_sphere_emitter_t* sphere_emitter = &emitter->s.sphere;
+			result &= de_object_visitor_visit_float(visitor, "Radius", &sphere_emitter->radius);
+			break;
+		}
+		case DE_PARTICLE_SYSTEM_EMITTER_TYPE_POINT:
+			/* nothing special, just make compiler happy */
+			break;
+	}
 	return result;
 }
 
@@ -105,6 +125,7 @@ static bool de_particle_system_visit(de_object_visitor_t* visitor, de_node_t* no
 	}
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Emitters", particle_system->emitters, de_particle_system_emitter_visit);
 	result &= DE_OBJECT_VISITOR_VISIT_PRIMITIVE_ARRAY(visitor, "FreeParticles", particle_system->free_particles);
+	result &= de_color_gradient_visit(visitor, &particle_system->color_gradient_over_lifetime);
 	return result;
 }
 
@@ -128,7 +149,7 @@ static void de_particle_system_kill_particle(de_particle_system_t* particle_syst
 	DE_ARRAY_APPEND(particle_system->free_particles, index);
 	--particle->owner->alive_particles;
 	particle->alive = false;
-	particle->lifetime = 0.0f;
+	particle->lifetime = particle->initial_lifetime;
 }
 
 static void de_particle_system_emitter_emit(de_particle_system_emitter_t* emitter, float dt)
@@ -147,30 +168,47 @@ static void de_particle_system_emitter_emit(de_particle_system_emitter_t* emitte
 				particle_count = emitter->max_particles - particle_count;
 			}
 			for (int i = 0; i < particle_count; ++i) {
+				de_particle_t* particle = de_particle_system_spawn_particle(emitter->particle_system, emitter);
+				particle->lifetime = 0.0f;
+				particle->initial_lifetime = de_frand(emitter->min_lifetime, emitter->max_lifetime);
+				particle->color = (de_color_t) { 255, 255, 255, 255 };
+				particle->size = de_frand(emitter->min_size, emitter->max_size);
+				particle->size_modifier = de_frand(emitter->min_size_modifier, emitter->max_size_modifier);
+				particle->velocity = (de_vec3_t) {
+					.x = de_frand(emitter->min_x_velocity, emitter->max_x_velocity),
+					.y = de_frand(emitter->min_y_velocity, emitter->max_y_velocity),
+					.z = de_frand(emitter->min_z_velocity, emitter->max_z_velocity)
+				};
+				/* position defined by emitter type */
 				switch (emitter->type) {
 					case DE_PARTICLE_SYSTEM_EMITTER_TYPE_BOX: {						
-						de_particle_system_box_emitter_t* box_emitter = &emitter->s.box;						
-						de_particle_t* particle = de_particle_system_spawn_particle(emitter->particle_system, emitter);
-						particle->lifetime = de_frand(emitter->min_lifetime, emitter->max_lifetime);
+						de_particle_system_box_emitter_t* box_emitter = &emitter->s.box;
 						particle->position = (de_vec3_t) { 
 							.x = emitter->position.x + de_frand(-box_emitter->half_width, box_emitter->half_width),
 							.y = emitter->position.y + de_frand(-box_emitter->half_height, box_emitter->half_height),
 							.z = emitter->position.z + de_frand(-box_emitter->half_depth, box_emitter->half_depth)
-						};
-						particle->color = (de_color_t) { 255, 255, 255, 255 };
-						particle->size = de_frand(emitter->min_size, emitter->max_size);
-						particle->size_modifier = de_frand(emitter->min_size_modifier, emitter->max_size_modifier);
-						particle->velocity = (de_vec3_t) { 
-							.x = de_frand(emitter->min_x_velocity, emitter->max_x_velocity),
-							.y = de_frand(emitter->min_y_velocity, emitter->max_y_velocity),
-							.z = de_frand(emitter->min_z_velocity, emitter->max_z_velocity)
-						};
+						};								
 						break;
 					}
 					case DE_PARTICLE_SYSTEM_EMITTER_TYPE_POINT: {
+						particle->position = (de_vec3_t) { .x = 0, .y = 0, .z = 0 };
 						break;
 					}
 					case DE_PARTICLE_SYSTEM_EMITTER_TYPE_SPHERE: {
+						de_particle_system_sphere_emitter_t* sphere_emitter = &emitter->s.sphere;
+						/* generate random spherical coordinates and convert to cartesian */
+						const float phi = de_frand(0.0f, (float)M_PI);
+						const float theta = de_frand(0.0f, 2.0f * (float)M_PI);
+						const float radius = de_frand(0.0f, sphere_emitter->radius);
+						const float cos_theta = (float)cos(theta);
+						const float sin_theta = (float)sin(theta);
+						const float cos_phi = (float)cos(phi);
+						const float sin_phi = (float)sin(phi);
+						particle->position = (de_vec3_t) { 
+							.x = radius * sin_theta * cos_phi,
+							.y = radius * sin_theta * sin_phi,
+							.z = radius * cos_theta
+						};
 						break;
 					}
 				}
@@ -200,12 +238,13 @@ void de_particle_system_update(de_particle_system_t* particle_system, float dt)
 		de_particle_t* particle = particle_system->particles.data + i;
 
 		if (particle->alive) {
-			particle->lifetime -= dt;
-			if (particle->lifetime < 0) {
+			particle->lifetime += dt;
+			if (particle->lifetime >= particle->initial_lifetime) {
 				de_particle_system_kill_particle(particle_system, particle, i);
 			} else {
 				de_vec3_add(&particle->position, &particle->position, &particle->velocity);
 				particle->size += particle->size_modifier;
+				particle->color = de_color_gradient_get_color(&particle_system->color_gradient_over_lifetime, particle->lifetime / particle->initial_lifetime);
 			}
 		}
 	}
@@ -289,6 +328,7 @@ de_particle_system_emitter_t* de_particle_system_emitter_create(de_particle_syst
 	emitter->type = type;
 	emitter->particle_system = particle_system;
 	DE_ARRAY_APPEND(particle_system->emitters, emitter);
+	/* default values */
 	emitter->min_lifetime = 5.0f;
 	emitter->max_lifetime = 10.0f;
 	emitter->min_size = 0.125f;
@@ -316,4 +356,10 @@ de_particle_system_emitter_t* de_particle_system_emitter_create(de_particle_syst
 		}
 	}
 	return emitter;
+}
+
+de_color_gradient_t* de_particle_system_get_color_gradient_over_lifetime(de_particle_system_t* particle_system) 
+{
+	DE_ASSERT(particle_system);
+	return &particle_system->color_gradient_over_lifetime;
 }

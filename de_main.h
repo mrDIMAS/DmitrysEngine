@@ -157,6 +157,7 @@ typedef struct de_sound_buffer_t de_sound_buffer_t;
 typedef struct de_sound_context_t de_sound_context_t;
 typedef struct de_sound_decoder_t de_sound_decoder_t;
 typedef struct de_resource_t de_resource_t;
+typedef struct de_object_visitor_t de_object_visitor_t;
 
 /**
 * Order is important here, because some parts depends on other
@@ -176,6 +177,7 @@ typedef struct de_resource_t de_resource_t;
 #include "core/linked_list.h"
 #include "core/time.h"
 #include "core/color.h"
+#include "core/color_gradient.h"
 #include "input/input.h"
 #include "core/event.h"
 #include "resources/builtin_fonts.h"

@@ -707,6 +707,9 @@ static void de_object_visitor_node_print(de_object_visitor_t* visitor, de_object
 		}
 
 		switch (field->data_type) {
+			case DE_OBJECT_VISITOR_DATA_TYPE_BOOL:
+				fprintf(stream, "<%s|b:%s>", de_str8_cstr(&field->name), *((bool*)field_data) ? "True" : "False");
+				break;
 			case DE_OBJECT_VISITOR_DATA_TYPE_INT8:
 				fprintf(stream, "<%s|i8:%" PRIi8 ">", de_str8_cstr(&field->name), *((int8_t*)field_data));
 				break;

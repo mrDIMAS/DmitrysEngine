@@ -109,6 +109,8 @@ static bool de_particle_system_emitter_visit(de_object_visitor_t* visitor, de_pa
 		case DE_PARTICLE_SYSTEM_EMITTER_TYPE_POINT:
 			/* nothing special, just make compiler happy */
 			break;
+        default:
+            break;
 	}
 	return result;
 }
@@ -210,6 +212,8 @@ static void de_particle_system_emitter_emit(de_particle_system_emitter_t* emitte
 							.z = radius * cos_theta
 						};
 						break;
+                    default:
+                        break;
 					}
 				}
 			}
@@ -354,6 +358,8 @@ de_particle_system_emitter_t* de_particle_system_emitter_create(de_particle_syst
 			sphere_emitter->radius = 1.0f;
 			break;
 		}
+        default:
+            break;
 	}
 	return emitter;
 }

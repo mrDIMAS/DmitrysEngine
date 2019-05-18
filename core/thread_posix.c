@@ -38,7 +38,10 @@ int de_thrd_join(de_thrd_t* thr)
 
 void de_mtx_init(de_mtx_t* mtx)
 {
-	pthread_mutex_init(mtx, NULL);
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+	pthread_mutex_init(mtx, &attr);
 }
 
 void de_mtx_lock(de_mtx_t* mtx)

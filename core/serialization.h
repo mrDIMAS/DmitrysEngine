@@ -292,7 +292,7 @@ bool de_object_visitor_visit_array_ex(de_object_visitor_t* visitor, const char* 
  * @brief Useful macro for engine array visiting which automatically calculates item size.
  */
 #define DE_OBJECT_VISITOR_VISIT_ARRAY(visitor, name, array, callback) \
-	de_object_visitor_visit_array_ex(visitor, name, (void**)&(array).data, &(array).size, sizeof(*(array).data), &(array)._capacity, callback)
+	de_object_visitor_visit_array_ex(visitor, name, (void**)&(array).data, &(array).size, sizeof(*(array).data), &(array)._capacity, (de_visit_callback_t)callback)
 
  /**
  * @brief Internal. Do not use directly, only for macro DE_OBJECT_VISITOR_VISIT_PRIMITIVE_ARRAY.

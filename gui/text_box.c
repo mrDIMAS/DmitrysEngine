@@ -223,7 +223,8 @@ static void de_gui_text_box_update(de_gui_node_t* node)
 
 static void de_gui_text_box_mouse_down(de_gui_node_t* node, de_gui_routed_event_args_t* args)
 {
-	DE_UNUSED(node, args);
+	DE_UNUSED(node);
+    DE_UNUSED(args);
 }
 
 static void de_gui_text_box_break_on_lines(de_gui_node_t* node)

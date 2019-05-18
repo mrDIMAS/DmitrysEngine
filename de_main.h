@@ -67,8 +67,9 @@ extern "C" {
 #  error Compiler not supported
 #endif
 
+#define DE_UNUSED(x) ((void)(x))
+
 #define _USE_MATH_DEFINES
-#define DE_UNUSED(...) ((void)(__VA_ARGS__))
 #define DE_BIT(n) (1 << n)
 #define DE_STRINGIZE_(x) #x
 #define DE_STRINGIZE(x) DE_STRINGIZE_(x)

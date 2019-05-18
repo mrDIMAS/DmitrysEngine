@@ -563,6 +563,7 @@ static de_gui_node_dispatch_table_t* de_gui_node_get_dispatch_table_by_type(de_g
 		case DE_GUI_NODE_IMAGE: return de_gui_image_get_dispatch_table();
 		case DE_GUI_NODE_CHECK_BOX: return de_gui_check_box_get_dispatch_table();
 		case DE_GUI_NODE_USER_CONTROL: return &stub; // TODO
+        case DE_GUI_NODE_TEMPLATE: return &stub; // TODO
 	}
 	de_log("unhandled type");
 	return NULL;

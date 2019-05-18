@@ -460,13 +460,13 @@ void de_core_platform_message_box(de_core_t* core, const char * msg, const char*
 double de_time_get_seconds(void)
 {
 	struct timespec t;
-	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t);
-	return t.tv_nsec / 1000000000.0;
+	clock_gettime(CLOCK_MONOTONIC, &t);
+	return t.tv_sec + t.tv_nsec / 1000000000.0;
 }
 
 void de_sleep(int milliseconds)
 {
-	usleep(milliseconds * 1000);
+	//usleep(milliseconds * 1000);
 }
 
 char* de_clipboard_get_text()

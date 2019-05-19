@@ -1358,6 +1358,9 @@ void de_renderer_render(de_renderer_t* r)
 		de_vec3_t camera_side;
 		de_mat4_side(&inv_view, &camera_side);
 
+		de_vec3_t camera_position;
+		de_node_get_global_position(camera_node, &camera_position);
+
 		DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes)
 		{
 			if (node->type != DE_NODE_TYPE_PARTICLE_SYSTEM) {
@@ -1365,7 +1368,7 @@ void de_renderer_render(de_renderer_t* r)
 			}
 
 			de_particle_system_t* particle_system = &node->s.particle_system;
-			de_particle_system_generate_vertices(particle_system);
+			de_particle_system_generate_vertices(particle_system, &camera_position);
 
 			/* Upload buffers */
 			if (!particle_system->vertex_buffer) {

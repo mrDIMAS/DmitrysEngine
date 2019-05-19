@@ -43,6 +43,7 @@ static void de_particle_system_free(de_node_t* node)
 	DE_ARRAY_FREE(particle_system->vertices);
 	DE_ARRAY_FREE(particle_system->indices);
 	DE_ARRAY_FREE(particle_system->free_particles);
+	DE_ARRAY_FREE(particle_system->sorted_particles);
 	de_color_gradient_free(&particle_system->color_gradient_over_lifetime);
 	if (particle_system->texture) {
 		de_resource_release(de_resource_from_texture(particle_system->texture));
@@ -254,17 +255,49 @@ void de_particle_system_update(de_particle_system_t* particle_system, float dt)
 	}
 }
 
-void de_particle_system_generate_vertices(de_particle_system_t* particle_system)
+static int de_particle_distance_compare(const void* a, const void* b) 
 {
-	int alive_particles = 0;
+	const de_particle_t* particle_a = *(de_particle_t**)a;
+	const de_particle_t* particle_b = *(de_particle_t**)b;
+	if(particle_a->sqr_distance_to_camera < particle_b->sqr_distance_to_camera) {
+		return 1;
+	} else if(particle_a->sqr_distance_to_camera > particle_b->sqr_distance_to_camera) {
+		return -1;
+	}
+	return 0;
+}
+
+void de_particle_system_generate_vertices(de_particle_system_t* particle_system, const de_vec3_t* camera_pos)
+{
+	const de_node_t* node = de_node_from_particle_system(particle_system);
+	de_vec3_t particle_system_global_position;
+	de_node_get_global_position(node, &particle_system_global_position);
+
+	/* Step 1. Sort particles back-to-front */
+
+	/* Fill array of pointers to alive particles which we'll sort next. */
+	DE_ARRAY_CLEAR(particle_system->sorted_particles);
+	for (size_t i = 0; i < particle_system->particles.size; ++i) {
+		de_particle_t* particle = particle_system->particles.data + i;
+		if (particle->alive) {			
+			/* Transform position from local space of particle system to global space 
+			 * TODO: For performance reasons now it uses only position of particle system 
+			 * node, but ideally it should use global transform of node which also takes 
+			 * rotation into account. */
+			de_vec3_t actual_position;
+			de_vec3_add(&actual_position, &particle->position, &particle_system_global_position);
+			particle->sqr_distance_to_camera = de_vec3_sqr_distance(camera_pos, &actual_position);
+			DE_ARRAY_APPEND(particle_system->sorted_particles, particle);
+		}
+	}
+	/* Sort from back-to-front using pre-calculated distance to camera. */
+	DE_ARRAY_QSORT(particle_system->sorted_particles, de_particle_distance_compare);
+
+	/* Step 2. Generate vertices */
 	DE_ARRAY_CLEAR(particle_system->indices);
 	DE_ARRAY_CLEAR(particle_system->vertices);
-	for (size_t i = 0; i < particle_system->particles.size; ++i) {
-		const de_particle_t* particle = particle_system->particles.data + i;
-
-		if (!particle->alive) {
-			continue;
-		}
+	for (size_t i = 0; i < particle_system->sorted_particles.size; ++i) {
+		const de_particle_t* particle = particle_system->sorted_particles.data[i];
 
 		const uint32_t packed_color = de_color_to_int(&particle->color);
 
@@ -299,7 +332,7 @@ void de_particle_system_generate_vertices(de_particle_system_t* particle_system)
 
 		/* Prepare indices */
 		int* index = DE_ARRAY_GROW(particle_system->indices, 6);
-		const int base_index = alive_particles * 4;
+		const int base_index = i * 4;
 
 		*index = base_index;
 		*(++index) = base_index + 1;
@@ -308,8 +341,6 @@ void de_particle_system_generate_vertices(de_particle_system_t* particle_system)
 		*(++index) = base_index;
 		*(++index) = base_index + 2;
 		*(++index) = base_index + 3;
-
-		++alive_particles;
 	}
 }
 

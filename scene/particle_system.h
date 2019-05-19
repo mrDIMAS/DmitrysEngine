@@ -37,6 +37,7 @@ typedef struct de_particle_t {
 	float lifetime; /**< Particle is alive if lifetime > 0 */
 	float initial_lifetime;
 	de_color_t color;
+	float sqr_distance_to_camera; /**< Non-serializable. Valid only for 1 frame. */
 } de_particle_t;
 
 typedef enum de_particle_system_emitter_type_t {
@@ -64,12 +65,12 @@ typedef struct de_particle_system_emitter_t {
 	de_vec3_t position; /**< Offset from center of particle system. */
 	int32_t particle_spawn_rate; /**< Particle spawn rate in unit-per-second. If < 0, spawns 'max_particles', spawns nothing if 'max_particles' < 0 */
 	int32_t max_particles; /**< Maximum amount of particles emitter can emit. Unlimited if < 0 */
-	float min_lifetime, max_lifetime;
-	float min_size, max_size;
-	float min_x_velocity, max_x_velocity;
-	float min_y_velocity, max_y_velocity;
-	float min_z_velocity, max_z_velocity;
-	float min_size_modifier, max_size_modifier;
+	float min_lifetime, max_lifetime; /**< Range of initial lifetime of a particle */
+	float min_size, max_size; /**< Range of initial size of a particle */
+	float min_size_modifier, max_size_modifier; /**< Range of initial size modifier of a particle */
+	float min_x_velocity, max_x_velocity; /**< Range of initial X-component of velocity for a particle */
+	float min_y_velocity, max_y_velocity; /**< Range of initial Y-component of velocity for a particle */
+	float min_z_velocity, max_z_velocity; /**< Range of initial Z-component of velocity for a particle */	
 	/* Private */
 	int32_t alive_particles; /**< Count of particle already spawned by this emitter. */
 	float time; /**< Time accumulator for update purposes. */
@@ -85,6 +86,7 @@ typedef struct de_particle_system_t {
 	DE_ARRAY_DECLARE(de_particle_system_emitter_t*, emitters);
 	DE_ARRAY_DECLARE(de_particle_vertex_t, vertices);
 	DE_ARRAY_DECLARE(int, indices);
+	DE_ARRAY_DECLARE(de_particle_t*, sorted_particles); /**< Array of pointers to alive particles sorted in back-to-front order, valid only 1 frame! */
 	de_color_gradient_t color_gradient_over_lifetime;
 	de_texture_t* texture;
 	unsigned int vertex_buffer;
@@ -105,7 +107,7 @@ void de_particle_system_update(de_particle_system_t* particle_system, float dt);
 /**
  * @brief Internal. Generates vertices and indices for particles for rendering.
  */
-void de_particle_system_generate_vertices(de_particle_system_t* particle_system);
+void de_particle_system_generate_vertices(de_particle_system_t* particle_system, const de_vec3_t* camera_pos);
 
 /**
  * @brief Sets mask texture for particles. Only Red channel will be used as alpha value.
@@ -122,4 +124,3 @@ de_particle_system_emitter_t* de_particle_system_emitter_create(de_particle_syst
  * setup color behaviour of particles during lifetime.
  */
 de_color_gradient_t* de_particle_system_get_color_gradient_over_lifetime(de_particle_system_t* particle_system);
-

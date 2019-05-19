@@ -51,8 +51,9 @@ Please note, that this engine is at early development stage and some features ma
 	* Check box
 * TGA image loading
 * Position-based physics
-* Built-in save/load functionality via object visitor.
+* Built-in save/load functionality via object visitor - state of engine can be saved/loaded just in a single call.
 * Documentation - almost every function of the engine has description in Doxygen format.
+* Extremely fast compilation, thus very low iteration times - feature can be tested very fast.
 * Easy to hack and modify
 
 ## Planned features
@@ -107,6 +108,7 @@ Options for linker: `-lGL -lpthread -lasound -lX11 -lXrandr`
 * Very fast compilation compared to C++
 * Very simple - what you have is just plain memory and procedures that operates on it.
 * Strict ABI
+* Small but enough number of features - nothing distracts you from your actual goal.
 * Why not one of those other fancy languages? Let Benjamin Franklin says for me: "He who sacrifices freedom for security deserves neither."
 
 And of course:

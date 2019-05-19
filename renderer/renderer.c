@@ -29,33 +29,30 @@
 
 void de_renderer_check_opengl_error(const char* func, const char* file, int line)
 {
-	int err;
-	const char* errorDesc = "Unknown";
-
-	err = glGetError();
-
+	const char* desc = "Unknown";
+	const int err = glGetError();
 	if (err != GL_NO_ERROR) {
 		switch (err) {
 			case GL_INVALID_ENUM:
-				errorDesc = "GL_INVALID_ENUM";
+				desc = "GL_INVALID_ENUM";
 				break;
 			case GL_INVALID_VALUE:
-				errorDesc = "GL_INVALID_VALUE";
+				desc = "GL_INVALID_VALUE";
 				break;
 			case GL_INVALID_OPERATION:
-				errorDesc = "GL_INVALID_OPERATION";
+				desc = "GL_INVALID_OPERATION";
 				break;
 			case GL_STACK_OVERFLOW:
-				errorDesc = "GL_STACK_OVERFLOW";
+				desc = "GL_STACK_OVERFLOW";
 				break;
 			case GL_STACK_UNDERFLOW:
-				errorDesc = "GL_STACK_UNDERFLOW";
+				desc = "GL_STACK_UNDERFLOW";
 				break;
 			case GL_OUT_OF_MEMORY:
-				errorDesc = "GL_OUT_OF_MEMORY";
+				desc = "GL_OUT_OF_MEMORY";
 				break;
 		}
-		de_fatal_error("OpenGL error \"%s\" occured at function:\n%s\nat line %d in file %s", errorDesc, func, line, file);
+		de_fatal_error("OpenGL error \"%s\" occured at function:\n%s\nat line %d in file %s", desc, func, line, file);
 	}
 }
 
@@ -86,6 +83,7 @@ static void de_renderer_load_extensions()
 	GET_GL_EXT(PFNGLUNIFORM1IPROC, glUniform1i);
 	GET_GL_EXT(PFNGLGETPROGRAMIVPROC, glGetProgramiv);
 	GET_GL_EXT(PFNGLUNIFORM3FPROC, glUniform3f);
+	GET_GL_EXT(PFNGLUNIFORM2FPROC, glUniform2f);
 	GET_GL_EXT(PFNGLUNIFORM1FPROC, glUniform1f);
 
 	GET_GL_EXT(PFNGLGENBUFFERSPROC, glGenBuffers);
@@ -311,7 +309,7 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 	/**
 	 * G-Buffer filling shader
 	 **/
-	static const  char* de_gbuffer_fs =
+	static const char* de_gbuffer_fs =
 		"#version 330 core\n"
 
 		"layout(location = 0) out float outDepth;"
@@ -496,18 +494,31 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 		"	gl_Position = viewProjectionMatrix * (worldPosition + offset);"
 		"}";
 
-	static const char* particle_fs = 
+	static const char* particle_fs =
 		"#version 330 core\n"
 
 		"uniform sampler2D diffuseTexture;"
+		"uniform sampler2D depthBufferTexture;"
+		"uniform vec2 invScreenSize;"
+		"uniform vec2 projParams;"
 
 		"out vec4 FragColor;"
 		"in vec2 texCoord;"
 		"in vec4 color;"
 
+		"float toProjSpace(float z)"
+		"{"
+		"   float far = projParams.x;"
+		"   float near = projParams.y;"
+		"	return (far * near) / (far - z * (far + near));"
+		"}"
+		
 		"void main()"
 		"{"
+		"   float sceneDepth = toProjSpace(texture(depthBufferTexture, gl_FragCoord.xy * invScreenSize).r);"
+		"   float depthOpacity = clamp((sceneDepth - gl_FragCoord.z / gl_FragCoord.w) * 2.0f, 0.0, 1.0);"
 		"	FragColor = color * texture(diffuseTexture, texCoord).r;"
+		"   FragColor.a *= depthOpacity;"
 		"}";
 
 	/* Build flat shader */
@@ -586,6 +597,9 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 		s->vs.camera_up_vector = glGetUniformLocation(s->program, "cameraUpVector");
 
 		s->fs.diffuse_texture = glGetUniformLocation(s->program, "diffuseTexture");
+		s->fs.depth_buffer_texture = glGetUniformLocation(s->program, "depthBufferTexture");
+		s->fs.inv_screen_size = glGetUniformLocation(s->program, "invScreenSize");
+		s->fs.proj_params = glGetUniformLocation(s->program, "projParams");
 	}
 }
 
@@ -942,9 +956,6 @@ static void de_renderer_upload_texture(de_texture_t* texture)
 {
 	GLint internalFormat;
 	GLint format;
-#if 0
-	GLfloat max_anisotropy;
-#endif
 	switch (texture->byte_per_pixel) {
 		case 3:
 			internalFormat = GL_RGB;
@@ -969,6 +980,7 @@ static void de_renderer_upload_texture(de_texture_t* texture)
 	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
 	DE_GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
 #if 0
+	GLfloat max_anisotropy;
 	DE_GL_CALL(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &max_anisotropy));
 	DE_GL_CALL(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy));
 #endif
@@ -1155,7 +1167,7 @@ void de_renderer_render(de_renderer_t* r)
 		{
 			if (node->global_visibility && node->type == DE_NODE_TYPE_MESH) {
 				de_mesh_t* mesh = &node->s.mesh;
-				bool is_skinned = de_mesh_is_skinned(mesh);
+				const bool is_skinned = de_mesh_is_skinned(mesh);
 
 				if (node->depth_hack != 0) {
 					de_camera_enter_depth_hack(camera, node->depth_hack);
@@ -1419,11 +1431,21 @@ void de_renderer_render(de_renderer_t* r)
 
 			DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
 			if (particle_system->texture) {
-				glBindTexture(GL_TEXTURE_2D, particle_system->texture->id);
+				DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, particle_system->texture->id));
 			} else {
-				glBindTexture(GL_TEXTURE_2D, r->white_dummy->id);
+				DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->white_dummy->id));
 			}
 			DE_GL_CALL(glUniform1i(shader->fs.diffuse_texture, 0));
+
+			DE_GL_CALL(glActiveTexture(GL_TEXTURE1));
+			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.depth_texture));
+			DE_GL_CALL(glUniform1i(shader->fs.depth_buffer_texture, 1));
+
+			const float inv_width = 1.0f / core->params.video_mode.width;
+			const float inv_height = 1.0f / core->params.video_mode.height;
+			DE_GL_CALL(glUniform2f(shader->fs.inv_screen_size, inv_width, inv_height));
+
+			DE_GL_CALL(glUniform2f(shader->fs.proj_params, camera->z_far, camera->z_near));			 
 
 			DE_GL_CALL(glDrawElements(GL_TRIANGLES, particle_system->indices.size, GL_UNSIGNED_INT, NULL));
 		}

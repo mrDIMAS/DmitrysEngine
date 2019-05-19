@@ -38,6 +38,7 @@ PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
 PFNGLUNIFORM4FPROC glUniform4f;
 PFNGLUNIFORM3FPROC glUniform3f;
 PFNGLUNIFORM1FPROC glUniform1f;
+PFNGLUNIFORM2FPROC glUniform2f;
 PFNGLUNIFORM1IPROC glUniform1i;
 
 PFNGLGENBUFFERSPROC glGenBuffers;
@@ -154,6 +155,9 @@ typedef struct de_particle_system_shader_t {
 	} vs;
 	struct {
 		GLint diffuse_texture;
+		GLint depth_buffer_texture;
+		GLint inv_screen_size;
+		GLint proj_params;
 	} fs;
 } de_particle_system_shader_t;
 

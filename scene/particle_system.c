@@ -234,11 +234,17 @@ de_node_dispatch_table_t* de_particle_system_get_dispatch_table()
 
 void de_particle_system_update(de_particle_system_t* particle_system, float dt)
 {
+	/* Emit particles first */
 	for (size_t i = 0; i < particle_system->emitters.size; ++i) {
 		de_particle_system_emitter_t* emitter = particle_system->emitters.data[i];
 		de_particle_system_emitter_emit(emitter, dt);
 	}
 
+	/* Precalculate velocity offset from acceleration */
+	de_vec3_t accel_offset;
+	de_vec3_scale(&accel_offset, &particle_system->acceleration, dt * dt);
+
+	/* Then update them */
 	for (size_t i = 0; i < particle_system->particles.size; ++i) {
 		de_particle_t* particle = particle_system->particles.data + i;
 
@@ -247,7 +253,8 @@ void de_particle_system_update(de_particle_system_t* particle_system, float dt)
 			if (particle->lifetime >= particle->initial_lifetime) {
 				de_particle_system_kill_particle(particle_system, particle, i);
 			} else {
-				de_vec3_add(&particle->position, &particle->position, &particle->velocity);
+				de_vec3_add(&particle->velocity, &particle->velocity, &accel_offset);
+				de_vec3_add(&particle->position, &particle->position, &particle->velocity);				
 				particle->size += particle->size_modifier;
 				particle->color = de_color_gradient_get_color(&particle_system->color_gradient_over_lifetime, particle->lifetime / particle->initial_lifetime);
 			}

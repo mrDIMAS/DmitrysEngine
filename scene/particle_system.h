@@ -81,6 +81,7 @@ typedef struct de_particle_system_emitter_t {
 } de_particle_system_emitter_t;
 
 typedef struct de_particle_system_t {
+	de_vec3_t acceleration; /**< Acceleration for each particle in m/s^2. For gravity use (0.0, -9.81, 0.0), default is (0.0) */
 	DE_ARRAY_DECLARE(de_particle_t, particles);
 	DE_ARRAY_DECLARE(int, free_particles);
 	DE_ARRAY_DECLARE(de_particle_system_emitter_t*, emitters);

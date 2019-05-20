@@ -473,8 +473,8 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 
 		"layout(location = 0) in vec3 vertexPosition;"
 		"layout(location = 1) in vec2 vertexTexCoord;"
-		"layout(location = 2) in vec2 vertexOffset;"
-		"layout(location = 3) in float particleSize;"
+		"layout(location = 2) in float particleSize;"
+		"layout(location = 3) in float particleRotation;"
 		"layout(location = 4) in vec4 vertexColor;"
 
 		"uniform mat4 viewProjectionMatrix;"
@@ -485,10 +485,19 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 		"out vec2 texCoord;"
 		"out vec4 color;"
 
+		"vec2 rotateVec2(vec2 v, float angle)"
+		"{"
+		"   float c = cos(angle);"
+		"   float s = sin(angle);"
+		"   mat2 m = mat2(c, -s, s, c);"
+		"   return m * v;"
+		"}"
+
 		"void main()"
 		"{"
 		"	color = vertexColor;"
 		"	texCoord = vertexTexCoord;"
+		"   vec2 vertexOffset = rotateVec2(vertexTexCoord * 2.0 - 1.0, particleRotation);"
 		"	vec4 worldPosition = worldMatrix * vec4(vertexPosition, 1.0);"
 		"	vec4 offset = (vertexOffset.x * cameraSideVector + vertexOffset.y * cameraUpVector) * particleSize;"
 		"	gl_Position = viewProjectionMatrix * (worldPosition + offset);"
@@ -1413,10 +1422,10 @@ void de_renderer_render(de_renderer_t* r)
 			DE_GL_CALL(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, vertex_size, (void*)offsetof(de_particle_vertex_t, tex_coord)));
 			DE_GL_CALL(glEnableVertexAttribArray(1));
 
-			DE_GL_CALL(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, vertex_size, (void*)offsetof(de_particle_vertex_t, corner)));
+			DE_GL_CALL(glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, vertex_size, (void*)offsetof(de_particle_vertex_t, size)));
 			DE_GL_CALL(glEnableVertexAttribArray(2));
 
-			DE_GL_CALL(glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, vertex_size, (void*)offsetof(de_particle_vertex_t, size)));
+			DE_GL_CALL(glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, vertex_size, (void*)offsetof(de_particle_vertex_t, rotation)));
 			DE_GL_CALL(glEnableVertexAttribArray(3));
 
 			DE_GL_CALL(glVertexAttribPointer(4, 4, GL_UNSIGNED_BYTE, GL_TRUE, vertex_size, (void*)offsetof(de_particle_vertex_t, color)));

@@ -60,6 +60,8 @@ static bool de_particle_visit(de_object_visitor_t* visitor, de_particle_t* parti
 	result &= de_object_visitor_visit_bool(visitor, "Alive", &particle->alive);
 	result &= de_object_visitor_visit_float(visitor, "SizeMod", &particle->size_modifier);
 	result &= de_object_visitor_visit_float(visitor, "Lifetime", &particle->lifetime);
+	result &= de_object_visitor_visit_float(visitor, "Rotation", &particle->rotation);
+	result &= de_object_visitor_visit_float(visitor, "RotationSpeed", &particle->rotation_speed);
 	result &= de_object_visitor_visit_float(visitor, "InitialLifetime", &particle->initial_lifetime);
 	result &= de_object_visitor_visit_uint32(visitor, "Color", (uint32_t*)&particle->color);
 	return result;
@@ -94,6 +96,8 @@ static bool de_particle_system_emitter_visit(de_object_visitor_t* visitor, de_pa
 	result &= de_object_visitor_visit_float(visitor, "MaxZVelocity", &emitter->max_z_velocity);
 	result &= de_object_visitor_visit_float(visitor, "MinSizeModifier", &emitter->min_size_modifier);
 	result &= de_object_visitor_visit_float(visitor, "MaxSizeModifier", &emitter->max_size_modifier);
+	result &= de_object_visitor_visit_float(visitor, "MinRotationSpeed", &emitter->min_rotation_speed);
+	result &= de_object_visitor_visit_float(visitor, "MaxRotationSpeed", &emitter->max_rotation_speed);
 	switch(emitter->type) {
 		case DE_PARTICLE_SYSTEM_EMITTER_TYPE_BOX: {
 			de_particle_system_box_emitter_t* box_emitter = &emitter->s.box;
@@ -182,6 +186,8 @@ static void de_particle_system_emitter_emit(de_particle_system_emitter_t* emitte
 					.y = de_frand(emitter->min_y_velocity, emitter->max_y_velocity),
 					.z = de_frand(emitter->min_z_velocity, emitter->max_z_velocity)
 				};
+				particle->rotation = 0;
+				particle->rotation_speed = de_frand(emitter->min_rotation_speed, emitter->max_rotation_speed);
 				/* position defined by emitter type */
 				switch (emitter->type) {
 					case DE_PARTICLE_SYSTEM_EMITTER_TYPE_BOX: {						
@@ -257,6 +263,7 @@ void de_particle_system_update(de_particle_system_t* particle_system, float dt)
 				de_vec3_add(&particle->position, &particle->position, &particle->velocity);				
 				particle->size += particle->size_modifier;
 				particle->color = de_color_gradient_get_color(&particle_system->color_gradient_over_lifetime, particle->lifetime / particle->initial_lifetime);
+				particle->rotation += particle->rotation_speed;
 			}
 		}
 	}
@@ -311,31 +318,31 @@ void de_particle_system_generate_vertices(de_particle_system_t* particle_system,
 		/* Prepare quad vertices */
 		de_particle_vertex_t* vertex = DE_ARRAY_GROW(particle_system->vertices, 4);
 		vertex->position = particle->position;
-		vertex->corner = (de_vec2_t) { -1.0f, 1.0f };
 		vertex->tex_coord = (de_vec2_t) { 0.0f, 0.0f };
 		vertex->size = particle->size;
 		vertex->color = packed_color;
+		vertex->rotation = particle->rotation;
 
 		++vertex;
 		vertex->position = particle->position;
-		vertex->corner = (de_vec2_t) { 1.0f, 1.0f };
 		vertex->tex_coord = (de_vec2_t) { 1.0f, 0.0f };
 		vertex->size = particle->size;
 		vertex->color = packed_color;
+		vertex->rotation = particle->rotation;
 
 		++vertex;
 		vertex->position = particle->position;
-		vertex->corner = (de_vec2_t) { 1.0f, -1.0f };
 		vertex->tex_coord = (de_vec2_t) { 1.0f, 1.0f };
 		vertex->size = particle->size;
 		vertex->color = packed_color;
+		vertex->rotation = particle->rotation;
 
 		++vertex;
 		vertex->position = particle->position;
-		vertex->corner = (de_vec2_t) { -1.0f, -1.0f };
 		vertex->tex_coord = (de_vec2_t) { 0.0f, 1.0f };
 		vertex->size = particle->size;
 		vertex->color = packed_color;
+		vertex->rotation = particle->rotation;
 
 		/* Prepare indices */
 		int* index = DE_ARRAY_GROW(particle_system->indices, 6);
@@ -383,6 +390,8 @@ de_particle_system_emitter_t* de_particle_system_emitter_create(de_particle_syst
 	emitter->max_y_velocity = 0.001f;
 	emitter->min_z_velocity = -0.001f;
 	emitter->max_z_velocity = 0.001f;
+	emitter->min_rotation_speed = -0.02f;
+	emitter->max_rotation_speed = 0.02f;
 	switch(type) {
 		case DE_PARTICLE_SYSTEM_EMITTER_TYPE_BOX: {
 			de_particle_system_box_emitter_t* box_emitter = &emitter->s.box;

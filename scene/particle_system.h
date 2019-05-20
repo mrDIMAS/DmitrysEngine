@@ -22,8 +22,8 @@
 typedef struct de_particle_vertex_t {
 	de_vec3_t position;	/**< Position of particle. */
 	de_vec2_t tex_coord;
-	de_vec2_t corner; /**< Offset for corners: left_top(-1,1), right_top(1,1) and etc. */
 	float size; /**< Size of particle. */
+	float rotation; /**< Rotation of particle around axis to camera. */
 	uint32_t color; /**< Packed RGBA color. */
 } de_particle_vertex_t;
 
@@ -36,6 +36,8 @@ typedef struct de_particle_t {
 	float size_modifier; /**< Modifier for size which will be added to size each update tick. */
 	float lifetime; /**< Particle is alive if lifetime > 0 */
 	float initial_lifetime;
+	float rotation_speed;
+	float rotation;	
 	de_color_t color;
 	float sqr_distance_to_camera; /**< Non-serializable. Valid only for 1 frame. */
 } de_particle_t;
@@ -71,6 +73,7 @@ typedef struct de_particle_system_emitter_t {
 	float min_x_velocity, max_x_velocity; /**< Range of initial X-component of velocity for a particle */
 	float min_y_velocity, max_y_velocity; /**< Range of initial Y-component of velocity for a particle */
 	float min_z_velocity, max_z_velocity; /**< Range of initial Z-component of velocity for a particle */	
+	float min_rotation_speed, max_rotation_speed; /**< Range of initial rotation speed for a particle */
 	/* Private */
 	int32_t alive_particles; /**< Count of particle already spawned by this emitter. */
 	float time; /**< Time accumulator for update purposes. */

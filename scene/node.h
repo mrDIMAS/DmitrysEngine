@@ -24,11 +24,8 @@ typedef enum de_node_type_t {
 	DE_NODE_TYPE_LIGHT,
 	DE_NODE_TYPE_MESH,
 	DE_NODE_TYPE_CAMERA,
-	DE_NODE_TYPE_PARTICLE_SYSTEM,
-	DE_NODE_TYPE_FORCE_SIZE = INT32_MAX,
+	DE_NODE_TYPE_PARTICLE_SYSTEM
 } de_node_type_t;
-
-DE_STATIC_ASSERT(sizeof(de_node_type_t) == sizeof(uint32_t), invalid_node_type_size);
 
 /**
  * @brief Node dispatch table (vtable). Works together in combination with tagged unions.
@@ -47,6 +44,11 @@ typedef enum de_transform_flags_t {
 	DE_TRANSFORM_FLAGS_SCALE_PIVOT_NEED_UPDATE = DE_BIT(2),
 	DE_TRANSFORM_FLAGS_POST_ROTATION_NEED_UPDATE = DE_BIT(3)
 } de_transform_flags_t;
+
+typedef enum de_node_flags_t {
+	DE_NODE_FLAGS_IS_BONE = DE_BIT(0), /**< Indicates that a node is a bone node. Read-only. */
+	DE_NODE_FLAGS_DISABLE_LIGHT = DE_BIT(1) /**< Indicates that a node should not be lit up. Read-write. */
+} de_node_flags_t;
 
 /**
  * @class de_node_t
@@ -81,13 +83,13 @@ struct de_node_t {
 	de_mat4_t m_scale_pivot;
 	de_mat4_t m_scale_pivot_inv;
 	de_transform_flags_t transform_flags;
-	de_node_t* parent; /**< Pool reference to parent node */
-	DE_ARRAY_DECLARE(de_node_t*, children); /**< Array of pool references to child nodes */
+	de_node_t* parent; /**< Pointer to parent node */
+	DE_ARRAY_DECLARE(de_node_t*, children); /**< Array of pointers to child nodes */
 	bool local_visibility; /**< Local visibility. Actual visibility defined by hierarchy. So if parent node is invisible, then child node will be too */
 	bool global_visibility;
 	de_node_t* original; /**< Pointer to original node in resource from which this node copied. */
-	void* user_data; /**< Non-serializable. */
-	bool is_bone;
+	void* user_data; /**< Pointer to any data you want the node to hold. Non-serializable. */
+	de_node_flags_t flags;
 	de_body_t* body;
 	float depth_hack; /**< Depth hack value for node, will be used to hack projection matrix on render. Used to make object render on-top of other. */
 	de_resource_t* model_resource; /**< Pointer to model from which this node was instantiated.  */
@@ -329,6 +331,13 @@ void de_node_get_scaling_offset(de_node_t* node, de_vec3_t* v);
 
 void de_node_set_scaling_pivot(de_node_t* node, const de_vec3_t* v);
 
+/**
+ * @brief Returns scaling pivot of a node.
+ */
 void de_node_get_scaling_pivot(de_node_t* node, de_vec3_t* v);
 
+/**
+ * @brief Resets flag indicating that current local and global transform are valid, thus
+ * forcing update of transforms on next frame (or current if called before @ref de_scene_update).
+ */
 void de_node_invalidate_transforms(de_node_t* node);

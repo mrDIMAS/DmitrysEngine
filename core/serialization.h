@@ -161,6 +161,12 @@ void de_object_visitor_load_binary(de_core_t* core, de_object_visitor_t* visitor
  * }
  * ...
  * de_object_visitor_visit_pointer(visitor, "foo", &foo, sizeof(*foo), visit_foo);
+ * 
+ * But there is a more neat way to do this (in this case macro automatically calculate pointee size):
+ * 
+ * DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "foo", &foo, visit_foo);
+ * 
+ * DE_OBJECT_VISITOR_VISIT_POINTER is preferred way to serialize pointer!
  *
  * So basically on loading this function will allocate memory for your object and call appropriate
  * visitor function to continue serialization.
@@ -171,14 +177,32 @@ void de_object_visitor_load_binary(de_core_t* core, de_object_visitor_t* visitor
 bool de_object_visitor_visit_pointer(de_object_visitor_t* visitor, const char* name, void** pointer_ptr, size_t pointee_size, de_visit_callback_t pointee_visitor);
 
 /**
- * @brief Useful macro which automatically calculates pointee size.
+ * @brief Useful macro wrapper for de_object_visitor_visit_pointer which automatically calculates pointee
+ * size. Prefer this macro to direct call of de_object_visitor_visit_pointer!
  */
 #define DE_OBJECT_VISITOR_VISIT_POINTER(visitor, name, pointer_ptr, pointee_visitor) \
 	de_object_visitor_visit_pointer(visitor, name, (void**)pointer_ptr, sizeof(**pointer_ptr), (de_visit_callback_t)pointee_visitor)
 
+/**
+ * @brief Internal. Visits enumeration as unsigned 64-bit number. Helper for DE_OBJECT_VISITOR_VISIT_ENUM macro.
+ */
+bool de_object_visitor_visit_enum_(de_object_visitor_t* visitor, const char* name, void* enumeration, size_t enumeration_size);
+
+/**
+ * @brief Visits enumeration as unsigned 64-bit number. Enumeration itself can be any size in range 1-8 bytes
+ * (from uint8_t to uint64_t). This is portable way to serialize enumeration, we can't just rely on 
+ * current size of enumeration because its size is not defined by standard.
+ */
+#define DE_OBJECT_VISITOR_VISIT_ENUM(visitor, name, enumeration) de_object_visitor_visit_enum_(visitor, name, enumeration, sizeof(*enumeration));
+
  /**
-  * @brief Visits 32-bit signed integer.
-  */
+ * @brief Visits 64-bit signed integer.
+ */
+bool de_object_visitor_visit_int64(de_object_visitor_t* visitor, const char* name, int64_t* integer);
+ 
+ /**
+ * @brief Visits 32-bit signed integer.
+ */
 bool de_object_visitor_visit_int32(de_object_visitor_t* visitor, const char* name, int32_t* integer);
 
 /**
@@ -195,6 +219,11 @@ bool de_object_visitor_visit_int8(de_object_visitor_t* visitor, const char* name
  * @brief Visits bool.
  */
 bool de_object_visitor_visit_bool(de_object_visitor_t* visitor, const char* name, bool* boolean);
+
+/**
+ * @brief Visits 32-bit unsigned integer.
+ */
+bool de_object_visitor_visit_uint64(de_object_visitor_t* visitor, const char* name, uint64_t* integer);
 
 /**
  * @brief Visits 32-bit unsigned integer.

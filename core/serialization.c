@@ -159,11 +159,6 @@ void de_object_visitor_leave_node(de_object_visitor_t* visitor)
 
 bool de_object_visitor_visit_pointer(de_object_visitor_t* visitor, const char* name, void** pointer_ptr, size_t pointee_size, de_visit_callback_t pointee_visitor)
 {
-	uint64_t int_ptr = 0;
-	de_pointer_pair_t * existing = NULL;
-	de_pointer_pair_t* pointer_pair;
-	size_t i;
-
 	if (!pointee_visitor) {
 		de_log("serialization: trying to visit pointer, but visitor function is not specified!");
 		return false;
@@ -174,10 +169,11 @@ bool de_object_visitor_visit_pointer(de_object_visitor_t* visitor, const char* n
 	}
 
 	/* Visit IntPtr */
+	uint64_t int_ptr = 0;
 	if (!visitor->is_reading) {
 		int_ptr = (uint64_t)((intptr_t)*pointer_ptr);
 	}
-	if (!de_object_visitor_visit_data(visitor, "IntPtr", &int_ptr, sizeof(int_ptr), DE_OBJECT_VISITOR_DATA_TYPE_UINT64)) {
+	if (!de_object_visitor_visit_uint64(visitor, "IntPtr", &int_ptr)) {
 		return false;
 	}
 
@@ -189,7 +185,9 @@ bool de_object_visitor_visit_pointer(de_object_visitor_t* visitor, const char* n
 	}
 
 	/* try to find existing pointer. TODO: optimize using binary search? */
-	for (i = 0; i < visitor->pointerPairs.size; ++i) {
+	de_pointer_pair_t * existing = NULL;
+	de_pointer_pair_t* pointer_pair;
+	for (size_t i = 0; i < visitor->pointerPairs.size; ++i) {
 		pointer_pair = visitor->pointerPairs.data + i;
 
 		if (pointer_pair->last == int_ptr) {
@@ -225,6 +223,24 @@ bool de_object_visitor_visit_pointer(de_object_visitor_t* visitor, const char* n
 	return true;
 }
 
+bool de_object_visitor_visit_enum_(de_object_visitor_t* visitor, const char* name, void* enumeration, size_t enumeration_size)
+{
+	uint64_t data = 0;
+	if (!visitor->is_reading) {
+		memcpy(&data, enumeration, enumeration_size <= sizeof(data) ? enumeration_size : sizeof(data));
+	}
+	bool result = de_object_visitor_visit_uint64(visitor, name, &data);
+	if(visitor->is_reading) {
+		memcpy(enumeration, &data, enumeration_size);
+	}
+	return result;
+}
+
+bool de_object_visitor_visit_int64(de_object_visitor_t* visitor, const char* name, int64_t* integer)
+{
+	return de_object_visitor_visit_data(visitor, name, integer, sizeof(*integer), DE_OBJECT_VISITOR_DATA_TYPE_INT64);
+}
+
 bool de_object_visitor_visit_int32(de_object_visitor_t* visitor, const char* name, int32_t* integer)
 {
 	return de_object_visitor_visit_data(visitor, name, integer, sizeof(*integer), DE_OBJECT_VISITOR_DATA_TYPE_INT32);
@@ -243,6 +259,11 @@ bool de_object_visitor_visit_int8(de_object_visitor_t* visitor, const char* name
 bool de_object_visitor_visit_bool(de_object_visitor_t* visitor, const char* name, bool* boolean)
 {
 	return de_object_visitor_visit_data(visitor, name, boolean, sizeof(*boolean), DE_OBJECT_VISITOR_DATA_TYPE_BOOL);
+}
+
+bool de_object_visitor_visit_uint64(de_object_visitor_t* visitor, const char* name, uint64_t* integer)
+{
+	return de_object_visitor_visit_data(visitor, name, integer, sizeof(*integer), DE_OBJECT_VISITOR_DATA_TYPE_UINT64);
 }
 
 bool de_object_visitor_visit_uint32(de_object_visitor_t* visitor, const char* name, uint32_t* integer)

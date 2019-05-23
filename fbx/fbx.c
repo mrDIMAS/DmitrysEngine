@@ -1392,9 +1392,11 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 						de_path_init(&path);
 						de_path_append_cstr(&path, "data/textures/");
 						de_path_append_str8(&path, &mat->diffuse_tex->filename);
-						de_resource_t* res = de_core_request_resource(scene->core, DE_RESOURCE_TYPE_TEXTURE, &path, 0);
-						if (res) {
-							de_surface_set_diffuse_texture(surf, de_resource_to_texture(res));
+						if(!de_str8_is_empty(&mat->diffuse_tex->filename)) {
+							de_resource_t* res = de_core_request_resource(scene->core, DE_RESOURCE_TYPE_TEXTURE, &path, 0);
+							if (res) {
+								de_surface_set_diffuse_texture(surf, de_resource_to_texture(res));
+							}
 						}
 
 						/* normal texture */
@@ -1403,9 +1405,11 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 						de_path_append_str_view(&path, &tex_name);
 						de_path_append_cstr(&path, "_normal");
 						de_path_append_str_view(&path, &tex_extension);
-						res = de_core_request_resource(scene->core, DE_RESOURCE_TYPE_TEXTURE, &path, 0);
-						if (res) {
-							de_surface_set_normal_texture(surf, de_resource_to_texture(res));
+						if (de_file_exists(de_path_cstr(&path))) {
+							de_resource_t* res = de_core_request_resource(scene->core, DE_RESOURCE_TYPE_TEXTURE, &path, 0);
+							if (res) {
+								de_surface_set_normal_texture(surf, de_resource_to_texture(res));
+							}
 						}
 
 						/* specular texture */
@@ -1414,9 +1418,11 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 						de_path_append_str_view(&path, &tex_name);
 						de_path_append_cstr(&path, "_specular");
 						de_path_append_str_view(&path, &tex_extension);
-						res = de_core_request_resource(scene->core, DE_RESOURCE_TYPE_TEXTURE, &path, 0);
-						if (res) {
-							de_surface_set_specular_texture(surf, de_resource_to_texture(res));
+						if (de_file_exists(de_path_cstr(&path))) {
+							de_resource_t* res = de_core_request_resource(scene->core, DE_RESOURCE_TYPE_TEXTURE, &path, 0);
+							if (res) {
+								de_surface_set_specular_texture(surf, de_resource_to_texture(res));
+							}
 						}
 
 						de_path_free(&path);
@@ -1668,7 +1674,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 						de_fbx_model_t* fbx_model = (de_fbx_model_t*)vertex_weight->fbx_model;
 						de_node_t* bone_node = fbx_model->engine_node;
 						vertex_weight->node = fbx_model->engine_node;
-						bone_node->is_bone = true;
+						bone_node->flags |= DE_NODE_FLAGS_IS_BONE;
 						de_surface_add_bone(surface, vertex_weight->node);
 					}
 				}

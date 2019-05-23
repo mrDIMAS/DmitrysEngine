@@ -37,7 +37,7 @@ bool de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t
 	if (de_vec3_sqr_len(&triangle.normal) > FLT_EPSILON) {
 		de_vec3_normalize(&triangle.normal, &triangle.normal);
 	} else {
-		de_log("degenerated triangle found!");
+		de_log("static geometry: degenerated triangle found!");
 		return false;
 	}
 

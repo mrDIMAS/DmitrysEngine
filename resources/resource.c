@@ -97,7 +97,7 @@ int de_resource_release(de_resource_t* res)
 bool de_resource_visit(de_object_visitor_t* visitor, de_resource_t* res)
 {
 	bool result = true;
-	result &= de_object_visitor_visit_uint32(visitor, "Type", (uint32_t*)&res->type);
+	result &= DE_OBJECT_VISITOR_VISIT_ENUM(visitor, "Type", &res->type);
 	if (visitor->is_reading) {
 		res->core = visitor->core;
 		res->dispatch_table = de_resource_get_dispatch_table_by_type(res->type);

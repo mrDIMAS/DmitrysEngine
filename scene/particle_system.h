@@ -45,11 +45,8 @@ typedef struct de_particle_t {
 typedef enum de_particle_system_emitter_type_t {
 	DE_PARTICLE_SYSTEM_EMITTER_TYPE_POINT,
 	DE_PARTICLE_SYSTEM_EMITTER_TYPE_BOX,
-	DE_PARTICLE_SYSTEM_EMITTER_TYPE_SPHERE,
-	DE_PARTICLE_SYSTEM_EMITTER_TYPE_FORCE_SIZE = INT_MAX,
+	DE_PARTICLE_SYSTEM_EMITTER_TYPE_SPHERE
 } de_particle_system_emitter_type_t;
-
-DE_STATIC_ASSERT(sizeof(de_particle_system_emitter_type_t) == sizeof(int32_t), invalid_particle_system_emitter_type);
 
 typedef struct de_particle_system_box_emitter_t {
 	float half_width;
@@ -74,6 +71,7 @@ typedef struct de_particle_system_emitter_t {
 	float min_y_velocity, max_y_velocity; /**< Range of initial Y-component of velocity for a particle */
 	float min_z_velocity, max_z_velocity; /**< Range of initial Z-component of velocity for a particle */	
 	float min_rotation_speed, max_rotation_speed; /**< Range of initial rotation speed for a particle */
+	float min_rotation, max_rotation; /**< Range of initial rotation for a particle */
 	/* Private */
 	int32_t alive_particles; /**< Count of particle already spawned by this emitter. */
 	float time; /**< Time accumulator for update purposes. */

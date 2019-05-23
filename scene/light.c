@@ -44,7 +44,7 @@ static bool de_light_visit(de_object_visitor_t* visitor, de_node_t* node)
 {
 	de_light_t* light = de_node_to_light(node);
 	bool result = true;
-	result &= de_object_visitor_visit_uint32(visitor, "Type", (uint32_t*)&light->type);
+	result &= DE_OBJECT_VISITOR_VISIT_ENUM(visitor, "Type", &light->type);
 	result &= de_object_visitor_visit_color(visitor, "Color", &light->color);
 	result &= de_object_visitor_visit_float(visitor, "ConeAngle", &light->cone_angle);
 	result &= de_object_visitor_visit_float(visitor, "CosConeAngle", &light->cone_angle_cos);

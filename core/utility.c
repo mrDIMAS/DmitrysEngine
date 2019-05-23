@@ -82,11 +82,19 @@ void de_convert_to_c_array(const char* source, const char* dest)
 	fclose(out);
 }
 
+bool de_file_exists(const char* filename) 
+{
+	/* TODO: look for a better way */
+	FILE* file = fopen(filename, "r");
+	if(file) {
+		fclose(file);
+		return true;
+	}
+	return false;
+}
 
-/**
- * @brief Tests for file system utilities.
- */
 void de_file_tests(void)
 {
-
+	DE_ASSERT(de_file_exists("___foobar_1234") == false);
+	/* TODO: add more */
 }

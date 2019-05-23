@@ -74,6 +74,11 @@ bool de_str8_view_eq_str8(const de_str8_view_t* view, const de_str8_t* str);
 bool de_str8_view_eq(const de_str8_view_t* view, const de_str8_view_t* other);
 
 /**
+ * @brief Checks if string view is empty.
+ */
+bool de_str8_view_is_empty(const de_str8_view_t* view);
+
+/**
  * @brief Initializes string. Allocates 1 byte for null-terminator.
  */
 void de_str8_init(de_str8_t* str);

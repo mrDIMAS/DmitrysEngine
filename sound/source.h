@@ -22,19 +22,13 @@
 typedef enum de_sound_source_status_t {
 	DE_SOUND_SOURCE_STATUS_PLAYING,
 	DE_SOUND_SOURCE_STATUS_STOPPED,
-	DE_SOUND_SOURCE_STATUS_PAUSED,
-	DE_SOUND_SOURCE_STATUS_FORCE_SIZE = INT32_MAX,
+	DE_SOUND_SOURCE_STATUS_PAUSED
 } de_sound_source_status_t;
-
-DE_STATIC_ASSERT(sizeof(de_sound_source_status_t) == sizeof(uint32_t), invalid_source_status_enum_size);
 
 typedef enum de_sound_source_type_t {
 	DE_SOUND_SOURCE_TYPE_2D,
-	DE_SOUND_SOURCE_TYPE_3D,
-	DE_SOUND_SOURCE_TYPE_FORCE_SIZE = INT32_MAX,
+	DE_SOUND_SOURCE_TYPE_3D
 } de_sound_source_type_t;
-
-DE_STATIC_ASSERT(sizeof(de_sound_source_type_t) == sizeof(uint32_t), invalid_source_type_enum_size);
 
 struct de_sound_source_t {
 	de_sound_source_type_t type;

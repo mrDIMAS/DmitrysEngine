@@ -190,7 +190,7 @@ bool de_sound_source_visit(de_object_visitor_t* visitor, de_sound_source_t* src)
 		src->ctx = visitor->core->sound_context;
 	}
 	de_sound_context_lock(src->ctx);
-	result &= de_object_visitor_visit_uint32(visitor, "Type", (uint32_t*)&src->type);
+	result &= DE_OBJECT_VISITOR_VISIT_ENUM(visitor, "Type", &src->type);
 	if (visitor->is_reading) {
 		de_resource_t* res_buf;
 		result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Buffer", &res_buf, de_resource_visit);
@@ -202,7 +202,7 @@ bool de_sound_source_visit(de_object_visitor_t* visitor, de_sound_source_t* src)
 		de_resource_t* res_buf = de_resource_from_sound_buffer(src->buffer);
 		result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Buffer", &res_buf, de_resource_visit);
 	}
-	result &= de_object_visitor_visit_uint32(visitor, "Status", (uint32_t*)&src->status);
+	result &= DE_OBJECT_VISITOR_VISIT_ENUM(visitor, "Status", &src->status);
 	result &= de_object_visitor_visit_double(visitor, "BufReadPos", &src->buf_read_pos);
 	result &= de_object_visitor_visit_double(visitor, "PlaybackPos", &src->playback_pos);
 	result &= de_object_visitor_visit_float(visitor, "Pan", &src->pan);

@@ -41,6 +41,11 @@ char* de_load_file_into_memory(const char * path, size_t* out_size);
 void de_convert_to_c_array(const char* source, const char* dest);
 
 /**
+ * @brief Check if file exists.
+ */
+bool de_file_exists(const char* filename);
+
+/**
  * @brief Tests for file system utilities.
  */
 void de_file_tests(void);

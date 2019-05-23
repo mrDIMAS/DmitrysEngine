@@ -24,11 +24,8 @@
 typedef enum de_resource_type_t {
 	DE_RESOURCE_TYPE_MODEL,
 	DE_RESOURCE_TYPE_TEXTURE,
-	DE_RESOURCE_TYPE_SOUND_BUFFER,
-	DE_RESOURCE_TYPE_FORCE_SIZE = INT32_MAX,
+	DE_RESOURCE_TYPE_SOUND_BUFFER
 } de_resource_type_t;
-
-DE_STATIC_ASSERT(sizeof(de_resource_type_t) == sizeof(uint32_t), invalid_resource_type_size);
 
 typedef enum de_resource_flag_t {
 	/**

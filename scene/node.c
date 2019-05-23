@@ -188,7 +188,7 @@ static de_node_t* de_node_copy_internal(de_scene_t* dest_scene, de_node_t* node)
 	copy->parent = NULL;
 	copy->local_visibility = node->local_visibility;
 	copy->global_visibility = node->global_visibility;
-	copy->is_bone = node->is_bone;
+	copy->flags = node->flags;
 	copy->model_resource = node->model_resource;
 	if (copy->model_resource) {
 		de_resource_add_ref(copy->model_resource);
@@ -515,7 +515,7 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node)
 {
 	DE_ASSERT(node);
 	bool result = true;
-	result &= de_object_visitor_visit_uint32(visitor, "Type", (uint32_t*)&node->type);
+	result &= DE_OBJECT_VISITOR_VISIT_ENUM(visitor, "Type", &node->type);
 	if (visitor->is_reading) {
 		/* restore dispatch table */
 		node->dispatch_table = de_node_get_dispatch_table_by_type(node->type);
@@ -535,7 +535,8 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node)
 	result &= de_object_visitor_visit_vec3(visitor, "ScalingOffset", &node->scaling_offset);
 	result &= de_object_visitor_visit_vec3(visitor, "ScalingPivot", &node->scaling_pivot);
 	result &= de_object_visitor_visit_float(visitor, "DepthHack", &node->depth_hack);
-	result &= de_object_visitor_visit_bool(visitor, "LocalVisibility", &node->local_visibility);
+	result &= DE_OBJECT_VISITOR_VISIT_ENUM(visitor, "Flags", &node->flags);
+	result &= de_object_visitor_visit_bool(visitor, "LocalVisibility", &node->local_visibility);	
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "ModelResource", &node->model_resource, de_resource_visit);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Body", &node->body, de_body_visit);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Scene", &node->scene, de_scene_visit);

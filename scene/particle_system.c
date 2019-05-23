@@ -78,7 +78,7 @@ static bool de_particle_system_emitter_visit(de_object_visitor_t* visitor, de_pa
 	if(visitor->is_reading) {
 		emitter->particle_system = de_node_to_particle_system(particle_system_node);
 	}
-	result &= de_object_visitor_visit_int32(visitor, "Type", (int32_t*)&emitter->type);
+	result &= DE_OBJECT_VISITOR_VISIT_ENUM(visitor, "Type", &emitter->type);
 	result &= de_object_visitor_visit_vec3(visitor, "Position", &emitter->position);
 	result &= de_object_visitor_visit_int32(visitor, "MaxParticles", &emitter->max_particles);
 	result &= de_object_visitor_visit_int32(visitor, "AliveParticles", &emitter->alive_particles);
@@ -98,6 +98,8 @@ static bool de_particle_system_emitter_visit(de_object_visitor_t* visitor, de_pa
 	result &= de_object_visitor_visit_float(visitor, "MaxSizeModifier", &emitter->max_size_modifier);
 	result &= de_object_visitor_visit_float(visitor, "MinRotationSpeed", &emitter->min_rotation_speed);
 	result &= de_object_visitor_visit_float(visitor, "MaxRotationSpeed", &emitter->max_rotation_speed);
+	result &= de_object_visitor_visit_float(visitor, "MinRotation", &emitter->min_rotation);
+	result &= de_object_visitor_visit_float(visitor, "MaxRotation", &emitter->max_rotation);
 	switch(emitter->type) {
 		case DE_PARTICLE_SYSTEM_EMITTER_TYPE_BOX: {
 			de_particle_system_box_emitter_t* box_emitter = &emitter->s.box;
@@ -186,7 +188,7 @@ static void de_particle_system_emitter_emit(de_particle_system_emitter_t* emitte
 					.y = de_frand(emitter->min_y_velocity, emitter->max_y_velocity),
 					.z = de_frand(emitter->min_z_velocity, emitter->max_z_velocity)
 				};
-				particle->rotation = 0;
+				particle->rotation = de_frand(emitter->min_rotation, emitter->max_rotation);
 				particle->rotation_speed = de_frand(emitter->min_rotation_speed, emitter->max_rotation_speed);
 				/* position defined by emitter type */
 				switch (emitter->type) {
@@ -392,6 +394,8 @@ de_particle_system_emitter_t* de_particle_system_emitter_create(de_particle_syst
 	emitter->max_z_velocity = 0.001f;
 	emitter->min_rotation_speed = -0.02f;
 	emitter->max_rotation_speed = 0.02f;
+	emitter->min_rotation = (float)-M_PI;
+	emitter->max_rotation = (float)M_PI;
 	switch(type) {
 		case DE_PARTICLE_SYSTEM_EMITTER_TYPE_BOX: {
 			de_particle_system_box_emitter_t* box_emitter = &emitter->s.box;

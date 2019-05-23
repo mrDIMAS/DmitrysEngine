@@ -47,6 +47,11 @@ de_str8_view_array_t de_str8_tokenize(const de_str8_t* str, const char* delim)
 	return tokens;
 }
 
+bool de_str8_view_is_empty(const de_str8_view_t* view)
+{
+	return !view || view->data == 0 || view->len == 0;
+}
+
 void de_str8_format(de_str8_t* str, const char* format, ...)
 {
 	int n;

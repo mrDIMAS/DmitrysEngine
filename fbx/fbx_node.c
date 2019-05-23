@@ -118,7 +118,7 @@ de_fbx_node_t* de_fbx_node_find_child(de_fbx_node_t* node, const char* name)
 	}
 
 	if (i == node->children.size) {
-		de_log("Unable to find '%s' node", name);
+		de_log("FBX: unable to find '%s' node", name);
 	}
 
 	return NULL;
@@ -176,7 +176,7 @@ void* de_fbx_buffer_alloc(de_fbx_buffer_t* buf, size_t size)
 	buf->ptr += size;
 
 	if (buf->ptr >= buf->end) {
-		de_fatal_error("buffer overflow");
+		de_fatal_error("FBX: buffer overflow");
 	}
 
 	return ptr;

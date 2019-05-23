@@ -75,7 +75,7 @@ int de_thrd_detach(de_thrd_t* thr);
 int de_thrd_join(de_thrd_t* thr);
 
 /**
- * @brief Creates mutex
+ * @brief Creates recursive mutex.
  */
 void de_mtx_init(de_mtx_t* mtx);
 

@@ -121,7 +121,7 @@ void de_physics_step(de_core_t* core, double dt)
 			de_vec3_add(&body->acceleration, &body->acceleration, &body->gravity);
 			/* Do Verlet integration */
 			de_body_verlet(body, dt2);
-			/* Solve sphere-mesh collisions */			
+			/* Solve sphere-mesh collisions */
 			DE_LINKED_LIST_FOR_EACH_T(de_static_geometry_t*, geom, scene->static_geometries)
 			{
 				de_octree_trace_sphere(geom->octree, &body->position, body->radius);
@@ -141,4 +141,144 @@ void de_physics_step(de_core_t* core, double dt)
 			}
 		}
 	}
+}
+
+static int de_ray_cast_result_distance_comparer(const void* a, const void* b)
+{
+	const de_ray_cast_result_t* result_a = a;
+	const de_ray_cast_result_t* result_b = b;
+	if(result_a->sqr_distance > result_b->sqr_distance) {
+		return 1;
+	} else if(result_a->sqr_distance < result_b->sqr_distance) {
+		return -1;
+	}
+	return 0;
+}
+
+bool de_ray_cast(de_scene_t* scene, const de_ray_t* ray, de_ray_cast_flags_t flags, de_ray_cast_result_array_t* result_array)
+{
+	bool hit = false;
+
+	/* check bodies */
+	if (!(flags & DE_RAY_CAST_FLAGS_IGNORE_BODY)) {
+		DE_LINKED_LIST_FOR_EACH_T(de_body_t*, body, scene->bodies)
+		{
+			if (flags & DE_RAY_CAST_FLAGS_IGNORE_BODY_IN_RAY) {
+				if (de_vec3_sqr_distance(&body->position, &ray->origin) <= body->radius * body->radius) {
+					continue;
+				}
+			}
+
+			de_vec3_t intersection_points[2];
+			if (de_ray_sphere_intersection(ray, &body->position, body->radius, &intersection_points[0], &intersection_points[1])) {
+				for (size_t i = 0; i < 2; ++i) {
+					de_ray_cast_result_t* result = DE_ARRAY_GROW(*result_array, 1);
+					result->position = intersection_points[i];
+					de_vec3_sub(&result->normal, &result->position, &body->position);
+					result->body = body;
+					result->triangle = NULL;
+					result->static_geometry = NULL;
+					result->sqr_distance = de_vec3_sqr_distance(&intersection_points[i], &ray->origin);
+				}
+			}
+		}
+	}
+
+	/* check static geometries */
+	if (!(flags & DE_RAY_CAST_FLAGS_IGNORE_STATIC_GEOMETRY)) {
+		DE_LINKED_LIST_FOR_EACH_T(de_static_geometry_t*, geom, scene->static_geometries)
+		{
+			de_octree_trace_ray(geom->octree, ray);
+			for (int i = 0; i < geom->octree->trace_buffer.size; ++i) {
+				de_octree_node_t* node = geom->octree->trace_buffer.nodes[i];
+				for (int k = 0; k < node->index_count; ++k) {
+					de_vec3_t intersection_point;
+					de_static_triangle_t* triangle = &geom->triangles.data[node->triangle_indices[k]];
+					if (de_ray_triangle_intersection(ray, &triangle->a, &triangle->b, &triangle->c, &intersection_point)) {
+						de_ray_cast_result_t* result = DE_ARRAY_GROW(*result_array, 1);
+						result->position = intersection_point;
+						result->normal = triangle->normal;
+						result->body = NULL;
+						result->triangle = triangle;
+						result->static_geometry = geom;
+						result->sqr_distance = de_vec3_sqr_distance(&intersection_point, &ray->origin);
+					}
+				}
+			}
+		}
+	}
+
+	if (flags & DE_RAY_CAST_FLAGS_SORT_RESULTS) {
+		DE_ARRAY_QSORT(*result_array, de_ray_cast_result_distance_comparer);
+	}
+
+	return hit;
+}
+
+bool de_ray_cast_closest(de_scene_t* scene, const de_ray_t* ray, de_ray_cast_flags_t flags, de_ray_cast_result_t* result)
+{
+	bool hit = false;
+
+	result->position = (de_vec3_t) { FLT_MAX, FLT_MAX, FLT_MAX };
+
+	float closest_distance = FLT_MAX;
+
+	/* check bodies */
+	if (!(flags & DE_RAY_CAST_FLAGS_IGNORE_BODY)) {
+		DE_LINKED_LIST_FOR_EACH_T(de_body_t*, body, scene->bodies)
+		{
+			if (flags & DE_RAY_CAST_FLAGS_IGNORE_BODY_IN_RAY) {
+				if (de_vec3_sqr_distance(&body->position, &ray->origin) <= body->radius * body->radius) {
+					continue;
+				}
+			}
+
+			de_vec3_t intersection_points[2];
+			if (de_ray_sphere_intersection(ray, &body->position, body->radius, &intersection_points[0], &intersection_points[1])) {
+				hit = true;
+				for (size_t i = 0; i < 2; ++i) {
+					const float new_distance = de_vec3_sqr_distance(&ray->origin, &intersection_points[i]);
+					if (new_distance < closest_distance) {
+						result->position = intersection_points[i];
+						de_vec3_sub(&result->normal, &result->position, &body->position);
+						result->body = body;
+						result->triangle = NULL;
+						result->static_geometry = NULL;
+						result->sqr_distance = new_distance;
+						closest_distance = new_distance;
+					}
+				}
+			}
+		}
+	}
+
+	/* check static geometries */
+	if (!(flags & DE_RAY_CAST_FLAGS_IGNORE_STATIC_GEOMETRY)) {
+		DE_LINKED_LIST_FOR_EACH_T(de_static_geometry_t*, geom, scene->static_geometries)
+		{
+			de_octree_trace_ray(geom->octree, ray);
+			for (int i = 0; i < geom->octree->trace_buffer.size; ++i) {
+				de_octree_node_t* node = geom->octree->trace_buffer.nodes[i];
+				for (int k = 0; k < node->index_count; ++k) {
+					de_vec3_t intersection_point;
+					de_static_triangle_t* triangle = &geom->triangles.data[node->triangle_indices[k]];
+					if (de_ray_triangle_intersection(ray, &triangle->a, &triangle->b, &triangle->c, &intersection_point)) {
+						hit = true;
+						const float new_distance = de_vec3_sqr_distance(&ray->origin, &intersection_point);
+						if (new_distance < closest_distance) {
+							result->position = intersection_point;
+							result->normal = triangle->normal;
+							result->body = NULL;
+							result->triangle = triangle;
+							result->static_geometry = geom;
+							result->sqr_distance = new_distance;
+							closest_distance = new_distance;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return hit;
 }

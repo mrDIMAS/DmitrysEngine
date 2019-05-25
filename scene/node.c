@@ -157,11 +157,11 @@ de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type)
 	de_node_set_pre_rotation(node, &(de_quat_t) { 0, 0, 0, 1 });
 	de_node_set_post_rotation(node, &(de_quat_t) { 0, 0, 0, 1 });
 	de_node_set_rotation_offset(node, &(de_vec3_t) { 0, 0, 0 });
-	de_node_set_scaling_pivot(node, &(de_vec3_t) { 0, 0, 0 });
-
+	de_node_set_scaling_pivot(node, &(de_vec3_t) { 0, 0, 0 });	
 	if (node->dispatch_table->init) {
 		node->dispatch_table->init(node);
 	}
+	de_scene_add_node(scene, node);
 	return node;
 }
 
@@ -280,8 +280,8 @@ void de_node_calculate_local_transform(de_node_t* node)
 	* to use all these matrices. This is not optimized at all, for example 70% of
 	* these multiplications and matrices creation can be done only once on load.
 	*/
-	
-	if (node->transform_flags & DE_TRANSFORM_FLAGS_POST_ROTATION_NEED_UPDATE) {		
+
+	if (node->transform_flags & DE_TRANSFORM_FLAGS_POST_ROTATION_NEED_UPDATE) {
 		de_mat4_rotation(&node->m_post_rotation, &node->post_rotation);
 		de_mat4_inverse(&node->m_post_rotation, &node->m_post_rotation);
 		node->transform_flags &= ~DE_TRANSFORM_FLAGS_POST_ROTATION_NEED_UPDATE;
@@ -298,7 +298,7 @@ void de_node_calculate_local_transform(de_node_t* node)
 		de_mat4_inverse(&node->m_scale_pivot_inv, &node->m_scale_pivot);
 		node->transform_flags &= ~DE_TRANSFORM_FLAGS_SCALE_PIVOT_NEED_UPDATE;
 	}
-	
+
 	if (node->body || (node->transform_flags & DE_TRANSFORM_FLAGS_LOCAL_TRANSFORM_NEED_UPDATE)) {
 		de_mat4_t pre_rotation;
 		de_mat4_rotation(&pre_rotation, &node->pre_rotation);
@@ -536,7 +536,7 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node)
 	result &= de_object_visitor_visit_vec3(visitor, "ScalingPivot", &node->scaling_pivot);
 	result &= de_object_visitor_visit_float(visitor, "DepthHack", &node->depth_hack);
 	result &= DE_OBJECT_VISITOR_VISIT_ENUM(visitor, "Flags", &node->flags);
-	result &= de_object_visitor_visit_bool(visitor, "LocalVisibility", &node->local_visibility);	
+	result &= de_object_visitor_visit_bool(visitor, "LocalVisibility", &node->local_visibility);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "ModelResource", &node->model_resource, de_resource_visit);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Body", &node->body, de_body_visit);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Scene", &node->scene, de_scene_visit);
@@ -726,4 +726,10 @@ void de_node_invalidate_transforms(de_node_t* node)
 		DE_TRANSFORM_FLAGS_ROTATION_PIVOT_NEED_UPDATE |
 		DE_TRANSFORM_FLAGS_SCALE_PIVOT_NEED_UPDATE |
 		DE_TRANSFORM_FLAGS_POST_ROTATION_NEED_UPDATE;
+}
+
+de_scene_t* de_node_get_scene(de_node_t* node)
+{
+	DE_ASSERT(node);
+	return node->scene;
 }

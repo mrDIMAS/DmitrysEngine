@@ -64,16 +64,33 @@ struct de_node_dispatch_table_t* de_light_get_dispatch_table(void)
 
 void de_light_set_radius(de_light_t* light, float radius)
 {
+	DE_ASSERT(light);
 	light->radius = de_maxf(FLT_EPSILON, radius);
 }
 
 void de_light_set_cone_angle(de_light_t* light, float angle)
 {
+	DE_ASSERT(light);
 	light->cone_angle = angle;
 	light->cone_angle_cos = (float)cos(angle);
 }
 
 float de_light_get_cone_angle(const de_light_t* light)
 {
+	DE_ASSERT(light);
 	return light->cone_angle;
+}
+
+void de_light_set_color(de_light_t* light, const de_color_t* color)
+{
+	DE_ASSERT(light);
+	DE_ASSERT(color);
+	light->color = *color;
+}
+
+void de_light_get_color(const de_light_t* light, de_color_t* color)
+{
+	DE_ASSERT(light);
+	DE_ASSERT(color);
+	*color = light->color;
 }

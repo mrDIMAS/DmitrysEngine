@@ -173,7 +173,7 @@ void de_mat4_look_at(de_mat4_t * out, const de_vec3_t * eye, const de_vec3_t * a
 {
 	de_vec3_t zaxis, xaxis, yaxis;
 
-	de_vec3_normalize(&zaxis, de_vec3_sub(&zaxis, at, eye));
+	de_vec3_normalize(&zaxis, de_vec3_sub(&zaxis, eye, at));
 	de_vec3_normalize(&xaxis, de_vec3_cross(&xaxis, up, &zaxis));
 	de_vec3_normalize(&yaxis, de_vec3_cross(&yaxis, &zaxis, &xaxis));
 

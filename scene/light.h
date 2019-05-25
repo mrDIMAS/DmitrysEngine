@@ -57,3 +57,13 @@ void de_light_set_cone_angle(de_light_t* light, float angle);
  * @brief Returns angle in radians at cone vertex of a spot light.
  */
 float de_light_get_cone_angle(const de_light_t* light);
+
+/**
+* @brief Sets current color of a light source.
+*/
+void de_light_set_color(de_light_t* light, const de_color_t* color);
+
+/**
+ * @brief Returns current color of a light source.
+ */
+void de_light_get_color(const de_light_t* light, de_color_t* color);

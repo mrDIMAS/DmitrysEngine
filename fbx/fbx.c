@@ -1268,7 +1268,6 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 	renderer = scene->core->renderer;
 
 	root = de_node_create(scene, DE_NODE_TYPE_BASE);
-	de_scene_add_node(scene, root);
 
 	/* Each scene has animation */
 	anim = de_animation_create(scene);
@@ -1295,8 +1294,6 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 		} else {
 			node = de_node_create(scene, DE_NODE_TYPE_BASE);
 		}
-
-		de_scene_add_node(scene, node);
 
 		DE_ARRAY_APPEND(created_nodes, node);
 

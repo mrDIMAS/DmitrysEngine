@@ -341,3 +341,8 @@ void de_node_get_scaling_pivot(de_node_t* node, de_vec3_t* v);
  * forcing update of transforms on next frame (or current if called before @ref de_scene_update).
  */
 void de_node_invalidate_transforms(de_node_t* node);
+
+/**
+ * @brief Returns pointer to scene specified node belongs to.
+ */
+de_scene_t* de_node_get_scene(de_node_t* node);

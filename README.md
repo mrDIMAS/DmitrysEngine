@@ -49,6 +49,7 @@ Please note, that this engine is at early development stage and some features ma
 	* Slide selector	
 	* Image
 	* Check box
+* Path finding (classic A* algorithm)
 * TGA image loading
 * Position-based physics
 * Built-in save/load functionality via object visitor - state of engine can be saved/loaded just in a single call.
@@ -71,7 +72,6 @@ Please note, that this engine is at early development stage and some features ma
 * Stability	
 * Support more 3D formats (3ds for example)
 * Compound character support in fonts.
-* Path finding
 * Terrain
 * Editor
 
@@ -79,7 +79,7 @@ Please note, that this engine is at early development stage and some features ma
 - miniz_tinfl - to decompress FBX compressed data.
 
 ## Code statistics
-- ~19900 lines of code
+- ~20400 lines of code
 - Pure C99
 
 ## Supported compilers

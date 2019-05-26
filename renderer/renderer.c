@@ -530,6 +530,10 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 		"   FragColor.a *= depthOpacity;"
 		"}";
 
+	static const char* shadow_map_fs =
+		"#version 330 core"
+		"";
+
 	/* Build flat shader */
 	{
 		de_flat_shader_t* s = &r->flat_shader;

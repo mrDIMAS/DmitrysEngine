@@ -1062,3 +1062,5 @@ de_plane_class_t de_plane_classify(const de_vec3_t * triangle_normal);
 void de_vec3_to_vec2_by_plane(de_plane_class_t plane, const de_vec3_t* normal, const de_vec3_t * point, de_vec2_t * mapped);
 
 float de_frand(float min, float max);
+
+int de_irand(int min, int max);

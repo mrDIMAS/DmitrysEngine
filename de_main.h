@@ -183,6 +183,7 @@ typedef struct de_object_visitor_t de_object_visitor_t;
 #include "core/event.h"
 #include "resources/builtin_fonts.h"
 #include "math/mathlib.h"
+#include "core/pathfinder.h"
 #include "core/rect.h"
 #include "core/serialization.h"
 #include "math/triangulator.h"	

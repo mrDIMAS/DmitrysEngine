@@ -1519,3 +1519,8 @@ float de_frand(float min, float max)
 {
 	return min + rand() / (float)RAND_MAX * (max - min);
 }
+
+int de_irand(int min, int max) 
+{
+	return min + rand() * (max - min) / (int)RAND_MAX;
+}

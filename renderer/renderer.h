@@ -161,6 +161,13 @@ typedef struct de_particle_system_shader_t {
 	} fs;
 } de_particle_system_shader_t;
 
+typedef struct de_shadow_map_shader_t {
+	GLuint program;
+	struct {
+		GLint view_projection_matrix;
+	} vs;
+} de_shadow_map_shader_t;
+
 struct de_renderer_t {
 	de_core_t* core;
 
@@ -170,7 +177,7 @@ struct de_renderer_t {
 	de_gui_shader_t gui_shader;
 	de_ambient_shader_t ambient_shader;
 	de_particle_system_shader_t particle_system_shader;
-
+	de_shadow_map_shader_t shadow_map_shader;
 	de_gbuffer_t gbuffer;
 	de_gbuffer_shader_t gbuffer_shader;
 	de_deferred_light_shader_t lighting_shader;

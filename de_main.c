@@ -38,6 +38,7 @@
 #include "core/rect.c"
 #include "core/utility.c"
 #include "core/serialization.c"
+#include "core/pathfinder.c"
 #include "core/core.c"
 #include "physics/physics.c"
 #include "fbx/fbx.c"

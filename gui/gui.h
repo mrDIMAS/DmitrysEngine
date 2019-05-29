@@ -137,6 +137,18 @@ typedef enum de_gui_routed_event_type_t {
 
 /**
  * @brief Routed event. Typed union.
+ * 
+ * It is very important to understand what routed events are. Lets look at this example:
+ * user clicks on a button in a window. In this case mouse down event will be generated
+ * by UI input handler, then this event will be passed to event router which will 
+ * consecutively pass event at first to button and then to window. This hierarchy can
+ * be any depth you want, the key point is that the event will go from clicked node 
+ * to its parent and parent of parent, and etc. This is so called bubbling event routing -
+ * event will behave like an air bubble in water. This routing can be interrupted by
+ * "handled" flag, if it is raised then event won't float up - routing will be stopped.
+ * So in example with a button in a window, button will "handle" mouse down event and 
+ * window will not receive it. If button wouldn't handle event then it would be more like
+ * click-through behavior which is unwanted in case of button. 
  */
 typedef struct de_gui_routed_event_args_t {
 	de_gui_routed_event_type_t type;
@@ -191,17 +203,7 @@ typedef enum de_gui_node_visibility_t {
 #define DE_GUI_BUTTON_PRESSED_COLOR_PROPERTY "PressedColor"
 #define DE_GUI_BUTTON_NORMAL_COLOR_PROPERTY "NormalColor"
 
-/**
- * @brief
- */
-typedef struct de_gui_margin_t {
-	float left;   /**< Margin for left side */
-	float top;    /**< Margin for top side */
-	float right;  /**< Margin for right side */
-	float bottom; /**< Margin for bottom side */
-} de_gui_margin_t;
-
-/** Events */
+/** Event handlers definitions */
 typedef void(*de_mouse_down_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*);
 typedef void(*de_mouse_up_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*);
 typedef void(*de_mouse_move_event_t)(de_gui_node_t*, de_gui_routed_event_args_t*);
@@ -237,8 +239,15 @@ typedef void(*de_mouse_wheel_event_t)(de_gui_node_t*, de_gui_routed_event_args_t
  * Example:
  *		de_gui_node_t* text_box = de_gui_node_create(gui, DE_GUI_NODE_TEXT_BOX);
  *		de_gui_node_apply_descriptor(text_box, &(de_gui_node_descriptor_t) {
- *		    .row = 1, .column = 1, .parent = grid,
- *			.margin = (de_gui_thickness_t) { .left = 2, .top = 2, .right = 2, .bottom = 2 }
+ *		    .row = 1, 
+ *		    .column = 1, 
+ *		    .parent = grid,
+ *			.margin = (de_gui_thickness_t) {
+ *			    .left = 2, 
+ *			    .top = 2, 
+ *			    .right = 2, 
+ *			    .bottom = 2 
+ *			}
  *		});
  * Every unset value will have correct default value.
  *
@@ -303,7 +312,7 @@ struct de_gui_node_t {
 	size_t column; /**< Index of column to which this node belongs */
 	de_gui_vertical_alignment_t vertical_alignment; /**< Vertical alignment */
 	de_gui_horizontal_alignment_t horizontal_alignment; /**< Horizontal alignment */
-	de_gui_margin_t margin; /**< Margin (four sides) */
+	de_gui_thickness_t margin; /**< Margin (four sides) */
 	de_gui_node_visibility_t visibility; /**< Current visibility state */
 	float opacity; /**< Opacity. Inherited property - children will have same opacity */
 	uint16_t tab_index; /**< Index for keyboard navigation */
@@ -312,7 +321,7 @@ struct de_gui_node_t {
 	DE_ARRAY_DECLARE(int, geometry); /**< Array of indices to draw command in draw list */
 	bool is_hit_test_visible; /**< Will this control participate in hit-test? */
 	void* user_data; /**< Pointer to any data. Useful to pass data to callbacks */
-	/* Events */
+	/* Event handlers */
 	de_mouse_down_event_t mouse_down;
 	de_mouse_up_event_t mouse_up;
 	de_mouse_move_event_t mouse_move;
@@ -403,12 +412,25 @@ void de_gui_node_set_desired_local_position(de_gui_node_t* node, float x, float 
  */
 void de_gui_node_set_size(de_gui_node_t* node, float w, float h);
 
+/**
+ * @brief Experimental. Do not use.
+ */
 bool de_gui_node_set_property(de_gui_node_t* n, const char* name, const void* value, size_t data_size);
 
+/**
+ * @brief Experimental. Do not use.
+ */
 bool de_gui_node_parse_property(de_gui_node_t* n, const char* name, const char* value);
 
+/**
+ * @brief Experimental. Do not use.
+ */
 bool de_gui_node_get_property(de_gui_node_t* n, const char* name, void* value, size_t data_size);
 
+/**
+ * @brief Enables or disables hit test for specified UI node. Nodes with disabled hit test
+ * will not receive any mouse events.
+ */
 void de_gui_node_set_hit_test_visible(de_gui_node_t* n, bool visibility);
 
 /**
@@ -420,19 +442,12 @@ void de_gui_node_set_hit_test_visible(de_gui_node_t* n, bool visibility);
 void de_gui_node_apply_descriptor(de_gui_node_t* n, const de_gui_node_descriptor_t* desc);
 
 /**
- * @brief
- * @param node
- * @param color
+ * @brief Sets overlay color of a node.
  */
 void de_gui_node_set_color(de_gui_node_t* node, const de_color_t* color);
 
 /**
- * @brief
- * @param node
- * @param r
- * @param g
- * @param b
- * @param a
+ * @brief Sets overlay color of a node.
  */
 void de_gui_node_set_color_rgba(de_gui_node_t* node, uint8_t r, uint8_t g, uint8_t b, uint8_t a);
 
@@ -448,117 +463,90 @@ bool de_gui_node_attach(de_gui_node_t* node, de_gui_node_t* parent);
 void de_gui_node_detach(de_gui_node_t* node);
 
 /**
- * @brief
- * @param node
+ * @brief Destroys UI node with all its children.
  */
 void de_gui_node_free(de_gui_node_t* node);
 
 /**
- * @brief
- * @param node
- * @param row
+ * @brief Sets row number specified node belongs to. Value will be used only if node 
+ * placed into grid control.
  */
 void de_gui_node_set_row(de_gui_node_t* node, size_t row);
 
 /**
- * @brief
- * @param node
- * @param col
+ * @brief Sets column number specified node belongs to. Value will be used only if node 
+ * placed into grid control.
  */
 void de_gui_node_set_column(de_gui_node_t* node, size_t col);
 
 /**
- * @brief
- * @param node
- * @param margin
+ * @brief Sets uniform margin for a specified node.
  */
 void de_gui_node_set_margin_uniform(de_gui_node_t* node, float margin);
 
 /**
- * @brief
- * @param node
- * @param left
- * @param top
- * @param right
- * @param bottom
+ * @brief Sets margin for a specified node with separate value for each side.
  */
 void de_gui_node_set_margin(de_gui_node_t* node, float left, float top, float right, float bottom);
 
 /**
- * @brief
- * @param node
- * @param type
- * @return
+ * @brief Recursively searches parent of specified type.
  */
 de_gui_node_t* de_gui_node_find_parent_of_type(de_gui_node_t* node, de_gui_node_type_t type);
 
 /**
-* @brief
-* @param node
-* @param type
-* @return
-*/
+ * @brief Performs non-recursive search for a child of specified type.
+ */
 de_gui_node_t* de_gui_node_find_direct_child_of_type(de_gui_node_t* node, de_gui_node_type_t type);
 
 /**
-* @brief
-* @param node
-* @param type
-* @return
-*/
+ * @brief Performs recursive search for a child of specified type.
+ */
 de_gui_node_t* de_gui_node_find_child_of_type(de_gui_node_t* node, de_gui_node_type_t type);
 
 /**
- * @brief
- * @param node
+ * @brief Capturing mouse input by specified node. The node will always receive mouse events even
+ * mouse is outside of node bounds. While there is any captured node, none of other nodes won't 
+ * receive any mouse event. This method is very handy for draggable controls like sliders, once
+ * mouse is captured it must be released when no capture is needed. If this function called if 
+ * there is captured node, it at first release capture from current captured node and then captures
+ * mouse by specified node.
  */
 void de_gui_node_capture_mouse(de_gui_node_t* node);
 
 /**
- * @brief
- * @param node
+ * @brief Releases mouse capture.
  */
 void de_gui_node_release_mouse_capture(de_gui_node_t* node);
 
 /**
- * @brief
- * @param node
- * @param evt
+ * @brief Sets mouse down event handler.
  */
 void de_gui_node_set_mouse_down(de_gui_node_t* node, de_mouse_down_event_t evt);
 
 /**
- * @brief
- * @param node
- * @param evt
+ * @brief Sets mouse up event handler.
  */
 void de_gui_node_set_mouse_up(de_gui_node_t* node, de_mouse_up_event_t evt);
 
 /**
- * @brief
- * @param node
- * @param evt
+ * @brief Sets mouse move event handler.
  */
 void de_gui_node_set_mouse_move(de_gui_node_t* node, de_mouse_move_event_t evt);
 
 /**
- * @brief
- * @param node
- * @param vis
+ * @brief Sets visibility of specified node. If a node has keyboard focus, it will 
+ * be dropped and lost focus event will be raised.
  */
 void de_gui_node_set_visibility(de_gui_node_t* node, de_gui_node_visibility_t vis);
 
 /**
- * @brief
- * @param node
- * @param va
+ * @brief Sets vertical alignment for specified node.
  */
 void de_gui_node_set_vertical_alignment(de_gui_node_t* node, de_gui_vertical_alignment_t va);
 
 /**
- * @brief
- * @param node
- * @param ha
+ * @brief Sets horizontal alignment for specified node.
  */
 void de_gui_node_set_horizontal_alignment(de_gui_node_t* node, de_gui_horizontal_alignment_t ha);
 

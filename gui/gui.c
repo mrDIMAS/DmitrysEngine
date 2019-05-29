@@ -1137,6 +1137,8 @@ de_gui_draw_list_t* de_gui_render(de_gui_t* gui)
 		}
 	}
 
+	DE_ASSERT(dl->triangles_to_commit == 0); /* forgot to call de_gui_draw_list_commit */
+
 #if DE_GUI_ENABLE_GUI_DEBUGGING
 	if (gui->picked_node) {
 		de_color_t red = { 255, 0, 0, 255 };

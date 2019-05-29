@@ -30,9 +30,8 @@ static void de_button_apply_descriptor(de_gui_node_t* node, const de_gui_node_de
 
 static void de_button_border_mouse_down(de_gui_node_t* button, de_gui_routed_event_args_t* args)
 {
-	de_gui_button_t* btn;
 	DE_ASSERT_GUI_NODE_TYPE(button, DE_GUI_NODE_BUTTON);
-	btn = &button->s.button;
+	de_gui_button_t* btn = &button->s.button;
 	btn->border->color = btn->pressed_color;
 	btn->was_pressed = true;
 	args->handled = true;
@@ -40,27 +39,24 @@ static void de_button_border_mouse_down(de_gui_node_t* button, de_gui_routed_eve
 
 static void de_button_border_mouse_enter(de_gui_node_t* button, de_gui_routed_event_args_t* args)
 {
-	de_gui_button_t* btn;
 	DE_ASSERT_GUI_NODE_TYPE(button, DE_GUI_NODE_BUTTON);
-	btn = &button->s.button;
+	de_gui_button_t* btn = &button->s.button;
 	btn->border->color = btn->hover_color;
 	args->handled = true;
 }
 
 static void de_button_border_mouse_leave(de_gui_node_t* button, de_gui_routed_event_args_t* args)
 {
-	de_gui_button_t* btn;
 	DE_ASSERT_GUI_NODE_TYPE(button, DE_GUI_NODE_BUTTON);
-	btn = &button->s.button;
+	de_gui_button_t* btn = &button->s.button;
 	btn->border->color = btn->normal_color;
 	args->handled = true;
 }
 
 static void de_button_border_mouse_up(de_gui_node_t* button, de_gui_routed_event_args_t* args)
 {
-	de_gui_button_t* btn;
 	DE_ASSERT_GUI_NODE_TYPE(button, DE_GUI_NODE_BUTTON);
-	btn = &button->s.button;
+	de_gui_button_t* btn = &button->s.button;
 	if (button->is_mouse_over) {
 		btn->border->color = btn->hover_color;
 	} else {

@@ -359,36 +359,45 @@ void de_gui_draw_list_commit(de_gui_draw_list_t* draw_list, de_gui_draw_command_
 	}
 }
 
-
 void de_gui_draw_list_push_text(de_gui_draw_list_t* draw_list, const de_font_t* font, const uint32_t* utf32_text, size_t text_len, const de_vec2_t* pos, const de_color_t* clr)
 {
-	size_t i;
-	de_vec2_t caret = *pos;
-	for (i = 0; i < text_len; ++i) {
-		uint32_t code = utf32_text[i];
-		de_vec2_t char_size;
+	de_vec2_t cursor = *pos;
+	for (size_t i = 0; i < text_len; ++i) {
+		const uint32_t code = utf32_text[i];		
 		de_glyph_t* glyph = de_font_get_glyph(font, code);
 		if (glyph) {
 			if (glyph->has_outline) {
-				de_vec2_t chpos;
-				chpos.x = caret.x + glyph->bitmap_left;
-				chpos.y = caret.y + font->ascender - glyph->bitmap_top - glyph->bitmap_height;
-				char_size.x = (float)glyph->bitmap_width;
-				char_size.y = (float)glyph->bitmap_height;
+				const de_vec2_t chpos = {
+					cursor.x + glyph->bitmap_left,
+					cursor.y + font->ascender - glyph->bitmap_top - glyph->bitmap_height
+				};
+				const de_vec2_t char_size = {
+					(float)glyph->bitmap_width, 
+					(float)glyph->bitmap_height
+				};
 				de_gui_draw_list_push_rect_filled(draw_list, &chpos, &char_size, clr, glyph->texCoords);
 			}
-			caret.x += glyph->advance;
+			cursor.x += glyph->advance;
+		} else {
+			const de_vec2_t invalid_char_pos = {
+				cursor.x,
+				cursor.y + font->ascender 
+			};
+			const de_vec2_t invalid_char_size = {
+				(float)font->height,
+				(float)font->height
+			};
+			de_gui_draw_list_push_rect(draw_list, &invalid_char_pos, &invalid_char_size, 1, clr);
+			cursor.x += invalid_char_size.x;
 		}
 	}
 }
-
 
 void de_gui_draw_list_commit_clip_geom(de_gui_draw_list_t* draw_list, de_gui_node_t* n)
 {
 	de_gui_draw_list_commit(draw_list, DE_GUI_DRAW_COMMAND_TYPE_CLIP, 0, n);
 	DE_ARRAY_APPEND(draw_list->clip_cmd_stack, draw_list->commands.size - 1);
 }
-
 
 void de_gui_draw_list_revert_clip_geom(de_gui_draw_list_t* draw_list)
 {

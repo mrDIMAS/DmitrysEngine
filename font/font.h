@@ -38,7 +38,7 @@ typedef struct de_font_charmap_entry_t {
 typedef struct de_font_t {
 	de_core_t* core;
 	DE_LINKED_LIST_ITEM(struct de_font_t);
-	float size;
+	float height;
 	int glyph_count;
 	de_glyph_t* glyphs;
 	int glyphsSorted;

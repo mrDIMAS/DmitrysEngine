@@ -34,6 +34,10 @@ typedef struct de_gui_text_box_t {
 	float total_lines_height;
 	int cursor_offset; /* relative offset from begin of line */
 	int cursor_line; /* index of line under cursor */
+	struct {
+		int begin;
+		int end;
+	} select_span;
 	bool show_cursor;
 	size_t blink_interval; /* in frames (with fixed update at 60 fps, 60 fps = 1s)*/
 	size_t blink_timer;

@@ -443,6 +443,9 @@ bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt)
 				revt.type = DE_GUI_ROUTED_EVENT_TEXT;
 				revt.s.text.unicode = evt->s.text.code;
 				de_gui_node_route_text_entered(gui->keyboard_focus, &revt);
+				if (revt.handled) {
+					processed = true;
+				}
 			}
 			break;
 		case DE_EVENT_TYPE_KEY_DOWN:
@@ -457,6 +460,9 @@ bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt)
 				revt.s.key.shift = evt->s.key.shift;
 				revt.s.key.system = evt->s.key.system;
 				de_gui_node_route_key_down(gui->keyboard_focus, &revt);
+				if (revt.handled) {
+					processed = true;
+				}
 			}
 			break;
 		case DE_EVENT_TYPE_KEY_UP:
@@ -471,6 +477,9 @@ bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt)
 				revt.s.key.shift = evt->s.key.shift;
 				revt.s.key.system = evt->s.key.system;
 				de_gui_node_route_key_up(gui->keyboard_focus, &revt);
+				if (revt.handled) {
+					processed = true;
+				}
 			}
 			break;
 		case DE_EVENT_TYPE_MOUSE_WHEEL:
@@ -482,13 +491,16 @@ bool de_gui_process_event(de_gui_t* gui, const de_event_t* evt)
 				revt.s.wheel.delta = evt->s.mouse_wheel.delta;
 				revt.s.wheel.pos = (de_vec2_t) { (float)evt->s.mouse_wheel.x, (float)evt->s.mouse_wheel.y };
 				de_gui_node_route_mouse_wheel(gui->picked_node, &revt);
+				if (revt.handled) {
+					processed = true;
+				}
 			}
 			break;
 		default:
 			break;
 	}
 
-	if (gui->picked_node) {
+	if (!processed && gui->picked_node) {
 		processed = de_gui_node_process_event(gui->picked_node, evt);
 	}
 

@@ -684,6 +684,7 @@ de_font_t* de_font_load_ttf_from_memory(de_core_t* core, void* data, float heigh
 
 	font = DE_NEW(de_font_t);
 	font->core = core;
+	font->height = height;
 
 	font->ascender = back_scaler * de_ptr_to_i16(ttf.hhea_table + 4);
 	font->descender = back_scaler * de_ptr_to_i16(ttf.hhea_table + 6);

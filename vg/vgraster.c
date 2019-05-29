@@ -151,7 +151,7 @@ line_array_t de_vg_polys_to_scanlines(de_polygon_t* polys, size_t poly_count, fl
 				printf("%f; %f\n", intersections.data[i].x, intersections.data[i].y);
 			}
 
-			de_log("Glyph rasterization failed!");
+			de_log("scanline rasterization failed!");
 		}
 
 		/* Convert intersection points into scanlines */

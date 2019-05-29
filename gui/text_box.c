@@ -70,11 +70,11 @@ static void de_gui_text_box_move_cursor_x(de_gui_text_box_t* tb, int amount)
 	de_gui_text_line_t* line = tb->lines.size ? tb->lines.data + tb->cursor_line : NULL;
 	if (line) {
 		if (amount < 0) {
-			int old_cursor_offset = tb->cursor_offset;
+			const int old_cursor_offset = tb->cursor_offset;
 			tb->cursor_offset += amount;
 			if (tb->cursor_offset <= 0) {
-				int prev_index = tb->cursor_line - 1;
-				de_gui_text_line_t* prev_line = prev_index >= 0 ? tb->lines.data + prev_index : NULL;
+				const int prev_index = tb->cursor_line - 1;
+				const de_gui_text_line_t* prev_line = prev_index >= 0 ? tb->lines.data + prev_index : NULL;
 				if (prev_line) {
 					tb->cursor_offset = prev_line->end - prev_line->begin - old_cursor_offset - amount;
 					--tb->cursor_line;
@@ -84,9 +84,8 @@ static void de_gui_text_box_move_cursor_x(de_gui_text_box_t* tb, int amount)
 			}
 			de_gui_text_box_reset_cursor_blink(tb);
 		} else if (amount > 0) {
-			int len;
 			tb->cursor_offset += amount;
-			len = (int)line->end - (int)line->begin;
+			const int len = (int)line->end - (int)line->begin;
 			if (tb->cursor_offset > len) {
 				if (tb->cursor_line + 1 < (int)tb->lines.size) {
 					tb->cursor_offset = 1;
@@ -107,36 +106,33 @@ static de_gui_text_line_t* de_gui_text_box_get_current_line(de_gui_text_box_t* t
 
 static int de_gui_text_box_cursor_to_index(de_gui_text_box_t* tb)
 {
-/* any out-of-bounds result are valid here since we are inserting characters via oob-protected func */
+	/* any out-of-bounds result are valid here since we are inserting characters via oob-protected func */
 	de_gui_text_line_t* line = de_gui_text_box_get_current_line(tb);
 	return line ? line->begin + tb->cursor_offset : 0;
 }
 
 static void de_gui_text_box_key_down(de_gui_node_t* n, de_gui_routed_event_args_t* args)
 {
-	int i;
-	int index, jump_offset;
-	de_gui_text_box_t* tb;
-	de_gui_text_line_t* line;
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_TEXT_BOX);
-	tb = &n->s.text_box;
+	de_gui_text_box_t* tb = &n->s.text_box;
 	switch (args->s.key.key) {
 		case DE_KEY_LEFT:
 			if (args->s.key.control) {
-				uint32_t c;
 				/* jump over word to left */
-				index = de_gui_text_box_cursor_to_index(tb);
+				int index = de_gui_text_box_cursor_to_index(tb);
 				if (index < 0) {
 					index = 0;
 				} else if (index >= (int)de_str32_length(&tb->str)) {
 					index = de_str32_length(&tb->str);
 				}
-				c = de_str32_at(&tb->str, index > 0 ? index - 1 : 0);
+				uint32_t c = de_str32_at(&tb->str, index > 0 ? index - 1 : 0);
+				int jump_offset;
 				if (c < 255 && (ispunct(c) || isspace(c))) {
 					/* step over 1 symbol */
 					jump_offset = 1;
 				} else {
-					for (i = index, jump_offset = 0; i >= 0; --i, ++jump_offset) {
+					jump_offset = 0;
+					for (int i = index; i >= 0; --i, ++jump_offset) {
 						c = de_str32_at(&tb->str, i);
 						if (c < 255 && (ispunct(c) || isspace(c))) {
 							--jump_offset;
@@ -163,19 +159,21 @@ static void de_gui_text_box_key_down(de_gui_node_t* n, de_gui_routed_event_args_
 		case DE_KEY_DOWN:
 			de_gui_text_box_move_cursor_y(tb, +1);
 			break;
-		case DE_KEY_BACKSPACE:
-			index = de_gui_text_box_cursor_to_index(tb) - 1;
+		case DE_KEY_BACKSPACE: {
+			int index = de_gui_text_box_cursor_to_index(tb) - 1;
 			if (index >= 0) {
-				de_str32_remove(&tb->str, index, 1);	
-				de_gui_text_box_move_cursor_x(tb, -1);				
-			}			
+				de_str32_remove(&tb->str, index, 1);
+				de_gui_text_box_move_cursor_x(tb, -1);
+			}
 			break;
-		case DE_KEY_DELETE:
-			index = de_gui_text_box_cursor_to_index(tb);
+		}
+		case DE_KEY_DELETE: {
+			int index = de_gui_text_box_cursor_to_index(tb);
 			if (index >= 0) {
 				de_str32_remove(&tb->str, index, 1);
 			}
 			break;
+		}
 		case DE_KEY_V: /* paste */
 			if (args->s.key.control) {
 
@@ -189,13 +187,14 @@ static void de_gui_text_box_key_down(de_gui_node_t* n, de_gui_routed_event_args_
 				}
 			}
 			break;
-		case DE_KEY_End:
-			line = de_gui_text_box_get_current_line(tb);
+		case DE_KEY_End: {
+			de_gui_text_line_t* line = de_gui_text_box_get_current_line(tb);
 			if (line) {
 				tb->cursor_offset = line->end - line->begin;
 				de_gui_text_box_reset_cursor_blink(tb);
 			}
 			break;
+		}
 		case DE_KEY_Home:
 			tb->cursor_offset = 0;
 			de_gui_text_box_reset_cursor_blink(tb);
@@ -203,13 +202,13 @@ static void de_gui_text_box_key_down(de_gui_node_t* n, de_gui_routed_event_args_
 		default:
 			break;
 	}
+	args->handled = true;
 }
 
 static void de_gui_text_box_update(de_gui_node_t* node)
 {
-	de_gui_text_box_t* tb;
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_TEXT_BOX);
-	tb = &node->s.text_box;
+	de_gui_text_box_t* tb = &node->s.text_box;
 	++tb->blink_timer;
 	if (tb->blink_timer >= tb->blink_interval) {
 		tb->blink_timer = 0;
@@ -221,13 +220,17 @@ static void de_gui_text_box_update(de_gui_node_t* node)
 static void de_gui_text_box_mouse_down(de_gui_node_t* node, de_gui_routed_event_args_t* args)
 {
 	DE_UNUSED(node);
-    DE_UNUSED(args);
+	DE_UNUSED(args);
+}
+
+static void de_gui_text_box_mouse_up(de_gui_node_t* node, de_gui_routed_event_args_t* args)
+{
+	DE_UNUSED(node);
+	DE_UNUSED(args);
 }
 
 static void de_gui_text_box_break_on_lines(de_gui_node_t* node)
 {
-	size_t i;
-	de_vec2_t pos;
 	de_gui_text_line_t line = { 0 };
 	DE_ASSERT_GUI_NODE_TYPE(node, DE_GUI_NODE_TEXT_BOX);
 	de_gui_text_box_t* tb = &node->s.text_box;
@@ -236,24 +239,19 @@ static void de_gui_text_box_break_on_lines(de_gui_node_t* node)
 	}
 	tb->total_lines_height = 0;
 	DE_ARRAY_CLEAR(tb->lines);
-	for (i = 0; i < de_str32_length(&tb->str); ++i) {
-		float new_width;
-		bool control_char;
-		de_glyph_t* glyph;
+	for (size_t i = 0; i < de_str32_length(&tb->str); ++i) {
 		uint32_t code = de_str32_at(&tb->str, i);
-		control_char = code == '\n' || code == '\r';
-		glyph = de_font_get_glyph(tb->font, code);
-		if (!glyph) {
-			continue;
-		}
-		new_width = line.width + glyph->advance;
+		bool control_char = code == '\n' || code == '\r';
+		de_glyph_t* glyph = de_font_get_glyph(tb->font, code);
+		float advance = glyph ? glyph->advance : tb->font->height;
+		float new_width = line.width + advance;
 		if (new_width > node->actual_size.x || control_char) {
 			/* commit line */
 			DE_ARRAY_APPEND(tb->lines, line);
 			/* start new line */
 			line.begin = control_char ? i + 1 : i;
 			line.end = line.begin + 1;
-			line.width = glyph->advance;
+			line.width = advance;
 			tb->total_lines_height += tb->font->ascender;
 		} else {
 			line.width = new_width;
@@ -267,8 +265,8 @@ static void de_gui_text_box_break_on_lines(de_gui_node_t* node)
 		tb->total_lines_height += tb->font->ascender;
 	}
 	/* calculate offsets */
-	pos.x = pos.y = 0;
-	for (i = 0; i < tb->lines.size; ++i) {
+	de_vec2_t pos = { 0, 0 };
+	for (size_t i = 0; i < tb->lines.size; ++i) {
 		de_gui_text_line_t* l = tb->lines.data + i;
 		switch (tb->hor_alignment) {
 			case DE_GUI_HORIZONTAL_ALIGNMENT_LEFT:
@@ -285,18 +283,16 @@ static void de_gui_text_box_break_on_lines(de_gui_node_t* node)
 				break;
 		}
 		l->x = pos.x;
-	}	
+	}
 }
 
 static void de_gui_text_box_text_entered(de_gui_node_t* n, de_gui_routed_event_args_t* args)
 {
-	uint32_t code;
-	de_gui_text_box_t* tb;
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_TEXT_BOX);
-	tb = &n->s.text_box;
+	de_gui_text_box_t* tb = &n->s.text_box;
 	switch (args->type) {
-		case DE_GUI_ROUTED_EVENT_TEXT:
-			code = args->s.text.unicode;
+		case DE_GUI_ROUTED_EVENT_TEXT: {
+			uint32_t code = args->s.text.unicode;
 			if (code < 255 && iscntrl(code)) {
 				break;
 			}
@@ -305,6 +301,7 @@ static void de_gui_text_box_text_entered(de_gui_node_t* n, de_gui_routed_event_a
 			de_gui_text_box_break_on_lines(n);
 			de_gui_text_box_move_cursor_x(tb, 1);
 			return;
+		}
 		default:
 			break;
 	}
@@ -312,7 +309,6 @@ static void de_gui_text_box_text_entered(de_gui_node_t* n, de_gui_routed_event_a
 
 static void de_gui_text_box_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t nesting)
 {
-	size_t i;
 	const de_vec2_t* scr_pos = &n->screen_position;
 	const de_gui_text_box_t* tb = &n->s.text_box;
 	de_color_t clr = { 120, 120, 120, 255 };
@@ -337,7 +333,7 @@ static void de_gui_text_box_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uin
 				/* todo */
 				break;
 		}
-		for (i = 0; i < tb->lines.size; ++i) {
+		for (size_t i = 0; i < tb->lines.size; ++i) {
 			de_gui_text_line_t* line = tb->lines.data + i;
 			const uint32_t* str = de_str32_get_data(&tb->str) + line->begin;
 			size_t len = line->end - line->begin;
@@ -348,16 +344,17 @@ static void de_gui_text_box_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uin
 		de_gui_draw_list_commit(dl, DE_GUI_DRAW_COMMAND_TYPE_GEOMETRY, tb->font->texture, n);
 		/* cursor */
 		if (tb->show_cursor && tb->cursor_visible) {
-			int k;
-			de_vec2_t cpos, csize;
+			de_vec2_t cpos;
 			if (tb->lines.size) {
 				de_gui_text_line_t* line = tb->lines.data + tb->cursor_line;
 				cpos.x = 0;
-				for (i = line->begin, k = 0; i < line->end && k < tb->cursor_offset; ++i, ++k) {
+				int k = 0;
+				for (size_t i = line->begin; i < line->end && k < tb->cursor_offset; ++i, ++k) {
 					uint32_t c = de_str32_at(&tb->str, i);
 					de_glyph_t* glyph = de_font_get_glyph(tb->font, c);
-					if (glyph && (c != '\n')) {
-						cpos.x += glyph->advance;
+					float advance = glyph ? glyph->advance : tb->font->height;
+					if (c != '\n') {
+						cpos.x += advance;
 					}
 				}
 				cpos.x += scr_pos->x + line->x;
@@ -365,8 +362,7 @@ static void de_gui_text_box_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uin
 				cpos.x = scr_pos->x;
 			}
 			cpos.y = scr_pos->y + tb->cursor_line * tb->font->ascender;
-			csize.x = 2;
-			csize.y = tb->font->ascender;
+			const de_vec2_t csize = { 2, tb->font->ascender };
 			de_gui_draw_list_push_rect_filled(dl, &cpos, &csize, &n->color, NULL);
 			de_gui_draw_list_commit(dl, DE_GUI_DRAW_COMMAND_TYPE_GEOMETRY, 0, n);
 		}

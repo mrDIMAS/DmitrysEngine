@@ -51,11 +51,22 @@ Please note, that this engine is at early development stage and some features ma
 	* Check box
 * Path finding (classic A* algorithm)
 * TGA image loading
+* Ray casting
 * Position-based physics
 * Built-in save/load functionality via object visitor - state of engine can be saved/loaded just in a single call.
 * Documentation - almost every function of the engine has description in Doxygen format.
 * Extremely fast compilation, thus very low iteration times - feature can be tested very fast.
 * Easy to hack and modify
+
+## Screenshots
+
+![Why](pics/game1.png?raw=true "Game 1")
+
+![Why](pics/game2.png?raw=true "Game 2")
+
+![Why](pics/menu1.png?raw=true "Menu 1")
+
+![Why](pics/menu2.png?raw=true "Menu 1")
 
 ## Planned features
 * Renderer improvements
@@ -79,7 +90,7 @@ Please note, that this engine is at early development stage and some features ma
 - miniz_tinfl - to decompress FBX compressed data.
 
 ## Code statistics
-- ~20400 lines of code
+- ~20500 lines of code
 - Pure C99
 
 ## Supported compilers

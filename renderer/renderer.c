@@ -533,6 +533,8 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 	static const char* shadow_map_fs =
 		"#version 330 core"
 		"";
+        
+    (void)shadow_map_fs;
 
 	/* Build flat shader */
 	{

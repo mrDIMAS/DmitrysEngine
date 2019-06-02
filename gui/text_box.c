@@ -376,6 +376,7 @@ static void de_gui_text_box_init(de_gui_node_t* n)
 	n->lost_focus = de_gui_text_box_lost_focus;
 	n->key_down = de_gui_text_box_key_down;
 	n->mouse_down = de_gui_text_box_mouse_down;
+    n->mouse_up = de_gui_text_box_mouse_up;
 	de_color_set(&n->color, 255, 255, 255, 255);
 	de_gui_text_box_t* tb = &n->s.text_box;
 	tb->font = n->gui->default_font;

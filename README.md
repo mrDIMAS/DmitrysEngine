@@ -28,6 +28,7 @@ Please note, that this engine is at early development stage and some features ma
     * Deferred shading
     * Normal mapping
 	* Skeletal animation
+	* Shadows
 	* Instancing
 	* Particle systems (very simple for now)
 * Sound
@@ -71,7 +72,7 @@ Please note, that this engine is at early development stage and some features ma
 ## Planned features
 * Renderer improvements
 	* Materials (probably PBR)
-	* Shadows
+	* Shadows for point lights (omnidirectional shadows)
 	* Frustum culling
 	* Performance optimizations
 	* Levels of details (LODs)	

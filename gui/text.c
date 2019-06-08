@@ -141,7 +141,7 @@ static void de_gui_text_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_t
 			de_gui_draw_list_push_text(dl, txt->font, str, len, &pos, &n->color);
 			pos.y += txt->font->ascender;
 		}
-		de_gui_draw_list_commit(dl, DE_GUI_DRAW_COMMAND_TYPE_GEOMETRY, txt->font->texture, n);
+		de_gui_draw_list_commit(dl, DE_GUI_DRAW_COMMAND_TYPE_GEOMETRY, txt->font->texture->id, n);
 	}
 }
 

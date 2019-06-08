@@ -19,59 +19,6 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-
-PFNGLCREATEPROGRAMPROC glCreateProgram;
-PFNGLCREATESHADERPROC glCreateShader;
-PFNGLSHADERSOURCEPROC glShaderSource;
-PFNGLCOMPILESHADERPROC glCompileShader;
-PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
-PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
-PFNGLATTACHSHADERPROC glAttachShader;
-PFNGLLINKPROGRAMPROC glLinkProgram;
-PFNGLUSEPROGRAMPROC glUseProgram;
-PFNGLDELETEPROGRAMPROC glDeleteProgram;
-PFNGLDELETESHADERPROC glDeleteShader;
-PFNGLGETSHADERIVPROC glGetShaderiv;
-PFNGLGETPROGRAMIVPROC glGetProgramiv;
-PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
-PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
-PFNGLUNIFORM4FPROC glUniform4f;
-PFNGLUNIFORM3FPROC glUniform3f;
-PFNGLUNIFORM1FPROC glUniform1f;
-PFNGLUNIFORM2FPROC glUniform2f;
-PFNGLUNIFORM1IPROC glUniform1i;
-
-PFNGLGENBUFFERSPROC glGenBuffers;
-PFNGLBINDBUFFERPROC glBindBuffer;
-PFNGLDELETEBUFFERSPROC glDeleteBuffers;
-PFNGLBUFFERDATAPROC glBufferData;
-PFNGLBUFFERSUBDATAPROC glBufferSubData;
-PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
-PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
-PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
-PFNGLBINDVERTEXARRAYPROC glBindVertexArray;
-PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;
-
-PFNGLGENERATEMIPMAPPROC glGenerateMipmap;
-
-#ifdef _WIN32
-PFNGLACTIVETEXTUREPROC glActiveTexture;
-PFNGLCLIENTACTIVETEXTUREPROC glClientActiveTexture;
-#endif
-
-PFNGLGENFRAMEBUFFERSPROC glGenFramebuffers;
-PFNGLFRAMEBUFFERTEXTURE2DPROC glFramebufferTexture2D;
-PFNGLGENRENDERBUFFERSPROC glGenRenderbuffers;
-PFNGLBINDRENDERBUFFERPROC glBindRenderbuffer;
-PFNGLRENDERBUFFERSTORAGEPROC glRenderbufferStorage;
-PFNGLFRAMEBUFFERRENDERBUFFERPROC glFramebufferRenderbuffer;
-PFNGLFRAMEBUFFERTEXTUREPROC glFramebufferTexture;
-PFNGLDRAWBUFFERSPROC glDrawBuffers;
-PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus;
-PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer;
-
-PFNGLGETSTRINGIPROC glGetStringi;
-
 typedef struct de_gbuffer_t {
 	GLuint fbo;
 
@@ -89,38 +36,44 @@ typedef struct de_gbuffer_t {
 	GLuint frame_texture;
 } de_gbuffer_t;
 
+typedef struct de_shadow_map_t {
+	GLuint fbo;
+	GLuint texture;
+} de_shadow_map_t;
+
 /**
 * Shader for G-Buffer filling
 */
 typedef struct de_gbuffer_shader_t {
 	GLuint program;
 
-	GLuint world_matrix;
-	GLuint wvp_matrix;
-	GLuint use_skeletal_animation;
-	GLuint bone_matrices;
+	GLint world_matrix;
+	GLint wvp_matrix;
+	GLint use_skeletal_animation;
+	GLint bone_matrices;
 
 	GLint diffuse_texture; /**< Diffuse texture uniform location */
-	GLuint normal_texture;
-	GLuint diffuse_color;
-	GLuint self_emittance;
+	GLint normal_texture;
 } de_gbuffer_shader_t;
 
 typedef struct de_gbuffer_light_shader_t {
 	GLuint program;
 
-	GLuint wvp_matrix;
+	GLint wvp_matrix;
 
-	GLuint depth_sampler;
-	GLuint color_sampler;
-	GLuint normal_sampler;
-	GLuint light_position;
-	GLuint light_radius;
-	GLuint light_color;
-	GLuint light_direction;
-	GLuint light_cone_angle_cos;
-	GLuint inv_view_proj_matrix;
-	GLuint camera_position;
+	GLint depth_sampler;
+	GLint color_sampler;
+	GLint normal_sampler;
+	GLint shadow_texture;
+	GLint light_view_proj_matrix;
+	GLint light_type;
+	GLint light_position;
+	GLint light_radius;
+	GLint light_color;
+	GLint light_direction;
+	GLint light_cone_angle_cos;
+	GLint inv_view_proj_matrix;
+	GLint camera_position;
 } de_deferred_light_shader_t;
 
 /**
@@ -161,12 +114,20 @@ typedef struct de_particle_system_shader_t {
 	} fs;
 } de_particle_system_shader_t;
 
-typedef struct de_shadow_map_shader_t {
+typedef struct de_spot_shadow_map_shader_t {
 	GLuint program;
+
 	struct {
-		GLint view_projection_matrix;
+		GLint world_view_projection_matrix;
+		GLint use_skeletal_animation;
+		GLint bone_matrices;
 	} vs;
-} de_shadow_map_shader_t;
+
+	struct {
+		GLint diffuse_texture;
+	} fs;
+
+} de_spot_shadow_map_shader_t;
 
 struct de_renderer_t {
 	de_core_t* core;
@@ -177,10 +138,11 @@ struct de_renderer_t {
 	de_gui_shader_t gui_shader;
 	de_ambient_shader_t ambient_shader;
 	de_particle_system_shader_t particle_system_shader;
-	de_shadow_map_shader_t shadow_map_shader;
+	de_spot_shadow_map_shader_t spot_shadow_map_shader;
 	de_gbuffer_t gbuffer;
 	de_gbuffer_shader_t gbuffer_shader;
 	de_deferred_light_shader_t lighting_shader;
+	de_shadow_map_t shadow_map;
 
 	de_surface_t* quad;
 	de_surface_t* light_unit_sphere;

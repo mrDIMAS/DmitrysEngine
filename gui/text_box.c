@@ -341,7 +341,7 @@ static void de_gui_text_box_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uin
 			de_gui_draw_list_push_text(dl, tb->font, str, len, &pos, &n->color);
 			pos.y += tb->font->ascender;
 		}
-		de_gui_draw_list_commit(dl, DE_GUI_DRAW_COMMAND_TYPE_GEOMETRY, tb->font->texture, n);
+		de_gui_draw_list_commit(dl, DE_GUI_DRAW_COMMAND_TYPE_GEOMETRY, tb->font->texture->id, n);
 		/* cursor */
 		if (tb->show_cursor && tb->cursor_visible) {
 			de_vec2_t cpos;

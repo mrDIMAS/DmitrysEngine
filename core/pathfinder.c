@@ -31,6 +31,9 @@ void de_graph_init(de_graph_t* graph)
 
 void de_graph_free(de_graph_t* graph)
 {
+	for (size_t i = 0 ;i < graph->vertices.size; ++i) {
+		DE_ARRAY_FREE(graph->vertices.data[i].neighbours);
+	}
 	DE_ARRAY_FREE(graph->vertices);
 }
 

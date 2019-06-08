@@ -27,6 +27,58 @@
 #  define DE_GL_CALL(func) func; de_renderer_check_opengl_error(#func, __FILE__, __LINE__)
 #endif
 
+PFNGLCREATEPROGRAMPROC glCreateProgram;
+PFNGLCREATESHADERPROC glCreateShader;
+PFNGLSHADERSOURCEPROC glShaderSource;
+PFNGLCOMPILESHADERPROC glCompileShader;
+PFNGLGETPROGRAMINFOLOGPROC glGetProgramInfoLog;
+PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
+PFNGLATTACHSHADERPROC glAttachShader;
+PFNGLLINKPROGRAMPROC glLinkProgram;
+PFNGLUSEPROGRAMPROC glUseProgram;
+PFNGLDELETEPROGRAMPROC glDeleteProgram;
+PFNGLDELETESHADERPROC glDeleteShader;
+PFNGLGETSHADERIVPROC glGetShaderiv;
+PFNGLGETPROGRAMIVPROC glGetProgramiv;
+PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
+PFNGLUNIFORMMATRIX4FVPROC glUniformMatrix4fv;
+PFNGLUNIFORM4FPROC glUniform4f;
+PFNGLUNIFORM3FPROC glUniform3f;
+PFNGLUNIFORM1FPROC glUniform1f;
+PFNGLUNIFORM2FPROC glUniform2f;
+PFNGLUNIFORM1IPROC glUniform1i;
+
+PFNGLGENBUFFERSPROC glGenBuffers;
+PFNGLBINDBUFFERPROC glBindBuffer;
+PFNGLDELETEBUFFERSPROC glDeleteBuffers;
+PFNGLBUFFERDATAPROC glBufferData;
+PFNGLBUFFERSUBDATAPROC glBufferSubData;
+PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
+PFNGLENABLEVERTEXATTRIBARRAYPROC glEnableVertexAttribArray;
+PFNGLGENVERTEXARRAYSPROC glGenVertexArrays;
+PFNGLBINDVERTEXARRAYPROC glBindVertexArray;
+PFNGLDELETEVERTEXARRAYSPROC glDeleteVertexArrays;
+
+PFNGLGENERATEMIPMAPPROC glGenerateMipmap;
+
+#ifdef _WIN32
+PFNGLACTIVETEXTUREPROC glActiveTexture;
+PFNGLCLIENTACTIVETEXTUREPROC glClientActiveTexture;
+#endif
+
+PFNGLGENFRAMEBUFFERSPROC glGenFramebuffers;
+PFNGLFRAMEBUFFERTEXTURE2DPROC glFramebufferTexture2D;
+PFNGLGENRENDERBUFFERSPROC glGenRenderbuffers;
+PFNGLBINDRENDERBUFFERPROC glBindRenderbuffer;
+PFNGLRENDERBUFFERSTORAGEPROC glRenderbufferStorage;
+PFNGLFRAMEBUFFERRENDERBUFFERPROC glFramebufferRenderbuffer;
+PFNGLFRAMEBUFFERTEXTUREPROC glFramebufferTexture;
+PFNGLDRAWBUFFERSPROC glDrawBuffers;
+PFNGLCHECKFRAMEBUFFERSTATUSPROC glCheckFramebufferStatus;
+PFNGLBINDFRAMEBUFFERPROC glBindFramebuffer;
+
+PFNGLGETSTRINGIPROC glGetStringi;
+
 void de_renderer_check_opengl_error(const char* func, const char* file, int line)
 {
 	const char* desc = "Unknown";
@@ -201,14 +253,44 @@ static void de_renderer_create_gbuffer(de_renderer_t* r, int width, int height)
 	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
-static void de_renderer_create_shaders(de_renderer_t* r)
+static void de_renderer_create_spot_shadow_map(de_renderer_t* r, int width, int height)
 {
-	/* Built-in shaders */
+	de_shadow_map_t* sm = &r->shadow_map;
 
-	/**
-	 * Flat (no lighting) shader.
-	 **/
-	static const char* de_flat_fs =
+	DE_GL_CALL(glGenFramebuffers(1, &sm->fbo));
+	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, sm->fbo));
+
+	DE_GL_CALL(glGenTextures(1, &sm->texture));
+	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, sm->texture));
+	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER));
+	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER));
+	float color[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, color);
+	DE_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL));
+
+	DE_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, sm->texture, 0));
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		de_fatal_error("Unable to initialize shadow map.");
+	}
+
+	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+}
+
+static GLint de_renderer_get_uniform(GLuint program, const char* name)
+{
+	GLint location = glGetUniformLocation(program, name);
+
+	DE_ASSERT(location >= 0);
+
+	return location;
+}
+
+static void de_renderer_create_flat_shader(de_renderer_t* r)
+{
+	const char* fragment_source =
 		"#version 330 core\n"
 
 		"uniform sampler2D diffuseTexture;"
@@ -221,7 +303,7 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 		"	FragColor = texture(diffuseTexture, texCoord);"
 		"}";
 
-	static const char* de_flat_vs =
+	const char* vertex_source =
 		"#version 330 core\n"
 
 		"layout(location = 0) in vec3 vertexPosition;"
@@ -237,10 +319,15 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 		"	gl_Position = worldViewProjection * vec4(vertexPosition, 1.0);"
 		"}";
 
-	/**
-	 * Ambient lighting shader
-	 **/
-	static const char* de_ambient_fs =
+	de_flat_shader_t* s = &r->flat_shader;
+	s->program = de_renderer_create_gpu_program(vertex_source, fragment_source);
+	s->wvp_matrix = de_renderer_get_uniform(s->program, "worldViewProjection");
+	s->diffuse_texture = de_renderer_get_uniform(s->program, "diffuseTexture");
+}
+
+static void de_renderer_create_ambient_lighting_shader(de_renderer_t* r)
+{
+	const char* fragment_source =
 		"#version 330 core\n"
 
 		"uniform sampler2D diffuseTexture;"
@@ -254,7 +341,7 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 		"	FragColor = ambientColor * texture(diffuseTexture, texCoord);"
 		"}";
 
-	static const char* de_ambient_vs =
+	const char* vertex_source =
 		"#version 330 core\n"
 
 		"layout(location = 0) in vec3 vertexPosition;"
@@ -270,10 +357,16 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 		"	gl_Position = worldViewProjection * vec4(vertexPosition, 1.0);"
 		"}";
 
-	/**
-	 * Gui shader.
-	 **/
-	static const char* de_gui_fs =
+	de_ambient_shader_t* s = &r->ambient_shader;
+	s->program = de_renderer_create_gpu_program(vertex_source, fragment_source);
+	s->wvp_matrix = de_renderer_get_uniform(s->program, "worldViewProjection");
+	s->diffuse_texture = de_renderer_get_uniform(s->program, "diffuseTexture");
+	s->ambient_color = de_renderer_get_uniform(s->program, "ambientColor");
+}
+
+static void de_renderer_create_gui_shader(de_renderer_t* r)
+{
+	const char* fragment_source =
 		"#version 330 core\n"
 
 		"uniform sampler2D diffuseTexture;"
@@ -287,7 +380,7 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 		"	FragColor = color * texture(diffuseTexture, texCoord);"
 		"}";
 
-	static const char* de_gui_vs =
+	const char* vertex_source =
 		"#version 330 core\n"
 
 		"layout(location = 0) in vec3 vertexPosition;"
@@ -306,10 +399,15 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 		"	gl_Position = worldViewProjection * vec4(vertexPosition, 1.0);"
 		"}";
 
-	/**
-	 * G-Buffer filling shader
-	 **/
-	static const char* de_gbuffer_fs =
+	de_gui_shader_t* s = &r->gui_shader;
+	s->program = de_renderer_create_gpu_program(vertex_source, fragment_source);
+	s->wvp_matrix = de_renderer_get_uniform(s->program, "worldViewProjection");
+	s->diffuse_texture = de_renderer_get_uniform(s->program, "diffuseTexture");
+}
+
+static void de_renderer_create_gbuffer_shader(de_renderer_t* r)
+{
+	const char* fragment_source =
 		"#version 330 core\n"
 
 		"layout(location = 0) out float outDepth;"
@@ -319,8 +417,6 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 		"uniform sampler2D diffuseTexture;"
 		"uniform sampler2D normalTexture;"
 		"uniform sampler2D specularTexture;"
-		"uniform vec4 diffuseColor;"
-		"uniform float selfEmittance;"
 
 		"in vec4 position;"
 		"in vec3 normal;"
@@ -340,7 +436,7 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 		"   outNormal.w = texture2D(specularTexture, texCoord).r;"
 		"}";
 
-	static const char de_gbuffer_vs[] =
+	const char vertex_source[] =
 		"#version 330 core\n"
 
 		"layout(location = 0) in vec3 vertexPosition;"
@@ -404,15 +500,28 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 		"	position = gl_Position;"
 		"}";
 
-	/**
-	 * Deferred lighting shader
-	 **/
-	static const char* const de_light_fs =
+	de_gbuffer_shader_t* s = &r->gbuffer_shader;
+
+	s->program = de_renderer_create_gpu_program(vertex_source, fragment_source);
+	s->wvp_matrix = de_renderer_get_uniform(s->program, "worldViewProjection");
+	s->world_matrix = de_renderer_get_uniform(s->program, "worldMatrix");
+	s->use_skeletal_animation = de_renderer_get_uniform(s->program, "useSkeletalAnimation");
+	s->bone_matrices = de_renderer_get_uniform(s->program, "boneMatrices");
+
+	s->diffuse_texture = de_renderer_get_uniform(s->program, "diffuseTexture");
+	s->normal_texture = de_renderer_get_uniform(s->program, "normalTexture");
+}
+
+static void de_renderer_create_deferred_lighting_shader(de_renderer_t* r)
+{
+	const char* const fragment_source =
 		"#version 330 core\n"
 		"uniform sampler2D depthTexture;"
 		"uniform sampler2D colorTexture;"
 		"uniform sampler2D normalTexture;"
+		"uniform sampler2D shadowTexture;"
 
+		"uniform mat4 lightViewProjMatrix;"
 		"uniform vec3 lightPos;"
 		"uniform float lightRadius;"
 		"uniform vec4 lightColor;"
@@ -420,21 +529,32 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 		"uniform float coneAngleCos;"
 		"uniform mat4 invViewProj;"
 		"uniform vec3 cameraPosition;"
+		"uniform int lightType;" // de_light_type_t
 
 		"in vec2 texCoord;"
 		"out vec4 FragColor;"
+
+		"vec3 GetProjection(vec3 worldPosition, mat4 viewProjectionMatrix)"
+		"{"
+		"   vec4 projPos = viewProjectionMatrix * vec4(worldPosition, 1);"
+		"   projPos /= projPos.w;"
+		"   return vec3(projPos.x * 0.5 + 0.5, projPos.y * 0.5 + 0.5, projPos.z * 0.5 + 0.5);"
+		"}"
 
 		"void main()"
 		"{"
 		"   vec4 normalSpecular = texture2D(normalTexture, texCoord);"
 		"	vec3 normal = normalize(normalSpecular.xyz * 2.0 - 1.0);"
+
 		"	vec4 screenPosition;"
 		"	screenPosition.x = texCoord.x * 2.0 - 1.0;"
 		"	screenPosition.y = texCoord.y * 2.0 - 1.0;"
 		"	screenPosition.z = texture2D(depthTexture, texCoord).r;"
 		"	screenPosition.w = 1.0;"
+
 		"	vec4 worldPosition = invViewProj * screenPosition;"
-		"	worldPosition.xyz /= worldPosition.w;"
+		"	worldPosition /= worldPosition.w;"
+
 		"	vec3 lightVector = lightPos - worldPosition.xyz;"
 		"	float d = min(length(lightVector), lightRadius);"
 		"	vec3 normLightVector = lightVector / d;"
@@ -447,12 +567,24 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 		"	{"
 		"		attenuation *= smoothstep(coneAngleCos - 0.1, coneAngleCos, y);"
 		"	}"
+
+		// Shadows
+		"   vec3 lightSpacePosition = GetProjection(worldPosition.xyz, lightViewProjMatrix);"
+
+		"   float shadow = 1.0;"
+		"   if (lightType == 2) {"
+		"      const float bias = 0.00005;"
+		"      if (lightSpacePosition.z - bias > texture(shadowTexture, lightSpacePosition.xy).r) {"
+		"         shadow = 0.0;"
+		"      };"
+		"   }"
+
 		"   FragColor = texture2D(colorTexture, texCoord);"
 		"   FragColor.xyz += specular;"
-		"	FragColor *= k * attenuation * lightColor;"
+		"	FragColor *= k * shadow * attenuation * lightColor;"
 		"}";
 
-	static const  char* de_light_vs =
+	const char* vertex_source =
 		"#version 330 core\n"
 
 		"layout(location = 0) in vec3 vertexPosition;"
@@ -468,7 +600,30 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 		"	texCoord = vertexTexCoord;"
 		"}";
 
-	static const char* particle_vs =
+	de_deferred_light_shader_t* s = &r->lighting_shader;
+
+	s->program = de_renderer_create_gpu_program(vertex_source, fragment_source);
+
+	s->wvp_matrix = de_renderer_get_uniform(s->program, "worldViewProjection");
+
+	s->depth_sampler = de_renderer_get_uniform(s->program, "depthTexture");
+	s->color_sampler = de_renderer_get_uniform(s->program, "colorTexture");
+	s->normal_sampler = de_renderer_get_uniform(s->program, "normalTexture");
+	s->shadow_texture = de_renderer_get_uniform(s->program, "shadowTexture");
+	s->light_view_proj_matrix = de_renderer_get_uniform(s->program, "lightViewProjMatrix");
+	s->light_type = de_renderer_get_uniform(s->program, "lightType");
+	s->light_position = de_renderer_get_uniform(s->program, "lightPos");
+	s->light_radius = de_renderer_get_uniform(s->program, "lightRadius");
+	s->light_color = de_renderer_get_uniform(s->program, "lightColor");
+	s->light_direction = de_renderer_get_uniform(s->program, "lightDirection");
+	s->light_cone_angle_cos = de_renderer_get_uniform(s->program, "coneAngleCos");
+	s->inv_view_proj_matrix = de_renderer_get_uniform(s->program, "invViewProj");
+	s->camera_position = de_renderer_get_uniform(s->program, "cameraPosition");
+}
+
+static void de_renderer_create_particle_system_shader(de_renderer_t* r)
+{
+	const char* vertex_source =
 		"#version 330 core\n"
 
 		"layout(location = 0) in vec3 vertexPosition;"
@@ -503,7 +658,7 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 		"	gl_Position = viewProjectionMatrix * (worldPosition + offset);"
 		"}";
 
-	static const char* particle_fs =
+	const char* fragment_source =
 		"#version 330 core\n"
 
 		"uniform sampler2D diffuseTexture;"
@@ -521,7 +676,7 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 		"   float near = projParams.y;"
 		"	return (far * near) / (far - z * (far + near));"
 		"}"
-		
+
 		"void main()"
 		"{"
 		"   float sceneDepth = toProjSpace(texture(depthBufferTexture, gl_FragCoord.xy * invScreenSize).r);"
@@ -530,93 +685,96 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 		"   FragColor.a *= depthOpacity;"
 		"}";
 
-	static const char* shadow_map_fs =
-		"#version 330 core"
-		"";
-        
-    (void)shadow_map_fs;
+	de_particle_system_shader_t* s = &r->particle_system_shader;
 
-	/* Build flat shader */
-	{
-		de_flat_shader_t* s = &r->flat_shader;
+	s->program = de_renderer_create_gpu_program(vertex_source, fragment_source);
 
-		s->program = de_renderer_create_gpu_program(de_flat_vs, de_flat_fs);
-		s->wvp_matrix = glGetUniformLocation(s->program, "worldViewProjection");
-		s->diffuse_texture = glGetUniformLocation(s->program, "diffuseTexture");
-	}
+	s->vs.view_projection_matrix = de_renderer_get_uniform(s->program, "viewProjectionMatrix");
+	s->vs.world_matrix = de_renderer_get_uniform(s->program, "worldMatrix");
+	s->vs.camera_side_vector = de_renderer_get_uniform(s->program, "cameraSideVector");
+	s->vs.camera_up_vector = de_renderer_get_uniform(s->program, "cameraUpVector");
 
-	/* Build ambient */
-	{
-		de_ambient_shader_t* s = &r->ambient_shader;
-
-		s->program = de_renderer_create_gpu_program(de_ambient_vs, de_ambient_fs);
-		s->wvp_matrix = glGetUniformLocation(s->program, "worldViewProjection");
-		s->diffuse_texture = glGetUniformLocation(s->program, "diffuseTexture");
-		s->ambient_color = glGetUniformLocation(s->program, "ambientColor");
-	}
-
-	/* Build gui shader */
-	{
-		de_gui_shader_t* s = &r->gui_shader;
-
-		s->program = de_renderer_create_gpu_program(de_gui_vs, de_gui_fs);
-		s->wvp_matrix = glGetUniformLocation(s->program, "worldViewProjection");
-		s->diffuse_texture = glGetUniformLocation(s->program, "diffuseTexture");
-	}
-
-	/* Build GBuffer shader */
-	{
-		de_gbuffer_shader_t* s = &r->gbuffer_shader;
-
-		s->program = de_renderer_create_gpu_program(de_gbuffer_vs, de_gbuffer_fs);
-		s->wvp_matrix = glGetUniformLocation(s->program, "worldViewProjection");
-		s->world_matrix = glGetUniformLocation(s->program, "worldMatrix");
-		s->use_skeletal_animation = glGetUniformLocation(s->program, "useSkeletalAnimation");
-		s->bone_matrices = glGetUniformLocation(s->program, "boneMatrices");
-
-		s->diffuse_texture = glGetUniformLocation(s->program, "diffuseTexture");
-		s->normal_texture = glGetUniformLocation(s->program, "normalTexture");
-		s->diffuse_color = glGetUniformLocation(s->program, "diffuseColor");
-		s->self_emittance = glGetUniformLocation(s->program, "selfEmittance");
-	}
-
-	/* Build deferred lighting shader */
-	{
-		de_deferred_light_shader_t* s = &r->lighting_shader;
-
-		s->program = de_renderer_create_gpu_program(de_light_vs, de_light_fs);
-
-		s->wvp_matrix = glGetUniformLocation(s->program, "worldViewProjection");
-
-		s->depth_sampler = glGetUniformLocation(s->program, "depthTexture");
-		s->color_sampler = glGetUniformLocation(s->program, "colorTexture");
-		s->normal_sampler = glGetUniformLocation(s->program, "normalTexture");
-
-		s->light_position = glGetUniformLocation(s->program, "lightPos");
-		s->light_radius = glGetUniformLocation(s->program, "lightRadius");
-		s->light_color = glGetUniformLocation(s->program, "lightColor");
-		s->light_direction = glGetUniformLocation(s->program, "lightDirection");
-		s->light_cone_angle_cos = glGetUniformLocation(s->program, "coneAngleCos");
-		s->inv_view_proj_matrix = glGetUniformLocation(s->program, "invViewProj");
-		s->camera_position = glGetUniformLocation(s->program, "cameraPosition");
-	}
-
-	/* Build particle system shader */
-	{
-		de_particle_system_shader_t* s = &r->particle_system_shader;
-		s->program = de_renderer_create_gpu_program(particle_vs, particle_fs);
-
-		s->vs.view_projection_matrix = glGetUniformLocation(s->program, "viewProjectionMatrix");
-		s->vs.world_matrix = glGetUniformLocation(s->program, "worldMatrix");
-		s->vs.camera_side_vector = glGetUniformLocation(s->program, "cameraSideVector");
-		s->vs.camera_up_vector = glGetUniformLocation(s->program, "cameraUpVector");
-
-		s->fs.diffuse_texture = glGetUniformLocation(s->program, "diffuseTexture");
-		s->fs.depth_buffer_texture = glGetUniformLocation(s->program, "depthBufferTexture");
-		s->fs.inv_screen_size = glGetUniformLocation(s->program, "invScreenSize");
-		s->fs.proj_params = glGetUniformLocation(s->program, "projParams");
-	}
+	s->fs.diffuse_texture = de_renderer_get_uniform(s->program, "diffuseTexture");
+	s->fs.depth_buffer_texture = de_renderer_get_uniform(s->program, "depthBufferTexture");
+	s->fs.inv_screen_size = de_renderer_get_uniform(s->program, "invScreenSize");
+	s->fs.proj_params = de_renderer_get_uniform(s->program, "projParams");
 }
+
+static void de_renderer_create_spot_shadow_map_shader(de_renderer_t* r)
+{
+	static const char* fragment_source =
+		"#version 330 core\n"
+
+		"uniform sampler2D diffuseTexture;"
+
+		"in vec2 texCoord;"
+
+		"layout(location = 0) out float FragColor;"
+
+		"void main() "
+		"{"
+		"   if(texture(diffuseTexture, texCoord).a < 0.2) discard;"
+		"}";
+
+	static const char* vertex_source =
+		"#version 330 core\n"
+
+		"layout(location = 0) in vec3 vertexPosition;"
+		"layout(location = 1) in vec2 vertexTexCoord;"
+		"layout(location = 4) in vec4 boneWeights;"
+		"layout(location = 5) in vec4 boneIndices;"
+
+		"uniform mat4 worldViewProjection;"
+		"uniform bool useSkeletalAnimation;"
+		"uniform mat4 boneMatrices[" DE_STRINGIZE(DE_RENDERER_MAX_SKINNING_MATRICES) "];"
+
+		"out vec2 texCoord;"
+
+		"void main()"
+		"{"
+		"   vec4 localPosition = vec4(0);"
+
+		"   if(useSkeletalAnimation)"
+		"   {"
+		"       vec4 vertex = vec4(vertexPosition, 1.0);"
+
+		"       localPosition += boneMatrices[int(boneIndices.x)] * vertex * boneWeights.x;"
+		"       localPosition += boneMatrices[int(boneIndices.y)] * vertex * boneWeights.y;"
+		"       localPosition += boneMatrices[int(boneIndices.z)] * vertex * boneWeights.z;"
+		"       localPosition += boneMatrices[int(boneIndices.w)] * vertex * boneWeights.w;"
+		"   }"
+		"   else"
+		"   {"
+		"       localPosition = vec4(vertexPosition, 1.0);"
+		"   }"
+
+		"	gl_Position = worldViewProjection * localPosition;"
+		"   texCoord = vertexTexCoord;"
+		"}";
+
+	de_spot_shadow_map_shader_t* s = &r->spot_shadow_map_shader;
+
+	s->program = de_renderer_create_gpu_program(vertex_source, fragment_source);
+
+	s->vs.bone_matrices = de_renderer_get_uniform(s->program, "boneMatrices");
+	s->vs.world_view_projection_matrix = de_renderer_get_uniform(s->program, "worldViewProjection");
+	s->vs.use_skeletal_animation = de_renderer_get_uniform(s->program, "useSkeletalAnimation");
+
+	s->fs.diffuse_texture = de_renderer_get_uniform(s->program, "diffuseTexture");
+}
+
+static void de_renderer_create_shaders(de_renderer_t* r)
+{
+	de_renderer_create_flat_shader(r);
+	de_renderer_create_ambient_lighting_shader(r);
+	de_renderer_create_gui_shader(r);
+	de_renderer_create_gbuffer_shader(r);
+	de_renderer_create_deferred_lighting_shader(r);
+	de_renderer_create_particle_system_shader(r);
+	de_renderer_create_spot_shadow_map_shader(r);
+}
+
+#define SPOT_SHADOW_MAP_SIZE 1024
 
 de_renderer_t* de_renderer_init(de_core_t* core)
 {
@@ -644,6 +802,7 @@ de_renderer_t* de_renderer_init(de_core_t* core)
 	glCullFace(GL_BACK);
 
 	de_renderer_create_gbuffer(r, core->params.video_mode.width, core->params.video_mode.height);
+	de_renderer_create_spot_shadow_map(r, SPOT_SHADOW_MAP_SIZE, SPOT_SHADOW_MAP_SIZE);
 
 	/* Create fullscreen quad */
 	{
@@ -1025,52 +1184,6 @@ static void de_renderer_draw_mesh_bones(de_renderer_t* r, de_mesh_t* mesh)
 	}
 }
 
-static void de_renderer_draw_mesh(de_renderer_t* r, de_mesh_t* mesh)
-{	
-	for (size_t i = 0; i < mesh->surfaces.size; ++i) {
-		de_surface_t* surf = mesh->surfaces.data[i];
-		const bool is_skinned = de_surface_is_skinned(surf);
-
-		if (surf->need_upload) {
-			de_renderer_upload_surface(surf);
-		}
-
-		/* bind diffuse map */
-		DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
-		if (surf->diffuse_map) {
-			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, surf->diffuse_map->id));
-		} else {
-			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->white_dummy->id));
-		}
-
-		/* bind normal map */
-		DE_GL_CALL(glActiveTexture(GL_TEXTURE1));
-		if (surf->normal_map) {
-			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, surf->normal_map->id));
-		} else {
-			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->normal_map_dummy->id));
-		}
-
-		/* bind specular map */
-		DE_GL_CALL(glActiveTexture(GL_TEXTURE2));
-		if (surf->specular_map) {
-			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, surf->specular_map->id));
-		} else {
-			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->white_dummy->id));
-		}
-
-		DE_GL_CALL(glUniform1i(r->gbuffer_shader.use_skeletal_animation, is_skinned));
-		if (is_skinned) {
-			de_mat4_t matrices[DE_RENDERER_MAX_SKINNING_MATRICES] = { { { 0 } } };
-			de_surface_get_skinning_matrices(surf, matrices, DE_RENDERER_MAX_SKINNING_MATRICES);
-
-			glUniformMatrix4fv(r->gbuffer_shader.bone_matrices, DE_RENDERER_MAX_SKINNING_MATRICES, GL_FALSE, (const float*)&matrices[0]);
-		}
-
-		de_renderer_render_surface(r, surf);
-	}
-}
-
 static void de_renderer_draw_mesh_normals(de_renderer_t* r, de_mesh_t* mesh)
 {
 	DE_UNUSED(r);
@@ -1080,12 +1193,12 @@ static void de_renderer_draw_mesh_normals(de_renderer_t* r, de_mesh_t* mesh)
 	}
 }
 
-static void de_renderer_set_viewport(const de_rectf_t* viewport, unsigned int window_width, unsigned int window_height)
+static void de_renderer_set_viewport(const de_rectf_t* viewport, unsigned int width, unsigned int height)
 {
-	const int viewport_x = (int)(viewport->x * window_width);
-	const int viewport_y = (int)(viewport->y * window_height);
-	const int viewport_w = (int)(viewport->w * window_width);
-	const int viewport_h = (int)(viewport->h * window_height);
+	const int viewport_x = (int)(viewport->x * width);
+	const int viewport_y = (int)(viewport->y * height);
+	const int viewport_w = (int)(viewport->w * width);
+	const int viewport_h = (int)(viewport->h * height);
 
 	DE_GL_CALL(glViewport(viewport_x, viewport_y, viewport_w, viewport_h));
 }
@@ -1129,7 +1242,7 @@ void de_renderer_render(de_renderer_t* r)
 {
 	de_core_t* core = r->core;
 	static int last_time_ms;
-	de_mat4_t y_flip_ortho, ortho;	
+	de_mat4_t y_flip_ortho, ortho;
 	GLenum buffers[] = { GL_COLOR_ATTACHMENT0_EXT, GL_COLOR_ATTACHMENT1_EXT, GL_COLOR_ATTACHMENT2_EXT };
 	float w = (float)core->params.video_mode.width;
 	float h = (float)core->params.video_mode.height;
@@ -1157,6 +1270,26 @@ void de_renderer_render(de_renderer_t* r)
 	DE_GL_CALL(glUniform1i(r->gbuffer_shader.normal_texture, 1));
 	DE_GL_CALL(glEnable(GL_CULL_FACE));
 
+	/* Upload surface data to GPU */
+	DE_LINKED_LIST_FOR_EACH_T(de_scene_t*, scene, core->scenes)
+	{
+		DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes)
+		{
+			if (node->type == DE_NODE_TYPE_MESH) {
+				de_mesh_t* mesh = &node->s.mesh;
+
+				for (size_t i = 0; i < mesh->surfaces.size; ++i) {
+					de_surface_t* surf = mesh->surfaces.data[i];
+
+					if (surf->need_upload) {
+						de_renderer_upload_surface(surf);
+					}
+				}
+			}
+		}
+	}
+
+
 	/* render each scene */
 	DE_LINKED_LIST_FOR_EACH_T(de_scene_t*, scene, core->scenes)
 	{
@@ -1177,7 +1310,8 @@ void de_renderer_render(de_renderer_t* r)
 
 		de_renderer_set_viewport(&camera->viewport, core->params.video_mode.width, core->params.video_mode.height);
 
-		/* Render each node */
+		/* Render each node
+		 * TODO: Add frustum culling */
 		DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes)
 		{
 			if (node->global_visibility && node->type == DE_NODE_TYPE_MESH) {
@@ -1188,13 +1322,51 @@ void de_renderer_render(de_renderer_t* r)
 					de_camera_enter_depth_hack(camera, node->depth_hack);
 				}
 
+				de_gbuffer_shader_t* shader = &r->gbuffer_shader;
+
 				de_mat4_t wvp_matrix;
 				de_mat4_mul(&wvp_matrix, &camera->view_projection_matrix, is_skinned ? &identity : &node->global_matrix);
 
-				DE_GL_CALL(glUniformMatrix4fv(r->gbuffer_shader.wvp_matrix, 1, GL_FALSE, wvp_matrix.f));
-				DE_GL_CALL(glUniformMatrix4fv(r->gbuffer_shader.world_matrix, 1, GL_FALSE, is_skinned ? identity.f : node->global_matrix.f));
+				DE_GL_CALL(glUniformMatrix4fv(shader->wvp_matrix, 1, GL_FALSE, wvp_matrix.f));
+				DE_GL_CALL(glUniformMatrix4fv(shader->world_matrix, 1, GL_FALSE, is_skinned ? identity.f : node->global_matrix.f));
 
-				de_renderer_draw_mesh(r, mesh);
+				for (size_t i = 0; i < mesh->surfaces.size; ++i) {
+					de_surface_t* surf = mesh->surfaces.data[i];
+
+					/* bind diffuse map */
+					DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
+					if (surf->diffuse_map) {
+						DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, surf->diffuse_map->id));
+					} else {
+						DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->white_dummy->id));
+					}
+
+					/* bind normal map */
+					DE_GL_CALL(glActiveTexture(GL_TEXTURE1));
+					if (surf->normal_map) {
+						DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, surf->normal_map->id));
+					} else {
+						DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->normal_map_dummy->id));
+					}
+
+					/* bind specular map */
+					DE_GL_CALL(glActiveTexture(GL_TEXTURE2));
+					if (surf->specular_map) {
+						DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, surf->specular_map->id));
+					} else {
+						DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->white_dummy->id));
+					}
+
+					DE_GL_CALL(glUniform1i(shader->use_skeletal_animation, is_skinned));
+					if (is_skinned) {
+						de_mat4_t matrices[DE_RENDERER_MAX_SKINNING_MATRICES] = { { { 0 } } };
+						de_surface_get_skinning_matrices(surf, matrices, DE_RENDERER_MAX_SKINNING_MATRICES);
+
+						glUniformMatrix4fv(shader->bone_matrices, DE_RENDERER_MAX_SKINNING_MATRICES, GL_FALSE, (const float*)&matrices[0]);
+					}
+
+					de_renderer_render_surface(r, surf);
+				}
 
 				if (camera->in_depth_hack_mode) {
 					de_camera_leave_depth_hack(camera);
@@ -1204,9 +1376,9 @@ void de_renderer_render(de_renderer_t* r)
 
 		DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, r->gbuffer.opt_fbo));
 		const GLenum lightBuffers[] = { GL_COLOR_ATTACHMENT0_EXT };
-		DE_GL_CALL(glDrawBuffers(1, lightBuffers));		
+		DE_GL_CALL(glDrawBuffers(1, lightBuffers));
 		DE_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
-				
+
 		DE_GL_CALL(glDisable(GL_BLEND));
 		DE_GL_CALL(glDepthMask(GL_FALSE));
 		DE_GL_CALL(glDisable(GL_STENCIL_TEST));
@@ -1226,11 +1398,11 @@ void de_renderer_render(de_renderer_t* r)
 
 		de_renderer_draw_fullscreen_quad(r);
 
-		/* add lighting */		
+		/* add lighting */
 		DE_GL_CALL(glEnable(GL_BLEND));
 		DE_GL_CALL(glBlendFunc(GL_ONE, GL_ONE));
 		DE_GL_CALL(glUseProgram(r->lighting_shader.program));
-				
+
 		DE_GL_CALL(glUniform3f(r->lighting_shader.camera_position, camera_position.x, camera_position.y, camera_position.z));
 
 		DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
@@ -1245,24 +1417,98 @@ void de_renderer_render(de_renderer_t* r)
 		DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.normal_texture));
 		DE_GL_CALL(glUniform1i(r->lighting_shader.normal_sampler, 2));
 
-		DE_GL_CALL(glEnable(GL_STENCIL_TEST));
-
-		DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes)
-		{
-			if (node->type == DE_NODE_TYPE_LIGHT) {
-				de_light_t* light = &node->s.light;
+		for (de_node_t* light_node = scene->nodes.head; light_node; light_node = light_node->next) {
+			if (light_node->type == DE_NODE_TYPE_LIGHT) {
+				de_light_t* light = &light_node->s.light;
 
 				de_vec3_t pos;
-				de_node_get_global_position(node, &pos);
+				de_node_get_global_position(light_node, &pos);
+
+				de_vec3_t dir;
+				de_node_get_up_vector(light_node, &dir);
+				de_vec3_normalize(&dir, &dir);
 
 				if (light->type == DE_LIGHT_TYPE_POINT || light->type == DE_LIGHT_TYPE_SPOT) {
-					/* todo: spot light can be culled more accurately, but for now we cull it as
+					/* TODO: spot light can be culled more accurately, but for now we cull it as
 					   if it point light with some radius. */
 					if (!de_frustum_sphere_intersection(&frustum, &pos, light->radius)) {
 						continue;
 					}
 				}
 
+				/* Render shadows */
+				de_mat4_t light_view_projection_matrix;
+				const de_shadow_map_t* shadow_map = &r->shadow_map;
+
+				if (light->type == DE_LIGHT_TYPE_SPOT) {		
+
+					DE_GL_CALL(glDepthMask(GL_TRUE));
+					DE_GL_CALL(glDisable(GL_BLEND));
+					DE_GL_CALL(glDisable(GL_STENCIL_TEST));
+					DE_GL_CALL(glEnable(GL_CULL_FACE));
+
+					DE_GL_CALL(glViewport(0, 0, SPOT_SHADOW_MAP_SIZE, SPOT_SHADOW_MAP_SIZE));
+					DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, shadow_map->fbo));					
+					DE_GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
+					
+					de_mat4_t light_projection_matrix;
+					de_mat4_perspective(&light_projection_matrix, light->cone_angle * 2.5f, 1.0, 0.01f, light->radius);
+
+					de_vec3_t light_look_at;
+					de_vec3_sub(&light_look_at, &pos, &dir);
+
+					de_vec3_t light_up_vec;
+					de_node_get_look_vector(light_node, &light_up_vec);
+
+					de_mat4_t light_view_matrix;
+					de_mat4_look_at(&light_view_matrix, &pos, &light_look_at, &light_up_vec);
+
+					de_mat4_mul(&light_view_projection_matrix, &light_projection_matrix, &light_view_matrix);
+
+					/* Bind and setup shader */
+					de_spot_shadow_map_shader_t* shader = &r->spot_shadow_map_shader;
+					DE_GL_CALL(glUseProgram(shader->program));
+
+					/* Render each node into shadow map
+					 * TODO: Add frustum culling here */
+					for (de_node_t* mesh_node = scene->nodes.head; mesh_node; mesh_node = mesh_node->next) {
+						if (mesh_node->global_visibility && mesh_node->type == DE_NODE_TYPE_MESH) {
+							de_mesh_t* mesh = &mesh_node->s.mesh;
+							const bool is_skinned = de_mesh_is_skinned(mesh);
+
+							de_mat4_t wvp_matrix;
+							de_mat4_mul(&wvp_matrix, &light_view_projection_matrix, is_skinned ? &identity : &mesh_node->global_matrix);
+
+							DE_GL_CALL(glUniformMatrix4fv(shader->vs.world_view_projection_matrix, 1, GL_FALSE, wvp_matrix.f));
+
+							for (size_t i = 0; i < mesh->surfaces.size; ++i) {
+								de_surface_t* surf = mesh->surfaces.data[i];
+
+								DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
+								DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, surf->diffuse_map ? surf->diffuse_map->id : r->white_dummy->id));
+								DE_GL_CALL(glUniform1i(shader->fs.diffuse_texture, 0));
+
+								DE_GL_CALL(glUniform1i(shader->vs.use_skeletal_animation, is_skinned));
+
+								if (is_skinned) {
+									de_mat4_t matrices[DE_RENDERER_MAX_SKINNING_MATRICES] = { { { 0 } } };
+									de_surface_get_skinning_matrices(surf, matrices, DE_RENDERER_MAX_SKINNING_MATRICES);
+
+									glUniformMatrix4fv(shader->vs.bone_matrices, DE_RENDERER_MAX_SKINNING_MATRICES, GL_FALSE, (const float*)&matrices[0]);
+								}
+
+								de_renderer_render_surface(r, surf);
+							}
+						}
+					}
+
+					DE_GL_CALL(glDepthMask(GL_FALSE));
+					DE_GL_CALL(glEnable(GL_BLEND));
+					DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, r->gbuffer.opt_fbo));
+					de_renderer_set_viewport(&camera->viewport, core->params.video_mode.width, core->params.video_mode.height);
+				}
+
+				/* Render fullscreen quad with lighting */
 				const float clr[] = {
 					light->color.r / 255.0f,
 					light->color.g / 255.0f,
@@ -1270,10 +1516,11 @@ void de_renderer_render(de_renderer_t* r)
 					1.0f
 				};
 
-				de_vec3_t dir;
-				de_node_get_up_vector(node, &dir);
-				de_vec3_normalize(&dir, &dir);
-				
+				const de_deferred_light_shader_t* shader = &r->lighting_shader;
+				DE_GL_CALL(glUseProgram(shader->program));
+
+				DE_GL_CALL(glEnable(GL_STENCIL_TEST));
+				DE_GL_CALL(glStencilMask(0xFF));
 				DE_GL_CALL(glColorMask(0, 0, 0, 0));
 
 				DE_GL_CALL(glEnable(GL_CULL_FACE));
@@ -1295,14 +1542,24 @@ void de_renderer_render(de_renderer_t* r)
 
 				DE_GL_CALL(glDisable(GL_CULL_FACE));
 
-				de_deferred_light_shader_t* s = &r->lighting_shader;
-				DE_GL_CALL(glUniform3f(s->light_position, pos.x, pos.y, pos.z));
-				DE_GL_CALL(glUniform1f(s->light_radius, light->radius));
-				DE_GL_CALL(glUniformMatrix4fv(s->inv_view_proj_matrix, 1, GL_FALSE, camera->inv_view_proj.f));
-				DE_GL_CALL(glUniform4f(s->light_color, clr[0], clr[1], clr[2], clr[3]));
-				DE_GL_CALL(glUniform1f(s->light_cone_angle_cos, light->cone_angle_cos));
-				DE_GL_CALL(glUniform3f(s->light_direction, dir.x, dir.y, dir.z));
-				DE_GL_CALL(glUniformMatrix4fv(s->wvp_matrix, 1, GL_FALSE, y_flip_ortho.f));
+				DE_GL_CALL(glUniform3f(shader->light_position, pos.x, pos.y, pos.z));
+				DE_GL_CALL(glUniform1f(shader->light_radius, light->radius));
+				DE_GL_CALL(glUniformMatrix4fv(shader->inv_view_proj_matrix, 1, GL_FALSE, camera->inv_view_proj.f));
+				DE_GL_CALL(glUniform4f(shader->light_color, clr[0], clr[1], clr[2], clr[3]));
+				DE_GL_CALL(glUniform1f(shader->light_cone_angle_cos, light->cone_angle_cos));
+				DE_GL_CALL(glUniform3f(shader->light_direction, dir.x, dir.y, dir.z));
+				DE_GL_CALL(glUniformMatrix4fv(shader->wvp_matrix, 1, GL_FALSE, y_flip_ortho.f));
+				DE_GL_CALL(glUniform1i(shader->light_type, light->type));
+
+				if (light->type == DE_LIGHT_TYPE_SPOT) {
+					DE_GL_CALL(glActiveTexture(GL_TEXTURE3));
+					DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, shadow_map->texture));
+					DE_GL_CALL(glUniform1i(shader->shadow_texture, 3));
+					DE_GL_CALL(glUniformMatrix4fv(shader->light_view_proj_matrix, 1, GL_FALSE, light_view_projection_matrix.f));
+				}
+
+				DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
+				DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.depth_texture));
 
 				de_renderer_draw_fullscreen_quad(r);
 			}
@@ -1365,9 +1622,9 @@ void de_renderer_render(de_renderer_t* r)
 	DE_GL_CALL(glEnable(GL_BLEND));
 	DE_GL_CALL(glDepthMask(GL_FALSE));
 	DE_GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
-	DE_GL_CALL(glUseProgram(r->particle_system_shader.program));	
-	DE_LINKED_LIST_FOR_EACH_T(de_scene_t*, scene, core->scenes)
-	{
+	DE_GL_CALL(glUseProgram(r->particle_system_shader.program));
+
+	for (de_scene_t* scene = core->scenes.head; scene; scene = scene->next) {
 		de_node_t* camera_node = scene->active_camera;
 
 		if (!camera_node) {
@@ -1388,8 +1645,7 @@ void de_renderer_render(de_renderer_t* r)
 		de_vec3_t camera_position;
 		de_node_get_global_position(camera_node, &camera_position);
 
-		DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes)
-		{
+		for (de_node_t* node = scene->nodes.head; node; node = node->next) {
 			if (node->type != DE_NODE_TYPE_PARTICLE_SYSTEM) {
 				continue;
 			}
@@ -1460,19 +1716,19 @@ void de_renderer_render(de_renderer_t* r)
 			const float inv_height = 1.0f / core->params.video_mode.height;
 			DE_GL_CALL(glUniform2f(shader->fs.inv_screen_size, inv_width, inv_height));
 
-			DE_GL_CALL(glUniform2f(shader->fs.proj_params, camera->z_far, camera->z_near));			 
+			DE_GL_CALL(glUniform2f(shader->fs.proj_params, camera->z_far, camera->z_near));
 
 			DE_GL_CALL(glDrawElements(GL_TRIANGLES, particle_system->indices.size, GL_UNSIGNED_INT, NULL));
 		}
 	}
-	
+
 	DE_GL_CALL(glDisable(GL_BLEND));
 	DE_GL_CALL(glDepthMask(GL_TRUE));
 
 	/* Render final frame from deferred lighting pass to back buffer */
 	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 	DE_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
-	
+
 	const de_rectf_t gui_viewport = { 0, 0, 1, 1 };
 	de_renderer_set_viewport(&gui_viewport, core->params.video_mode.width, core->params.video_mode.height);
 
@@ -1482,7 +1738,7 @@ void de_renderer_render(de_renderer_t* r)
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.frame_texture));
 
 	de_renderer_draw_fullscreen_quad(r);
-	
+
 	DE_GL_CALL(glDisable(GL_DEPTH_TEST));
 	DE_GL_CALL(glEnable(GL_BLEND));
 	DE_GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
@@ -1543,7 +1799,7 @@ void de_renderer_render(de_renderer_t* r)
 			} else {
 				/* make sure to draw geometry only on clipping geometry with current nesting level */
 				DE_GL_CALL(glStencilFunc(GL_EQUAL, cmd->nesting, 0xFF));
-				DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, cmd->texture ? (cmd->texture->id ? cmd->texture->id : r->white_dummy->id) : r->white_dummy->id));
+				DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, cmd->texture ? cmd->texture : r->white_dummy->id));
 				/* do not draw geometry to stencil buffer */
 				DE_GL_CALL(glStencilMask(0x00));
 			}
@@ -1575,7 +1831,7 @@ void de_renderer_render(de_renderer_t* r)
 	}
 	r->frame_time_accumulator += r->frame_time;
 	++r->frame_time_measurements;
-	if (current_time - r->time_last_fps_measured >= 1.0) {		
+	if (current_time - r->time_last_fps_measured >= 1.0) {
 		r->mean_fps = (size_t)(1000.0 / (r->frame_time_accumulator / r->frame_time_measurements));
 		r->time_last_fps_measured = current_time;
 		r->frame_time_measurements = 0;

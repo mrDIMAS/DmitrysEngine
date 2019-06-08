@@ -21,11 +21,13 @@
 
 /**
 * @brief Possible light types
+* 
+* If numeric values changed, keep shaders in sync!
 */
 typedef enum de_light_type_t {
-	DE_LIGHT_TYPE_POINT,
-	DE_LIGHT_TYPE_DIRECTIONAL,
-	DE_LIGHT_TYPE_SPOT
+	DE_LIGHT_TYPE_POINT = 0,
+	DE_LIGHT_TYPE_DIRECTIONAL = 1,
+	DE_LIGHT_TYPE_SPOT = 2,
 } de_light_type_t;
 
 /**

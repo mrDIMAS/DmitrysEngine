@@ -42,7 +42,7 @@ static void de_gui_image_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_
 	DE_UNUSED(nesting);
 
 	de_gui_draw_list_push_rect_filled(dl, scr_pos, &n->actual_size, &n->color, tex_coords);
-	de_gui_draw_list_commit(dl, DE_GUI_DRAW_COMMAND_TYPE_GEOMETRY, img->texture, n);
+	de_gui_draw_list_commit(dl, DE_GUI_DRAW_COMMAND_TYPE_GEOMETRY, img->texture ? img->texture->id : 0, n);
 }
 
 struct de_gui_node_dispatch_table_t* de_gui_image_get_dispatch_table()

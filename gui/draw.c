@@ -338,7 +338,7 @@ void de_gui_draw_list_push_rect_filled(de_gui_draw_list_t* draw_list, const de_v
 }
 
 
-void de_gui_draw_list_commit(de_gui_draw_list_t* draw_list, de_gui_draw_command_type_t type, de_texture_t* tex, de_gui_node_t* n)
+void de_gui_draw_list_commit(de_gui_draw_list_t* draw_list, de_gui_draw_command_type_t type, unsigned int texture, de_gui_node_t* n)
 {
 	if (draw_list->triangles_to_commit) {
 		de_gui_draw_command_t* cmd;
@@ -346,7 +346,7 @@ void de_gui_draw_list_commit(de_gui_draw_list_t* draw_list, de_gui_draw_command_
 		cmd = &DE_ARRAY_LAST(draw_list->commands);
 
 		cmd->type = type;
-		cmd->texture = tex;
+		cmd->texture = texture;
 		cmd->nesting = draw_list->current_nesting;
 		if (draw_list->index_buffer.size > 0) {
 			cmd->index_offset = draw_list->index_buffer.size - draw_list->triangles_to_commit * 3;

@@ -48,7 +48,7 @@ typedef enum de_gui_draw_command_type_t {
 */
 typedef struct de_gui_draw_command_t {
 	de_gui_draw_command_type_t type;
-	de_texture_t* texture;
+	unsigned int texture;
 	size_t index_offset;
 	size_t triangle_count;
 	uint8_t nesting; /**< Nesting level of draw command. This value used for clipping by stencil buffer. Root value is 1 */
@@ -103,7 +103,7 @@ void de_gui_draw_list_revert_clip_geom(de_gui_draw_list_t* draw_list);
 * @param tex
 * @param n
 */
-void de_gui_draw_list_commit(de_gui_draw_list_t* draw_list, de_gui_draw_command_type_t type, de_texture_t* tex, de_gui_node_t* n);
+void de_gui_draw_list_commit(de_gui_draw_list_t* draw_list, de_gui_draw_command_type_t type, unsigned int texture, de_gui_node_t* n);
 
 /**
 * @brief

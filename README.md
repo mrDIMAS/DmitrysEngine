@@ -30,6 +30,7 @@ Please note, that this engine is at early development stage and some features ma
 	* Skeletal animation
 	* Shadows
 	* Instancing
+	* Frustum culling
 	* Particle systems (very simple for now)
 * Sound
 	* 2D + 3D 
@@ -72,8 +73,7 @@ Please note, that this engine is at early development stage and some features ma
 ## Planned features
 * Renderer improvements
 	* Materials (probably PBR)
-	* Shadows for point lights (omnidirectional shadows)
-	* Frustum culling
+	* Shadows for point lights (omnidirectional shadows)	
 	* Performance optimizations
 	* Levels of details (LODs)	
 	* Instancing optimizations (batching, etc.)

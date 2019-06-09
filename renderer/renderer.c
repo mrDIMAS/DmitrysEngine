@@ -915,6 +915,7 @@ static void de_render_surface_normals(de_renderer_t* r, de_surface_t* surface)
 
 	DE_GL_CALL(glBindVertexArray(r->test_surface->vao));
 	DE_GL_CALL(glDrawElements(GL_LINES, r->test_surface->indices.size, GL_UNSIGNED_INT, NULL));
+	++r->draw_calls;
 }
 
 
@@ -950,6 +951,7 @@ static void de_renderer_draw_surface_bones(de_renderer_t* r, de_surface_t* surfa
 
 	DE_GL_CALL(glBindVertexArray(r->test_surface->vao));
 	DE_GL_CALL(glDrawElements(GL_LINES, r->test_surface->shared_data->index_count, GL_UNSIGNED_INT, NULL));
+	++r->draw_calls;
 }
 #endif
 
@@ -1168,6 +1170,7 @@ static void de_renderer_render_surface(de_renderer_t* r, de_surface_t* surf)
 	DE_UNUSED(r);
 	DE_GL_CALL(glBindVertexArray(surf->shared_data->vertex_array_object));
 	DE_GL_CALL(glDrawElements(GL_TRIANGLES, surf->shared_data->index_count, GL_UNSIGNED_INT, NULL));
+	++r->draw_calls;
 }
 
 static void de_renderer_draw_fullscreen_quad(de_renderer_t* r)
@@ -1248,6 +1251,8 @@ void de_renderer_render(de_renderer_t* r)
 	float h = (float)core->params.video_mode.height;
 	double frame_start_time = de_time_get_seconds();
 
+	r->draw_calls = 0;
+
 	/* Upload textures first */
 	de_renderer_upload_textures(r);
 
@@ -1310,11 +1315,15 @@ void de_renderer_render(de_renderer_t* r)
 
 		de_renderer_set_viewport(&camera->viewport, core->params.video_mode.width, core->params.video_mode.height);
 
-		/* Render each node
-		 * TODO: Add frustum culling */
+		/* Render each node */
 		DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes)
 		{
 			if (node->global_visibility && node->type == DE_NODE_TYPE_MESH) {
+
+				if (!de_frustum_box_intersection_transform(&frustum, &node->bounding_box, &node->global_matrix)) {
+					continue;
+				}
+
 				de_mesh_t* mesh = &node->s.mesh;
 				const bool is_skinned = de_mesh_is_skinned(mesh);
 
@@ -1440,7 +1449,7 @@ void de_renderer_render(de_renderer_t* r)
 				de_mat4_t light_view_projection_matrix;
 				const de_shadow_map_t* shadow_map = &r->shadow_map;
 
-				if (light->type == DE_LIGHT_TYPE_SPOT) {		
+				if (light->type == DE_LIGHT_TYPE_SPOT) {
 
 					DE_GL_CALL(glDepthMask(GL_TRUE));
 					DE_GL_CALL(glDisable(GL_BLEND));
@@ -1448,9 +1457,9 @@ void de_renderer_render(de_renderer_t* r)
 					DE_GL_CALL(glEnable(GL_CULL_FACE));
 
 					DE_GL_CALL(glViewport(0, 0, SPOT_SHADOW_MAP_SIZE, SPOT_SHADOW_MAP_SIZE));
-					DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, shadow_map->fbo));					
+					DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, shadow_map->fbo));
 					DE_GL_CALL(glClear(GL_DEPTH_BUFFER_BIT));
-					
+
 					de_mat4_t light_projection_matrix;
 					de_mat4_perspective(&light_projection_matrix, light->cone_angle * 2.5f, 1.0, 0.01f, light->radius);
 
@@ -1465,14 +1474,21 @@ void de_renderer_render(de_renderer_t* r)
 
 					de_mat4_mul(&light_view_projection_matrix, &light_projection_matrix, &light_view_matrix);
 
+					de_frustum_t light_frustum;
+					de_frustum_from_matrix(&light_frustum, &light_view_projection_matrix);
+
 					/* Bind and setup shader */
 					de_spot_shadow_map_shader_t* shader = &r->spot_shadow_map_shader;
 					DE_GL_CALL(glUseProgram(shader->program));
 
-					/* Render each node into shadow map
-					 * TODO: Add frustum culling here */
+					/* Render each node into shadow map */
 					for (de_node_t* mesh_node = scene->nodes.head; mesh_node; mesh_node = mesh_node->next) {
 						if (mesh_node->global_visibility && mesh_node->type == DE_NODE_TYPE_MESH) {
+
+							if (!de_frustum_box_intersection_transform(&light_frustum, &mesh_node->bounding_box, &mesh_node->global_matrix)) {
+								continue;
+							}
+
 							de_mesh_t* mesh = &mesh_node->s.mesh;
 							const bool is_skinned = de_mesh_is_skinned(mesh);
 
@@ -1719,6 +1735,7 @@ void de_renderer_render(de_renderer_t* r)
 			DE_GL_CALL(glUniform2f(shader->fs.proj_params, camera->z_far, camera->z_near));
 
 			DE_GL_CALL(glDrawElements(GL_TRIANGLES, particle_system->indices.size, GL_UNSIGNED_INT, NULL));
+			++r->draw_calls;
 		}
 	}
 
@@ -1804,6 +1821,7 @@ void de_renderer_render(de_renderer_t* r)
 				DE_GL_CALL(glStencilMask(0x00));
 			}
 			DE_GL_CALL(glDrawElements(GL_TRIANGLES, index_count, GL_UNSIGNED_INT, (void*)(cmd->index_offset * sizeof(GLuint))));
+			++r->draw_calls;
 		}
 
 		glBindVertexArray(0);

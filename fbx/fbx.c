@@ -110,6 +110,8 @@ typedef struct de_fbx_geom_t {
 	de_fbx_mapping_t material_mapping;
 	de_fbx_reference_t material_reference;
 
+	de_aabb_t bounding_box; /**< Local bounding box */
+
 	/* Array of de_fbx_deformer_t */
 	DE_ARRAY_DECLARE(de_fbx_deformer_t*, deformers);
 } de_fbx_geom_t;
@@ -155,6 +157,8 @@ struct de_fbx_model_t {
 	DE_ARRAY_DECLARE(de_fbx_material_t*, materials);
 	DE_ARRAY_DECLARE(de_fbx_animation_curve_node_t*, animation_curve_nodes);
 	DE_ARRAY_DECLARE(de_fbx_model_t*, children);
+
+	de_aabb_t bounding_box; /**< Local bounding box */
 
 	/* Components */
 	de_fbx_light_t* light;
@@ -263,7 +267,6 @@ static void de_fbx_read_tangents(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 	}
 }
 
-
 static void de_fbx_read_faces(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 {
 	int i;
@@ -279,7 +282,6 @@ static void de_fbx_read_faces(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 	}
 }
 
-
 static void de_fbx_read_vertices(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 {
 	int i, k;
@@ -292,9 +294,10 @@ static void de_fbx_read_vertices(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 
 	for (i = 0, k = 0; i < geom->vertex_count; ++i, k += 3) {
 		de_fbx_get_vec3(vertex_array, k, &geom->vertices[i]);
+
+		de_aabb_push_point(&geom->bounding_box, &geom->vertices[i]);
 	}
 }
-
 
 static void de_fbx_read_uvs(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 {
@@ -334,7 +337,6 @@ static void de_fbx_read_uvs(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 	}
 }
 
-
 static void de_fbx_read_geom_materials(de_fbx_node_t* geom_node, de_fbx_geom_t* geom)
 {
 	size_t i;
@@ -355,7 +357,6 @@ static void de_fbx_read_geom_materials(de_fbx_node_t* geom_node, de_fbx_geom_t* 
 	}
 }
 
-
 static de_fbx_component_t* de_fbx_alloc_component(de_fbx_component_type_t type, int index)
 {
 	de_fbx_component_t* comp = DE_NEW(de_fbx_component_t);
@@ -363,7 +364,6 @@ static de_fbx_component_t* de_fbx_alloc_component(de_fbx_component_type_t type, 
 	comp->index = index;
 	return comp;
 }
-
 
 static de_fbx_component_t* de_fbx_read_geometry(de_fbx_node_t* geom_node)
 {
@@ -380,7 +380,6 @@ static de_fbx_component_t* de_fbx_read_geometry(de_fbx_node_t* geom_node)
 	return comp;
 }
 
-
 static void de_fbx_geom_free(de_fbx_geom_t* geom)
 {
 	de_free(geom->vertices);
@@ -393,7 +392,6 @@ static void de_fbx_geom_free(de_fbx_geom_t* geom)
 	de_free(geom->materials);
 	DE_ARRAY_FREE(geom->deformers);
 }
-
 
 static de_fbx_component_t* de_fbx_read_model(de_fbx_node_t* model_node)
 {
@@ -664,30 +662,21 @@ static de_fbx_component_t* de_fbx_read_animation_curve_node_t(de_fbx_node_t* ani
 	return comp;
 }
 
-
 static void de_fbx_animation_curve_node_free(de_fbx_animation_curve_node_t* curve_node)
 {
 	DE_ARRAY_FREE(curve_node->curves);
 }
 
-
 static de_fbx_component_t* de_fbx_read_sub_deformer(de_fbx_node_t* sub_deformer_node)
 {
-	size_t i;
-	de_fbx_sub_deformer_t* sub_deformer;
-	de_fbx_node_t* indices;
-	de_fbx_node_t* weights;
-	de_fbx_node_t* transform;
-	de_fbx_node_t* transform_link;
-
 	de_fbx_component_t* comp = de_fbx_alloc_component(DE_FBX_COMPONENT_SUB_DEFORMER, de_fbx_get_int(sub_deformer_node, 0));
 
-	sub_deformer = &comp->s.sub_deformer;
+	de_fbx_sub_deformer_t* sub_deformer = &comp->s.sub_deformer;
 
-	indices = de_fbx_node_find_child(de_fbx_node_find_child(sub_deformer_node, "Indexes"), "a");
-	weights = de_fbx_node_find_child(de_fbx_node_find_child(sub_deformer_node, "Weights"), "a");
-	transform = de_fbx_node_find_child(de_fbx_node_find_child(sub_deformer_node, "Transform"), "a");
-	transform_link = de_fbx_node_find_child(de_fbx_node_find_child(sub_deformer_node, "TransformLink"), "a");
+	de_fbx_node_t* indices = de_fbx_node_find_child(de_fbx_node_find_child(sub_deformer_node, "Indexes"), "a");
+	de_fbx_node_t* weights = de_fbx_node_find_child(de_fbx_node_find_child(sub_deformer_node, "Weights"), "a");
+	de_fbx_node_t* transform = de_fbx_node_find_child(de_fbx_node_find_child(sub_deformer_node, "Transform"), "a");
+	de_fbx_node_t* transform_link = de_fbx_node_find_child(de_fbx_node_find_child(sub_deformer_node, "TransformLink"), "a");
 
 	if (transform->attributes.size != 16) {
 		de_fatal_error("FBX: Wrong transform size! Expect 16, got %d", transform->attributes.size);
@@ -696,26 +685,25 @@ static de_fbx_component_t* de_fbx_read_sub_deformer(de_fbx_node_t* sub_deformer_
 		de_fatal_error("FBX: Wrong transform link size! Expect 16, got %d", transform_link->attributes.size);
 	}
 
-	for (i = 0; i < indices->attributes.size; ++i) {
+	for (size_t i = 0; i < indices->attributes.size; ++i) {
 		int index = de_fbx_get_int(indices, i);
 		DE_ARRAY_APPEND(sub_deformer->indices, index);
 	}
 
-	for (i = 0; i < weights->attributes.size; ++i) {
+	for (size_t i = 0; i < weights->attributes.size; ++i) {
 		float weight = (float)de_fbx_get_double(weights, i);
 		DE_ARRAY_APPEND(sub_deformer->weights, weight);
 	}
 
-	for (i = 0; i < 16; ++i) {
+	for (size_t i = 0; i < 16; ++i) {
 		sub_deformer->transform.f[i] = (float)de_fbx_get_double(transform, i);
 	}
-	for (i = 0; i < 16; ++i) {
+	for (size_t i = 0; i < 16; ++i) {
 		sub_deformer->transform_link.f[i] = (float)de_fbx_get_double(transform_link, i);
 	}
 
 	return comp;
 }
-
 
 static void de_fbx_sub_deformer_free(de_fbx_sub_deformer_t* sub_deformer)
 {
@@ -723,19 +711,15 @@ static void de_fbx_sub_deformer_free(de_fbx_sub_deformer_t* sub_deformer)
 	DE_ARRAY_FREE(sub_deformer->weights);
 }
 
-
 static de_fbx_component_t* de_fbx_read_deformer(de_fbx_node_t* deformer_node)
 {
 	return de_fbx_alloc_component(DE_FBX_COMPONENT_DEFORMER, de_fbx_get_int(deformer_node, 0));
 }
 
-
 static void de_fbx_deformer_free(de_fbx_deformer_t* deformer)
 {
 	DE_ARRAY_FREE(deformer->sub_deformers);
 }
-
-
 
 static void de_fbx_quat_from_euler(de_quat_t* out, const de_vec3_t * euler_angles)
 {
@@ -748,21 +732,12 @@ static void de_fbx_quat_from_euler(de_quat_t* out, const de_vec3_t * euler_angle
 	de_quat_from_euler(out, &radians, DE_EULER_XYZ);
 }
 
-
 static de_fbx_t* de_fbx_read(de_fbx_node_t* root)
 {
-	size_t i;
-	int version_num;
-	de_fbx_node_t* objects;
-	de_fbx_node_t* connections;
-	de_fbx_node_t* header;
-	de_fbx_node_t* version;
-	de_fbx_t* fbx;
-
 	/* Check header first */
-	header = de_fbx_node_find_child(root, "FBXHeaderExtension");
-	version = de_fbx_node_find_child(header, "FBXVersion");
-	version_num = de_fbx_get_int(version, 0);
+	de_fbx_node_t* header = de_fbx_node_find_child(root, "FBXHeaderExtension");
+	de_fbx_node_t* version = de_fbx_node_find_child(header, "FBXVersion");
+	int version_num = de_fbx_get_int(version, 0);
 
 	if (version_num < 7100) {
 		de_log("FBX: Unable to load old FBX %d version. Version MUST be >= 7100", version_num);
@@ -770,11 +745,11 @@ static de_fbx_t* de_fbx_read(de_fbx_node_t* root)
 		return NULL;
 	}
 
-	fbx = DE_NEW(de_fbx_t);
+	de_fbx_t* fbx = DE_NEW(de_fbx_t);
 
 	/* Read all supported objects from fbx and convert it to suitable format */
-	objects = de_fbx_node_find_child(root, "Objects");
-	for (i = 0; i < objects->children.size; ++i) {
+	de_fbx_node_t* objects = de_fbx_node_find_child(root, "Objects");
+	for (size_t i = 0; i < objects->children.size; ++i) {
 		de_fbx_node_t* child = objects->children.data[i];
 		if (de_str8_eq(&child->name, "Geometry")) {
 			DE_ARRAY_APPEND(fbx->components, de_fbx_read_geometry(objects->children.data[i]));
@@ -819,8 +794,8 @@ static de_fbx_t* de_fbx_read(de_fbx_node_t* root)
 #endif
 
 	/* Read connections and connect components */
-	connections = de_fbx_node_find_child(root, "Connections");
-	for (i = 0; i < connections->children.size; ++i) {
+	de_fbx_node_t* connections = de_fbx_node_find_child(root, "Connections");
+	for (size_t i = 0; i < connections->children.size; ++i) {
 		de_fbx_node_t* child = connections->children.data[i];
 
 		de_fbx_component_t* child_comp = de_fbx_find_component(fbx, de_fbx_get_int(child, 1));
@@ -856,9 +831,20 @@ static de_fbx_t* de_fbx_read(de_fbx_node_t* root)
 		}
 	}
 
+	/* Compute bounding boxes for each model */
+	for (size_t i = 0; i < fbx->components.size; ++i) {
+		de_fbx_component_t* comp = fbx->components.data[i];
+		if (comp->type == DE_FBX_COMPONENT_MODEL) {
+			de_fbx_model_t* model = &comp->s.model;
+			de_aabb_invalidate(&model->bounding_box);
+			for (size_t j = 0; j < model->geoms.size; ++j) {
+				de_aabb_merge(&model->bounding_box, &model->geoms.data[j]->bounding_box);
+			}
+		}
+	}
+
 	return fbx;
 }
-
 
 /**
  * @brief Frees resources associated with fbx structure
@@ -866,8 +852,7 @@ static de_fbx_t* de_fbx_read(de_fbx_node_t* root)
  */
 static void de_fbx_free(de_fbx_t* fbx)
 {
-	size_t i;
-	for (i = 0; i < fbx->components.size; ++i) {
+	for (size_t i = 0; i < fbx->components.size; ++i) {
 		de_fbx_component_t* comp = fbx->components.data[i];
 		switch (comp->type) {
 			case DE_FBX_COMPONENT_ANIMATION_CURVE:
@@ -1313,7 +1298,8 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 		de_fbx_quat_from_euler(&node->rotation, &mdl->rotation);
 		de_fbx_quat_from_euler(&node->post_rotation, &mdl->post_rotation);
 		node->inv_bind_pose_matrix = mdl->inv_bind_transform;
-
+		node->bounding_box = mdl->bounding_box;
+		
 		/* Build geometric transform matrix to bake it into vertex buffer
 		 * TODO: not sure if this is right, but according to FBX manual
 		 * geometric transform is not inherited and applied directly to

@@ -104,21 +104,8 @@ typedef enum de_plane_class_t {
 	DE_PLANE_OYZ = 3
 } de_plane_class_t;
 
-/**
- * Culling frustum
- */
-typedef struct de_frustum_t {
-	de_plane_t planes[6]; /**< Six planes that "cuts" frustum volume */
-} de_frustum_t;
-
-/**
- * Axis-aligned bounding box (AABB)
- */
-typedef struct de_aabb_t {
-	de_vec3_t min;        /**< Corner with with set of minimal coordinates, describing the AABB */
-	de_vec3_t max;        /**< Corner with with set of maximal coordinates, describing the AABB */
-	de_vec3_t corners[8]; /**< Eight corners of the AABB */
-} de_aabb_t;
+#include "math/aabb.h"
+#include "math/frustum.h"
 
 void de_mat4_get_basis(const de_mat4_t* in, de_mat3_t* out);
 
@@ -661,144 +648,81 @@ de_ray_t* de_ray_by_two_points(de_ray_t* out, const de_vec3_t* start, const de_v
 
 /**
  * @brief
- * @param ray
- * @param aabb
- * @param out_tmin
- * @param out_tmax
- * @return
  */
 int de_ray_aabb_intersection(const de_ray_t* ray, const de_vec3_t* min, const de_vec3_t* max, float* out_tmin, float* out_tmax);
 
 /**
- * @brief
- * @param ray
- * @param plane
- * @param out_intersection_point
- * @return
+ * @brief Checks intersection between ray and plane. Returns intersection point.
  */
 int de_ray_plane_intersection(const de_ray_t* ray, const de_plane_t* plane, de_vec3_t* out_intersection_point);
 
 /**
- * @brief
- * @param ray
- * @param a
- * @param b
- * @param c
- * @param out_intersection_point
- * @return
+ * @brief Checks intersection between ray and triangle. Returns intersection point.
  */
 int de_ray_triangle_intersection(const de_ray_t* ray, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c, de_vec3_t* out_intersection_point);
 
 /**
- * @brief
- * @param ray
- * @param position
- * @param radius
- * @param out_int_point_a
- * @param out_int_point_b
- * @return
+ * @brief Checks intersection between ray and sphere. Returns two intersection points.
  */
 int de_ray_sphere_intersection(const de_ray_t* ray, const de_vec3_t* position, float radius, de_vec3_t* out_int_point_a, de_vec3_t* out_int_point_b);
 
 /**
- * @brief
- * @param out
- * @param x
- * @param y
- * @param z
- * @param w
- * @return
+ * @brief Directly sets quaternion components. 
  */
 de_quat_t* de_quat_set(de_quat_t* out, float x, float y, float z, float w);
 
 /**
  * @brief Initializes quaternion using axis and angle (in radians)
- * @param out output quaternion
- * @param axis axis of rotation
- * @param angle angle of rotation (in radians)
- * @return @out
  */
 de_quat_t* de_quat_from_axis_angle(de_quat_t* out, const de_vec3_t* axis, float angle);
 
 /**
  * @brief
- * @param a
- * @param b
- * @return
  */
 float de_quat_dot(const de_quat_t* a, const de_quat_t* b);
 
 /**
- * @brief
- * @param a
- * @return
+ * @brief Returns length of specified quaternion.
  */
 float de_quat_len(const de_quat_t* a);
 
 /**
- * @brief
- * @param a
- * @return
+ * @brief Returns square length of specified quaternion.
  */
 float de_quat_sqr_len(const de_quat_t* a);
 
 /**
- * @brief
- * @param a
- * @param b
- * @return
+ * @brief Returns angle between quaternions.
  */
 float de_quat_angle(const de_quat_t* a, const de_quat_t* b);
 
 /**
  * @brief Performs spherical interpolation between two quaternions
- * @param out
- * @param a
- * @param b
- * @param t
- * @return
  */
 de_quat_t* de_quat_slerp(de_quat_t* out, const de_quat_t* a, const de_quat_t* b, float t);
 
 /**
  * @brief Initializes new quaternion using Euler angles with given order of rotation (XYZ, YXZ, etc)
- * @param out
- * @param a
- * @param b
- * @param t
- * @return
  */
 void de_quat_from_euler(de_quat_t* out, const de_vec3_t* euler_radians, de_euler_t order);
 
 /**
- * @brief
- * @param out
- * @param a
- * @param b
- * @return
+ * @brief Multiplies two quaternions. Allows to combine rotations.
  */
 de_quat_t* de_quat_mul(de_quat_t* out, const de_quat_t* a, const de_quat_t* b);
 
 /**
- * @brief
- * @param out
- * @param a
- * @return
+ * @brief Normalizes quaternion.
  */
 de_quat_t* de_quat_normalize(de_quat_t* out, de_quat_t* a);
 
 /**
- * @brief
- * @param q
- * @param out_axis
- * @return
+ * @brief Returns main axis of quaternion.
  */
 de_vec3_t* de_quat_get_axis(const de_quat_t* q, de_vec3_t* out_axis);
 
 /**
  * @brief
- * @param q
- * @return
  */
 float de_quat_get_angle(const de_quat_t* q);
 
@@ -839,130 +763,9 @@ float de_plane_distance(const de_plane_t* p, const de_vec3_t* point);
 float de_plane_dot(const de_plane_t* p, const de_vec3_t* point);
 
 /**
- * @brief
- * @param p
- * @return
+ * @brief Normalizes plane.
  */
 de_plane_t* de_plane_normalize(de_plane_t* p);
-
-/**
- * @brief
- * @param f
- * @param m
- * @return
- */
-de_frustum_t* de_frustum_from_matrix(de_frustum_t* f, const de_mat4_t* m);
-
-/**
- * @brief
- * @param f
- * @param aabb
- * @param aabb_offset
- * @return
- */
-int de_frustum_box_intersection(const de_frustum_t* f, const de_aabb_t* aabb, const de_vec3_t* aabb_offset);
-
-/**
- * @brief
- * @param f
- * @param aabb
- * @param obj_matrix
- * @return
- */
-int de_frustum_box_intersection_transform(const de_frustum_t* f, const de_aabb_t* aabb, const de_mat4_t* obj_matrix);
-
-/**
- * @brief
- * @param f
- * @param p
- * @return
- */
-int de_frustum_contains_point(const de_frustum_t* f, const de_vec3_t* p);
-
-bool de_frustum_sphere_intersection(const de_frustum_t* f, const de_vec3_t* p, float r);
-
-/**
- * @brief
- * @param aabb
- * @param min
- * @param max
- * @return
- */
-de_aabb_t* de_aabb_set(de_aabb_t* aabb, const de_vec3_t* min, const de_vec3_t* max);
-
-/**
- * @brief
- * @param aabb
- * @return
- */
-de_aabb_t* de_aabb_recompute_corners(de_aabb_t* aabb);
-
-/**
- * @brief
- * @param aabb
- * @param aabb_offset
- * @param position
- * @param radius
- * @return
- */
-int de_aabb_sphere_intersection(const de_aabb_t* aabb, const de_vec3_t* aabb_offset, const de_vec3_t* position, float radius);
-
-/**
- * @brief
- * @param aabb
- * @param point
- * @return
- */
-int de_aabb_contains_point(const de_aabb_t* aabb, const de_vec3_t* point);
-
-/**
- * @brief
- * @param aabb
- * @param other
- * @return
- */
-int de_aabb_aabb_intersection(const de_aabb_t* aabb, const de_aabb_t* other);
-
-/**
- * @brief
- * @param aabb
- * @param a
- * @param b
- * @param c
- * @return
- */
-int de_aabb_triangle_intersection(const de_aabb_t* aabb, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c);
-
-/**
- * @brief
- * @param aabb
- * @param p
- * @return
- */
-de_aabb_t* de_aabb_push_point(de_aabb_t* aabb, const de_vec3_t* p);
-
-/**
- * @brief
- * @param aabb
- * @param size
- * @return
- */
-de_vec3_t* de_aabb_get_size(const de_aabb_t* aabb, de_vec3_t* size);
-
-/**
- * @brief
- * @param aabb
- * @param center
- * @return
- */
-de_vec3_t* de_aabb_get_center(const de_aabb_t* aabb, de_vec3_t* center);
-
-/**
- * @brief Sets extremal points to invalid values (min -> (huge_value), max -> (-huge_value))
- * @param aabb pointer to aabb
- * @return @aabb
- */
-de_aabb_t* de_aabb_invalidate(de_aabb_t* aabb);
 
 /**
  * @brief Performs @a^2
@@ -1036,6 +839,9 @@ void de_get_polygon_normal(const de_vec3_t* points, size_t count, de_vec3_t* nor
  */
 bool de_is_point_inside_triangle(const de_vec3_t* point, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c);
 
+/**
+ * @brief Checks if a 2d point lies inside of a 2d triangle.
+ */
 bool de_is_point_inside_triangle_2D(const de_vec2_t* point, const de_vec2_t* a, const de_vec2_t* b, const de_vec2_t* c);
 
 /**
@@ -1061,6 +867,12 @@ de_plane_class_t de_plane_classify(const de_vec3_t * triangle_normal);
  */
 void de_vec3_to_vec2_by_plane(de_plane_class_t plane, const de_vec3_t* normal, const de_vec3_t * point, de_vec2_t * mapped);
 
+/**
+ * @brief Returns random real number in range [min; max]
+ */
 float de_frand(float min, float max);
 
+/**
+ * @brief Returns random integer number in range [min; max]
+ */
 int de_irand(int min, int max);

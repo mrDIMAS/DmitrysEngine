@@ -19,6 +19,9 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+#include "math/aabb.c"
+#include "math/frustum.c"
+
 void de_mat4_get_basis(const de_mat4_t * in, de_mat3_t * out)
 {
 	out->f[0] = in->f[0];
@@ -845,7 +848,7 @@ int de_ray_aabb_intersection(const de_ray_t* ray, const de_vec3_t* min, const de
 
 int de_ray_plane_intersection(const de_ray_t* ray, const de_plane_t* plane, de_vec3_t* out_intersection_point)
 {
-/* solve plane equation */
+	/* solve plane equation */
 	float u = -(de_vec3_dot(&ray->origin, &plane->n) + plane->d);
 	float v = de_vec3_dot(&ray->dir, &plane->n);
 	float t = u / v;
@@ -1109,7 +1112,7 @@ de_plane_t* de_plane_set_abcd(de_plane_t* p, float a, float b, float c, float d)
 {
 	p->n.x = a;
 	p->n.y = b;
-	p->n.z = c;	
+	p->n.z = c;
 	p->d = d;
 	de_plane_normalize(p);
 	return p;
@@ -1154,187 +1157,8 @@ de_plane_t* de_plane_normalize(de_plane_t* p)
 	return p;
 }
 
-de_frustum_t* de_frustum_from_matrix(de_frustum_t* f, const de_mat4_t* m)
-{
-	de_plane_set_abcd(&f->planes[0], m->f[3] + m->f[0], m->f[7] + m->f[4], m->f[11] + m->f[8], m->f[15] + m->f[12]); /* left plane */
-	de_plane_set_abcd(&f->planes[1], m->f[3] - m->f[0], m->f[7] - m->f[4], m->f[11] - m->f[8], m->f[15] - m->f[12]); /* right plane */
-	de_plane_set_abcd(&f->planes[2], m->f[3] - m->f[1], m->f[7] - m->f[5], m->f[11] - m->f[9], m->f[15] - m->f[13]); /* top plane */
-	de_plane_set_abcd(&f->planes[3], m->f[3] + m->f[1], m->f[7] + m->f[5], m->f[11] + m->f[9], m->f[15] + m->f[13]); /* bottom plane */
-	de_plane_set_abcd(&f->planes[4], m->f[3] - m->f[2], m->f[7] - m->f[6], m->f[11] - m->f[10], m->f[15] - m->f[14]); /* far plane */
-	de_plane_set_abcd(&f->planes[5], m->f[3] + m->f[2], m->f[7] + m->f[6], m->f[11] + m->f[10], m->f[15] + m->f[14]); /* near plane */
-	return f;
-}
 
-int de_frustum_box_intersection(const de_frustum_t* f, const de_aabb_t* aabb, const de_vec3_t* aabb_offset)
-{
-	int i, k;
-	de_vec3_t aabb_points[8];
-	for (i = 0; i < 8; ++i) {
-		aabb_points[i] = aabb->corners[i];
-		if (aabb_offset) {
-			de_vec3_add(&aabb_points[i], &aabb_points[i], aabb_offset);
-		}
-	}
-	for (i = 0; i < 6; ++i) {
-		int back_points = 0;
-		for (k = 0; k < 8; ++k) {
-			if (de_plane_dot(&f->planes[i], &aabb_points[k]) <= 0) {
-				if (++back_points >= 8) {
-					return 0;
-				}
-			}
-		}
-	}
-	return 1;
-}
 
-int de_frustum_box_intersection_transform(const de_frustum_t* f, const de_aabb_t* aabb, const de_mat4_t* obj_matrix)
-{
-	int i, k;
-	de_vec3_t aabb_points[8];
-	for (i = 0; i < 8; ++i) {
-		aabb_points[i] = aabb->corners[i];
-		if (obj_matrix) {
-			de_vec3_transform(&aabb_points[i], &aabb_points[i], obj_matrix);
-		}
-	}
-	for (i = 0; i < 6; ++i) {
-		int back_points = 0;
-		for (k = 0; k < 8; ++k) {
-			if (de_plane_dot(&f->planes[i], &aabb_points[k]) <= 0) {
-				if (++back_points >= 8) {
-					return 0;
-				}
-			}
-		}
-	}
-	return 1;
-}
-
-int de_frustum_contains_point(const de_frustum_t* f, const de_vec3_t* p)
-{
-	int i;
-	for (i = 0; i < 6; i++) {
-		if (de_plane_dot(&f->planes[i], p) <= 0.0f) {
-			return 0;
-		}
-	}
-	return 1;
-}
-
-de_aabb_t* de_aabb_set(de_aabb_t* aabb, const de_vec3_t* min, const de_vec3_t* max)
-{
-	aabb->min = *min;
-	aabb->max = *max;
-	return de_aabb_recompute_corners(aabb);
-}
-
-de_aabb_t* de_aabb_recompute_corners(de_aabb_t* aabb)
-{
-	aabb->corners[0] = (de_vec3_t) { aabb->min.x, aabb->min.y, aabb->min.z };
-	aabb->corners[1] = (de_vec3_t) { aabb->min.x, aabb->min.y, aabb->max.z };
-	aabb->corners[2] = (de_vec3_t) { aabb->max.x, aabb->min.y, aabb->max.z };
-	aabb->corners[3] = (de_vec3_t) { aabb->max.x, aabb->min.y, aabb->min.z };
-	aabb->corners[4] = (de_vec3_t) { aabb->min.x, aabb->max.y, aabb->min.z };
-	aabb->corners[5] = (de_vec3_t) { aabb->min.x, aabb->max.y, aabb->max.z };
-	aabb->corners[6] = (de_vec3_t) { aabb->max.x, aabb->max.y, aabb->max.z };
-	aabb->corners[7] = (de_vec3_t) { aabb->max.x, aabb->max.y, aabb->min.z };
-	return aabb;
-}
-
-int de_aabb_sphere_intersection(const de_aabb_t* aabb, const de_vec3_t* aabb_offset, const de_vec3_t* position, float radius)
-{
-	float r2 = radius * radius;
-	float dmin = 0;
-	de_vec3_t min = aabb->min, max = aabb->max;
-
-	if (aabb_offset) {
-		de_vec3_add(&min, &min, aabb_offset);
-		de_vec3_add(&max, &max, aabb_offset);
-	}
-
-	if (position->x < min.x) {
-		dmin += de_sqr(position->x - min.x);
-	} else if (position->x > max.x) {
-		dmin += de_sqr(position->x - max.x);
-	}
-
-	if (position->y < min.y) {
-		dmin += de_sqr(position->y - min.y);
-	} else if (position->y > max.y) {
-		dmin += de_sqr(position->y - max.y);
-	}
-
-	if (position->z < min.z) {
-		dmin += de_sqr(position->z - min.z);
-	} else if (position->z > max.z) {
-		dmin += de_sqr(position->z - max.z);
-	}
-
-	return dmin <= r2 ||
-		((position->x >= min.x) && (position->x <= max.x) && (position->y >= min.y) &&
-		(position->y <= max.y) && (position->z >= min.z) && (position->z <= max.z));
-}
-
-int de_aabb_contains_point(const de_aabb_t* aabb, const de_vec3_t* point)
-{
-	return point->x >= aabb->min.x && point->x <= aabb->max.x && point->y >= aabb->min.y &&
-		point->y <= aabb->max.y && point->z >= aabb->min.z && point->z <= aabb->max.z;
-}
-
-int de_aabb_aabb_intersection(const de_aabb_t* aabb, const de_aabb_t* other)
-{
-	de_vec3_t aabb_size, other_size;
-	de_vec3_t aabb_center, other_center;
-	de_aabb_get_size(aabb, &aabb_size);
-	de_aabb_get_size(other, &other_size);
-	de_aabb_get_center(aabb, &aabb_center);
-	de_aabb_get_center(other, &other_center);
-	/* do aabb intesection test */
-	if (fabs(aabb_center.x - other_center.x) > (aabb_size.x + other_size.x)) {
-		return 0;
-	}
-	if (fabs(aabb_center.y - other_center.y) > (aabb_size.y + other_size.y)) {
-		return 0;
-	}
-	if (fabs(aabb_center.z - other_center.z) > (aabb_size.z + other_size.z)) {
-		return 0;
-	}
-	return 1;
-}
-
-int de_aabb_triangle_intersection(const de_aabb_t* aabb, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c)
-{
-	de_aabb_t triangle_aabb;
-	de_aabb_invalidate(&triangle_aabb);
-	de_aabb_push_point(&triangle_aabb, a);
-	de_aabb_push_point(&triangle_aabb, b);
-	de_aabb_push_point(&triangle_aabb, c);
-	return de_aabb_aabb_intersection(aabb, &triangle_aabb);
-}
-
-de_aabb_t* de_aabb_push_point(de_aabb_t* aabb, const de_vec3_t* p)
-{
-	de_vec3_min_max(p, &aabb->min, &aabb->max);
-	return aabb;
-}
-
-de_vec3_t* de_aabb_get_size(const de_aabb_t* aabb, de_vec3_t* size)
-{
-	return de_vec3_scale(size, de_vec3_sub(size, &aabb->max, &aabb->min), 0.5f);
-}
-
-de_vec3_t* de_aabb_get_center(const de_aabb_t* aabb, de_vec3_t* center)
-{
-	return de_vec3_middle(center, &aabb->min, &aabb->max);
-}
-
-de_aabb_t* de_aabb_invalidate(de_aabb_t* aabb)
-{
-	aabb->max = (de_vec3_t) { -FLT_MAX, -FLT_MAX, -FLT_MAX };
-	aabb->min = (de_vec3_t) { FLT_MAX, FLT_MAX, FLT_MAX };
-	return de_aabb_recompute_corners(aabb);
-}
 
 float de_sqr(float a)
 {
@@ -1520,7 +1344,7 @@ float de_frand(float min, float max)
 	return min + rand() / (float)RAND_MAX * (max - min);
 }
 
-int de_irand(int min, int max) 
+int de_irand(int min, int max)
 {
 	return min + rand() * (max - min) / (int)RAND_MAX;
 }

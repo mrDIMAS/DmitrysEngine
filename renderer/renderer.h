@@ -161,7 +161,8 @@ struct de_renderer_t {
 		GLuint ebo;      /**< Element buffer object id */
 	} gui_render_buffers;
 
-	/* Statistics (time in milliseconds) */
+	/* Statistics (times given in milliseconds) */
+	size_t draw_calls; /**< Exact amount of draw calls for one frame. */
 	double frame_time; /**< Actual time amount last frame took to be rendered. */
 	double frame_time_accumulator; /**< Total time of frames since last FPS was committed. */
 	size_t frame_time_measurements; /**< Count of render calls since last FPS value was committed. */

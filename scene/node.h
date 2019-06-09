@@ -82,6 +82,7 @@ struct de_node_t {
 	de_mat4_t m_post_rotation;
 	de_mat4_t m_scale_pivot;
 	de_mat4_t m_scale_pivot_inv;
+	de_aabb_t bounding_box; /**< Local bounding box of a node. */
 	de_transform_flags_t transform_flags;
 	de_node_t* parent; /**< Pointer to parent node */
 	DE_ARRAY_DECLARE(de_node_t*, children); /**< Array of pointers to child nodes */
@@ -346,3 +347,5 @@ void de_node_invalidate_transforms(de_node_t* node);
  * @brief Returns pointer to scene specified node belongs to.
  */
 de_scene_t* de_node_get_scene(de_node_t* node);
+
+void de_node_get_bounding_box(de_node_t* node, de_aabb_t* bounding_box);

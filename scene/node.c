@@ -158,6 +158,7 @@ de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type)
 	de_node_set_post_rotation(node, &(de_quat_t) { 0, 0, 0, 1 });
 	de_node_set_rotation_offset(node, &(de_vec3_t) { 0, 0, 0 });
 	de_node_set_scaling_pivot(node, &(de_vec3_t) { 0, 0, 0 });	
+	de_aabb_invalidate(&node->bounding_box);
 	if (node->dispatch_table->init) {
 		node->dispatch_table->init(node);
 	}
@@ -184,6 +185,7 @@ static de_node_t* de_node_copy_internal(de_scene_t* dest_scene, de_node_t* node)
 	copy->rotation_pivot = node->rotation_pivot;
 	copy->scaling_offset = node->scaling_offset;
 	copy->scaling_pivot = node->scaling_pivot;
+	copy->bounding_box = node->bounding_box;
 	de_node_invalidate_transforms(copy);
 	copy->parent = NULL;
 	copy->local_visibility = node->local_visibility;
@@ -732,4 +734,12 @@ de_scene_t* de_node_get_scene(de_node_t* node)
 {
 	DE_ASSERT(node);
 	return node->scene;
+}
+
+void de_node_get_bounding_box(de_node_t* node, de_aabb_t* bounding_box) 
+{
+	DE_ASSERT(node);
+	DE_ASSERT(bounding_box);
+
+	*bounding_box = node->bounding_box;
 }

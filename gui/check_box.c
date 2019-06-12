@@ -22,7 +22,10 @@
 static void de_gui_check_box_apply_descriptor(de_gui_node_t* n, const de_gui_node_descriptor_t* desc)
 {
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_CHECK_BOX);
-	de_gui_check_box_set_value(n, desc->s.check_box.checked);
+	de_gui_check_box_t* cb = &n->s.check_box;
+	const de_gui_check_box_descriptor_t* cbdesc = &desc->s.check_box;
+	de_gui_check_box_set_value(n, cbdesc->checked);
+	cb->checked_changed = cbdesc->checked_changed;
 }
 
 static void de_gui_check_box_mouse_down(de_gui_node_t* n, de_gui_routed_event_args_t* args)
@@ -69,6 +72,9 @@ void de_gui_check_box_set_value(de_gui_node_t* n, bool value)
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_CHECK_BOX);
 	de_gui_check_box_t* cb = &n->s.check_box;
 	cb->checked = value;
+	if(cb->checked_changed) {
+		cb->checked_changed(n, value);
+	}
 	de_gui_node_set_visibility(cb->check_mark, cb->checked ? DE_GUI_NODE_VISIBILITY_VISIBLE : DE_GUI_NODE_VISIBILITY_COLLAPSED);
 }
 

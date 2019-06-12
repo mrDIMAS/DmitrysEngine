@@ -53,20 +53,20 @@ static void de_write_log(const char* message, bool error)
 
 void de_log(const char* message, ...)
 {
-	static char format_buffer[32768];
+	static char format_buffer[65536];
 	va_list argument_list;
 	va_start(argument_list, message);
-	vsprintf(format_buffer, message, argument_list);
+	vsnprintf(format_buffer, sizeof(format_buffer), message, argument_list);
 	va_end(argument_list);
 	de_write_log(format_buffer, false);
 }
 
 void de_fatal_error(const char* message, ...)
 {
-	static char format_buffer[32768];
+	static char format_buffer[65536];
 	va_list argument_list;
 	va_start(argument_list, message);
-	vsprintf(format_buffer, message, argument_list);
+	vsnprintf(format_buffer, sizeof(format_buffer), message, argument_list);
 	va_end(argument_list);
 	de_write_log(format_buffer, true);
 #ifdef _MSC_VER

@@ -19,14 +19,18 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+typedef void(*de_check_box_checked_changed_t)(de_gui_node_t* node, bool new_value);
+
 typedef struct de_gui_check_box_descriptor_t {
 	bool checked;
+	de_check_box_checked_changed_t checked_changed;
 } de_gui_check_box_descriptor_t;
 
 typedef struct de_gui_check_box_t {
 	de_gui_node_t* border;
 	de_gui_node_t* check_mark;
 	bool checked;
+	de_check_box_checked_changed_t checked_changed;
 } de_gui_check_box_t;
 
 struct de_gui_node_dispatch_table_t* de_gui_check_box_get_dispatch_table();

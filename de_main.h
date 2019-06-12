@@ -81,9 +81,9 @@ extern "C" {
 #  define DE_ASSERT(expression) if(!(expression)) de_fatal_error("assertion failed: '" DE_STRINGIZE(expression) "' at line " DE_STRINGIZE(__LINE__) " in " __FILE__)
 #endif
 
-	typedef void(*de_proc)(void);
+typedef void(*de_proc)(void);
 
-	/* Standard library */
+/* Standard library */
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>

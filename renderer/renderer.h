@@ -36,10 +36,16 @@ typedef struct de_gbuffer_t {
 	GLuint frame_texture;
 } de_gbuffer_t;
 
-typedef struct de_shadow_map_t {
+typedef struct de_spot_shadow_map_t {
 	GLuint fbo;
 	GLuint texture;
-} de_shadow_map_t;
+} de_spot_shadow_map_t;
+
+typedef struct de_point_shadow_map_t {
+	GLuint fbo;
+	GLuint texture;
+	GLuint depth_buffer;
+} de_point_shadow_map_t;
 
 /**
 * Shader for G-Buffer filling
@@ -64,9 +70,12 @@ typedef struct de_gbuffer_light_shader_t {
 	GLint depth_sampler;
 	GLint color_sampler;
 	GLint normal_sampler;
-	GLint shadow_texture;
+	GLint spot_shadow_texture;
+	GLint point_shadow_texture;
 	GLint light_view_proj_matrix;
 	GLint light_type;
+	GLint soft_shadows;
+	GLint shadow_map_inv_size;
 	GLint light_position;
 	GLint light_radius;
 	GLint light_color;
@@ -76,9 +85,6 @@ typedef struct de_gbuffer_light_shader_t {
 	GLint camera_position;
 } de_deferred_light_shader_t;
 
-/**
-* Simple shader with texturing and without lighting
-*/
 typedef struct de_flat_shader_t {
 	GLuint program;
 	GLint wvp_matrix;
@@ -126,8 +132,37 @@ typedef struct de_spot_shadow_map_shader_t {
 	struct {
 		GLint diffuse_texture;
 	} fs;
-
 } de_spot_shadow_map_shader_t;
+
+typedef struct de_point_shadow_map_shader_t {
+	GLuint program;
+
+	struct {
+		GLint world_matrix;
+		GLint world_view_projection_matrix;
+		GLint use_skeletal_animation;
+		GLint bone_matrices;
+	} vs;
+
+	struct {
+		GLint diffuse_texture;
+		GLint light_position;
+	} fs;
+}de_point_shadow_map_shader_t;
+
+typedef struct de_quality_settings_t {
+	/* Point shadows */
+	size_t point_shadow_map_size; /**< Size of cube map face of shadow map texture in pixels. */	
+	bool point_soft_shadows; /**< Use or not percentage close filtering (smoothing) for point shadows. */
+	bool point_shadows_enabled; /**< Point shadows enabled or not. */
+	float point_shadows_distance; /**< Maximum distance from camera to draw shadows. */
+
+	/* Spot shadows */
+	size_t spot_shadow_map_size; /**< Size of square shadow map texture in pixels */	
+	bool spot_soft_shadows; /**< Use or not percentage close filtering (smoothing) for spot shadows. */
+	bool spot_shadows_enabled; /**< Spot shadows enabled or not. */
+	float spot_shadows_distance; /**< Maximum distance from camera to draw shadows. */
+} de_quality_settings_t;
 
 struct de_renderer_t {
 	de_core_t* core;
@@ -139,10 +174,13 @@ struct de_renderer_t {
 	de_ambient_shader_t ambient_shader;
 	de_particle_system_shader_t particle_system_shader;
 	de_spot_shadow_map_shader_t spot_shadow_map_shader;
+	de_point_shadow_map_shader_t point_shadow_map_shader;
 	de_gbuffer_t gbuffer;
 	de_gbuffer_shader_t gbuffer_shader;
 	de_deferred_light_shader_t lighting_shader;
-	de_shadow_map_t shadow_map;
+	de_spot_shadow_map_t spot_shadow_map;
+	de_point_shadow_map_t point_shadow_map;
+	de_quality_settings_t quality_settings;
 
 	de_surface_t* quad;
 	de_surface_t* light_unit_sphere;
@@ -202,6 +240,24 @@ void de_renderer_free_surface(de_surface_t* surf);
 * @param limit any positive value (i.e. 60)
 */
 void de_renderer_set_framerate_limit(de_renderer_t* r, int limit);
+
+/**
+ * @brief Returns pointer to quality settings structure to allow to 
+ * tune renderered. \c de_renderer_apply_quality_settings must be called
+ * to apply changes!
+ */
+de_quality_settings_t* de_renderer_get_quality_settings(de_renderer_t* r);
+
+/**
+ * @brief Sets default quality settings. \c de_renderer_apply_quality_settings must be called
+ * to apply changes!
+ */
+void de_renderer_set_default_quality_settings(de_renderer_t* r);
+
+/**
+ * @brief Applies current quality settings.
+ */
+void de_renderer_apply_quality_settings(de_renderer_t* r);
 
 /**
  * @brief Performs rendering of every scene

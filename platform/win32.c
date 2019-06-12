@@ -167,7 +167,7 @@ static LRESULT CALLBACK de_win32_window_proc(HWND wnd, UINT msg, WPARAM wParam, 
 	POINT pos;
 	if (core) {
 		switch (msg) {
-			case WM_CLOSE:				
+			case WM_CLOSE:
 			case WM_DESTROY:
 				evt.type = DE_EVENT_TYPE_CLOSE;
 				de_core_push_event(core, &evt);
@@ -297,45 +297,40 @@ static LRESULT CALLBACK de_win32_window_proc(HWND wnd, UINT msg, WPARAM wParam, 
 
 static void de_win32_load_wgl_extensions(void)
 {
-	int pixel_format;
-	WNDCLASSEX wcx;
-	PIXELFORMATDESCRIPTOR pfd;
-	HWND window;
-	HGLRC glcontext;
-	HDC dc;
-
-	de_zero(&wcx, sizeof(wcx));
-	wcx.cbSize = sizeof(wcx);
-	wcx.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wcx.hInstance = GetModuleHandle(0);
-	wcx.lpfnWndProc = DefWindowProc;
-	wcx.lpszClassName = TEXT("Dummy");
-	wcx.style = CS_HREDRAW | CS_VREDRAW;
+	const WNDCLASSEX wcx = {
+		.cbSize = sizeof(wcx),
+		.hCursor = LoadCursor(NULL, IDC_ARROW),
+		.hInstance = GetModuleHandle(0),
+		.lpfnWndProc = DefWindowProc,
+		.lpszClassName = TEXT("Dummy"),
+		.style = CS_HREDRAW | CS_VREDRAW,
+	};
 	RegisterClassEx(&wcx);
 
-	window = CreateWindow(TEXT("Dummy"), TEXT("Dummy"), WS_OVERLAPPEDWINDOW, 0, 0, 1, 1, 0, 0, wcx.hInstance, 0);
+	HWND window = CreateWindow(TEXT("Dummy"), TEXT("Dummy"), WS_OVERLAPPEDWINDOW, 0, 0, 1, 1, 0, 0, wcx.hInstance, 0);
 
 	if (!window) {
 		de_fatal_error("Win32: Failed to create dummy window!");
 	}
 
-	dc = GetDC(window);
+	HDC dc = GetDC(window);
 
 	/* Prepare pixel format */
-	de_zero(&pfd, sizeof(pfd));
-	pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-	pfd.nVersion = 1;
-	pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-	pfd.iPixelType = PFD_TYPE_RGBA;
-	pfd.cColorBits = 32;
-	pfd.cDepthBits = 24;
-	pfd.cStencilBits = 8;
-	pfd.iLayerType = PFD_MAIN_PLANE;
+	const PIXELFORMATDESCRIPTOR pfd = {
+		.nSize = sizeof(PIXELFORMATDESCRIPTOR),
+		.nVersion = 1,
+		.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+		.iPixelType = PFD_TYPE_RGBA,
+		.cColorBits = 32,
+		.cDepthBits = 24,
+		.cStencilBits = 8,
+		.iLayerType = PFD_MAIN_PLANE,
+	};
 
-	pixel_format = ChoosePixelFormat(dc, &pfd);
+	int pixel_format = ChoosePixelFormat(dc, &pfd);
 	SetPixelFormat(dc, pixel_format, &pfd);
 
-	glcontext = wglCreateContext(dc);
+	HGLRC glcontext = wglCreateContext(dc);
 	if (!glcontext) {
 		de_fatal_error("Win32: Failed to create dummy OpenGL context!");
 	}
@@ -366,50 +361,34 @@ static void de_win32_load_wgl_extensions(void)
 
 void de_core_platform_init(de_core_t* core)
 {
-	DWORD style;
-	int pixel_format;
-	unsigned int format_count;
-	RECT wRect;
-	WNDCLASSEX wcx;
-	PIXELFORMATDESCRIPTOR pfd;
-	int pixel_fmt_attribs[] = {
-		WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
-		WGL_SUPPORT_OPENGL_ARB, GL_TRUE,
-		WGL_DOUBLE_BUFFER_ARB, GL_TRUE,
-		WGL_PIXEL_TYPE_ARB, WGL_TYPE_RGBA_ARB,
-		WGL_COLOR_BITS_ARB, 32,
-		WGL_DEPTH_BITS_ARB, 24,
-		WGL_STENCIL_BITS_ARB, 8,
-		0
-	};
-	int attributes[] = {
-		WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-		WGL_CONTEXT_MINOR_VERSION_ARB, 3,
-		WGL_CONTEXT_FLAGS_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-		0
-	};
+	typedef struct attribute_t {
+		int id;
+		int value;
+	} attribute_t;
 
 	de_win32_load_wgl_extensions();
-	
-	de_zero(&wcx, sizeof(wcx));
-	wcx.cbSize = sizeof(wcx);
-	wcx.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wcx.hInstance = GetModuleHandle(0);
-	wcx.lpfnWndProc = de_win32_window_proc;
-	wcx.lpszClassName = TEXT(DE_WINDOW_CLASS_NAME);
-	wcx.style = CS_HREDRAW | CS_VREDRAW;
+
+	const WNDCLASSEX wcx = {
+		.cbSize = sizeof(wcx),
+		.hCursor = LoadCursor(NULL, IDC_ARROW),
+		.hInstance = GetModuleHandle(0),
+		.lpfnWndProc = de_win32_window_proc,
+		.lpszClassName = TEXT(DE_WINDOW_CLASS_NAME),
+		.style = CS_HREDRAW | CS_VREDRAW,
+	};
 	RegisterClassEx(&wcx);
 
+	DWORD style;
 	if (core->params.flags & DE_CORE_FLAGS_BORDERLESS) {
 		style = WS_VISIBLE | WS_POPUP;
 	} else {
 		style = WS_SYSMENU | WS_BORDER | WS_CAPTION | WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
 	}
 
-	wRect.left = 0;
-	wRect.top = 0;
-	wRect.right = core->params.video_mode.width;
-	wRect.bottom = core->params.video_mode.height;
+	RECT wRect = {
+		.right = core->params.video_mode.width,
+		.bottom = core->params.video_mode.height,
+	};
 	AdjustWindowRect(&wRect, style, 0);
 
 	/* Create window */
@@ -433,24 +412,48 @@ void de_core_platform_init(de_core_t* core)
 	de_log("Win32: Initializing OpenGL");
 
 	/* Prepare pixel format */
-	de_zero(&pfd, sizeof(pfd));
-	pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
-	pfd.nVersion = 1;
-	pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
-	pfd.iPixelType = PFD_TYPE_RGBA;
-	pfd.cColorBits = 32;
-	pfd.cDepthBits = 24;
-	pfd.cStencilBits = 8;
-	pfd.iLayerType = PFD_MAIN_PLANE;
+	const PIXELFORMATDESCRIPTOR pfd = {
+		.nSize = sizeof(PIXELFORMATDESCRIPTOR),
+		.nVersion = 1,
+		.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
+		.iPixelType = PFD_TYPE_RGBA,
+		.cColorBits = 32,
+		.cDepthBits = 24,
+		.cStencilBits = 8,
+		.iLayerType = PFD_MAIN_PLANE,
+	};
 
-	wglChoosePixelFormatARB(core->platform.device_context, pixel_fmt_attribs, NULL, 1, &pixel_format, &format_count);
+	int pixel_format;
+	unsigned int format_count;
+
+	const attribute_t pixel_format_attributes[] = {
+		{ .id = WGL_DRAW_TO_WINDOW_ARB, .value = GL_TRUE },
+		{ .id = WGL_SUPPORT_OPENGL_ARB, .value = GL_TRUE },
+		{ .id = WGL_DOUBLE_BUFFER_ARB, .value = GL_TRUE },
+		{ .id = WGL_PIXEL_TYPE_ARB, .value = WGL_TYPE_RGBA_ARB },
+		{ .id = WGL_COLOR_BITS_ARB, .value = 32 },
+		{ .id = WGL_DEPTH_BITS_ARB, .value = 24 },
+		{ .id = WGL_STENCIL_BITS_ARB, .value = 8 },
+		{ .id = 0, .value = 0 }
+	};
+
+	wglChoosePixelFormatARB(core->platform.device_context, (int*)pixel_format_attributes, NULL, 1, &pixel_format, &format_count);
 
 	SetPixelFormat(core->platform.device_context, pixel_format, &pfd);
 
-	core->platform.gl_context = wglCreateContextAttribsARB(core->platform.device_context, NULL, attributes);
+	const attribute_t context_attributes[] = {
+		{ .id = WGL_CONTEXT_MAJOR_VERSION_ARB, .value = 3 },
+		{ .id = WGL_CONTEXT_MINOR_VERSION_ARB, .value = 3 },
+		{ .id = WGL_CONTEXT_PROFILE_MASK_ARB, .value = WGL_CONTEXT_CORE_PROFILE_BIT_ARB },
+		// { .id = WGL_CONTEXT_FLAGS_ARB, .value = WGL_CONTEXT_DEBUG_BIT_ARB },
+		{ .id = 0, .value = 0 }
+	};
+	core->platform.gl_context = wglCreateContextAttribsARB(core->platform.device_context, NULL, (int*)context_attributes);
+
 	if (!core->platform.gl_context) {
 		de_fatal_error("Win32: Failed to create OpenGL context!");
 	}
+
 	if (!wglMakeCurrent(core->platform.device_context, core->platform.gl_context)) {
 		de_fatal_error("Win32: Failed to make OpenGL context current!");
 	}
@@ -525,12 +528,13 @@ void de_core_set_video_mode(de_core_t* core, const de_video_mode_t* vm)
 {
 	HWND wnd = core->platform.window;
 	if (vm->fullscreen) {
-		DEVMODE mode;
-		mode.dmSize = sizeof(mode);
-		mode.dmBitsPerPel = vm->bits_per_pixel;
-		mode.dmPelsWidth = vm->width;
-		mode.dmPelsHeight = vm->height;
-		mode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL;
+		DEVMODE mode = {
+			.dmSize = sizeof(mode),
+			.dmBitsPerPel = vm->bits_per_pixel,
+			.dmPelsWidth = vm->width,
+			.dmPelsHeight = vm->height,
+			.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL,
+		};
 		if (ChangeDisplaySettings(&mode, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL) {
 			de_log("unable to set fullscreen videomode: %dx%d@%d", vm->width, vm->height, vm->bits_per_pixel);
 			return;

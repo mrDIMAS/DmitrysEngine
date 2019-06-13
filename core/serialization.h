@@ -138,7 +138,7 @@ void de_object_visitor_save_binary(de_object_visitor_t* visitor, const char* fil
 /**
  * @brief Loads data into object visitor from binary file.
  */
-void de_object_visitor_load_binary(de_core_t* core, de_object_visitor_t* visitor, const char* file_path);
+bool de_object_visitor_load_binary(de_core_t* core, de_object_visitor_t* visitor, const char* file_path);
 
 /**
  * @brief Visits pointer and pointee (once).

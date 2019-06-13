@@ -62,7 +62,7 @@ static int de_sound_device_mixer_thread(void* ptr)
 		for (i = 0; i < dev->out_samples_count;) {
 			float left = 0, right = 0;
 			for (k = 0; k < dev->active_sources.size; ++k) {
-				float sleft, sright;
+				float sleft = 0, sright = 0;
 				de_sound_source_sample(dev->active_sources.data[k], &sleft, &sright);
 				left += sleft;
 				right += sright;

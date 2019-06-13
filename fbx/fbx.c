@@ -1730,18 +1730,19 @@ de_node_t* de_fbx_load_to_scene(de_scene_t* scene, const char* file)
 
 bool de_fbx_is_binary(const char* filename)
 {
-	char magic[18];
-	bool result;
-
 	FILE* file = fopen(filename, "rb");
 
 	if (!file) {
 		return false;
 	}
 
-	fread(magic, sizeof(char), 18, file);
+    char magic[18];
+	if (fread(magic, sizeof(magic), 1, file) != 1) {
+        fclose(file);
+        return false;
+    }
 
-	result = strncmp(magic, "Kaydara FBX Binary", 18) == 0;
+	bool result = strncmp(magic, "Kaydara FBX Binary", 18) == 0;
 
 	fclose(file);
 

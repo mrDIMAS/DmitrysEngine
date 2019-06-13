@@ -36,19 +36,21 @@ typedef struct de_tga_header_t {
 
 bool de_image_load_tga(const char* filename, de_image_t* img)
 {
-	FILE* file;
-	size_t i, byte_count;
-	unsigned char temp;
-	de_tga_header_t header;
-
-	file = fopen(filename, "rb");
+	FILE* const file = fopen(filename, "rb");
 
 	if (!file) {
 		de_log("TGA Loader: Unable to open file %s", filename);
 		return false;
 	}
 
-#define READ_VAR(var) fread(&var, sizeof(var), 1, file)
+#define READ_VAR(var)                             \
+    if (fread(&var, sizeof(var), 1, file) != 1) { \
+        de_log("TGA Loader: Invalid TGA file!");  \
+        fclose(file);                             \
+        return false;                             \
+    }
+    
+    de_tga_header_t header;
 	/* Read TGA header */
 	READ_VAR(header.idLength);
 	READ_VAR(header.colorMapType);
@@ -80,9 +82,9 @@ bool de_image_load_tga(const char* filename, de_image_t* img)
 	img->byte_per_pixel = header.bitsPerPixel / 8;
 
 	/* Read pixels */
-	byte_count = header.width * header.height * img->byte_per_pixel;
+	const size_t byte_count = header.width * header.height * img->byte_per_pixel;
 	img->data = (char*)de_malloc(byte_count);
-	if (fread(img->data, 1, byte_count, file) != byte_count) {
+	if (fread(img->data, byte_count, 1, file) != 1) {
 		de_log("TGA Loader: File %s is corrupted", filename);
 		de_free(img->data);
 		fclose(file);
@@ -92,8 +94,8 @@ bool de_image_load_tga(const char* filename, de_image_t* img)
 	fclose(file);
 
 	/* Swap red and blue to get RGB/RGBA image from BGR/ABGR */
-	for (i = 0; i < byte_count; i += img->byte_per_pixel) {
-		temp = img->data[i];
+	for (size_t i = 0; i < byte_count; i += img->byte_per_pixel) {
+		unsigned char temp = img->data[i];
 		img->data[i] = img->data[i + 2];
 		img->data[i + 2] = temp;
 	}

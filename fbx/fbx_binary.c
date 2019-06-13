@@ -89,12 +89,13 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 	}
 
 	for (i = 0; i < num_attrib; ++i) {
-		char type_code;
-		size_t size = 0;
-
-		fread(&type_code, sizeof(char), 1, f);
+        char type_code;
+		if (fread(&type_code, 1, sizeof(type_code), f) != sizeof(type_code)) {
+            return NULL;
+        }
 
 		/* Simple types */
+        size_t size = 0;
 		switch (type_code) {
 			case 'Y':
 				size = 2;
@@ -285,7 +286,10 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
 		}
 
 		/* Check if we have a null-record */
-		fread(null_record, sizeof(char), sizeof(null_record), f);
+		if (fread(null_record, sizeof(char), sizeof(null_record), f) != sizeof(null_record)) {
+            de_log("FBX: Binary - invalid null record!");
+            return NULL;
+        }
 		for (i = 0; i < sizeof(null_record); ++i) {
 			if (null_record[i] != 0) {
 				null_record_correct = false;
@@ -308,9 +312,6 @@ de_fbx_node_t* de_fbx_binary_read_node(de_fbx_buffer_t* data_buf, FILE* f)
  */
 de_fbx_node_t* de_fbx_binary_load_file(const char* filename, de_fbx_buffer_t* data_buf)
 {
-	de_fbx_node_t* root;
-	size_t total_length;
-	unsigned int version;
 	FILE* file = fopen(filename, "rb");
 
 	if (!file) {
@@ -318,7 +319,7 @@ de_fbx_node_t* de_fbx_binary_load_file(const char* filename, de_fbx_buffer_t* da
 	}
 
 	fseek(file, 0, SEEK_END);
-	total_length = ftell(file);
+	size_t total_length = ftell(file);
 	fseek(file, 0, SEEK_SET);
 
 	de_fbx_buffer_init(data_buf, total_length * 5);
@@ -327,7 +328,12 @@ de_fbx_node_t* de_fbx_binary_load_file(const char* filename, de_fbx_buffer_t* da
 	de_fignore(file, 23);
 
 	/* read version */
-	fread(&version, sizeof(char), 4, file);
+    uint32_t version;
+	if(fread(&version, sizeof(version), 1, file) != 1) {
+        de_log("FBX: Unexpected end of filed while reading version");
+        fclose(file);
+        return NULL;
+    }
 
 	if (version < DE_FBX_VERSION_MIN || version > DE_FBX_VERSION_MAX) {
 		de_log("FBX: Unable to load %s - unsupported version %d. Supported %d to %d", file, version, DE_FBX_VERSION_MIN, DE_FBX_VERSION_MAX);
@@ -335,12 +341,10 @@ de_fbx_node_t* de_fbx_binary_load_file(const char* filename, de_fbx_buffer_t* da
 		return NULL;
 	}
 
-	root = de_fbx_create_node("__ROOT__");
+	de_fbx_node_t* root = de_fbx_create_node("__ROOT__");
 
 	while ((uint32_t)ftell(file) < total_length) {
-		de_fbx_node_t* root_child;
-
-		root_child = de_fbx_binary_read_node(data_buf, file);
+		de_fbx_node_t* root_child = de_fbx_binary_read_node(data_buf, file);
 		if (!root_child) {
 			break;
 		}

@@ -69,19 +69,15 @@ void de_sound_source_set_buffer(de_sound_source_t* src, de_sound_buffer_t* buf)
 
 void de_sound_source_sample(de_sound_source_t* src, float* left, float* right)
 {
-	uint64_t i;
-
 	/* source can be stopped during mixing, in this case write silence out */
 	if (src->status & DE_SOUND_SOURCE_STATUS_STOPPED) {
-		*left = 0;
-		*right = 0;
 		return;
 	}
 
 	src->buf_read_pos += src->current_sample_rate;
 	src->playback_pos += src->current_sample_rate;
 
-	i = (uint64_t)src->buf_read_pos;
+	uint64_t i = (uint64_t)src->buf_read_pos;
 
 	if (i >= src->buffer->sample_per_channel) {
 		if (src->buffer->flags & DE_SOUND_BUFFER_FLAGS_STREAM) {

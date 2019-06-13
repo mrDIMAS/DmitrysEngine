@@ -310,7 +310,9 @@ size_t de_str8_fread(de_str8_t* str, FILE* file, size_t len)
 		char c;
 		read = 0;
 		while (1) {
-			fread(&c, 1, 1, file);
+			if (fread(&c, 1, 1, file) != 1) {
+                break;
+            }
 			if (c) {
 				DE_ARRAY_APPEND(str->str, c);
 				++read;

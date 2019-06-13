@@ -40,35 +40,62 @@ typedef struct de_wav_header_t {
 
 bool de_wav_read_header(FILE* f, de_wav_header_t* wav)
 {
-	fread(wav->chunk_id, 1, sizeof(wav->chunk_id), f);
+    if (fread(wav->chunk_id, sizeof(wav->chunk_id), 1, f) != 1) {
+        return false; 
+    }
 	if (strncmp(wav->chunk_id, "RIFF", sizeof(wav->chunk_id)) != 0) {
 		return false;
 	}
-	fread(&wav->chunk_size, 1, sizeof(wav->chunk_size), f);
-	fread(wav->format, 1, sizeof(wav->format), f);
+	if (fread(&wav->chunk_size, sizeof(wav->chunk_size), 1, f) != 1) {
+        return false; 
+    }
+	if (fread(wav->format, sizeof(wav->format), 1, f) != 1) {
+        return false;
+    }
 	if (strncmp(wav->format, "WAVE", sizeof(wav->format)) != 0) {
 		return false;
 	}
-	fread(wav->fmt_chunk_id, 1, sizeof(wav->fmt_chunk_id), f);
+	if (fread(wav->fmt_chunk_id, sizeof(wav->fmt_chunk_id), 1, f) != 1) {
+        return false;
+    }
 	if (strncmp(wav->fmt_chunk_id, "fmt ", sizeof(wav->fmt_chunk_id)) != 0) {
 		return false;
 	}
-	fread(&wav->fmt_chunk_size, 1, sizeof(wav->fmt_chunk_size), f);
-	fread(&wav->audio_format, 1, sizeof(wav->audio_format), f);
+	if (fread(&wav->fmt_chunk_size, sizeof(wav->fmt_chunk_size), 1, f) != 1) {
+        return false;
+    }
+	if (fread(&wav->audio_format, sizeof(wav->audio_format), 1, f) != 1) {
+        return false;
+    }
 	if (wav->audio_format != 1) {
 		de_log("wav: compressed formats not supported!");
 		return false;
 	}
-	fread(&wav->num_channels, 1, sizeof(wav->num_channels), f);
-	fread(&wav->sample_rate, 1, sizeof(wav->sample_rate), f);
-	fread(&wav->byte_rate, 1, sizeof(wav->byte_rate), f);
-	fread(&wav->block_align, 1, sizeof(wav->block_align), f);
-	fread(&wav->bits_per_sample, 1, sizeof(wav->bits_per_sample), f);
-	fread(&wav->data_chunk_id, 1, sizeof(wav->data_chunk_id), f);
+	if (fread(&wav->num_channels, sizeof(wav->num_channels), 1, f) != 1) {
+        return false;
+    }
+	if (fread(&wav->sample_rate, sizeof(wav->sample_rate), 1, f) != 1) {
+        return false;
+    }
+	if (fread(&wav->byte_rate, sizeof(wav->byte_rate), 1, f) != 1) {
+        return false;
+    }
+	if (fread(&wav->block_align, sizeof(wav->block_align), 1, f) != 1) {
+        return false;
+    }
+	if (fread(&wav->bits_per_sample, sizeof(wav->bits_per_sample), 1, f) != 1) {
+        return false;
+    }
+	if (fread(&wav->data_chunk_id, sizeof(wav->data_chunk_id), 1, f) != 1) {
+        return false;
+    }
 	if (strncmp(wav->data_chunk_id, "data", sizeof(wav->data_chunk_id)) != 0) {
 		return false;
 	}
-	fread(&wav->data_chunk_size, 1, sizeof(wav->data_chunk_size), f);
+	if (fread(&wav->data_chunk_size, sizeof(wav->data_chunk_size), 1, f) != 1) {
+        return false;
+    }
+#undef READ
 	return true;
 }
 
@@ -103,18 +130,18 @@ de_sound_decoder_t* de_sound_decoder_init(const char* filename)
 }
 
 size_t de_sound_decoder_read(de_sound_decoder_t* dec, float* out_data, size_t sample_per_channel, size_t offset, size_t count)
-{
-	uint8_t chunk[64];
-	size_t i = 0, k;
-	int sample_chunk_size;
-	sample_chunk_size = dec->source_byte_per_sample * dec->channel_count;
+{	
+	size_t i = 0;
+	int sample_chunk_size = dec->source_byte_per_sample * dec->channel_count;
 	switch (dec->type) {
 		case DE_SOUND_DECODER_TYPE_WAV:
 			for (i = 0; i < count && dec->bytes_readed < dec->total_bytes; ++i) {
 				/* read sample chunk */
-				fread(chunk, 1, sample_chunk_size, dec->file);
+                uint8_t chunk[64];
+				size_t bytes_read = fread(chunk, 1, sample_chunk_size, dec->file); 
+                
 				/* convert interleaved i8/i16 data non-interleaved normalized float */
-				for (k = 0; k < (size_t)dec->channel_count; ++k) {
+				for (size_t k = 0; k < (size_t)dec->channel_count; ++k) {
 					size_t channel_start = k * sample_per_channel;
 					switch (dec->source_byte_per_sample) {
 						case 1:
@@ -128,7 +155,7 @@ size_t de_sound_decoder_read(de_sound_decoder_t* dec, float* out_data, size_t sa
 					}
 				}
 
-				dec->bytes_readed += dec->source_byte_per_sample * dec->channel_count;
+				dec->bytes_readed += bytes_read;
 			}
 			break;
 		default:

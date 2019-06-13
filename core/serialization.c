@@ -445,77 +445,130 @@ void de_object_visitor_save_binary(de_object_visitor_t* visitor, const char* fil
 	fclose(file);
 }
 
-static void de_object_visitor_field_load_binary(de_object_visitor_field_t* field, FILE* file)
+static bool de_object_visitor_field_load_binary(de_object_visitor_field_t* field, FILE* file)
 {
-	uint32_t name_length;
-	uint8_t data_type;
-
 	/* read name */
-	fread(&name_length, sizeof(name_length), 1, file);
+    uint32_t name_length;
+	if (fread(&name_length, sizeof(name_length), 1, file) != 1) {
+        return false;
+    }
 	de_str8_init(&field->name);
 	de_str8_fread(&field->name, file, name_length);
 
 	/* read field data descriptors */
-	fread(&field->data_size, sizeof(field->data_size), 1, file);
-	fread(&data_type, sizeof(data_type), 1, file);
+	if (fread(&field->data_size, sizeof(field->data_size), 1, file) != 1) {
+        return false;
+    }
+    
+    uint8_t data_type;
+	if (fread(&data_type, sizeof(data_type), 1, file) != 1) {
+        return false;
+    }
 	field->data_type = (de_object_visitor_data_type_t)data_type;
-	fread(&field->data_offset, sizeof(field->data_offset), 1, file);
+    
+	if (fread(&field->data_offset, sizeof(field->data_offset), 1, file) != 1) {
+        return false;
+    }
+    
+    return true;
 }
 
-static void de_object_visitor_node_load_binary(de_object_visitor_node_t* node, FILE* file)
+static bool de_object_visitor_node_load_binary(de_object_visitor_node_t* node, FILE* file)
 {
-	size_t i;
-	uint32_t name_length, fields_count, child_count;
-
 	/* read name */
-	fread(&name_length, sizeof(name_length), 1, file);
+    uint32_t name_length;
+	if (fread(&name_length, sizeof(name_length), 1, file) != 1)  {
+        return false;
+    }
 	de_str8_init(&node->name);
 	de_str8_fread(&node->name, file, name_length);
 
 	/* read fields */
-	fread(&fields_count, sizeof(fields_count), 1, file);
+    uint32_t fields_count;
+	if (fread(&fields_count, sizeof(fields_count), 1, file) != 1) {
+        return false;
+    }
 	DE_ARRAY_GROW(node->fields, fields_count);
-	for (i = 0; i < fields_count; ++i) {
+	for (size_t i = 0; i < fields_count; ++i) {
 		de_object_visitor_field_t* field = node->fields.data + i;
-		de_object_visitor_field_load_binary(field, file);
+		if (!de_object_visitor_field_load_binary(field, file)) {
+            return false;
+        }
 	}
 
 	/* load children */
-	fread(&child_count, sizeof(child_count), 1, file);
-	for (i = 0; i < child_count; ++i) {
+    uint32_t child_count;
+	if (fread(&child_count, sizeof(child_count), 1, file) != 1) {
+        return false;
+    }
+	for (size_t i = 0; i < child_count; ++i) {
 		de_object_visitor_node_t* child = DE_NEW(de_object_visitor_node_t);
-		de_object_visitor_node_load_binary(child, file);
+		if (!de_object_visitor_node_load_binary(child, file)) {
+            de_free(child);
+            return false;
+        }
 		de_object_visitor_node_add_child(node, child);
 	}
+    
+    return true;
 }
 
-void de_object_visitor_load_binary(de_core_t* core, de_object_visitor_t* visitor, const char* file_path)
-{
-	char magic[7];
+bool de_object_visitor_load_binary(de_core_t* core, de_object_visitor_t* visitor, const char* file_path)
+{	
+    memset(visitor, 0, sizeof(*visitor));
+	visitor->core = core;
+	visitor->is_reading = true;
+    
 	FILE* file = fopen(file_path, "rb");
 
 	if (!file) {
 		de_log("serializer: unable to load binary from %s, file does not exists.", file_path);
-		return;
+		goto error;
 	}
-
-	memset(visitor, 0, sizeof(*visitor));
-	visitor->core = core;
-	visitor->is_reading = true;
-	fread(magic, 7, 1, file);
+    
+    char magic[7];
+	if (fread(magic, 7, 1, file) != 1) {
+        de_log("serializer: unexpected end of file when reading magic");
+        goto error;
+    }
 	if (strncmp(magic, DE_OBJECT_VISITOR_MAGIC, 7) != 0) {
 		de_log("serializer: %s is not valid serializer format!", file_path);
-		return;
+        goto error;
 	}
-	fread(&visitor->version, sizeof(visitor->version), 1, file);
-	fread(&visitor->data_size, sizeof(visitor->data_size), 1, file);
+	if (fread(&visitor->version, sizeof(visitor->version), 1, file) != 1) {
+        de_log("serializer: unexpected end of file when reading version");
+        goto error;
+    }
+	if (fread(&visitor->data_size, sizeof(visitor->data_size), 1, file) != 1) {
+        de_log("serializer: unexpected end of file when reading data size");
+        goto error;
+    }
 	visitor->root = DE_NEW(de_object_visitor_node_t);
-	de_object_visitor_node_load_binary(visitor->root, file);
+	if (!de_object_visitor_node_load_binary(visitor->root, file)) {
+        goto error;
+    }
 	visitor->data = (char*)de_malloc(visitor->data_size);
-	fread(visitor->data, visitor->data_size, 1, file);
+	if (fread(visitor->data, visitor->data_size, 1, file) != 1) {
+        de_log("serializer: unexpected end of file when reading data block");        
+        goto error;        
+    }
 	visitor->current_node = visitor->root;
 
 	fclose(file);
+    
+    return true;
+    
+error:
+    if (file) {
+        fclose(file);
+    }
+    if(visitor->root) {
+        de_object_visitor_node_free(visitor->root);
+    }
+    de_free(visitor->root);
+    de_free(visitor->data);
+    memset(visitor, 0, sizeof(*visitor));
+    return false;
 }
 
 bool de_object_visitor_visit_primitive_array(de_object_visitor_t* visitor, const char* name, void** array, size_t* item_count, size_t item_size)

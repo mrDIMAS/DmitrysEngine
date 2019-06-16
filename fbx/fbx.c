@@ -1112,11 +1112,8 @@ static void de_fbx_eval_keyframe(de_node_t* node,
  * of a polygon.
  * @param out_index_count If returned number is negative, then you must skip the face - it is probably corrupted or badly formed.
  * @return Returns number of indices that have been processed.
- *
- * IMPORTANT NOTE: This routine will modify indices array so it will not be contain negative
- * indices! In 99.99% cases this is fine.
  */
-static int de_fbx_prepare_next_face(de_fbx_geom_t* geom,
+static int de_fbx_prepare_next_face(const de_fbx_geom_t* geom,
 	int start,
 	int* out_indices,
 	int* out_index_count,
@@ -1131,7 +1128,7 @@ static int de_fbx_prepare_next_face(de_fbx_geom_t* geom,
 		++vertex_per_face;
 
 		if (geom->indices[i] < 0) {
-			geom->indices[i] = de_fbx_fix_index(geom->indices[i]);
+			//geom->indices[i] = de_fbx_fix_index(geom->indices[i]);
 
 			break;
 		}
@@ -1139,9 +1136,9 @@ static int de_fbx_prepare_next_face(de_fbx_geom_t* geom,
 
 	if (vertex_per_face == 3) {
 		/* we have a triangle */
-		out_indices[0] = geom->indices[start];
-		out_indices[1] = geom->indices[start + 1];
-		out_indices[2] = geom->indices[start + 2];
+		out_indices[0] = de_fbx_fix_index(geom->indices[start]);
+		out_indices[1] = de_fbx_fix_index(geom->indices[start + 1]);
+		out_indices[2] = de_fbx_fix_index(geom->indices[start + 2]);
 
 		out_relative_indices[0] = 0;
 		out_relative_indices[1] = 1;
@@ -1166,7 +1163,7 @@ static int de_fbx_prepare_next_face(de_fbx_geom_t* geom,
 		/* fill vertices */
 		de_vec3_t* vertices = (de_vec3_t*)de_malloc(vertex_per_face * sizeof(de_vec3_t));
 		for (i = 0; i < vertex_per_face; ++i) {
-			vertices[i] = geom->vertices[geom->indices[start + i]];
+			vertices[i] = geom->vertices[de_fbx_fix_index(geom->indices[start + i])];
 		}
 
 		*out_index_count = de_triangulate(vertices, vertex_per_face, out_relative_indices, out_rel_indices_buffer_size);
@@ -1177,7 +1174,7 @@ static int de_fbx_prepare_next_face(de_fbx_geom_t* geom,
 
 		/* remap indices back to model */
 		for (i = 0; i < *out_index_count; ++i) {
-			out_indices[i] = geom->indices[start + out_relative_indices[i]];
+			out_indices[i] = de_fbx_fix_index(geom->indices[start + out_relative_indices[i]]);
 		}
 
 		de_free(vertices);

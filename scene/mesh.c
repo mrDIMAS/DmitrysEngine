@@ -130,11 +130,9 @@ void de_mesh_add_surface(de_mesh_t* mesh, de_surface_t* surf)
 	DE_ARRAY_APPEND(mesh->surfaces, surf);
 }
 
-bool de_mesh_is_skinned(de_mesh_t* mesh)
+bool de_mesh_is_skinned(const de_mesh_t* mesh)
 {
-	size_t i;
-
-	for (i = 0; i < mesh->surfaces.size; ++i) {
+	for (size_t i = 0; i < mesh->surfaces.size; ++i) {
 		if (de_surface_is_skinned(mesh->surfaces.data[i])) {
 			return true;
 		}
@@ -145,13 +143,11 @@ bool de_mesh_is_skinned(de_mesh_t* mesh)
 
 void de_mesh_set_texture(de_mesh_t* mesh, de_texture_t* texture)
 {
-	size_t i;
-
 	if (!mesh || !texture) {
 		return;
 	}
 
-	for (i = 0; i < mesh->surfaces.size; ++i) {
+	for (size_t i = 0; i < mesh->surfaces.size; ++i) {
 		de_surface_set_diffuse_texture(mesh->surfaces.data[i], texture);
 	}
 }

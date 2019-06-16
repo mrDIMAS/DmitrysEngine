@@ -127,7 +127,7 @@ void de_surface_set_data(de_surface_t* surf, de_surface_shared_data_t* data)
 	surf->need_upload = true;
 }
 
-void de_surface_upload(de_surface_t* surf)
+void de_surface_schedule_upload(de_surface_t* surf)
 {
 	surf->need_upload = true;
 }
@@ -180,23 +180,20 @@ void de_surface_set_specular_texture(de_surface_t * surf, de_texture_t* tex)
 void de_surface_calculate_normals(de_surface_t * surf)
 {
 	de_surface_shared_data_t* data = surf->shared_data;
-	for (size_t m = 0; m < data->index_count; m += 3) {
-		int ia, ib, ic;
-		de_vec3_t *a, *b, *c;
+	for (size_t m = 0; m < data->index_count; m += 3) {		
+		const int ia = data->indices[m];
+		const int ib = data->indices[m + 1];
+		const int ic = data->indices[m + 2];
+
+		const de_vec3_t* a = &data->positions[ia];
+		const de_vec3_t* b = &data->positions[ib];
+		const de_vec3_t* c = &data->positions[ic];
+
 		de_vec3_t ab, ac;
-		de_vec3_t normal;
-
-		ia = data->indices[m];
-		ib = data->indices[m + 1];
-		ic = data->indices[m + 2];
-
-		a = &data->positions[ia];
-		b = &data->positions[ib];
-		c = &data->positions[ic];
-
 		de_vec3_sub(&ab, b, a);
 		de_vec3_sub(&ac, c, a);
 
+		de_vec3_t normal;
 		de_vec3_cross(&normal, &ab, &ac);
 		de_vec3_normalize(&normal, &normal);
 
@@ -221,7 +218,7 @@ bool de_surface_prepare_vertices_for_skinning(de_surface_t* surf)
 	 * to matrix that gpu will use.
 	 * */
 
-	 /* map bone nodes to bone indices */
+	/* map bone nodes to bone indices */
 	memset(data->bone_weights, 0, data->vertex_count * sizeof(*data->bone_weights));
 	for (size_t i = 0; i < data->vertex_count; ++i) {
 		de_vertex_weight_group_t* weight_group = surf->vertex_weights.data + i;
@@ -237,9 +234,7 @@ bool de_surface_prepare_vertices_for_skinning(de_surface_t* surf)
 
 bool de_surface_add_bone(de_surface_t* surf, de_node_t* bone)
 {
-	size_t i;
-
-	for (i = 0; i < surf->bones.size; ++i) {
+	for (size_t i = 0; i < surf->bones.size; ++i) {
 		if (surf->bones.data[i] == bone) {
 			return false;
 		}
@@ -250,11 +245,9 @@ bool de_surface_add_bone(de_surface_t* surf, de_node_t* bone)
 	return true;
 }
 
-int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone)
+int de_surface_get_bone_index(const de_surface_t* surf, de_node_t* bone)
 {
-	size_t i;
-
-	for (i = 0; i < surf->bones.size; ++i) {
+	for (size_t i = 0; i < surf->bones.size; ++i) {
 		if (surf->bones.data[i] == bone) {
 			return i;
 		}
@@ -265,22 +258,20 @@ int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone)
 	return -1;
 }
 
-void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* out_matrices, size_t max_matrices)
+void de_surface_get_skinning_matrices(const de_surface_t* surf, de_mat4_t* out_matrices, size_t max_matrices)
 {
-	size_t i;
-
-	for (i = 0; i < surf->bones.size && i < max_matrices; ++i) {
-		de_node_t* bone_node = surf->bones.data[i];
-		de_mat4_t* m = out_matrices + i;
+	for (size_t i = 0; i < surf->bones.size && i < max_matrices; ++i) {
+		const de_node_t* bone_node = surf->bones.data[i];
+		de_mat4_t* matrix = out_matrices + i;
 		if (bone_node) {
-			de_mat4_mul(m, &bone_node->global_matrix, &bone_node->inv_bind_pose_matrix);
+			de_mat4_mul(matrix, &bone_node->global_matrix, &bone_node->inv_bind_pose_matrix);
 		} else {
-			de_mat4_identity(m);
+			de_mat4_identity(matrix);
 		}
 	}
 }
 
-bool de_surface_is_skinned(de_surface_t* surf)
+bool de_surface_is_skinned(const de_surface_t* surf)
 {
 	return surf->bones.size > 0;
 }
@@ -294,9 +285,9 @@ void de_surface_calculate_tangents(de_surface_t* surf)
 	for (size_t i = 0; i < data->index_count; i += 3) {
 		de_vec3_t sdir, tdir;
 
-		int i1 = data->indices[i + 0];
-		int i2 = data->indices[i + 1];
-		int i3 = data->indices[i + 2];
+		const int i1 = data->indices[i + 0];
+		const int i2 = data->indices[i + 1];
+		const int i3 = data->indices[i + 2];
 
 		const de_vec3_t* v1 = &data->positions[i1];
 		const de_vec3_t* v2 = &data->positions[i2];
@@ -306,19 +297,19 @@ void de_surface_calculate_tangents(de_surface_t* surf)
 		const de_vec2_t* w2 = &data->tex_coords[i2];
 		const de_vec2_t* w3 = &data->tex_coords[i3];
 
-		float x1 = v2->x - v1->x;
-		float x2 = v3->x - v1->x;
-		float y1 = v2->y - v1->y;
-		float y2 = v3->y - v1->y;
-		float z1 = v2->z - v1->z;
-		float z2 = v3->z - v1->z;
+		const float x1 = v2->x - v1->x;
+		const float x2 = v3->x - v1->x;
+		const float y1 = v2->y - v1->y;
+		const float y2 = v3->y - v1->y;
+		const float z1 = v2->z - v1->z;
+		const float z2 = v3->z - v1->z;
 
-		float s1 = w2->x - w1->x;
-		float s2 = w3->x - w1->x;
-		float t1 = w2->y - w1->y;
-		float t2 = w3->y - w1->y;
+		const float s1 = w2->x - w1->x;
+		const float s2 = w3->x - w1->x;
+		const float t1 = w2->y - w1->y;
+		const float t2 = w3->y - w1->y;
 
-		float r = 1.0F / (s1 * t2 - s2 * t1);
+		const float r = 1.0F / (s1 * t2 - s2 * t1);
 
 		sdir.x = (t2 * x1 - t1 * x2) * r;
 		sdir.y = (t2 * y1 - t1 * y2) * r;
@@ -456,7 +447,7 @@ static void de_surface_add_vertex_pos_tex(de_surface_t* surf, de_vec3_t* pos, de
 
 	if (!found_identic) {
 		i = data->vertex_count;
-		size_t k = data->vertex_count;
+		const size_t k = data->vertex_count;
 		de_surface_shared_data_grow_vertices(data, 1);
 		data->positions[k] = *pos;
 		data->tex_coords[k] = *tex_coord;
@@ -471,28 +462,28 @@ static void de_surface_add_vertex_pos_tex(de_surface_t* surf, de_vec3_t* pos, de
 
 void de_surface_make_sphere(de_surface_t* surf, int slices, int stacks, float r)
 {
-	float d_theta = (float)M_PI / slices;
-	float d_phi = 2.0f * (float)M_PI / stacks;
-	float d_tc_y = 1.0f / stacks;
-	float d_tc_x = 1.0f / slices;
+	const float d_theta = (float)M_PI / slices;
+	const float d_phi = 2.0f * (float)M_PI / stacks;
+	const float d_tc_y = 1.0f / stacks;
+	const float d_tc_x = 1.0f / slices;
 
 	de_surface_shared_data_t* data = de_surface_shared_data_create(4, 6);
 	de_surface_set_data(surf, data);
 
 	for (int i = 0; i < stacks; ++i) {
 		for (int j = 0; j < slices; ++j) {
-			int nj = j + 1;
-			int ni = i + 1;
+			const int nj = j + 1;
+			const int ni = i + 1;
 
-			float k0 = r * (float)sin(d_theta * i);
-			float k1 = (float)cos(d_phi * j);
-			float k2 = (float)sin(d_phi * j);
-			float k3 = r * (float)cos(d_theta * i);
+			const float k0 = r * (float)sin(d_theta * i);
+			const float k1 = (float)cos(d_phi * j);
+			const float k2 = (float)sin(d_phi * j);
+			const float k3 = r * (float)cos(d_theta * i);
 
-			float k4 = r * (float)sin(d_theta * ni);
-			float k5 = (float)cos(d_phi * nj);
-			float k6 = (float)sin(d_phi * nj);
-			float k7 = r * (float)cos(d_theta * ni);
+			const float k4 = r * (float)sin(d_theta * ni);
+			const float k5 = (float)cos(d_phi * nj);
+			const float k6 = (float)sin(d_phi * nj);
+			const float k7 = r * (float)cos(d_theta * ni);
 
 			if (i != (stacks - 1)) {
 				de_surface_add_vertex_pos_tex(surf, &(de_vec3_t){ k0 * k1, k0 * k2, k3 }, &(de_vec2_t){ d_tc_x * j, d_tc_y * i });

@@ -755,7 +755,7 @@ static void de_renderer_create_deferred_lighting_shader(de_renderer_t* r)
 		"         {"
 		"            for (float x = -1.5; x <= 1.5; x += 0.5)"
 		"            {"
-		"               vec2 fetchTexCoord = lightSpacePosition.xy + vec2(x, y) * shadowMapInvSize;" 
+		"               vec2 fetchTexCoord = lightSpacePosition.xy + vec2(x, y) * shadowMapInvSize;"
 		"               if (lightSpacePosition.z - bias > texture(spotShadowTexture, fetchTexCoord).r)"
 		"               {"
 		"                  shadow += 1.0;"
@@ -766,7 +766,7 @@ static void de_renderer_create_deferred_lighting_shader(de_renderer_t* r)
 		"         shadow = clamp(1.0 - shadow / 9.0, 0.0, 1.0);"
 		"      }"
 		"      else"
-		"      {"		
+		"      {"
 		"         if (lightSpacePosition.z - bias > texture(spotShadowTexture, lightSpacePosition.xy).r)"
 		"         {"
 		"            shadow = 0.0;"
@@ -800,16 +800,16 @@ static void de_renderer_create_deferred_lighting_shader(de_renderer_t* r)
 		"            }"
 		"         }"
 
-		"         shadow = clamp(1.0 - shadow / float(samples), 0.0, 1.0);"		
+		"         shadow = clamp(1.0 - shadow / float(samples), 0.0, 1.0);"
 		"      }"
 		"      else"
 		"      {"
-		"         float shadowDistanceToLight = texture(pointShadowTexture, -normLightVector).r;"		
+		"         float shadowDistanceToLight = texture(pointShadowTexture, -normLightVector).r;"
 		"         if (distanceToLight - bias > shadowDistanceToLight)"
 		"         {"
 		"            shadow = 0.0;"
 		"         }"
-		"      }"		
+		"      }"
 		"   }"
 
 		"   FragColor = texture2D(colorTexture, texCoord);"
@@ -1516,7 +1516,7 @@ static void de_renderer_upload_texture(de_texture_t* texture)
 	texture->need_upload = false;
 }
 
-static void de_renderer_render_surface(de_renderer_t* r, de_surface_t* surf)
+static void de_renderer_render_surface(de_renderer_t* r, const de_surface_t* surf)
 {
 	DE_UNUSED(r);
 	DE_GL_CALL(glBindVertexArray(surf->shared_data->vertex_array_object));
@@ -1570,18 +1570,13 @@ static void de_renderer_upload_textures(de_renderer_t* r)
 	}
 }
 
-static void de_renderer_draw_light_sphere(de_renderer_t* r, de_camera_t* camera, de_light_t* light, GLint wvp_matrix_location)
+static void de_renderer_draw_light_sphere(de_renderer_t* r, const de_camera_t* camera, const de_vec3_t* pos, float radius, GLint wvp_matrix_location)
 {
-	de_node_t* node = de_node_from_light(light);
-
-	de_vec3_t pos;
-	de_node_get_global_position(node, &pos);
-
 	de_mat4_t world;
-	de_mat4_translation(&world, &pos);
+	de_mat4_translation(&world, pos);
 
 	de_mat4_t scale;
-	float s = light->radius * 1.05f;
+	float s = radius * 1.05f;
 	de_mat4_scale(&scale, &(de_vec3_t){ s, s, s });
 	de_mat4_mul(&world, &world, &scale);
 
@@ -1597,9 +1592,9 @@ void de_renderer_render(de_renderer_t* r)
 	de_core_t* core = r->core;
 	static int last_time_ms;
 	de_mat4_t y_flip_ortho, ortho;
-	float w = (float)core->params.video_mode.width;
-	float h = (float)core->params.video_mode.height;
-	double frame_start_time = de_time_get_seconds();
+	const float w = (float)core->params.video_mode.width;
+	const float h = (float)core->params.video_mode.height;
+	const double frame_start_time = de_time_get_seconds();
 
 	r->draw_calls = 0;
 
@@ -1625,10 +1620,8 @@ void de_renderer_render(de_renderer_t* r)
 	DE_GL_CALL(glEnable(GL_CULL_FACE));
 
 	/* Upload surface data to GPU */
-	DE_LINKED_LIST_FOR_EACH_T(de_scene_t*, scene, core->scenes)
-	{
-		DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes)
-		{
+	for (de_scene_t* scene = core->scenes.head; scene; scene = scene->next) {
+		for (de_node_t* node = scene->nodes.head; node; node = node->next) {
 			if (node->type == DE_NODE_TYPE_MESH) {
 				de_mesh_t* mesh = &node->s.mesh;
 
@@ -1644,8 +1637,7 @@ void de_renderer_render(de_renderer_t* r)
 	}
 
 	/* render each scene */
-	DE_LINKED_LIST_FOR_EACH_T(de_scene_t*, scene, core->scenes)
-	{
+	for (de_scene_t* scene = core->scenes.head; scene; scene = scene->next) {
 		if (!scene->active_camera) {
 			continue;
 		}
@@ -1664,23 +1656,21 @@ void de_renderer_render(de_renderer_t* r)
 		de_renderer_set_viewport(&camera->viewport, core->params.video_mode.width, core->params.video_mode.height);
 
 		/* Render each node */
-		DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes)
-		{
+		for (de_node_t* node = scene->nodes.head; node; node = node->next) {
 			if (node->global_visibility && node->type == DE_NODE_TYPE_MESH) {
 
 				if (!de_frustum_box_intersection_transform(&frustum, &node->bounding_box, &node->global_matrix)) {
 					continue;
 				}
 
-				de_mesh_t* mesh = &node->s.mesh;
-				const bool is_skinned = de_mesh_is_skinned(mesh);
-
 				if (node->depth_hack != 0) {
 					de_camera_enter_depth_hack(camera, node->depth_hack);
 				}
 
-				de_gbuffer_shader_t* shader = &r->gbuffer_shader;
+				const de_gbuffer_shader_t* shader = &r->gbuffer_shader;
 
+				const de_mesh_t* mesh = &node->s.mesh;
+				const bool is_skinned = de_mesh_is_skinned(mesh);
 				de_mat4_t wvp_matrix;
 				de_mat4_mul(&wvp_matrix, &camera->view_projection_matrix, is_skinned ? &identity : &node->global_matrix);
 
@@ -1688,7 +1678,7 @@ void de_renderer_render(de_renderer_t* r)
 				DE_GL_CALL(glUniformMatrix4fv(shader->world_matrix, 1, GL_FALSE, is_skinned ? identity.f : node->global_matrix.f));
 
 				for (size_t i = 0; i < mesh->surfaces.size; ++i) {
-					de_surface_t* surf = mesh->surfaces.data[i];
+					const de_surface_t* surf = mesh->surfaces.data[i];
 
 					/* bind diffuse map */
 					DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
@@ -1774,19 +1764,19 @@ void de_renderer_render(de_renderer_t* r)
 
 		for (de_node_t* light_node = scene->nodes.head; light_node; light_node = light_node->next) {
 			if (light_node->type == DE_NODE_TYPE_LIGHT) {
-				de_light_t* light = &light_node->s.light;
+				const de_light_t* light = &light_node->s.light;
 
-				de_vec3_t pos;
-				de_node_get_global_position(light_node, &pos);
+				de_vec3_t light_pos;
+				de_node_get_global_position(light_node, &light_pos);
 
-				de_vec3_t dir;
-				de_node_get_up_vector(light_node, &dir);
-				de_vec3_normalize(&dir, &dir);
+				de_vec3_t light_emit_direction;
+				de_node_get_up_vector(light_node, &light_emit_direction);
+				de_vec3_normalize(&light_emit_direction, &light_emit_direction);
 
 				if (light->type == DE_LIGHT_TYPE_POINT || light->type == DE_LIGHT_TYPE_SPOT) {
 					/* TODO: spot light can be culled more accurately, but for now we cull it as
 					   if it point light with some radius. */
-					if (!de_frustum_sphere_intersection(&frustum, &pos, light->radius)) {
+					if (!de_frustum_sphere_intersection(&frustum, &light_pos, light->radius)) {
 						continue;
 					}
 				}
@@ -1810,13 +1800,13 @@ void de_renderer_render(de_renderer_t* r)
 					de_mat4_perspective(&light_projection_matrix, light->cone_angle * 2.5f, 1.0, 0.01f, light->radius);
 
 					de_vec3_t light_look_at;
-					de_vec3_sub(&light_look_at, &pos, &dir);
+					de_vec3_sub(&light_look_at, &light_pos, &light_emit_direction);
 
 					de_vec3_t light_up_vec;
 					de_node_get_look_vector(light_node, &light_up_vec);
 
 					de_mat4_t light_view_matrix;
-					de_mat4_look_at(&light_view_matrix, &pos, &light_look_at, &light_up_vec);
+					de_mat4_look_at(&light_view_matrix, &light_pos, &light_look_at, &light_up_vec);
 
 					de_mat4_mul(&light_view_projection_matrix, &light_projection_matrix, &light_view_matrix);
 
@@ -1891,7 +1881,7 @@ void de_renderer_render(de_renderer_t* r)
 					de_point_shadow_map_shader_t* shader = &r->point_shadow_map_shader;
 					DE_GL_CALL(glUseProgram(shader->program));
 
-					DE_GL_CALL(glUniform3f(shader->fs.light_position, pos.x, pos.y, pos.z));
+					DE_GL_CALL(glUniform3f(shader->fs.light_position, light_pos.x, light_pos.y, light_pos.z));
 
 					typedef struct face_definition_t {
 						GLenum face;
@@ -1917,10 +1907,10 @@ void de_renderer_render(de_renderer_t* r)
 						DE_GL_CALL(glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT));
 
 						de_vec3_t light_look_at;
-						de_vec3_add(&light_look_at, &pos, &face_definition->look);
+						de_vec3_add(&light_look_at, &light_pos, &face_definition->look);
 
 						de_mat4_t light_view_matrix;
-						de_mat4_look_at(&light_view_matrix, &pos, &light_look_at, &face_definition->up);
+						de_mat4_look_at(&light_view_matrix, &light_pos, &light_look_at, &face_definition->up);
 
 						de_mat4_mul(&light_view_projection_matrix, &light_projection_matrix, &light_view_matrix);
 
@@ -1995,12 +1985,12 @@ void de_renderer_render(de_renderer_t* r)
 				DE_GL_CALL(glCullFace(GL_FRONT));
 				DE_GL_CALL(glStencilFunc(GL_ALWAYS, 0, 0xFF));
 				DE_GL_CALL(glStencilOp(GL_KEEP, GL_INCR, GL_KEEP));
-				de_renderer_draw_light_sphere(r, camera, light, r->flat_shader.wvp_matrix);
+				de_renderer_draw_light_sphere(r, camera, &light_pos, light->radius, r->flat_shader.wvp_matrix);
 
 				DE_GL_CALL(glCullFace(GL_BACK));
 				DE_GL_CALL(glStencilFunc(GL_ALWAYS, 0, 0xFF));
 				DE_GL_CALL(glStencilOp(GL_KEEP, GL_DECR, GL_KEEP));
-				de_renderer_draw_light_sphere(r, camera, light, r->flat_shader.wvp_matrix);
+				de_renderer_draw_light_sphere(r, camera, &light_pos, light->radius, r->flat_shader.wvp_matrix);
 
 				DE_GL_CALL(glStencilFunc(GL_NOTEQUAL, 0, 0xFF));
 				DE_GL_CALL(glStencilOp(GL_KEEP, GL_KEEP, GL_ZERO));
@@ -2025,12 +2015,12 @@ void de_renderer_render(de_renderer_t* r)
 					DE_GL_CALL(glUniform1i(shader->soft_shadows, r->quality_settings.point_soft_shadows));
 				}
 
-				DE_GL_CALL(glUniform3f(shader->light_position, pos.x, pos.y, pos.z));
+				DE_GL_CALL(glUniform3f(shader->light_position, light_pos.x, light_pos.y, light_pos.z));
 				DE_GL_CALL(glUniform1f(shader->light_radius, light->radius));
 				DE_GL_CALL(glUniformMatrix4fv(shader->inv_view_proj_matrix, 1, GL_FALSE, camera->inv_view_proj.f));
 				DE_GL_CALL(glUniform4f(shader->light_color, clr[0], clr[1], clr[2], clr[3]));
 				DE_GL_CALL(glUniform1f(shader->light_cone_angle_cos, light->cone_angle_cos));
-				DE_GL_CALL(glUniform3f(shader->light_direction, dir.x, dir.y, dir.z));
+				DE_GL_CALL(glUniform3f(shader->light_direction, light_emit_direction.x, light_emit_direction.y, light_emit_direction.z));
 				DE_GL_CALL(glUniformMatrix4fv(shader->wvp_matrix, 1, GL_FALSE, y_flip_ortho.f));
 
 				if (r->quality_settings.spot_shadows_enabled || r->quality_settings.point_shadows_enabled) {
@@ -2041,7 +2031,7 @@ void de_renderer_render(de_renderer_t* r)
 				}
 
 				DE_GL_CALL(glUniform1f(shader->shadow_map_inv_size, 1.0f / r->quality_settings.spot_shadow_map_size));
-				
+
 				DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
 				DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.depth_texture));
 
@@ -2066,8 +2056,7 @@ void de_renderer_render(de_renderer_t* r)
 			de_renderer_set_viewport(&camera->viewport, core->params.video_mode.width, core->params.video_mode.height);
 
 			/* Render each node */
-			DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes)
-			{
+			for (de_node_t* node = scene->nodes.head; node; node = node->next) {
 				de_mat4_t wvp_matrix;
 
 				de_mat4_mul(&wvp_matrix, &camera->view_projection_matrix, &node->global_matrix);
@@ -2085,8 +2074,7 @@ void de_renderer_render(de_renderer_t* r)
 			de_renderer_set_viewport(&camera->viewport, core->params.video_mode.width, core->params.video_mode.height);
 
 			/* Render each node */
-			DE_LINKED_LIST_FOR_EACH_T(de_node_t*, node, scene->nodes)
-			{
+			for (de_node_t* node = scene->nodes.head; node; node = node->next) {
 				de_mat4_t wvp_matrix;
 				de_mat4_mul(&wvp_matrix, &camera->view_projection_matrix, &identity);
 				DE_GL_CALL(glUniformMatrix4fv(r->flat_shader.wvp_matrix, 1, GL_FALSE, wvp_matrix.f));
@@ -2114,13 +2102,13 @@ void de_renderer_render(de_renderer_t* r)
 	DE_GL_CALL(glUseProgram(r->particle_system_shader.program));
 
 	for (de_scene_t* scene = core->scenes.head; scene; scene = scene->next) {
-		de_node_t* camera_node = scene->active_camera;
+		const de_node_t* camera_node = scene->active_camera;
 
 		if (!camera_node) {
 			continue;
 		}
 
-		de_camera_t* camera = &camera_node->s.camera;
+		const de_camera_t* camera = &camera_node->s.camera;
 
 		de_mat4_t inv_view;
 		de_mat4_inverse(&inv_view, &camera->view_matrix);
@@ -2236,22 +2224,22 @@ void de_renderer_render(de_renderer_t* r)
 	DE_GL_CALL(glDisable(GL_CULL_FACE));
 	/* Render GUI */
 	{
-		de_gui_draw_list_t* draw_list = de_gui_render(core->gui);
+		const de_gui_draw_list_t* draw_list = de_gui_render(core->gui);
 
 		DE_GL_CALL(glUseProgram(r->gui_shader.program));
 		DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
 
-		int index_bytes = DE_ARRAY_SIZE_BYTES(draw_list->index_buffer);
-		int vertex_bytes = DE_ARRAY_SIZE_BYTES(draw_list->vertex_buffer);
+		const int index_bytes = DE_ARRAY_SIZE_BYTES(draw_list->index_buffer);
+		const int vertex_bytes = DE_ARRAY_SIZE_BYTES(draw_list->vertex_buffer);
 
 		/* upload to gpu */
 		DE_GL_CALL(glBindVertexArray(r->gui_render_buffers.vao));
 
 		DE_GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, r->gui_render_buffers.vbo));
-		DE_GL_CALL(glBufferData(GL_ARRAY_BUFFER, vertex_bytes, draw_list->vertex_buffer.data, GL_STATIC_DRAW));
+		DE_GL_CALL(glBufferData(GL_ARRAY_BUFFER, vertex_bytes, draw_list->vertex_buffer.data, GL_DYNAMIC_DRAW));
 
 		DE_GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, r->gui_render_buffers.ebo));
-		DE_GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_bytes, draw_list->index_buffer.data, GL_STATIC_DRAW));
+		DE_GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_bytes, draw_list->index_buffer.data, GL_DYNAMIC_DRAW));
 
 		DE_GL_CALL(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(de_gui_vertex_t), (void*)0));
 		DE_GL_CALL(glEnableVertexAttribArray(0));
@@ -2267,8 +2255,8 @@ void de_renderer_render(de_renderer_t* r)
 
 		/* draw */
 		for (size_t i = 0; i < draw_list->commands.size; ++i) {
-			de_gui_draw_command_t* cmd = draw_list->commands.data + i;
-			size_t index_count = cmd->triangle_count * 3;
+			const de_gui_draw_command_t* cmd = draw_list->commands.data + i;
+			const size_t index_count = cmd->triangle_count * 3;
 			if (cmd->type == DE_GUI_DRAW_COMMAND_TYPE_CLIP) {
 				bool is_root_nesting = cmd->nesting == 1;
 				if (is_root_nesting) {
@@ -2306,8 +2294,8 @@ void de_renderer_render(de_renderer_t* r)
 
 	/* FPS limiter */
 	if (r->frame_rate_limit > 0) {
-		int time_limit_ms = 1000 / r->frame_rate_limit;
-		int current_time_ms = (int)(1000 * de_time_get_seconds());
+		const int time_limit_ms = 1000 / r->frame_rate_limit;
+		const int current_time_ms = (int)(1000 * de_time_get_seconds());
 		de_sleep(time_limit_ms - (current_time_ms - last_time_ms));
 		last_time_ms = (int)(1000 * de_time_get_seconds());
 	}

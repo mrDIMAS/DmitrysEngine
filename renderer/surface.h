@@ -80,8 +80,14 @@ struct de_surface_t {
  */
 de_surface_shared_data_t* de_surface_shared_data_create(size_t vertex_capacity, size_t index_capacity);
 
+/**
+ * @brief Increases size of vertices storage by given value. 
+ */
 void de_surface_shared_data_grow_vertices(de_surface_shared_data_t* data, size_t vertex_inc);
 
+/**
+ * @brief Increases size of index storage by given value.
+ */
 void de_surface_shared_data_grow_indices(de_surface_shared_data_t* data, size_t index_inc);
 
 /**
@@ -99,6 +105,12 @@ void de_surface_data_shrink_to_fit(de_surface_shared_data_t* data);
  */
 void de_surface_shared_data_free(de_surface_shared_data_t* data);
 
+/**
+ * @brief Creates a copy of surface. Copy will share same graphic data (vertices, textures, etc).
+ * 
+ * IMPORTANT: Bones will stay same, so a copy of surface will use same bones a source surface.
+ * Bones have to be remapped manually!
+ */
 de_surface_t* de_surface_copy(de_surface_t* surf);
 
 /**
@@ -135,12 +147,10 @@ void de_surface_set_normal_texture(de_surface_t* surf, de_texture_t* tex);
 void de_surface_set_specular_texture(de_surface_t * surf, de_texture_t* tex);
 
 /**
-* @brief Uploads buffers to GPU
-* @param surf pointer to surface
-*
-* Buffers will be uploaded only if 'need_upload' flag is set
-*/
-void de_surface_upload(de_surface_t* surf);
+ * @brief Raises flag that surface needs to be uploaded to GPU. Renderer will
+ * upload surface to GPU before draw anything.
+ */
+void de_surface_schedule_upload(de_surface_t* surf);
 
 /**
  * @brief Calculates normals
@@ -170,18 +180,18 @@ bool de_surface_add_bone(de_surface_t* surf, de_node_t* bone);
  *
  * Notes: O(n)
  */
-int de_surface_get_bone_index(de_surface_t* surf, de_node_t* bone);
+int de_surface_get_bone_index(const de_surface_t* surf, de_node_t* bone);
 
 /**
  * @brief Fills matrices for each bone. Matrices array will be filled so each vertex will
  * have correct index of matrix.
  */
-void de_surface_get_skinning_matrices(de_surface_t* surf, de_mat4_t* out_matrices, size_t max_matrices);
+void de_surface_get_skinning_matrices(const de_surface_t* surf, de_mat4_t* out_matrices, size_t max_matrices);
 
 /**
  * @brief Returns true if surface is skinned.
  */
-bool de_surface_is_skinned(de_surface_t* surf);
+bool de_surface_is_skinned(const de_surface_t* surf);
 
 /**
  * @brief Computes tangents for surface vertices.
@@ -195,5 +205,9 @@ void de_surface_calculate_tangents(de_surface_t* surf);
 /* TODO */
 void de_surface_make_cube(de_surface_t* surf);
 
-/* TODO */
+/**
+ * @brief Creates sphere with specified parameters. 
+ * 
+ * Previous data will be removed from surface automatically.
+ */
 void de_surface_make_sphere(de_surface_t* surf, int slices, int stacks, float r);

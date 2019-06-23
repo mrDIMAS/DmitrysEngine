@@ -118,3 +118,17 @@ bool de_frustum_contains_point(const de_frustum_t* f, const de_vec3_t* p)
 	}
 	return true;
 }
+
+bool de_frustum_sphere_intersection(const de_frustum_t* f, const de_vec3_t* p, float r)
+{
+	for (int i = 0; i < 6; ++i) {
+		float d = de_plane_dot(&f->planes[i], p);
+		if (d < -r) {
+			return false;
+		}
+		if ((float)fabs(d) < r) {
+			return true;
+		}
+	}
+	return true;
+}

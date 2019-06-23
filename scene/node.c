@@ -94,6 +94,8 @@
 //    Node5->Node4 and Node2->Node3 will become Node4->Node3.
 //
 
+
+
 void de_node_free(de_node_t* node)
 {
 	/* Free children first */
@@ -157,7 +159,7 @@ de_node_t* de_node_create(de_scene_t* scene, de_node_type_t type)
 	de_node_set_pre_rotation(node, &(de_quat_t) { 0, 0, 0, 1 });
 	de_node_set_post_rotation(node, &(de_quat_t) { 0, 0, 0, 1 });
 	de_node_set_rotation_offset(node, &(de_vec3_t) { 0, 0, 0 });
-	de_node_set_scaling_pivot(node, &(de_vec3_t) { 0, 0, 0 });	
+	de_node_set_scaling_pivot(node, &(de_vec3_t) { 0, 0, 0 });
 	de_aabb_invalidate(&node->bounding_box);
 	if (node->dispatch_table->init) {
 		node->dispatch_table->init(node);
@@ -213,7 +215,7 @@ static de_node_t* de_node_copy_internal(de_scene_t* dest_scene, de_node_t* node)
 void de_node_resolve(de_node_t* node)
 {
 	/* resolve hierarchy changes */
-	de_node_t* original = node->original;
+	const de_node_t* original = node->original;
 	if (original && original->parent && node->parent) {
 		/* parent has changed if names of parents in both model resource and
 		* current node are different */
@@ -229,8 +231,52 @@ void de_node_resolve(de_node_t* node)
 		}
 	}
 
-	/* todo: resolve transform changes */
+	/* Transform changes resolved in a dumb way - we just checking if something
+	 * changed in node transform from original node in resource during gameplay and
+	 * if it does then saving that field.
+	 *
+	 * TODO: This however may incorrectly work with animated nodes because their
+	 * transforms constantly changing by animation. Need further research on that. */
+	if (original) {
+		const de_node_transform_info_t* info = &node->transform_info;
+		if (!info->custom_position) {
+			node->position = original->position;
+		}
 
+		if (!info->custom_rotation) {
+			node->rotation = original->rotation;
+		}
+
+		if (!info->custom_scale) {
+			node->scale = original->scale;
+		}
+
+		if (!info->custom_post_rotation) {
+			node->post_rotation = original->post_rotation;
+		}
+
+		if (!info->custom_pre_rotation) {
+			node->pre_rotation = original->pre_rotation;
+		}
+
+		if (!info->custom_rotation_offset) {
+			node->rotation_offset = original->rotation_offset;
+		}
+
+		if (!info->custom_rotation_pivot) {
+			node->rotation_pivot = original->rotation_pivot;
+		}
+
+		if (!info->custom_scaling_offset) {
+			node->scaling_pivot = original->scaling_pivot;
+		}
+
+		if (!info->custom_scaling_pivot) {
+			node->scaling_pivot = original->scaling_pivot;
+		}
+	}
+
+	/* Type-specific resolve */
 	if (node->dispatch_table->resolve) {
 		node->dispatch_table->resolve(node);
 	}
@@ -523,6 +569,30 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node)
 		node->dispatch_table = de_node_get_dispatch_table_by_type(node->type);
 	}
 	result &= de_object_visitor_visit_string(visitor, "Name", &node->name);
+	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "ModelResource", &node->model_resource, de_resource_visit);
+
+	if (!visitor->is_reading && node->model_resource && node->original) {
+		/* In case if we have node created from external resource, we must find which components
+		 * of local transform were changed. This will give us ability to change position of a node during
+		 * gameplay of some objects and they will remember their state, but others will get their state
+		 * from external resource. For example imagine a door on a level, door is external resource
+		 * (say fbx file) door contain a knob and designer decides to change its position knob local
+		 * transform is constant during gameplay so we do not need save it - we can get it from external
+		 * resource. */
+		const de_node_t* original = node->original;
+		de_node_transform_info_t* info = &node->transform_info;
+		info->custom_position = !de_vec3_equals(&node->position, &original->position);
+		info->custom_scale = !de_vec3_equals(&node->scale, &original->scale);
+		info->custom_rotation = !de_quat_equals(&node->rotation, &original->rotation);
+		info->custom_pre_rotation = !de_quat_equals(&node->pre_rotation, &original->pre_rotation);
+		info->custom_post_rotation = !de_quat_equals(&node->post_rotation, &original->post_rotation);
+		info->custom_rotation_offset = !de_vec3_equals(&node->rotation_offset, &original->rotation_offset);
+		info->custom_rotation_pivot = !de_vec3_equals(&node->rotation_pivot, &original->rotation_pivot);
+		info->custom_scaling_offset = !de_vec3_equals(&node->scaling_offset, &original->scaling_offset);
+		info->custom_scaling_pivot = !de_vec3_equals(&node->scaling_pivot, &original->scaling_pivot);
+	}
+
+	result &= de_object_visitor_visit_uint32(visitor, "TransformInfo", (uint32_t*)&node->transform_info);
 	result &= de_object_visitor_visit_mat4(visitor, "LocalTransform", &node->local_matrix);
 	result &= de_object_visitor_visit_mat4(visitor, "GlobalTransform", &node->global_matrix);
 	result &= de_object_visitor_visit_mat4(visitor, "InvBindPoseTransform", &node->inv_bind_pose_matrix);
@@ -533,19 +603,22 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node)
 	result &= de_object_visitor_visit_quat(visitor, "PostRotation", &node->post_rotation);
 	result &= de_object_visitor_visit_vec3(visitor, "RotationOffset", &node->rotation_offset);
 	result &= de_object_visitor_visit_vec3(visitor, "RotationPivot", &node->rotation_pivot);
-	result &= de_object_visitor_visit_vec3(visitor, "RotationPivot", &node->rotation_pivot);
 	result &= de_object_visitor_visit_vec3(visitor, "ScalingOffset", &node->scaling_offset);
 	result &= de_object_visitor_visit_vec3(visitor, "ScalingPivot", &node->scaling_pivot);
+	result &= de_object_visitor_visit_vec3(visitor, "AABBMin", &node->bounding_box.min);
+	result &= de_object_visitor_visit_vec3(visitor, "AABBMax", &node->bounding_box.max);
 	result &= de_object_visitor_visit_float(visitor, "DepthHack", &node->depth_hack);
 	result &= DE_OBJECT_VISITOR_VISIT_ENUM(visitor, "Flags", &node->flags);
 	result &= de_object_visitor_visit_bool(visitor, "LocalVisibility", &node->local_visibility);
-	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "ModelResource", &node->model_resource, de_resource_visit);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Body", &node->body, de_body_visit);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Scene", &node->scene, de_scene_visit);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER(visitor, "Parent", &node->parent, de_node_visit);
 	result &= DE_OBJECT_VISITOR_VISIT_POINTER_ARRAY(visitor, "Children", node->children, de_node_visit);
-	if (node->dispatch_table->visit) {
-		node->dispatch_table->visit(visitor, node);
+	if (de_object_visitor_enter_node(visitor, "TypeSpecificData")) {
+		if (node->dispatch_table->visit) {
+			node->dispatch_table->visit(visitor, node);
+		}
+		de_object_visitor_leave_node(visitor);
 	}
 	if (visitor->is_reading) {
 		de_node_invalidate_transforms(node);
@@ -736,7 +809,7 @@ de_scene_t* de_node_get_scene(de_node_t* node)
 	return node->scene;
 }
 
-void de_node_get_bounding_box(de_node_t* node, de_aabb_t* bounding_box) 
+void de_node_get_bounding_box(de_node_t* node, de_aabb_t* bounding_box)
 {
 	DE_ASSERT(node);
 	DE_ASSERT(bounding_box);

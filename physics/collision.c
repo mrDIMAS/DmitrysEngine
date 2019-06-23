@@ -42,8 +42,6 @@ bool de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t
 	}
 
 	/* Find triangle edges */
-	de_vec3_sub(&triangle.ab, a, b);
-	de_vec3_sub(&triangle.bc, b, c);
 	de_vec3_sub(&triangle.ca, c, a);
 	de_ray_by_two_points(&triangle.ab_ray, a, b);
 	de_ray_by_two_points(&triangle.bc_ray, b, c);
@@ -62,33 +60,27 @@ bool de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t
 	return true;
 }
 
-void de_static_geometry_fill(de_static_geometry_t* geom, const de_mesh_t* mesh, const de_mat4_t transform)
+void de_static_geometry_fill(de_static_geometry_t* geom, const de_mesh_t* mesh, const de_mat4_t* transform)
 {
-	if (!geom || !mesh) {
-		return;
-	}
-
+	DE_ASSERT(geom);
+	DE_ASSERT(mesh);
+	DE_ASSERT(transform);
+	
 	for (size_t i = 0; i < mesh->surfaces.size; ++i) {
-		de_surface_t* surf;
+		const de_surface_shared_data_t* data = mesh->surfaces.data[i]->shared_data;
+		for (size_t k = 0; k < data->index_count; k += 3) {	
+			const int a = data->indices[k];
+			const int b = data->indices[k + 1];
+			const int c = data->indices[k + 2];
 
-		surf = mesh->surfaces.data[i];
+			de_vec3_t pa = data->positions[a];
+			de_vec3_transform(&pa, &pa, transform);
 
-		de_surface_shared_data_t* data = surf->shared_data;
-		for (size_t k = 0; k < data->index_count; k += 3) {
-			de_vec3_t pa, pb, pc;
-			int a, b, c;
+			de_vec3_t pb = data->positions[b];
+			de_vec3_transform(&pb, &pb, transform);
 
-			a = data->indices[k];
-			b = data->indices[k + 1];
-			c = data->indices[k + 2];
-
-			pa = data->positions[a];
-			pb = data->positions[b];
-			pc = data->positions[c];
-
-			de_vec3_transform(&pa, &pa, &transform);
-			de_vec3_transform(&pb, &pb, &transform);
-			de_vec3_transform(&pc, &pc, &transform);
+			de_vec3_t pc = data->positions[c];
+			de_vec3_transform(&pc, &pc, transform);
 
 			de_static_geometry_add_triangle(geom, &pa, &pb, &pc);
 		}
@@ -101,10 +93,10 @@ bool de_static_triangle_contains_point(const de_static_triangle_t* triangle, con
 {
 	de_vec3_t vp;
 	de_vec3_sub(&vp, point, &triangle->a);
-	float dot02 = de_vec3_dot(&triangle->ca, &vp);
-	float dot12 = de_vec3_dot(&triangle->ba, &vp);
-	float u = (triangle->baDotba * dot02 - triangle->caDotba * dot12) * triangle->invDenom;
-	float v = (triangle->caDotca * dot12 - triangle->caDotba * dot02) * triangle->invDenom;
+	const float dot02 = de_vec3_dot(&triangle->ca, &vp);
+	const float dot12 = de_vec3_dot(&triangle->ba, &vp);
+	const float u = (triangle->baDotba * dot02 - triangle->caDotba * dot12) * triangle->invDenom;
+	const float v = (triangle->caDotca * dot12 - triangle->caDotba * dot02) * triangle->invDenom;
 	return (u >= 0.0f) && (v >= 0.0f) && (u + v < 1.0f);
 }
 

@@ -51,6 +51,26 @@ typedef enum de_node_flags_t {
 } de_node_flags_t;
 
 /**
+ * @brief Indicator struct which used to hold information about custom properties of nodes.
+ * 
+ * Main usage is in transform resolve stage. We must have a way to detect changes in transform
+ * of nodes in game scene and in resource they're created from.
+ */
+typedef struct de_node_transform_info_t {
+	uint32_t custom_position : 1;
+	uint32_t custom_rotation : 1;
+	uint32_t custom_scale : 1;
+	uint32_t custom_pre_rotation : 1;
+	uint32_t custom_post_rotation : 1;
+	uint32_t custom_rotation_offset : 1;
+	uint32_t custom_rotation_pivot : 1;
+	uint32_t custom_scaling_offset : 1;
+	uint32_t custom_scaling_pivot : 1;
+} de_node_transform_info_t;
+
+DE_STATIC_ASSERT(sizeof(de_node_transform_info_t) == sizeof(uint32_t), de_node_transform_info_t_must_be_4_bytes_long);
+
+/**
  * @class de_node_t
  * @brief Common scene node. Tagged union.
  *
@@ -84,6 +104,7 @@ struct de_node_t {
 	de_mat4_t m_scale_pivot_inv;
 	de_aabb_t bounding_box; /**< Local bounding box of a node. */
 	de_transform_flags_t transform_flags;
+	de_node_transform_info_t transform_info;
 	de_node_t* parent; /**< Pointer to parent node */
 	DE_ARRAY_DECLARE(de_node_t*, children); /**< Array of pointers to child nodes */
 	bool local_visibility; /**< Local visibility. Actual visibility defined by hierarchy. So if parent node is invisible, then child node will be too */

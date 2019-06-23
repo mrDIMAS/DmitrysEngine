@@ -44,7 +44,6 @@ typedef struct de_fbx_sub_deformer_t {
 	DE_ARRAY_DECLARE(int, indices);
 	DE_ARRAY_DECLARE(float, weights);
 	de_mat4_t transform;
-	de_mat4_t transform_link;
 } de_fbx_sub_deformer_t;
 
 typedef struct de_fbx_deformer_t {
@@ -676,13 +675,9 @@ static de_fbx_component_t* de_fbx_read_sub_deformer(de_fbx_node_t* sub_deformer_
 	de_fbx_node_t* indices = de_fbx_node_find_child(de_fbx_node_find_child(sub_deformer_node, "Indexes"), "a");
 	de_fbx_node_t* weights = de_fbx_node_find_child(de_fbx_node_find_child(sub_deformer_node, "Weights"), "a");
 	de_fbx_node_t* transform = de_fbx_node_find_child(de_fbx_node_find_child(sub_deformer_node, "Transform"), "a");
-	de_fbx_node_t* transform_link = de_fbx_node_find_child(de_fbx_node_find_child(sub_deformer_node, "TransformLink"), "a");
 
 	if (transform->attributes.size != 16) {
 		de_fatal_error("FBX: Wrong transform size! Expect 16, got %d", transform->attributes.size);
-	}
-	if (transform_link->attributes.size != 16) {
-		de_fatal_error("FBX: Wrong transform link size! Expect 16, got %d", transform_link->attributes.size);
 	}
 
 	for (size_t i = 0; i < indices->attributes.size; ++i) {
@@ -697,9 +692,6 @@ static de_fbx_component_t* de_fbx_read_sub_deformer(de_fbx_node_t* sub_deformer_
 
 	for (size_t i = 0; i < 16; ++i) {
 		sub_deformer->transform.f[i] = (float)de_fbx_get_double(transform, i);
-	}
-	for (size_t i = 0; i < 16; ++i) {
-		sub_deformer->transform_link.f[i] = (float)de_fbx_get_double(transform_link, i);
 	}
 
 	return comp;

@@ -1108,6 +1108,11 @@ float de_quat_get_angle(const de_quat_t* q)
 	return 2.0f * (float)acos(q->w);
 }
 
+bool de_quat_equals(const de_quat_t* a, const de_quat_t* b)
+{
+	return a->x == b->x && a->y == b->y && a->z == b->z && a->w == b->w;
+}
+
 de_plane_t* de_plane_set_abcd(de_plane_t* p, float a, float b, float c, float d)
 {
 	p->n.x = a;

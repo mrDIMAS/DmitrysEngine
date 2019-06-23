@@ -28,8 +28,6 @@ struct de_static_triangle_t {
 	de_vec3_t a;      /**< Vertex of triangle */
 	de_vec3_t b;      /**< Vertex of triangle */
 	de_vec3_t c;      /**< Vertex of triangle */
-	de_vec3_t ab;     /**< Edge of triangle */
-	de_vec3_t bc;     /**< Edge of triangle */
 	de_vec3_t ca;     /**< Edge of triangle */
 	de_vec3_t ba;     /**< Edge of triangle */
 	float caDotca;    /**< Precalculated dot product between edges */
@@ -82,7 +80,7 @@ struct de_static_geometry_t {
 * @param geom pointer to geometry
 * @param mesh pointer to mesh
 */
-void de_static_geometry_fill(de_static_geometry_t* geom, const de_mesh_t* mesh, const de_mat4_t transform);
+void de_static_geometry_fill(de_static_geometry_t* geom, const de_mesh_t* mesh, const de_mat4_t* transform);
 
 /**
 * @brief Adds new triangle to static geometry

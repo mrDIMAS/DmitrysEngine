@@ -727,6 +727,11 @@ de_vec3_t* de_quat_get_axis(const de_quat_t* q, de_vec3_t* out_axis);
 float de_quat_get_angle(const de_quat_t* q);
 
 /**
+ * @brief Checks equality of quaternions by per-component equality check.
+ */
+bool de_quat_equals(const de_quat_t* a, const de_quat_t* b);
+
+/**
  * @brief
  * @param p
  * @param a

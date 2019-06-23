@@ -102,9 +102,9 @@ typedef struct de_pointer_pair_t {
 struct de_object_visitor_t {
 	de_core_t* core;
 	char* data;
-	uint32_t version;
+	uint32_t version; /**< Read-only in user code! */
 	uint32_t data_size;
-	bool is_reading;
+	bool is_reading; /**< Read-only in user code! */
 	de_object_visitor_node_t* root;
 	de_object_visitor_node_t* current_node;
 	DE_ARRAY_DECLARE(de_pointer_pair_t, pointerPairs);
@@ -359,7 +359,7 @@ bool de_object_visitor_visit_intrusive_linked_list(de_object_visitor_t* visitor,
  * @brief Useful macro for engine intrusive double linked list serialization.
  */
 #define DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, name, list, item_type, callback) \
-    de_object_visitor_visit_intrusive_linked_list(visitor, name, (void**)&list.head, (void**)&list.tail, offsetof(item_type, next), offsetof(item_type, prev), sizeof(item_type), (de_visit_callback_t) callback)
+	de_object_visitor_visit_intrusive_linked_list(visitor, name, (void**)&list.head, (void**)&list.tail, offsetof(item_type, next), offsetof(item_type, prev), sizeof(item_type), (de_visit_callback_t) callback)
 
  /**
   * @brief Prints object visitor tree to specified stream.

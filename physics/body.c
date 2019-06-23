@@ -19,64 +19,32 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-static void de_project_point_on_line(const de_vec3_t* point, const de_ray_t* ray, de_vec3_t* out)
+static float de_project_point_on_line(const de_vec3_t* point, const de_ray_t* ray, de_vec3_t* out)
 {
-	float sqr_len;
-	de_vec3_t pa, offset;
-
-	sqr_len = de_vec3_sqr_len(&ray->dir);
+	const float sqr_len = de_vec3_sqr_len(&ray->dir);
 
 	if (sqr_len < 0.0001f) {
 		*out = (de_vec3_t) { 0 };
+		return -1.0f;
 	}
 
+	de_vec3_t pa;
 	de_vec3_sub(&pa, point, &ray->origin);
-	de_vec3_scale(&offset, &ray->dir, de_vec3_dot(&pa, &ray->dir) / sqr_len);
+
+	const float t = de_vec3_dot(&pa, &ray->dir) / sqr_len;
+
+	de_vec3_t offset;
+	de_vec3_scale(&offset, &ray->dir, t);
 	de_vec3_add(out, &ray->origin, &offset);
-}
 
-static bool de_is_point_on_line_segment(const de_vec3_t* point, const de_vec3_t* a, const de_vec3_t* b)
-{
-/* simply check, if point lies in bounding box (a,b), means that point is on line  */
-	de_vec3_t min = *a;
-	de_vec3_t max = *b;
-
-	/* swap coordinates if needed */
-	float temp;
-	if (min.x > max.x) {
-		temp = min.x;
-		min.x = max.x;
-		max.x = temp;
-	}
-	if (min.y > max.y) {
-		temp = min.y;
-		min.y = max.y;
-		max.y = temp;
-	}
-	if (min.z > max.z) {
-		temp = min.z;
-		min.z = max.z;
-		max.z = temp;
-	}
-
-	if ((point->x > max.x) || (point->y > max.y) || (point->z > max.z)) {
-		return false;
-	}
-	if ((point->x < min.x) || (point->y < min.y) || (point->z < min.z)) {
-		return false;
-	}
-	return true;
+	return t;
 }
 
 static bool de_body_sphere_intersection(const de_ray_t* edgeRay, const de_vec3_t* sphere_pos, float sphere_radius, de_vec3_t* intersection_pt)
-{
-	de_vec3_t ray_end_pt;
+{	
 	if (de_ray_sphere_intersection(edgeRay, sphere_pos, sphere_radius, NULL, NULL)) {
-		de_project_point_on_line(sphere_pos, edgeRay, intersection_pt);
-		de_vec3_add(&ray_end_pt, &edgeRay->origin, &edgeRay->dir);
-		if (de_is_point_on_line_segment(intersection_pt, &edgeRay->origin, &ray_end_pt)) {
-			return true;
-		}
+		const float t = de_project_point_on_line(sphere_pos, edgeRay, intersection_pt);		
+		return t >= 0.0f && t <= 1.0f;		
 	}
 	return false;
 }
@@ -93,11 +61,9 @@ static bool de_body_point_intersection(const de_vec3_t* point, const de_vec3_t* 
 static bool de_sphere_triangle_intersection(const de_vec3_t* sphere_pos, float sphere_radius, const de_static_triangle_t* triangle, de_vec3_t* intersection_pt)
 {
 	de_plane_t plane;
-	float distance;
-
 	de_plane_set(&plane, &triangle->normal, triangle->distance);
 
-	distance = de_plane_distance(&plane, sphere_pos);
+	const float distance = de_plane_distance(&plane, sphere_pos);
 	if (distance <= sphere_radius) {
 		de_vec3_t offset;
 		de_vec3_scale(&offset, &plane.n, distance);
@@ -115,21 +81,14 @@ static bool de_sphere_triangle_intersection(const de_vec3_t* sphere_pos, float s
 
 static void de_body_verlet(de_body_t* body, float dt2)
 {
-	de_vec3_t last_position;
-	float friction, k1, k2;
-	de_vec3_t velocity;
-	float velocity_limit = 0.75f;
+	const float velocity_limit = 0.75f;
 
-	if (body->contact_count > 0) {
-		friction = 1 - body->friction;
-	} else {
-		friction = DE_AIR_FRICTION;
-	}
+	const float friction = body->contact_count > 0 ? 1 - body->friction : DE_AIR_FRICTION;
 
-	k1 = 2.0f - friction;
-	k2 = 1.0f - friction;
+	const float k1 = 2.0f - friction;
+	const float k2 = 1.0f - friction;
 
-	last_position = body->position;
+	const de_vec3_t last_position = body->position;
 
 	/* Verlet integration */
 	body->position.x = k1 * body->position.x - k2 * body->last_position.x + body->acceleration.x * dt2;
@@ -142,6 +101,7 @@ static void de_body_verlet(de_body_t* body, float dt2)
 	body->acceleration = (de_vec3_t) { 0 };
 
 	/* Velocity limiting */
+	de_vec3_t velocity;
 	de_vec3_sub(&velocity, &body->last_position, &body->position);
 	if (de_vec3_sqr_len(&velocity) > velocity_limit * velocity_limit) {
 		de_vec3_normalize(&velocity, &velocity);
@@ -161,34 +121,28 @@ static de_contact_t* de_body_add_contact(de_body_t* body)
 void de_body_triangle_collision(de_static_triangle_t* triangle, de_body_t* sphere)
 {
 	de_vec3_t intersectionPoint;
-	de_vec3_t middle, orientation, offset;
-	float length, penetrationDepth;
-	de_contact_t* contact;
-
 	if (de_sphere_triangle_intersection(&sphere->position, sphere->radius, triangle, &intersectionPoint)) {
-		length = 0.0f;
-
 		/* Calculate penetration depth and push vector */
+		de_vec3_t middle;
 		de_vec3_sub(&middle, &sphere->position, &intersectionPoint);
+
+		float length = 0.0f;
+		de_vec3_t orientation;
 		de_vec3_normalize_ex(&orientation, &middle, &length);
-		penetrationDepth = sphere->radius - length;
+		const float penetrationDepth = sphere->radius - length;
+		if (penetrationDepth >= 0.0f) {
+			/* Push sphere outside of triangle */
+			de_vec3_t offset;
+			de_vec3_add(&sphere->position, &sphere->position, de_vec3_scale(&offset, &orientation, penetrationDepth));
 
-		/* Degenerated case, ignore */
-		if (penetrationDepth < 0.0f) {
-			return;
-		}
-
-		/* Push sphere outside of triangle */
-		de_vec3_add(&sphere->position, &sphere->position, de_vec3_scale(&offset, &orientation, penetrationDepth));
-
-		/* Write contact info */
-		contact = de_body_add_contact(sphere);
-
-		if (contact) {
-			contact->body = NULL;
-			contact->normal = orientation;
-			contact->position = intersectionPoint;
-			contact->triangle = triangle;
+			/* Write contact info */
+			de_contact_t* contact = de_body_add_contact(sphere);
+			if (contact) {
+				contact->body = NULL;
+				contact->normal = orientation;
+				contact->position = intersectionPoint;
+				contact->triangle = triangle;
+			}
 		}
 	}
 }

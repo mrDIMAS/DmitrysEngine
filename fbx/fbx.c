@@ -593,60 +593,47 @@ static void de_fbx_light_free(de_fbx_light_t* light)
 /* Reads animation curve from AnimationCurve node */
 static de_fbx_component_t* de_fbx_read_animation_curve(de_fbx_node_t* anim_curve_node)
 {
-	size_t i;
-	de_fbx_animation_curve_t* curve;
-	de_fbx_node_t* key_time;
-	de_fbx_node_t* key_time_array;
-	de_fbx_node_t* key_value;
-	de_fbx_node_t* key_value_array;
-
 	de_fbx_component_t* comp = de_fbx_alloc_component(DE_FBX_COMPONENT_ANIMATION_CURVE, de_fbx_get_int(anim_curve_node, 0));
 
-	curve = &comp->s.animation_curve;
+	de_fbx_animation_curve_t* curve = &comp->s.animation_curve;
 
-	key_time = de_fbx_node_find_child(anim_curve_node, "KeyTime");
-	key_value = de_fbx_node_find_child(anim_curve_node, "KeyValueFloat");
+	de_fbx_node_t* key_time = de_fbx_node_find_child(anim_curve_node, "KeyTime");
+	de_fbx_node_t* key_value = de_fbx_node_find_child(anim_curve_node, "KeyValueFloat");
 
 	if (key_value == NULL || key_time == NULL) {
 		de_fatal_error("FBX: KeyTime or KeyValueFloat is missing");
 	}
 
-	key_time_array = de_fbx_node_find_child(key_time, "a");
-	key_value_array = de_fbx_node_find_child(key_value, "a");
+	const de_fbx_node_t* key_time_array = de_fbx_node_find_child(key_time, "a");
+	const de_fbx_node_t* key_value_array = de_fbx_node_find_child(key_value, "a");
 
 	if (key_time_array->attributes.size != key_value_array->attributes.size) {
 		de_fatal_error("FBX: Animation curve contains wrong key data!");
 	}
 
-	for (i = 0; i < key_time_array->attributes.size; ++i) {
-		de_fbx_time_value_pair_t pair;
-
-		pair.time = (float)(de_fbx_get_int64(key_time_array, i) * DE_FBX_TIME_UNIT);
-		pair.value = de_fbx_get_float(key_value_array, i);
-
+	for (size_t i = 0; i < key_time_array->attributes.size; ++i) {
+		const de_fbx_time_value_pair_t pair = {
+			.time = (float)(de_fbx_get_int64(key_time_array, i) * DE_FBX_TIME_UNIT),
+			.value = de_fbx_get_float(key_value_array, i)
+		};
 		DE_ARRAY_APPEND(curve->keys, pair);
 	}
 
 	return comp;
 }
 
-
 static void de_fbx_animation_curve_free(de_fbx_animation_curve_t* curve)
 {
 	DE_ARRAY_FREE(curve->keys);
 }
 
-
 static de_fbx_component_t* de_fbx_read_animation_curve_node_t(de_fbx_node_t* anim_curve_fbx_node)
 {
-	de_fbx_animation_curve_node_t* anim_curve_node;
-	char* type_str;
-
 	de_fbx_component_t* comp = de_fbx_alloc_component(DE_FBX_COMPONENT_ANIMATION_CURVE_NODE, de_fbx_get_int(anim_curve_fbx_node, 0));
 
-	anim_curve_node = &comp->s.animation_curve_node;
+	de_fbx_animation_curve_node_t* anim_curve_node = &comp->s.animation_curve_node;
 
-	type_str = anim_curve_fbx_node->attributes.data[1];
+	const char* type_str = anim_curve_fbx_node->attributes.data[1];
 
 	if (strcmp(type_str, "T") == 0 || strcmp(type_str, "AnimCurveNode::T") == 0) {
 		anim_curve_node->type = DE_FBX_ANIMATION_CURVE_NODE_TRANSLATION;
@@ -942,36 +929,26 @@ static void de_fbx_add_vertex_to_surface(de_surface_t* surf,
  * @brief Searches for next closest time to given. When 'current_time' is end time - returns FLT_MAX
  */
 static float de_fbx_get_next_keyframe_time(float current_time,
-	de_fbx_animation_curve_node_t* t,
-	de_fbx_animation_curve_node_t* r,
-	de_fbx_animation_curve_node_t* s)
+	const de_fbx_animation_curve_node_t* t,
+	const de_fbx_animation_curve_node_t* r,
+	const de_fbx_animation_curve_node_t* s)
 {
-	int i;
-	size_t k, n;
 	float closest_time = FLT_MAX;
-	de_fbx_animation_curve_node_t* curve_set[3];
+	const de_fbx_animation_curve_node_t* curve_set[3] = { t, r, s };
 
-	curve_set[0] = t;
-	curve_set[1] = r;
-	curve_set[2] = s;
-
-	for (i = 0; i < 3; ++i) {
-		de_fbx_animation_curve_node_t* node = curve_set[i];
+	for (int i = 0; i < 3; ++i) {
+		const de_fbx_animation_curve_node_t* node = curve_set[i];
 
 		if (!node) {
 			continue;
 		}
 
-		for (k = 0; k < node->curves.size; ++k) {
-			de_fbx_animation_curve_t* curve = node->curves.data[k];
-
-			for (n = 0; n < curve->keys.size; ++n) {
-				float distance;
-				de_fbx_time_value_pair_t* key = curve->keys.data + n;
-
+		for (size_t k = 0; k < node->curves.size; ++k) {
+			const de_fbx_animation_curve_t* curve = node->curves.data[k];
+			for (size_t n = 0; n < curve->keys.size; ++n) {
+				const de_fbx_time_value_pair_t* key = curve->keys.data + n;
 				if (key->time > current_time) {
-					distance = key->time - current_time;
-
+					const float distance = key->time - current_time;
 					if (distance < closest_time - key->time) {
 						closest_time = key->time;
 					}
@@ -983,24 +960,18 @@ static float de_fbx_get_next_keyframe_time(float current_time,
 	return closest_time;
 }
 
-
 /**
  * @brief Evaluates single float value at given time
  */
-static float de_fbx_eval_curve(float time, de_fbx_animation_curve_t* curve)
+static float de_fbx_eval_curve(float time, const de_fbx_animation_curve_t* curve)
 {
-	size_t i;
-	size_t key_count = curve->keys.size;
-	de_fbx_time_value_pair_t* keys;
-
 	if (curve->keys.size == 0) {
 		de_log("FBX: Trying to evaluate curve with no keys!");
 
 		return 0.0f;
 	}
 
-	key_count = curve->keys.size;
-	keys = curve->keys.data;
+	const de_fbx_time_value_pair_t* keys = curve->keys.data;
 
 	if (time <= keys[0].time) {
 		return keys[0].value;
@@ -1011,18 +982,18 @@ static float de_fbx_eval_curve(float time, de_fbx_animation_curve_t* curve)
 	}
 
 	/* do linear search for span */
-	for (i = 0; i < key_count; ++i) {
+	for (size_t i = 0; i < curve->keys.size; ++i) {
 		/* TODO: for now assume that we have only linear transitions */
 		if (keys[i].time >= time) {
-			de_fbx_time_value_pair_t* cur = keys + i;
-			de_fbx_time_value_pair_t* next = cur + 1;
+			const de_fbx_time_value_pair_t* cur = keys + i;
+			const de_fbx_time_value_pair_t* next = cur + 1;
 
 			/* calculate interpolation coefficient */
-			float time_span = next->time - cur->time;
-			float k = (time - cur->time) / time_span;
+			const float time_span = next->time - cur->time;
+			const float k = (time - cur->time) / time_span;
 
 			/* do linear interpolation */
-			float val_span = next->value - cur->value;
+			const float val_span = next->value - cur->value;
 			return cur->value + k * val_span;
 		}
 	}
@@ -1037,10 +1008,8 @@ static float de_fbx_eval_curve(float time, de_fbx_animation_curve_t* curve)
 /**
  * @brief Evaluates curve node as float3 value at give time.
  */
-static void de_fbx_eval_float3_curve_node(float time, de_fbx_animation_curve_node_t* node, de_vec3_t* out)
+static void de_fbx_eval_float3_curve_node(float time, const de_fbx_animation_curve_node_t* node, de_vec3_t* out)
 {
-	de_fbx_animation_curve_t* x, *y, *z;
-
 	if (node->curves.size != 3) {
 		de_log("FBX: Attempt to evaluate non-float3 curve node!");
 		return;
@@ -1048,9 +1017,9 @@ static void de_fbx_eval_float3_curve_node(float time, de_fbx_animation_curve_nod
 
 	/* TODO: Here we making assumption that curves for X Y Z will be in that order. This may be wrong!
 	 * From closer look, FBX files always have these curves written in X Y Z order. */
-	x = node->curves.data[0];
-	y = node->curves.data[1];
-	z = node->curves.data[2];
+	const de_fbx_animation_curve_t* x = node->curves.data[0];
+	const de_fbx_animation_curve_t* y = node->curves.data[1];
+	const de_fbx_animation_curve_t* z = node->curves.data[2];
 
 	out->x = de_fbx_eval_curve(time, x);
 	out->y = de_fbx_eval_curve(time, y);
@@ -1112,16 +1081,13 @@ static int de_fbx_prepare_next_face(const de_fbx_geom_t* geom,
 	int* out_relative_indices,
 	int out_rel_indices_buffer_size)
 {
-	int i;
 	int vertex_per_face = 0;
 
 	/* count how many vertices are per face */
-	for (i = start; i < geom->index_count; ++i) {
+	for (int i = start; i < geom->index_count; ++i) {
 		++vertex_per_face;
 
 		if (geom->indices[i] < 0) {
-			//geom->indices[i] = de_fbx_fix_index(geom->indices[i]);
-
 			break;
 		}
 	}
@@ -1142,7 +1108,7 @@ static int de_fbx_prepare_next_face(const de_fbx_geom_t* geom,
 		 * I encountered this problem in 3ds max 2012 FBX exporter, it just ignores
 		 * triangulation checkbox and performs triangulation which fails on non-simple polygons.
 		 **/
-		for (i = 0; i < 3; ++i) {
+		for (int i = 0; i < 3; ++i) {
 			if (out_indices[i] > geom->vertex_count) {
 				/* indicate that processed face is invalid */
 				*out_index_count = -1;
@@ -1154,7 +1120,7 @@ static int de_fbx_prepare_next_face(const de_fbx_geom_t* geom,
 
 		/* fill vertices */
 		de_vec3_t* vertices = (de_vec3_t*)de_malloc(vertex_per_face * sizeof(de_vec3_t));
-		for (i = 0; i < vertex_per_face; ++i) {
+		for (int i = 0; i < vertex_per_face; ++i) {
 			vertices[i] = geom->vertices[de_fbx_fix_index(geom->indices[start + i])];
 		}
 
@@ -1165,7 +1131,7 @@ static int de_fbx_prepare_next_face(const de_fbx_geom_t* geom,
 		}
 
 		/* remap indices back to model */
-		for (i = 0; i < *out_index_count; ++i) {
+		for (int i = 0; i < *out_index_count; ++i) {
 			out_indices[i] = de_fbx_fix_index(geom->indices[start + out_relative_indices[i]]);
 		}
 
@@ -1184,27 +1150,22 @@ static int de_fbx_prepare_next_face(const de_fbx_geom_t* geom,
  *
  * @param out_vertices Array of vertices of size of total vertex count. Must be zero-ed memory!
  */
-void de_fbx_prepare_deformer(de_fbx_geom_t* geom, de_vertex_weight_group_t* out_vertices)
+void de_fbx_prepare_deformer(const de_fbx_geom_t* geom, de_vertex_weight_group_t* out_vertices)
 {
-	size_t i, j, k;
+	for (size_t i = 0; i < geom->deformers.size; ++i) {
+		const de_fbx_deformer_t* deformer = geom->deformers.data[i];
 
-	for (i = 0; i < geom->deformers.size; ++i) {
-		de_fbx_deformer_t* deformer = geom->deformers.data[i];
+		for (size_t j = 0; j < deformer->sub_deformers.size; ++j) {
+			const de_fbx_sub_deformer_t* sub_deformer = deformer->sub_deformers.data[j];
 
-		for (j = 0; j < deformer->sub_deformers.size; ++j) {
-			de_fbx_sub_deformer_t* sub_deformer = deformer->sub_deformers.data[j];
+			for (size_t k = 0; k < sub_deformer->indices.size; ++k) {
+				const size_t index = sub_deformer->indices.data[k];
+				const float weight = sub_deformer->weights.data[k];
 
-			for (k = 0; k < sub_deformer->indices.size; ++k) {
-				de_vertex_weight_group_t* v;
-
-				size_t index = sub_deformer->indices.data[k];
-				float weight = sub_deformer->weights.data[k];
-
-				v = out_vertices + index;
+				de_vertex_weight_group_t* v = out_vertices + index;
 
 				if (v->weight_count < 4) {
-					de_vertex_weight_t* vertex_weight;
-					vertex_weight = &v->bones[v->weight_count++];
+					de_vertex_weight_t* vertex_weight = &v->bones[v->weight_count++];
 					vertex_weight->weight = weight;
 					vertex_weight->fbx_model = sub_deformer->model;
 				} else {
@@ -1215,12 +1176,97 @@ void de_fbx_prepare_deformer(de_fbx_geom_t* geom, de_vertex_weight_group_t* out_
 	}
 }
 
-static de_surface_t* de_fbx_create_surface(de_renderer_t* renderer, de_fbx_geom_t* geom)
+static de_surface_t* de_fbx_create_surface(de_renderer_t* renderer, const de_fbx_geom_t* geom)
 {
 	de_surface_t* surf = de_renderer_create_surface(renderer);
 	de_surface_shared_data_t* data = de_surface_shared_data_create(geom->vertex_count, geom->index_count);
 	de_surface_set_data(surf, data);
 	return surf;
+}
+
+static void de_fbx_create_surfaces(const de_fbx_model_t* mdl, const de_fbx_geom_t* geom, de_mesh_t* mesh, de_scene_t* scene, de_renderer_t* renderer)
+{
+	if (mdl->materials.size == 0) {
+		de_mesh_add_surface(mesh, de_fbx_create_surface(renderer, geom));
+		return;
+	}
+
+	/* Create surface per material */
+	for (size_t i = 0; i < mdl->materials.size; ++i) {
+		de_surface_t* surf = de_fbx_create_surface(renderer, geom);
+		const de_fbx_material_t* mat = mdl->materials.data[i];
+		if (mat->diffuse_tex) {
+			de_path_t path, path_view;
+			de_str8_view_t tex_name, tex_extension;
+
+			de_path_as_str8_view(&path_view, &mat->diffuse_tex->filename);
+			de_path_file_name(&path_view, &tex_name);
+			de_path_extension(&path_view, &tex_extension);
+
+			/* diffuse texture */
+			de_path_init(&path);
+			de_path_append_cstr(&path, "data/textures/");
+			de_path_append_str8(&path, &mat->diffuse_tex->filename);
+			if (!de_str8_is_empty(&mat->diffuse_tex->filename)) {
+				de_resource_t* res = de_core_request_resource(scene->core, DE_RESOURCE_TYPE_TEXTURE, &path);
+				if (res) {
+					de_surface_set_diffuse_texture(surf, de_resource_to_texture(res));
+				}
+			}
+
+			/* normal texture */
+			de_path_clear(&path);
+			de_path_append_cstr(&path, "data/textures/");
+			de_path_append_str_view(&path, &tex_name);
+			de_path_append_cstr(&path, "_normal");
+			de_path_append_str_view(&path, &tex_extension);
+			if (de_file_exists(de_path_cstr(&path))) {
+				de_resource_t* res = de_core_request_resource(scene->core, DE_RESOURCE_TYPE_TEXTURE, &path);
+				if (res) {
+					de_surface_set_normal_texture(surf, de_resource_to_texture(res));
+				}
+			}
+
+			/* specular texture */
+			de_path_clear(&path);
+			de_path_append_cstr(&path, "data/textures/");
+			de_path_append_str_view(&path, &tex_name);
+			de_path_append_cstr(&path, "_specular");
+			de_path_append_str_view(&path, &tex_extension);
+			if (de_file_exists(de_path_cstr(&path))) {
+				de_resource_t* res = de_core_request_resource(scene->core, DE_RESOURCE_TYPE_TEXTURE, &path);
+				if (res) {
+					de_surface_set_specular_texture(surf, de_resource_to_texture(res));
+				}
+			}
+
+			de_path_free(&path);
+		}
+		de_mesh_add_surface(mesh, surf);
+	}
+}
+
+static void de_fbx_build_geometric_transform(const de_fbx_model_t* mdl, de_mat4_t* geometric_transform)
+{
+	/* Build geometric transform matrix to bake it into vertex buffer
+	 * TODO: not sure if this is right, but according to FBX manual
+	 * geometric transform is not inherited and applied directly to
+	 * global transform after was calculated.
+	 */
+	de_mat4_t t;
+	de_mat4_translation(&t, &mdl->geometric_translation);
+
+	de_quat_t rq;
+	de_fbx_quat_from_euler(&rq, &mdl->geometric_rotation);
+
+	de_mat4_t r;
+	de_mat4_rotation(&r, &rq);
+
+	de_mat4_t s;
+	de_mat4_scale(&s, &mdl->geometric_scale);
+
+	de_mat4_mul(geometric_transform, &t, &r);
+	de_mat4_mul(geometric_transform, geometric_transform, &s);
 }
 
 /**
@@ -1230,28 +1276,19 @@ static de_surface_t* de_fbx_create_surface(de_renderer_t* renderer, de_fbx_geom_
  */
 static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 {
-	size_t i, k, j;
-	int n, m;
-	int material_index;
-	de_node_t* root;
-	de_animation_t* anim;
-	de_renderer_t* renderer;
-	int temp_indices[8192], relative_indices[8192];
 	DE_ARRAY_DECLARE(de_node_t*, created_nodes);
-
-	renderer = scene->core->renderer;
-
-	root = de_node_create(scene, DE_NODE_TYPE_BASE);
+	de_renderer_t* renderer = scene->core->renderer;
+	de_node_t* root = de_node_create(scene, DE_NODE_TYPE_BASE);
 
 	/* Each scene has animation */
-	anim = de_animation_create(scene);
+	de_animation_t* anim = de_animation_create(scene);
 
 	DE_ARRAY_INIT(created_nodes);
 
 	/**
 	 * Convert models first.
 	 **/
-	for (i = 0; i < fbx->components.size; ++i) {
+	for (size_t i = 0; i < fbx->components.size; ++i) {
 		de_fbx_component_t* comp = fbx->components.data[i];
 
 		if (comp->type != DE_FBX_COMPONENT_MODEL) {
@@ -1288,29 +1325,12 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 		de_fbx_quat_from_euler(&node->post_rotation, &mdl->post_rotation);
 		node->inv_bind_pose_matrix = mdl->inv_bind_transform;
 		node->bounding_box = mdl->bounding_box;
-		
-		/* Build geometric transform matrix to bake it into vertex buffer
-		 * TODO: not sure if this is right, but according to FBX manual
-		 * geometric transform is not inherited and applied directly to
-		 * global transform after was calculated.
-		 **/
+
 		de_mat4_t geometric_transform;
-		{
-			de_mat4_t t, r, s;
-			de_mat4_translation(&t, &mdl->geometric_translation);
-
-			de_quat_t rq;
-			de_fbx_quat_from_euler(&rq, &mdl->geometric_rotation);
-			de_mat4_rotation(&r, &rq);
-
-			de_mat4_scale(&s, &mdl->geometric_scale);
-
-			de_mat4_mul(&geometric_transform, &t, &r);
-			de_mat4_mul(&geometric_transform, &geometric_transform, &s);
-		}
+		de_fbx_build_geometric_transform(mdl, &geometric_transform);
 
 		if (mdl->light) {
-			de_fbx_light_t* fbx_light = mdl->light;
+			const de_fbx_light_t* fbx_light = mdl->light;
 			de_light_t* light = &node->s.light;
 			light->color = fbx_light->color;
 			light->radius = fbx_light->radius;
@@ -1331,14 +1351,11 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 			}
 		}
 
-		for (k = 0; k < mdl->geoms.size; ++k) {
-			de_fbx_geom_t* geom;
-			de_mesh_t* mesh;
+		for (size_t k = 0; k < mdl->geoms.size; ++k) {
+			const de_fbx_geom_t* geom = mdl->geoms.data[k];
+			de_mesh_t* mesh = &node->s.mesh;
+
 			de_vertex_weight_group_t* bone_vertices = NULL;
-
-			geom = mdl->geoms.data[k];
-			mesh = &node->s.mesh;
-
 			if (geom->deformers.size) {
 				/* if we have skinning, we should prepare deformer then */
 				bone_vertices = (de_vertex_weight_group_t*)de_calloc(geom->vertex_count, sizeof(*bone_vertices));
@@ -1346,68 +1363,15 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 			}
 
 			/* Create surfaces per material */
-			if (mdl->materials.size == 0) {
-				de_mesh_add_surface(mesh, de_fbx_create_surface(renderer, geom));
-			} else {
-				for (k = 0; k < mdl->materials.size; ++k) {
-					de_surface_t* surf = de_fbx_create_surface(renderer, geom);
-					de_fbx_material_t* mat = mdl->materials.data[k];
-					if (mat->diffuse_tex) {
-						de_path_t path, path_view;
-						de_str8_view_t tex_name, tex_extension;
+			de_fbx_create_surfaces(mdl, geom, mesh, scene, renderer);
 
-						de_path_as_str8_view(&path_view, &mat->diffuse_tex->filename);
-						de_path_file_name(&path_view, &tex_name);
-						de_path_extension(&path_view, &tex_extension);
+			int material_index = 0;
+			for (int n = 0; n < geom->index_count; ) {
+				const int origin = n;
 
-						/* diffuse texture */
-						de_path_init(&path);
-						de_path_append_cstr(&path, "data/textures/");
-						de_path_append_str8(&path, &mat->diffuse_tex->filename);
-						if(!de_str8_is_empty(&mat->diffuse_tex->filename)) {
-							de_resource_t* res = de_core_request_resource(scene->core, DE_RESOURCE_TYPE_TEXTURE, &path, 0);
-							if (res) {
-								de_surface_set_diffuse_texture(surf, de_resource_to_texture(res));
-							}
-						}
-
-						/* normal texture */
-						de_path_clear(&path);
-						de_path_append_cstr(&path, "data/textures/");
-						de_path_append_str_view(&path, &tex_name);
-						de_path_append_cstr(&path, "_normal");
-						de_path_append_str_view(&path, &tex_extension);
-						if (de_file_exists(de_path_cstr(&path))) {
-							de_resource_t* res = de_core_request_resource(scene->core, DE_RESOURCE_TYPE_TEXTURE, &path, 0);
-							if (res) {
-								de_surface_set_normal_texture(surf, de_resource_to_texture(res));
-							}
-						}
-
-						/* specular texture */
-						de_path_clear(&path);
-						de_path_append_cstr(&path, "data/textures/");
-						de_path_append_str_view(&path, &tex_name);
-						de_path_append_cstr(&path, "_specular");
-						de_path_append_str_view(&path, &tex_extension);
-						if (de_file_exists(de_path_cstr(&path))) {
-							de_resource_t* res = de_core_request_resource(scene->core, DE_RESOURCE_TYPE_TEXTURE, &path, 0);
-							if (res) {
-								de_surface_set_specular_texture(surf, de_resource_to_texture(res));
-							}
-						}
-
-						de_path_free(&path);
-					}
-					de_mesh_add_surface(mesh, surf);
-				}
-			}
-
-			material_index = 0;
-			for (n = 0; n < geom->index_count; ) {
 				int index_per_face = 0;
-				int origin = n;
-
+				int temp_indices[8192];
+				int relative_indices[8192];
 				n += de_fbx_prepare_next_face(geom, n, temp_indices, &index_per_face, relative_indices, sizeof(relative_indices) / sizeof(relative_indices[0]));;
 
 				/* face is invalid, skip it and move to next one */
@@ -1419,19 +1383,13 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 					continue;
 				}
 
-				for (m = 0; m < index_per_face; ++m) {
-					de_vec3_t vertex_position;
-					de_vec3_t vertex_normal;
-					de_vec4_t vertex_tangent;
-					de_vec2_t vertex_tex_coord = { 0 };
-					int index = temp_indices[m];
-					int surface_index = 0;
-					de_vec3_t* tangent;
-
-					vertex_position = geom->vertices[index];
+				for (int m = 0; m < index_per_face; ++m) {
+					const int index = temp_indices[m];
+					de_vec3_t vertex_position = geom->vertices[index];
 					de_vec3_transform(&vertex_position, &vertex_position, &geometric_transform);
 
 					/* Extract normals */
+					de_vec3_t vertex_normal;
 					switch (geom->normal_mapping) {
 						case DE_FBX_MAPPING_BY_POLYGON_VERTEX:
 							vertex_normal = geom->normals[origin + relative_indices[m]];
@@ -1447,6 +1405,8 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 					de_vec3_transform_normal(&vertex_normal, &vertex_normal, &geometric_transform);
 
 					/* Extract tangents */
+					de_vec3_t* tangent;
+					de_vec4_t vertex_tangent;
 					switch (geom->tangent_mapping) {
 						case DE_FBX_MAPPING_BY_POLYGON_VERTEX:
 							tangent = &geom->tangents[origin + relative_indices[m]];
@@ -1476,6 +1436,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 					de_vec3_transform_normal((de_vec3_t*)&vertex_tangent, (de_vec3_t*)&vertex_tangent, &geometric_transform);
 
 					/* Extract texture coordinates */
+					de_vec2_t vertex_tex_coord;
 					switch (geom->uv_mapping) {
 						case DE_FBX_MAPPING_BY_POLYGON_VERTEX:
 							if (geom->uv_reference == DE_FBX_REFERENCE_DIRECT) {
@@ -1495,10 +1456,12 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 							break;
 						default:
 							de_log("FBX: UV mapping is not supported");
+							vertex_tex_coord = (de_vec2_t) { 0, 0 };
 							break;
 					}
 
 					/* Extract material index. It's used as index of surface in the mesh */
+					int surface_index = 0;
 					if (geom->materials) {
 						switch (geom->material_mapping) {
 							case DE_FBX_MAPPING_ALL_SAME:
@@ -1508,7 +1471,6 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 								surface_index = geom->materials[material_index];
 								break;
 							default:
-								surface_index = 0;
 								de_log("FBX: Material mapping is not supported");
 								break;
 						}
@@ -1531,13 +1493,13 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 			de_free(bone_vertices);
 
 			/* trim excess memory from surfaces */
-			for (m = 0; m < (int)mesh->surfaces.size; ++m) {
+			for (size_t m = 0; m < mesh->surfaces.size; ++m) {
 				de_surface_data_shrink_to_fit(mesh->surfaces.data[m]->shared_data);
 			}
 
 			/* if we do not have precomputed tangets, calculate our own */
 			if (geom->tangent_mapping == DE_FBX_MAPPING_UNKNOWN) {
-				for (m = 0; m < (int)mesh->surfaces.size; ++m) {
+				for (size_t m = 0; m < mesh->surfaces.size; ++m) {
 					de_surface_calculate_tangents(mesh->surfaces.data[m]);
 				}
 			}
@@ -1547,14 +1509,13 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 		 * Convert animations
 		 **/
 		if (mdl->animation_curve_nodes.size > 0) {
-			float time = 0;
-			de_animation_track_t* track;
+
 			de_fbx_animation_curve_node_t* lcl_translation = NULL;
 			de_fbx_animation_curve_node_t* lcl_rotation = NULL;
 			de_fbx_animation_curve_node_t* lcl_scale = NULL;
 
 			/* find supported curve nodes (translation, rotation, scale) */
-			for (k = 0; k < mdl->animation_curve_nodes.size; ++k) {
+			for (size_t k = 0; k < mdl->animation_curve_nodes.size; ++k) {
 				de_fbx_animation_curve_node_t* curve_node = mdl->animation_curve_nodes.data[k];
 
 				if (curve_node->type == DE_FBX_ANIMATION_CURVE_NODE_ROTATION) {
@@ -1579,7 +1540,7 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 			}
 
 			/* convert to engine format */
-			track = de_animation_track_create(anim);
+			de_animation_track_t* track = de_animation_track_create(anim);
 			de_animation_add_track(anim, track);
 			de_animation_track_set_node(track, node);
 
@@ -1588,15 +1549,15 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 		#endif
 
 			/* TODO: Very brittle method, relies on compare two floats! Should be rewritten! */
+			float time = 0;
 			for (;;) {
 				de_keyframe_t keyframe;
-				float next_time;
 
 				de_fbx_eval_keyframe(node, time, lcl_translation, lcl_rotation, lcl_scale, &keyframe);
 
 				de_animation_track_add_keyframe(track, &keyframe);
 
-				next_time = de_fbx_get_next_keyframe_time(time, lcl_translation, lcl_rotation, lcl_scale);
+				const float next_time = de_fbx_get_next_keyframe_time(time, lcl_translation, lcl_rotation, lcl_scale);
 
 				if (next_time >= FLT_MAX) {
 					break;
@@ -1610,16 +1571,16 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 	}
 
 	/* Link nodes according to hierarchy */
-	for (i = 0; i < created_nodes.size; ++i) {
+	for (size_t i = 0; i < created_nodes.size; ++i) {
 		de_node_t* node = created_nodes.data[i];
-		de_fbx_model_t* fbx_model = (de_fbx_model_t*)node->user_data;
-		for (k = 0; k < fbx_model->children.size; ++k) {
+		const de_fbx_model_t* fbx_model = (de_fbx_model_t*)node->user_data;
+		for (size_t k = 0; k < fbx_model->children.size; ++k) {
 			de_node_t* child = fbx_model->children.data[k]->engine_node;
 			de_node_attach(child, node);
 		}
 	}
 
-	for (i = 0; i < created_nodes.size; ++i) {
+	for (size_t i = 0; i < created_nodes.size; ++i) {
 		de_node_t* node = created_nodes.data[i];
 		if (!node->parent) {
 			de_node_calculate_transforms_descending(node);
@@ -1628,20 +1589,20 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 
 	/* Remap pointers to fbx models to engine nodes in every surface (part of skinning)
 	 * We can't set corrent pointers to nodes when filling surface, because not all nodes
-	 * are were created.  */
-	for (i = 0; i < created_nodes.size; ++i) {
+	 * are were created. */
+	for (size_t i = 0; i < created_nodes.size; ++i) {
 		de_node_t* node = created_nodes.data[i];
 
 		if (node->type == DE_NODE_TYPE_MESH) {
 			de_mesh_t* mesh = &node->s.mesh;
 
-			for (j = 0; j < mesh->surfaces.size; ++j) {
+			for (size_t j = 0; j < mesh->surfaces.size; ++j) {
 				de_surface_t* surface = mesh->surfaces.data[j];
 
-				for (k = 0; k < surface->vertex_weights.size; ++k) {
+				for (size_t k = 0; k < surface->vertex_weights.size; ++k) {
 					de_vertex_weight_group_t* bone_group = surface->vertex_weights.data + k;
 
-					for (n = 0; n < (int)bone_group->weight_count; ++n) {
+					for (size_t n = 0; n < bone_group->weight_count; ++n) {
 						de_vertex_weight_t* vertex_weight = bone_group->bones + n;
 						de_fbx_model_t* fbx_model = (de_fbx_model_t*)vertex_weight->fbx_model;
 						de_node_t* bone_node = fbx_model->engine_node;
@@ -1655,12 +1616,12 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 	}
 
 	/* Finally, prepare vertices for skinning */
-	for (i = 0; i < created_nodes.size; ++i) {
+	for (size_t i = 0; i < created_nodes.size; ++i) {
 		de_node_t* node = created_nodes.data[i];
 		if (node->type == DE_NODE_TYPE_MESH) {
 			de_mesh_t* mesh = &node->s.mesh;
 
-			for (j = 0; j < mesh->surfaces.size; ++j) {
+			for (size_t j = 0; j < mesh->surfaces.size; ++j) {
 				de_surface_t* surface = mesh->surfaces.data[j];
 
 				de_surface_prepare_vertices_for_skinning(surface);
@@ -1675,17 +1636,12 @@ static de_node_t* de_fbx_to_scene(de_scene_t* scene, de_fbx_t* fbx)
 	return root;
 }
 
-
 de_node_t* de_fbx_load_to_scene(de_scene_t* scene, const char* file)
 {
+	const double last_time = de_time_get_seconds();
+
 	de_fbx_node_t* root;
-	de_fbx_t* fbx;
-	de_node_t* root_node;
-	double last_time;
 	de_fbx_buffer_t data_buf;
-
-	last_time = de_time_get_seconds();
-
 	if (de_fbx_is_binary(file)) {
 		root = de_fbx_binary_load_file(file, &data_buf);
 	} else {
@@ -1699,7 +1655,7 @@ de_node_t* de_fbx_load_to_scene(de_scene_t* scene, const char* file)
 
 	de_log("FBX: %s parsed in %f seconds!", file, de_time_get_seconds() - last_time);
 
-	fbx = de_fbx_read(root);
+	de_fbx_t* fbx = de_fbx_read(root);
 
 	if (!fbx) {
 		de_fbx_node_free(root);
@@ -1707,7 +1663,7 @@ de_node_t* de_fbx_load_to_scene(de_scene_t* scene, const char* file)
 	}
 
 	de_fbx_node_free(root);
-	root_node = de_fbx_to_scene(scene, fbx);
+	de_node_t* root_node = de_fbx_to_scene(scene, fbx);
 	de_fbx_free(fbx);
 
 	de_log("FBX: %s is loaded in %f seconds!", file, de_time_get_seconds() - last_time);
@@ -1725,11 +1681,11 @@ bool de_fbx_is_binary(const char* filename)
 		return false;
 	}
 
-    char magic[18];
+	char magic[18];
 	if (fread(magic, sizeof(magic), 1, file) != 1) {
-        fclose(file);
-        return false;
-    }
+		fclose(file);
+		return false;
+	}
 
 	bool result = strncmp(magic, "Kaydara FBX Binary", 18) == 0;
 

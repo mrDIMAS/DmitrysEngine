@@ -92,7 +92,7 @@ de_gui_t* de_gui_init(de_core_t* core)
 		for (int i = 0; i < CHAR_COUNT; ++i) {
 			char_set[i] = i;
 		}
-		gui->default_font = de_font_load_ttf_from_memory(core, (void*)de_builtin_font_inconsolata, 18, char_set, CHAR_COUNT);
+		gui->default_font = de_font_load_ttf_from_memory(core, (void*)de_builtin_font_inconsolata, 19, char_set, CHAR_COUNT);
 #undef CHAR_COUNT
 	}
 

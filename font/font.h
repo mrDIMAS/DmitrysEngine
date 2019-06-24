@@ -24,7 +24,7 @@ typedef struct de_glyph_t {
 	float bitmap_left;
 	int bitmap_width;
 	int bitmap_height;
-	de_color_t* pixels;
+	uint8_t* pixels;
 	float advance;
 	char has_outline;
 	de_vec2_t texCoords[4];

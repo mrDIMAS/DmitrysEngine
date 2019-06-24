@@ -55,21 +55,21 @@ typedef struct de_fbx_node_s {
 	DE_ARRAY_DECLARE(struct de_fbx_node_s*, children);
 } de_fbx_node_t;
 
-int de_fbx_get_int(de_fbx_node_t* node, int index);
+int de_fbx_get_int(const de_fbx_node_t* node, int index);
 
-int64_t de_fbx_get_int64(de_fbx_node_t* node, int index);
+int64_t de_fbx_get_int64(const de_fbx_node_t* node, int index);
 
-float de_fbx_get_float(de_fbx_node_t* node, int index);
+float de_fbx_get_float(const de_fbx_node_t* node, int index);
 
-double de_fbx_get_double(de_fbx_node_t* node, int index);
+double de_fbx_get_double(const de_fbx_node_t* node, int index);
 
 /* reads 3 elements from passed index */
-void de_fbx_get_vec3(de_fbx_node_t* node, int index, de_vec3_t* out);
+void de_fbx_get_vec3(const de_fbx_node_t* node, int index, de_vec3_t* out);
 
 /* reads 2 elements from passed index */
-void de_fbx_get_vec2(de_fbx_node_t* node, int index, de_vec2_t* out);
+void de_fbx_get_vec2(const de_fbx_node_t* node, int index, de_vec2_t* out);
 
-char* de_fbx_get_string(de_fbx_node_t* node, int index);
+char* de_fbx_get_string(const de_fbx_node_t* node, int index);
 
 /* Allocates new hierarchy node with passed name, returns pointer to new node. */
 de_fbx_node_t* de_fbx_create_node(const char* name);

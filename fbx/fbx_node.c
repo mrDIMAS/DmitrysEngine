@@ -19,82 +19,55 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-
-int de_fbx_get_int(de_fbx_node_t* node, int index)
+int de_fbx_get_int(const de_fbx_node_t* node, int index)
 {
-	int value;
-
 	if (node->is_binary) {
-		value = *((int*)node->attributes.data[index]);
-	} else {
-		value = atoi(node->attributes.data[index]);
+		return *((int*)node->attributes.data[index]);
 	}
-
-	return value;
+	return atoi(node->attributes.data[index]);
 }
 
-
-int64_t de_fbx_get_int64(de_fbx_node_t* node, int index)
+int64_t de_fbx_get_int64(const de_fbx_node_t* node, int index)
 {
-	int64_t value;
-
 	if (node->is_binary) {
-		value = *((int64_t*)node->attributes.data[index]);
-	} else {
-		value = atoll(node->attributes.data[index]);
+		return *((int64_t*)node->attributes.data[index]);
 	}
-
-	return value;
+	return atoll(node->attributes.data[index]);
 }
 
-
-float de_fbx_get_float(de_fbx_node_t* node, int index)
+float de_fbx_get_float(const de_fbx_node_t* node, int index)
 {
-	float value;
-
 	if (node->is_binary) {
-		value = *((float*)node->attributes.data[index]);
-	} else {
-		value = (float)atof(node->attributes.data[index]);
+		return *((float*)node->attributes.data[index]);
 	}
-
-	return value;
+	return (float)atof(node->attributes.data[index]);
 }
 
-double de_fbx_get_double(de_fbx_node_t* node, int index)
+double de_fbx_get_double(const de_fbx_node_t* node, int index)
 {
-	double value;
-
 	if (node->is_binary) {
-		value = *((double*)node->attributes.data[index]);
-	} else {
-		value = atof(node->attributes.data[index]);
+		return *((double*)node->attributes.data[index]);
 	}
-
-	return value;
+	return atof(node->attributes.data[index]);
 }
 
-
-void de_fbx_get_vec3(de_fbx_node_t* node, int index, de_vec3_t* out)
+void de_fbx_get_vec3(const de_fbx_node_t* node, int index, de_vec3_t* out)
 {
 	out->x = (float)de_fbx_get_double(node, index);
 	out->y = (float)de_fbx_get_double(node, index + 1);
 	out->z = (float)de_fbx_get_double(node, index + 2);
 }
 
-
-void de_fbx_get_vec2(de_fbx_node_t* node, int index, de_vec2_t* out)
+void de_fbx_get_vec2(const de_fbx_node_t* node, int index, de_vec2_t* out)
 {
 	out->x = (float)de_fbx_get_double(node, index);
 	out->y = (float)de_fbx_get_double(node, index + 1);
 }
 
-
-char* de_fbx_get_string(de_fbx_node_t* node, int index)
+char* de_fbx_get_string(const de_fbx_node_t* node, int index)
 {
 	return node->attributes.data[index];
 }
-
 
 de_fbx_node_t* de_fbx_create_node(const char* name)
 {
@@ -103,13 +76,10 @@ de_fbx_node_t* de_fbx_create_node(const char* name)
 	return node;
 }
 
-
 de_fbx_node_t* de_fbx_node_find_child(de_fbx_node_t* node, const char* name)
 {
-	size_t i;
-
 	/* Look for the node in children nodes. */
-	for (i = 0; i < node->children.size; ++i) {
+	for (size_t i = 0; i < node->children.size; ++i) {
 		de_fbx_node_t* child = node->children.data[i];
 
 		if (de_str8_eq(&child->name, name)) {
@@ -117,18 +87,12 @@ de_fbx_node_t* de_fbx_node_find_child(de_fbx_node_t* node, const char* name)
 		}
 	}
 
-	if (i == node->children.size) {
-		de_log("FBX: unable to find '%s' node", name);
-	}
-
+	de_log("FBX: unable to find '%s' node", name);
 	return NULL;
 }
 
-
 void de_fbx_node_free(de_fbx_node_t* node)
 {
-	size_t i;
-
 	/* Free name string. */
 	de_str8_free(&node->name);
 
@@ -136,7 +100,7 @@ void de_fbx_node_free(de_fbx_node_t* node)
 	DE_ARRAY_FREE(node->attributes);
 
 	/* Free children recursively. */
-	for (i = 0; i < node->children.size; ++i) {
+	for (size_t i = 0; i < node->children.size; ++i) {
 		de_fbx_node_free(node->children.data[i]);
 	}
 	DE_ARRAY_FREE(node->children);
@@ -155,10 +119,8 @@ void de_fbx_buffer_init(de_fbx_buffer_t* buf, size_t size)
 
 de_fbx_node_t* de_fbx_node_get_child(de_fbx_node_t* node, const char* name)
 {
-	size_t i;
-
 	/* Look for the node in children nodes. */
-	for (i = 0; i < node->children.size; ++i) {
+	for (size_t i = 0; i < node->children.size; ++i) {
 		de_fbx_node_t* child = node->children.data[i];
 		if (de_str8_eq(&child->name, name)) {
 			return child;
@@ -170,9 +132,7 @@ de_fbx_node_t* de_fbx_node_get_child(de_fbx_node_t* node, const char* name)
 
 void* de_fbx_buffer_alloc(de_fbx_buffer_t* buf, size_t size)
 {
-	void* ptr;
-
-	ptr = buf->ptr;
+	void* ptr = buf->ptr;
 	buf->ptr += size;
 
 	if (buf->ptr >= buf->end) {

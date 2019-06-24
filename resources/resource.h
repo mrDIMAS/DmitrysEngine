@@ -41,7 +41,9 @@ const char* de_resource_type_to_cstr(de_resource_type_t type);
  * @brief Creates new resource of specified type with specified flags. Automatically
  * registers self in core. path can be null for runtime resources.
  */
-de_resource_t* de_resource_create(de_core_t* core, const de_path_t* path, de_resource_type_t type, uint32_t flags);
+de_resource_t* de_resource_create(de_core_t* core, const de_path_t* path, de_resource_type_t type);
+
+void de_resource_set_flags(de_resource_t* res, de_resource_flags_t flags);
 
 /**
  * @brief Increases reference counter of resource. You must call de_resource_release when you do not

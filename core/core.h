@@ -118,8 +118,18 @@ void de_core_add_resource(de_core_t* core, de_resource_t* resource);
  * @brief Request external resource of specified type. If resource was loaded previously,
  * increases reference count and returns pointer to resource, if not - loads resource.
  */
-de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type, const de_path_t* path, uint32_t flags);
+de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type, const de_path_t* path);
 
+/**
+ * @brief Same as \c de_core_request_resource but also sets desired flags for resource. * 
+ */
+de_resource_t* de_core_request_resource_with_flags(de_core_t* core, de_resource_type_t type, const de_path_t* path, de_resource_flags_t flags);
+
+/**
+ * @brief Tries to find already loaded resource of given type with specified path. Could
+ * be usefuly if you want to just chech if resource was loaded, without loading it as 
+ * \c de_core_request_resource could do.
+ */
 de_resource_t* de_core_find_resource_of_type(de_core_t* core, de_resource_type_t type, const de_path_t* path);
 
 /**

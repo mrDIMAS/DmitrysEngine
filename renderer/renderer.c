@@ -1197,7 +1197,8 @@ de_renderer_t* de_renderer_init(de_core_t* core)
 	/* white dummy texture for surfaces without texture */
 	{
 		de_rgba8_t* pixel;
-		de_resource_t* res = de_resource_create(core, NULL, DE_RESOURCE_TYPE_TEXTURE, DE_RESOURCE_FLAG_INTERNAL);
+		de_resource_t* res = de_resource_create(core, NULL, DE_RESOURCE_TYPE_TEXTURE);
+		de_resource_set_flags(res, DE_RESOURCE_FLAG_INTERNAL);
 		de_resource_add_ref(res);
 		r->white_dummy = de_resource_to_texture(res);
 		de_texture_alloc_pixels(r->white_dummy, 1, 1, 4);
@@ -1208,7 +1209,8 @@ de_renderer_t* de_renderer_init(de_core_t* core)
 	/* dummy normal map with (0,0,1) vector */
 	{
 		de_rgba8_t* pixel;
-		de_resource_t* res = de_resource_create(core, NULL, DE_RESOURCE_TYPE_TEXTURE, DE_RESOURCE_FLAG_INTERNAL);
+		de_resource_t* res = de_resource_create(core, NULL, DE_RESOURCE_TYPE_TEXTURE);
+		de_resource_set_flags(res, DE_RESOURCE_FLAG_INTERNAL);
 		de_resource_add_ref(res);
 		r->normal_map_dummy = de_resource_to_texture(res);
 		de_texture_alloc_pixels(r->normal_map_dummy, 1, 1, 4);

@@ -42,7 +42,7 @@ de_resource_dispatch_table_t* de_resource_get_dispatch_table_by_type(de_resource
 	}
 }
 
-de_resource_t* de_resource_create(de_core_t* core, const de_path_t* path, de_resource_type_t type, uint32_t flags)
+de_resource_t* de_resource_create(de_core_t* core, const de_path_t* path, de_resource_type_t type)
 {
 	de_resource_t* res = DE_NEW(de_resource_t);
 	res->core = core;
@@ -50,7 +50,7 @@ de_resource_t* de_resource_create(de_core_t* core, const de_path_t* path, de_res
 	DE_ASSERT(res->dispatch_table);
 	res->type = type;
 	res->ref_count = 0;
-	res->flags = flags;
+	res->flags = 0;
 	if (path) {
 		de_path_copy(path, &res->source);
 	}
@@ -62,6 +62,12 @@ de_resource_t* de_resource_create(de_core_t* core, const de_path_t* path, de_res
 	return res;
 }
 
+void de_resource_set_flags(de_resource_t* res, de_resource_flags_t flags) 
+{
+	DE_ASSERT(res);
+	res->flags = flags;
+}
+
 void de_resource_add_ref(de_resource_t* res)
 {
 	++res->ref_count;
@@ -69,15 +75,15 @@ void de_resource_add_ref(de_resource_t* res)
 
 int de_resource_release(de_resource_t* res)
 {
-/**
- * If this assert triggers most likely that you have mismatch in de_resource_add_ref/de_resource_release
- * calls. This can happen for various reasons, most common is that you forgot to call
- * de_resource_release. If this happens on deserialization then you forgot to serialize an object
- * that uses this resource, imagine this situation: you have a level and a player, player have weapons,
- * some weapon uses same texture as some level part uses. Then you doing serialization and serializing
- * only level and player and forget to serialize weapons, then you will have mismatch in de_resource_add_ref
- * and de_resource_release calls which will result in this assert. Check everything carefully!
- */
+	/**
+	 * If this assert triggers most likely that you have mismatch in de_resource_add_ref/de_resource_release
+	 * calls. This can happen for various reasons, most common is that you forgot to call
+	 * de_resource_release. If this happens on deserialization then you forgot to serialize an object
+	 * that uses this resource, imagine this situation: you have a level and a player, player have weapons,
+	 * some weapon uses same texture as some level part uses. Then you doing serialization and serializing
+	 * only level and player and forget to serialize weapons, then you will have mismatch in de_resource_add_ref
+	 * and de_resource_release calls which will result in this assert. Check everything carefully!
+	 */
 	DE_ASSERT(res->ref_count >= 0);
 
 	--res->ref_count;

@@ -46,7 +46,7 @@ struct de_core_t {
 
 static void de_core_clean(de_core_t* core)
 {
-/* destroy every scene with all their contents */
+	/* destroy every scene with all their contents */
 	while (core->scenes.head) {
 		de_scene_free(core->scenes.head);
 	}
@@ -117,7 +117,7 @@ de_core_t* de_core_init(const de_core_config_t* params)
 	double last_time = de_time_get_seconds();
 	de_core_platform_init(core);
 	de_log("platform initialized in %f seconds", de_time_get_seconds() - last_time);
-	
+
 	last_time = de_time_get_seconds();
 	core->sound_context = de_sound_context_create(core);
 	de_log("sound context initialized in %f seconds", de_time_get_seconds() - last_time);
@@ -247,7 +247,7 @@ de_resource_t* de_core_find_resource_of_type(de_core_t* core, de_resource_type_t
 	return NULL;
 }
 
-de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type, const de_path_t* path, uint32_t flags)
+de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type, const de_path_t* path)
 {
 	de_resource_t* res = de_core_find_resource_of_type(core, type, path);
 	if (res) {
@@ -258,17 +258,17 @@ de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type
 	switch (type) {
 		case DE_RESOURCE_TYPE_TEXTURE:
 			if (de_str8_view_eq_cstr(&ext, ".tga")) {
-				res = de_resource_create(core, path, type, flags);
+				res = de_resource_create(core, path, type);
 			}
 			break;
 		case DE_RESOURCE_TYPE_SOUND_BUFFER:
 			if (de_str8_view_eq_cstr(&ext, ".wav")) {
-				res = de_resource_create(core, path, type, flags);
+				res = de_resource_create(core, path, type);
 			}
 			break;
 		case DE_RESOURCE_TYPE_MODEL:
 			if (de_str8_view_eq_cstr(&ext, ".fbx")) {
-				res = de_resource_create(core, path, type, flags);
+				res = de_resource_create(core, path, type);
 			}
 			break;
 		default:
@@ -278,13 +278,24 @@ de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type
 
 	if (res && !de_resource_load(res)) {
 		DE_ARRAY_REMOVE(core->resources, res);
-		/* hackery hack: adding ref and then immediately release to prevent
-		* triggering of assert */
+		/* Hackery hack: adding ref and then immediately release to prevent
+		 * triggering of assert. This required because when resource failed to load it
+		 * still has ref count == 0 and de_resource_release does not allow to release
+		 * unreferenced resources. */
 		de_resource_add_ref(res);
 		de_resource_release(res);
 		return NULL;
 	}
 
+	return res;
+}
+
+de_resource_t* de_core_request_resource_with_flags(de_core_t* core, de_resource_type_t type, const de_path_t* path, de_resource_flags_t flags)
+{
+	de_resource_t* res = de_core_request_resource(core, type, path);
+	if(res) {
+		de_resource_set_flags(res, flags);
+	}
 	return res;
 }
 

@@ -32,13 +32,13 @@ struct de_sound_decoder_t {
 	FILE* file;
 	uint32_t source_byte_per_sample;
 	size_t total_bytes;
-	size_t bytes_readed;
+	size_t bytes_read;
 };
 
 /**
  * @brief Opens stream. Automatically detects type of data.
  */
-de_sound_decoder_t* de_sound_decoder_init(const char* filename);
+de_sound_decoder_t* de_sound_decoder_create(const char* filename);
 
 /**
  * @brief Reads next portion of decoded PCM data. Returns actual count of samples per channel.
@@ -61,6 +61,12 @@ size_t de_sound_decoder_read(de_sound_decoder_t* dec, float* out_data, size_t sa
  * @brief Rewinds read head to beginning of the stream.
  */
 void de_sound_decoder_rewind(de_sound_decoder_t* dec);
+
+
+/**
+ * @brief Returns true if buffer source file is valid and its format is supported.
+ */
+bool de_sound_decoder_is_source_valid(const de_path_t* path);
 
 /**
  * @brief Frees stream.

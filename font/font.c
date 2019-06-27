@@ -19,12 +19,15 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+/* Loader implemented using Apple TrueType Reference Manual:
+ * https://developer.apple.com/fonts/TrueType-Reference-Manual */
+
 typedef struct de_ttf_glyph_t {
 	int16_t num_contours;
-	int16_t xMin;
-	int16_t yMin;
-	int16_t xMax;
-	int16_t yMax;
+	int16_t x_min;
+	int16_t y_min;
+	int16_t x_max;
+	int16_t y_max;
 	char has_outline;
 	uint16_t advance;
 	int16_t left_side_bearing;
@@ -190,7 +193,7 @@ uint32_t de_ttf_get_glyph_offset(de_true_type_t* ttf, uint32_t index)
 
 static void de_ttf_prepare_contours(de_ttf_glyph_t * glyph, de_point_t* points)
 {
-	const int16_t glyph_height = glyph->yMax - glyph->yMin;
+	const int16_t glyph_height = glyph->y_max - glyph->y_min;
 
 	/* Extract contours */
 	glyph->raw_contours = de_calloc(glyph->num_contours, sizeof(*glyph->raw_contours));
@@ -205,8 +208,8 @@ static void de_ttf_prepare_contours(de_ttf_glyph_t * glyph, de_point_t* points)
 			const de_point_t * pt = points + k;
 
 			const de_point_t off_pt = {
-				.x = pt->x - glyph->xMin,
-				.y = pt->y - glyph->yMin,
+				.x = pt->x - glyph->x_min,
+				.y = pt->y - glyph->y_min,
 				.flags = pt->flags,
 			};
 
@@ -285,8 +288,6 @@ static void de_ttf_get_glyph_horizontal_metrics(de_true_type_t* ttf, int glyph_i
 	}
 }
 
-#pragma warning(disable : 4189) // REMOVE
-
 void de_ttf_read_kern(de_true_type_t* ttf)
 {
 	if(!ttf->kern_table) {
@@ -299,6 +300,13 @@ void de_ttf_read_kern(de_true_type_t* ttf)
 		const uint32_t length = de_ptr_to_u32(sub_table);
 		const uint16_t coverage = de_ptr_to_u16(sub_table + 4);
 		const uint16_t tuple_index = de_ptr_to_u16(sub_table + 2);
+
+		/* TODO: Implement. */
+
+		DE_UNUSED(version);
+		DE_UNUSED(length);
+		DE_UNUSED(coverage);
+		DE_UNUSED(tuple_index);		
 	}
 }
 
@@ -315,15 +323,34 @@ void de_ttf_read_glyphs(de_true_type_t* ttf)
 
 		glyph->has_outline = (next_offset - offset) != 0;
 		glyph->num_contours = de_ptr_to_i16(glyph_data + 0);
-		glyph->xMin = de_ptr_to_i16(glyph_data + 2);
-		glyph->yMin = de_ptr_to_i16(glyph_data + 4);
-		glyph->xMax = de_ptr_to_i16(glyph_data + 6);
-		glyph->yMax = de_ptr_to_i16(glyph_data + 8);
+		glyph->x_min = de_ptr_to_i16(glyph_data + 2);
+		glyph->y_min = de_ptr_to_i16(glyph_data + 4);
+		glyph->x_max = de_ptr_to_i16(glyph_data + 6);
+		glyph->y_max = de_ptr_to_i16(glyph_data + 8);
 
 		if (glyph->num_contours < 0) {
-			/* Compound glyph */
+			/* TODO: Implement compound glyph support. */
+			const uint16_t flags = de_ptr_to_u16(glyph_data + 10);
+			const uint16_t glyph_index = de_ptr_to_u16(glyph_data + 12);
 
-		} else { /* Simple glyph */
+			DE_UNUSED(flags);
+			DE_UNUSED(glyph_index);
+
+			enum de_compound_glyph_flags {
+				ARG_1_AND_2_ARE_WORDS = DE_BIT(0),
+				ARGS_ARE_XY_VALUES = DE_BIT(1),
+				ROUND_XY_TO_GRID = DE_BIT(2),
+				WE_HAVE_A_SCALE = DE_BIT(3),
+				/* 4th bit is obsolete */
+				MORE_COMPONENTS = DE_BIT(5),
+				WE_HAVE_AN_X_AND_Y_SCALE = DE_BIT(6),
+				WE_HAVE_A_TWO_BY_TWO = DE_BIT(7),
+				WE_HAVE_INSTRUCTIONS = DE_BIT(8),
+				USE_MY_METRICS = DE_BIT(9),
+				OVERLAP_COMPOUND = DE_BIT(10)
+			};
+		} else { 
+			/* Simple glyph */
 			/* Read end contour points */
 			int point_count = 0;
 			glyph->end_points = de_malloc(glyph->num_contours * sizeof(*glyph->end_points));
@@ -453,8 +480,8 @@ static void de_ttf_render_glyph(de_true_type_t* ttf, int glyph_index, de_glyph_t
 		return;
 	}
 
-	const uint16_t height = (uint16_t)(scale * (ttf_glyph->yMax - ttf_glyph->yMin)) + 1;
-	const uint16_t width = (uint16_t)(scale * (ttf_glyph->xMax - ttf_glyph->xMin)) + 1;
+	const uint16_t height = (uint16_t)(scale * (ttf_glyph->y_max - ttf_glyph->y_min)) + 1;
+	const uint16_t width = (uint16_t)(scale * (ttf_glyph->x_max - ttf_glyph->x_min)) + 1;
 
 	de_convert_curves_to_line_set(ttf_glyph);
 
@@ -464,8 +491,8 @@ static void de_ttf_render_glyph(de_true_type_t* ttf, int glyph_index, de_glyph_t
 	de_vg_polys_to_scanlines(
 		ttf_glyph->contours,
 		ttf_glyph->num_contours,
-		(float)(ttf_glyph->xMax - ttf_glyph->xMin),
-		(float)(ttf_glyph->yMax - ttf_glyph->yMin),
+		(float)(ttf_glyph->x_max - ttf_glyph->x_min),
+		(float)(ttf_glyph->y_max - ttf_glyph->y_min),
 		scale, &lines
 	);
 
@@ -483,8 +510,8 @@ static void de_ttf_render_glyph(de_true_type_t* ttf, int glyph_index, de_glyph_t
 	out_glyph->bitmap_width = final_bitmap.width;
 	out_glyph->bitmap_height = final_bitmap.height;
 	out_glyph->advance = ttf_glyph->advance * scale;
-	out_glyph->bitmap_left = ttf_glyph->xMin * scale;
-	out_glyph->bitmap_top = ttf_glyph->yMin * scale;
+	out_glyph->bitmap_left = ttf_glyph->x_min * scale;
+	out_glyph->bitmap_top = ttf_glyph->y_min * scale;
 	out_glyph->has_outline = ttf_glyph->has_outline;
 
 	de_free(final_bitmap.pixels);

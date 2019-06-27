@@ -45,10 +45,21 @@ static void de_gui_image_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8_
 	de_gui_draw_list_commit(dl, DE_GUI_DRAW_COMMAND_TYPE_GEOMETRY, img->texture ? img->texture->id : 0, n);
 }
 
+static void de_gui_image_deinit(de_gui_node_t* n)
+{
+	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_IMAGE);
+	const de_gui_image_t* img = &n->s.image;
+	if (img->texture) {
+		de_resource_t* res = de_resource_from_texture(img->texture);
+		de_resource_release(res);
+	}
+}
+
 struct de_gui_node_dispatch_table_t* de_gui_image_get_dispatch_table()
 {
 	static de_gui_node_dispatch_table_t dispatch_table = {
 		.render = de_gui_image_render,
+		.deinit = de_gui_image_deinit,
 		.apply_descriptor = de_gui_image_apply_descriptor
 	};
 	return &dispatch_table;
@@ -58,11 +69,11 @@ void de_gui_image_set_texture(de_gui_node_t* n, de_texture_t* tex)
 {
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_IMAGE);
 	de_gui_image_t* img = &n->s.image;
-	if(img->texture) {
+	if (img->texture) {
 		de_resource_release(de_resource_from_texture(img->texture));
 	}
 	img->texture = tex;
-	if(img->texture) {
+	if (img->texture) {
 		de_resource_add_ref(de_resource_from_texture(img->texture));
 	}
 }

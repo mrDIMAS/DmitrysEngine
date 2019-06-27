@@ -132,6 +132,8 @@ de_resource_t* de_core_request_resource_with_flags(de_core_t* core, de_resource_
  */
 de_resource_t* de_core_find_resource_of_type(de_core_t* core, de_resource_type_t type, const de_path_t* path);
 
+void de_core_begin_visit(de_core_t* core);
+
 /**
  * @brief Visit core with specified object visitor.
  *
@@ -139,9 +141,11 @@ de_resource_t* de_core_find_resource_of_type(de_core_t* core, de_resource_type_t
  * destroy every scene, every scene node, every resource (unless it marked
  * DE_RESOURCE_FLAG_PERSISTENT) and then will load everything into clean core. In
  * other words in this case core will be purged and then filled in with data from
- * specified file.
+ * specified file. 
  */
 bool de_core_visit(de_object_visitor_t* visitor, de_core_t* core);
+
+void de_core_end_visit(de_core_t* core);
 
 /********************************************************************
 * Platform-specific function prototypes.                            *

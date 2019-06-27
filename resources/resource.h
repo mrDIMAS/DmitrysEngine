@@ -22,11 +22,11 @@
 #include "resources/model.h"
 
 struct de_resource_t {
-	de_core_t* core;
 	de_resource_type_t type;
-	de_resource_dispatch_table_t* dispatch_table;
-	int32_t ref_count;
 	de_path_t source;
+	de_core_t* core;	
+	de_resource_dispatch_table_t* dispatch_table;
+	int32_t ref_count; /** TODO: Probably should be atomic? */
 	uint32_t flags;
 	union {
 		de_sound_buffer_t sound_buffer;

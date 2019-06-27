@@ -633,15 +633,12 @@ bool de_object_visitor_visit_array(de_object_visitor_t* visitor, const char* nam
 }
 
 bool de_object_visitor_visit_pointer_array(de_object_visitor_t* visitor, const char* name, void** array, size_t* item_count, size_t pointee_size, de_visit_callback_t callback)
-{
-	uint32_t i;
-	uint32_t length;
-	void** pointers;
-
+{	
 	if (!de_object_visitor_enter_node(visitor, name)) {
 		return false;
 	}
 
+	uint32_t length;
 	if (!visitor->is_reading) {
 		length = (uint32_t)(*item_count);
 	}
@@ -657,8 +654,8 @@ bool de_object_visitor_visit_pointer_array(de_object_visitor_t* visitor, const c
 		*array = de_calloc(length, sizeof(void*));
 	}
 
-	pointers = (void**)*array;
-	for (i = 0; i < *item_count; ++i) {
+	void** pointers = (void**)*array;
+	for (uint32_t i = 0; i < *item_count; ++i) {
 		char item_name[128];
 		void** ptr_ptr = &pointers[i];
 

@@ -43,8 +43,7 @@ void de_sound_device_send_data(de_sound_device_t* dev);
 #endif
 
 static int de_sound_device_mixer_thread(void* ptr)
-{
-	size_t i, k;
+{	
 	de_sound_device_t* dev = (de_sound_device_t*)ptr;
 	de_sound_context_t* ctx = dev->ctx;
 	de_log("Sound thread started!");
@@ -52,16 +51,16 @@ static int de_sound_device_mixer_thread(void* ptr)
 		de_sound_context_lock(ctx);
 		/* gather all active sounds */
 		DE_ARRAY_CLEAR(dev->active_sources);
-		for (k = 0; k < ctx->sounds.size; ++k) {
+		for (size_t k = 0; k < ctx->sounds.size; ++k) {
 			de_sound_source_t* src = ctx->sounds.data[k];
 			if (de_sound_source_can_produce_samples(src)) {
 				DE_ARRAY_APPEND(dev->active_sources, src);
 			}
 		}
 		/* mix them */
-		for (i = 0; i < dev->out_samples_count;) {
+		for (size_t i = 0; i < dev->out_samples_count;) {
 			float left = 0, right = 0;
-			for (k = 0; k < dev->active_sources.size; ++k) {
+			for (size_t k = 0; k < dev->active_sources.size; ++k) {
 				float sleft = 0, sright = 0;
 				de_sound_source_sample(dev->active_sources.data[k], &sleft, &sright);
 				left += sleft;

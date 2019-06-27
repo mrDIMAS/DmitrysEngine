@@ -108,3 +108,7 @@ void de_sound_source_update(de_sound_source_t* src);
 void de_sound_source_set_position(de_sound_source_t* src, const de_vec3_t* pos);
 
 bool de_sound_source_visit(de_object_visitor_t* visitor, de_sound_source_t* src);
+
+void de_sound_source_set_loop(de_sound_source_t* src, bool loop);
+
+bool de_sound_source_is_loop(de_sound_source_t* src);

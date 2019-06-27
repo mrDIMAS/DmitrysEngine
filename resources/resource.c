@@ -65,16 +65,20 @@ de_resource_t* de_resource_create(de_core_t* core, const de_path_t* path, de_res
 void de_resource_set_flags(de_resource_t* res, de_resource_flags_t flags) 
 {
 	DE_ASSERT(res);
+	/** Flags for internal resource cannot be changed once set! */
+	DE_ASSERT(!(res->flags & DE_RESOURCE_FLAG_INTERNAL));
 	res->flags = flags;
 }
 
 void de_resource_add_ref(de_resource_t* res)
 {
+	DE_ASSERT(res);
 	++res->ref_count;
 }
 
 int de_resource_release(de_resource_t* res)
 {
+	DE_ASSERT(res);
 	/**
 	 * If this assert triggers most likely that you have mismatch in de_resource_add_ref/de_resource_release
 	 * calls. This can happen for various reasons, most common is that you forgot to call
@@ -91,8 +95,16 @@ int de_resource_release(de_resource_t* res)
 		if (res->dispatch_table->deinit) {
 			res->dispatch_table->deinit(res);
 		}
-		DE_ARRAY_REMOVE(res->core->resources, res);
-		de_log("resource released: %s", de_path_cstr(&res->source));
+		de_core_t* core = res->core;
+		const int old_size = (int)core->resources.size;
+		DE_ASSERT(old_size != 0);
+		DE_ARRAY_REMOVE(core->resources, res);
+		DE_ASSERT((int)core->resources.size == old_size - 1);
+		if (res->flags & DE_RESOURCE_FLAG_INTERNAL) {
+			de_log("internal resource released");
+		} else {
+			de_log("resource released: %s", de_path_cstr(&res->source));
+		}
 		de_path_free(&res->source);
 		de_free(res);
 		return 0;
@@ -102,6 +114,7 @@ int de_resource_release(de_resource_t* res)
 
 bool de_resource_visit(de_object_visitor_t* visitor, de_resource_t* res)
 {
+	DE_ASSERT(res);
 	bool result = true;
 	result &= DE_OBJECT_VISITOR_VISIT_ENUM(visitor, "Type", &res->type);
 	if (visitor->is_reading) {

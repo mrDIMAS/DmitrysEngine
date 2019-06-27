@@ -28,6 +28,7 @@ struct de_core_t {
 	DE_LINKED_LIST_DECLARE(de_font_t, fonts);
 	de_core_config_t params;
 	bool is_running;
+	bool being_visited; /**< Indicates that core correctly prepared for visit. */
 	void* user_pointer;
 	DE_ARRAY_DECLARE(de_event_t, events_queue);
 	DE_ARRAY_DECLARE(de_resource_t*, resources);
@@ -53,26 +54,44 @@ static void de_core_clean(de_core_t* core)
 	for (size_t i = 0; i < core->resources.size; ++i) {
 		de_resource_t* res = core->resources.data[i];
 		if (!(res->flags & DE_RESOURCE_FLAG_PERSISTENT) && !(res->flags & DE_RESOURCE_FLAG_INTERNAL)) {
-			/* force destroy a resource, at this moment we do not care if some still owns it
-			 * because at this time owner is already dead. */
-			while (de_resource_release(res)) {
-				;
-			}
+			/* If this error triggered then you have unreleased resource in your *game* code.
+			 * If resource intended to be persistent (like UI textures), then you forgot to 
+			 * set such flag. In other cases most likely that you forgot to call some 
+			 * yourgameentity_free method. This is required check because if resource does 
+			 * not released properly then you most likely will have memory leaks or event 
+			 * worse - memory corruption. Recheck your code and make sure that create/free \
+			 * calls match. */
+			de_fatal_error("core cleanup: expecting resource '%s' to have 'persistent' flag set, but it doesn't!", 
+				de_path_cstr(&res->source));
 		}
 	}
+}
+
+void de_core_begin_visit(de_core_t* core)
+{
+	DE_ASSERT(core->being_visited == false);
+	de_sound_context_lock(core->sound_context);
+	core->being_visited = true;
+}
+
+void de_core_end_visit(de_core_t* core)
+{
+	DE_ASSERT(core->being_visited == true);
+	core->being_visited = false;
+	de_sound_context_unlock(core->sound_context);
 }
 
 bool de_core_visit(de_object_visitor_t* visitor, de_core_t* core)
 {
 	bool result = true;
-	de_sound_context_lock(core->sound_context);
+	DE_ASSERT(core->being_visited);
 	/* make sure to deserialize everything on "clean" core */
 	if (visitor->is_reading) {
 		de_core_clean(core);
 	}
 	DE_ARRAY_DECLARE(de_resource_t*, visited_resources);
-	if (!visitor->is_reading) {
-		DE_ARRAY_INIT(visited_resources);
+	DE_ARRAY_INIT(visited_resources);
+	if (!visitor->is_reading) {		
 		/* copy only serializable resources to temp collection */
 		for (size_t i = 0; i < core->resources.size; ++i) {
 			de_resource_t* res = core->resources.data[i];
@@ -101,8 +120,7 @@ bool de_core_visit(de_object_visitor_t* visitor, de_core_t* core)
 	}
 	DE_ARRAY_FREE(visited_resources);
 	result &= de_sound_context_visit(visitor, core->sound_context);
-	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Scenes", core->scenes, de_scene_t, de_scene_visit);
-	de_sound_context_unlock(core->sound_context);
+	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Scenes", core->scenes, de_scene_t, de_scene_visit);	
 	return result;
 }
 
@@ -140,16 +158,16 @@ void de_core_shutdown(de_core_t* core)
 	}
 	de_sound_context_free(core->sound_context);
 	de_gui_shutdown(core->gui);
+	de_renderer_free(core->renderer);
 	/* Notify about unreleased resources */
 	for (size_t i = 0; i < core->resources.size; ++i) {
 		de_resource_t* res = core->resources.data[i];
 		de_log("unrealeased resource found -> mem leaks. details:\n\tpath: %s\n\tref count: %d",
 			de_path_cstr(&res->source), res->ref_count);
-	}
+	}	
+	de_core_platform_shutdown(core);
 	DE_ARRAY_FREE(core->resources);
 	DE_ARRAY_FREE(core->events_queue);
-	de_renderer_free(core->renderer);
-	de_core_platform_shutdown(core);
 	de_free(core);
 	de_log("Engine shutdown successful!");
 	de_log_close();
@@ -293,7 +311,7 @@ de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type
 de_resource_t* de_core_request_resource_with_flags(de_core_t* core, de_resource_type_t type, const de_path_t* path, de_resource_flags_t flags)
 {
 	de_resource_t* res = de_core_request_resource(core, type, path);
-	if(res) {
+	if (res) {
 		de_resource_set_flags(res, flags);
 	}
 	return res;

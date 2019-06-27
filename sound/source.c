@@ -42,6 +42,7 @@ de_sound_source_t* de_sound_source_create(de_sound_context_t* ctx, de_sound_sour
 
 void de_sound_source_free(de_sound_source_t* src)
 {
+	DE_ASSERT(src);
 	de_sound_context_t* ctx = src->ctx;
 	de_sound_context_lock(ctx);
 	if (src->buffer) {
@@ -90,7 +91,15 @@ void de_sound_source_sample(de_sound_source_t* src, float* left, float* right)
 
 	if (src->playback_pos >= src->buffer->total_sample_per_channel) {
 		src->playback_pos = 0;
-		src->buf_read_pos = 0;
+		if (src->loop && (src->buffer->flags & DE_SOUND_BUFFER_FLAGS_STREAM)) {
+			if (src->buffer->sample_per_channel != 0) {
+				src->buf_read_pos = (double)(i  % src->buffer->sample_per_channel);
+			} else {
+				src->buf_read_pos = 0;
+			}
+		} else {
+			src->buf_read_pos = 0;
+		}
 		src->status = src->loop ? DE_SOUND_SOURCE_STATUS_PLAYING : DE_SOUND_SOURCE_STATUS_STOPPED;
 	}
 
@@ -106,7 +115,9 @@ void de_sound_source_sample(de_sound_source_t* src, float* left, float* right)
 
 bool de_sound_source_can_produce_samples(de_sound_source_t* src)
 {
-	return src->buffer && (src->status == DE_SOUND_SOURCE_STATUS_PLAYING) &&
+	return src->buffer &&
+		!src->buffer->need_reload &&
+		(src->status == DE_SOUND_SOURCE_STATUS_PLAYING) &&
 		(src->left_gain > 0.0005f || src->right_gain > 0.0005f);
 }
 
@@ -177,6 +188,20 @@ void de_sound_source_update(de_sound_source_t* src)
 	}
 	src->left_gain = dist_gain * (1.0f + src->pan);
 	src->right_gain = dist_gain * (1.0f - src->pan);
+}
+
+void de_sound_source_set_loop(de_sound_source_t* src, bool loop)
+{
+	DE_ASSERT(src);
+	de_sound_context_lock(src->ctx);
+	src->loop = loop;
+	de_sound_context_unlock(src->ctx);
+}
+
+bool de_sound_source_is_loop(de_sound_source_t* src)
+{
+	DE_ASSERT(src);
+	return src->loop;
 }
 
 bool de_sound_source_visit(de_object_visitor_t* visitor, de_sound_source_t* src)

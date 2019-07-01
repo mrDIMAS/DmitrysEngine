@@ -204,6 +204,18 @@ bool de_sound_source_is_loop(de_sound_source_t* src)
 	return src->loop;
 }
 
+void de_sound_source_set_play_once(de_sound_source_t* src, bool value)
+{
+	DE_ASSERT(src);
+	src->play_once = value;
+}
+
+bool de_sound_source_get_play_once(const de_sound_source_t* src)
+{
+	DE_ASSERT(src);
+	return src->playback_pos;
+}
+
 bool de_sound_source_visit(de_object_visitor_t* visitor, de_sound_source_t* src)
 {
 	bool result = true;
@@ -230,6 +242,7 @@ bool de_sound_source_visit(de_object_visitor_t* visitor, de_sound_source_t* src)
 	result &= de_object_visitor_visit_float(visitor, "Pitch", &src->pitch);
 	result &= de_object_visitor_visit_float(visitor, "Gain", &src->gain);
 	result &= de_object_visitor_visit_bool(visitor, "Loop", &src->loop);
+	result &= de_object_visitor_visit_bool(visitor, "PlayOnce", &src->play_once);
 	result &= de_object_visitor_visit_float(visitor, "Radius", &src->radius);
 	result &= de_object_visitor_visit_float(visitor, "LeftGain", &src->left_gain);
 	result &= de_object_visitor_visit_float(visitor, "RightGain", &src->right_gain);

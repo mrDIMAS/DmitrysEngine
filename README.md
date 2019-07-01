@@ -8,7 +8,8 @@ Please note, that this engine is at early development stage and some features ma
 * [Shooter](https://github.com/mrDIMAS/Shooter) - 3d shooter game that I writing using this engine.
 
 ## Tutorials
-* Can be found in `tutorials` folder.
+* Can be found in `tutorials` folder. Why there is only few tutorials? Because API of engine is not stabililized yet.
+
 
 ## Features
 * Single compilation unit - no need to build as separate library: just add `de_main.h` and `de_main.c` to your project.
@@ -91,7 +92,7 @@ Please note, that this engine is at early development stage and some features ma
 - miniz_tinfl - to decompress FBX compressed data.
 
 ## Code statistics
-- ~21000 significant lines of code
+- ~21200 significant lines of code
 - Pure C99
 
 ## Supported compilers

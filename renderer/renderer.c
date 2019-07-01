@@ -684,6 +684,19 @@ static void de_renderer_create_gbuffer_shader(de_renderer_t* r)
 	s->normal_texture = de_renderer_get_uniform(s->program, "normalTexture");
 }
 
+static void de_renderer_create_ssao_shader(de_renderer_t* r)
+{
+	de_ssao_shader_t* s = &r->ssao_shader;
+
+	const char* fragment_source =
+		"#version 330 core\n";
+
+	const char vertex_source[] =
+		"#version 330 core\n";
+
+	s->program = de_renderer_create_gpu_program(vertex_source, fragment_source);
+}
+
 static void de_renderer_create_deferred_lighting_shader(de_renderer_t* r)
 {
 	const char* const fragment_source =
@@ -1075,6 +1088,7 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 	de_renderer_create_gui_shader(r);
 	de_renderer_create_gbuffer_shader(r);
 	de_renderer_create_deferred_lighting_shader(r);
+	/*de_renderer_create_ssao_shader(r);*/ 
 	de_renderer_create_particle_system_shader(r);
 	de_renderer_create_spot_shadow_map_shader(r);
 	de_renderer_create_point_shadow_map_shader(r);
@@ -1085,14 +1099,16 @@ void de_renderer_set_default_quality_settings(de_renderer_t* r)
 	de_quality_settings_t* settings = &r->quality_settings;
 
 	settings->point_shadow_map_size = 1024;
-	settings->point_shadows_distance = 70;
-	settings->point_shadows_enabled = true;
+	settings->point_shadows_distance = 10;
+	settings->point_shadows_enabled = false;
 	settings->point_soft_shadows = true;
 
 	settings->spot_shadow_map_size = 1024;
-	settings->spot_shadows_distance = 50;
-	settings->spot_shadows_enabled = true;
+	settings->spot_shadows_distance = 10;
+	settings->spot_shadows_enabled = false;
 	settings->spot_soft_shadows = true;
+
+	settings->anisotropy_pow2 = 2;
 }
 
 de_quality_settings_t* de_renderer_get_quality_settings(de_renderer_t* r)
@@ -1140,12 +1156,14 @@ de_renderer_t* de_renderer_init(de_core_t* core)
 	de_renderer_create_shaders(r);
 
 #if VERBOSE_INIT
-	int i, num_extensions;
+	int num_extensions;
 	glGetIntegerv(GL_NUM_EXTENSIONS, &num_extensions);
-	for (i = 0; i < num_extensions; ++i) {
+	for (int i = 0; i < num_extensions; ++i) {
 		de_log((char*)glGetStringi(GL_EXTENSIONS, i));
 	}
 #endif
+		
+	DE_GL_CALL(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &r->limits.max_anisotropy));
 
 	DE_GL_CALL(glEnable(GL_DEPTH_TEST));
 	DE_GL_CALL(glEnable(GL_CULL_FACE));
@@ -1157,12 +1175,12 @@ de_renderer_t* de_renderer_init(de_core_t* core)
 
 	/* Create fullscreen quad */
 	{
-		float w = (float)core->params.video_mode.width;
-		float h = (float)core->params.video_mode.height;
+		const float w = (float)core->params.video_mode.width;
+		const float h = (float)core->params.video_mode.height;
 
 		de_surface_shared_data_t* data = de_surface_shared_data_create(4, 6);
 
-		int faces[] = { 0, 1, 2, 0, 2, 3 };
+		const int faces[] = { 0, 1, 2, 0, 2, 3 };
 		memcpy(data->indices, faces, sizeof(faces));
 		data->index_count = 6;
 
@@ -1481,7 +1499,7 @@ static void de_renderer_remove_texture(de_renderer_t* r, de_texture_t* tex)
 	glDeleteTextures(1, &tex->id);
 }
 
-static void de_renderer_upload_texture(de_texture_t* texture)
+static void de_renderer_upload_texture(de_renderer_t* r, de_texture_t* texture)
 {
 	GLint internalFormat;
 	GLint format;
@@ -1508,11 +1526,14 @@ static void de_renderer_upload_texture(de_texture_t* texture)
 	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
 	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR));
 	DE_GL_CALL(glGenerateMipmap(GL_TEXTURE_2D));
-#if 0
-	GLfloat max_anisotropy;
-	DE_GL_CALL(glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &max_anisotropy));
-	DE_GL_CALL(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, max_anisotropy));
-#endif
+
+	float anisotropy = (float)pow(2.0, r->quality_settings.anisotropy_pow2);
+	if (anisotropy > r->limits.max_anisotropy) {
+		anisotropy = (float)r->limits.max_anisotropy;
+	}
+
+	DE_GL_CALL(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, anisotropy));
+
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, 0));
 
 	texture->need_upload = false;
@@ -1566,7 +1587,7 @@ static void de_renderer_upload_textures(de_renderer_t* r)
 		if (res->type == DE_RESOURCE_TYPE_TEXTURE) {
 			de_texture_t* texture = de_resource_to_texture(res);
 			if (texture->need_upload) {
-				de_renderer_upload_texture(texture);
+				de_renderer_upload_texture(r, texture);
 			}
 		}
 	}
@@ -1784,9 +1805,12 @@ void de_renderer_render(de_renderer_t* r)
 				}
 
 				/* Render shadows */
+				const bool render_shadows = light->cast_shadows &&
+					de_vec3_distance(&camera_position, &light_pos) <= r->quality_settings.point_shadows_distance;
+				
 				de_mat4_t light_view_projection_matrix;
 
-				if (light->type == DE_LIGHT_TYPE_SPOT && r->quality_settings.spot_shadows_enabled) {
+				if (light->type == DE_LIGHT_TYPE_SPOT && r->quality_settings.spot_shadows_enabled && render_shadows) {
 					const de_spot_shadow_map_t* shadow_map = &r->spot_shadow_map;
 
 					DE_GL_CALL(glDepthMask(GL_TRUE));
@@ -1836,7 +1860,7 @@ void de_renderer_render(de_renderer_t* r)
 							DE_GL_CALL(glUniformMatrix4fv(shader->vs.world_view_projection_matrix, 1, GL_FALSE, wvp_matrix.f));
 
 							for (size_t i = 0; i < mesh->surfaces.size; ++i) {
-								de_surface_t* surf = mesh->surfaces.data[i];
+								const de_surface_t* surf = mesh->surfaces.data[i];
 
 								DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
 								if (surf->diffuse_map) {
@@ -1864,7 +1888,7 @@ void de_renderer_render(de_renderer_t* r)
 					DE_GL_CALL(glEnable(GL_BLEND));
 					DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, r->gbuffer.opt_fbo));
 					de_renderer_set_viewport(&camera->viewport, core->params.video_mode.width, core->params.video_mode.height);
-				} else if (light->type == DE_LIGHT_TYPE_POINT && r->quality_settings.point_shadows_enabled) {
+				} else if (light->type == DE_LIGHT_TYPE_POINT && r->quality_settings.point_shadows_enabled && render_shadows) {
 					const de_point_shadow_map_t* shadow_map = &r->point_shadow_map;
 
 					DE_GL_CALL(glDepthMask(GL_TRUE));
@@ -2025,7 +2049,7 @@ void de_renderer_render(de_renderer_t* r)
 				DE_GL_CALL(glUniform3f(shader->light_direction, light_emit_direction.x, light_emit_direction.y, light_emit_direction.z));
 				DE_GL_CALL(glUniformMatrix4fv(shader->wvp_matrix, 1, GL_FALSE, y_flip_ortho.f));
 
-				if (r->quality_settings.spot_shadows_enabled || r->quality_settings.point_shadows_enabled) {
+				if (render_shadows && (r->quality_settings.spot_shadows_enabled || r->quality_settings.point_shadows_enabled)) {
 					DE_GL_CALL(glUniform1i(shader->light_type, light->type));
 				} else {
 					/* Shadows will be disabled by passing invalid light type. */

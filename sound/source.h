@@ -42,6 +42,7 @@ struct de_sound_source_t {
 	float pitch;
 	float gain;
 	bool loop;
+	bool play_once; /**< Plays sound only once, then automatically delete sound source. */
 	float radius; /**< Radius of sphere around sound source at which sound volume is half of initial. */
 	float left_gain;
 	float right_gain;
@@ -112,3 +113,7 @@ bool de_sound_source_visit(de_object_visitor_t* visitor, de_sound_source_t* src)
 void de_sound_source_set_loop(de_sound_source_t* src, bool loop);
 
 bool de_sound_source_is_loop(de_sound_source_t* src);
+
+void de_sound_source_set_play_once(de_sound_source_t* src, bool value);
+
+bool de_sound_source_get_play_once(const de_sound_source_t* src);

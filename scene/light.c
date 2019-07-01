@@ -27,6 +27,19 @@ static void de_light_init(de_node_t* node)
 	light->type = DE_LIGHT_TYPE_POINT;
 	light->cone_angle = (float)M_PI;
 	light->cone_angle_cos = -1.0f;
+	light->cast_shadows = true;
+}
+
+void de_light_set_cast_shadows(de_light_t* light, bool value)
+{
+	DE_ASSERT(light);
+	light->cast_shadows = value;
+}
+
+bool de_light_get_cast_shadows(const de_light_t* light)
+{
+	DE_ASSERT(light);
+	return light->cast_shadows;
 }
 
 static void de_light_copy(de_node_t* src_node, de_node_t* dest_node)
@@ -38,6 +51,7 @@ static void de_light_copy(de_node_t* src_node, de_node_t* dest_node)
 	dest->cone_angle_cos = src->cone_angle_cos;
 	dest->radius = src->radius;
 	dest->type = src->type;
+	dest->cast_shadows = src->cast_shadows;
 }
 
 static bool de_light_visit(de_object_visitor_t* visitor, de_node_t* node)
@@ -49,6 +63,7 @@ static bool de_light_visit(de_object_visitor_t* visitor, de_node_t* node)
 	result &= de_object_visitor_visit_float(visitor, "ConeAngle", &light->cone_angle);
 	result &= de_object_visitor_visit_float(visitor, "CosConeAngle", &light->cone_angle_cos);
 	result &= de_object_visitor_visit_float(visitor, "Radius", &light->radius);
+	result &= de_object_visitor_visit_bool(visitor, "CastShadows", &light->cast_shadows);
 	return result;
 }
 
@@ -66,6 +81,12 @@ void de_light_set_radius(de_light_t* light, float radius)
 {
 	DE_ASSERT(light);
 	light->radius = de_maxf(FLT_EPSILON, radius);
+}
+
+float de_light_get_radius(const de_light_t* light)
+{
+	DE_ASSERT(light);
+	return light->radius;
 }
 
 void de_light_set_cone_angle(de_light_t* light, float angle)

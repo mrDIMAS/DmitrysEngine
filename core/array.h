@@ -106,9 +106,9 @@
 /* Removes element at specified position */
 #define DE_ARRAY_REMOVE_AT(a, itemIndex) \
 	do { \
-		if((int)itemIndex >= 0 && itemIndex < (a).size) { \
+		if((int)(itemIndex) >= 0 && (itemIndex) < (a).size) { \
 			--(a).size; \
-			for(size_t __i = itemIndex; __i < (a).size; ++__i) { \
+			for(size_t __i = (itemIndex); __i < (a).size; ++__i) { \
 				(a).data[__i] = (a).data[__i + 1]; \
 			} \
 		} \

@@ -32,6 +32,7 @@ de_sound_context_t* de_sound_context_create(de_core_t* core)
 
 void de_sound_context_free(de_sound_context_t* ctx)
 {
+	de_sound_context_clear(ctx);
 	de_sound_device_free(&ctx->dev);
 	for (size_t i = 0; i < ctx->sounds.size; ++i) {
 		de_sound_source_t* src = ctx->sounds.data[i];
@@ -43,12 +44,30 @@ void de_sound_context_free(de_sound_context_t* ctx)
 	de_free(ctx);
 }
 
+void de_sound_context_clear(de_sound_context_t* ctx)
+{
+	for (int i = (int)ctx->sounds.size - 1; i >= 0; --i) {
+		de_sound_source_t* src = ctx->sounds.data[i];
+		if (src->play_once) {
+			de_sound_source_free(src);
+		}
+	}
+}
+
 void de_sound_context_update(de_sound_context_t* ctx)
 {
 	de_sound_context_lock(ctx);
+
 	for (size_t i = 0; i < ctx->sounds.size; ++i) {
 		de_sound_source_t* src = ctx->sounds.data[i];
 		de_sound_source_update(src);
+	}
+
+	for (int i = (int)ctx->sounds.size - 1; i >= 0; --i) {
+		de_sound_source_t* src = ctx->sounds.data[i];
+		if (src->play_once && (src->status & DE_SOUND_SOURCE_STATUS_STOPPED)) {
+			DE_ARRAY_REMOVE_AT(ctx->sounds, (size_t)i);
+		}
 	}
 
 	for (size_t i = 0; i < ctx->core->resources.size; ++i) {

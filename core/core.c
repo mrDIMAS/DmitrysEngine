@@ -51,6 +51,7 @@ static void de_core_clean(de_core_t* core)
 	while (core->scenes.head) {
 		de_scene_free(core->scenes.head);
 	}
+	de_sound_context_clear(core->sound_context);
 	for (size_t i = 0; i < core->resources.size; ++i) {
 		de_resource_t* res = core->resources.data[i];
 		if (!(res->flags & DE_RESOURCE_FLAG_PERSISTENT) && !(res->flags & DE_RESOURCE_FLAG_INTERNAL)) {
@@ -294,14 +295,14 @@ de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type
 			return NULL;
 	}
 
-	if (res && !de_resource_load(res)) {
-		DE_ARRAY_REMOVE(core->resources, res);
+	if (res && !de_resource_load(res)) {		
 		/* Hackery hack: adding ref and then immediately release to prevent
 		 * triggering of assert. This required because when resource failed to load it
 		 * still has ref count == 0 and de_resource_release does not allow to release
 		 * unreferenced resources. */
 		de_resource_add_ref(res);
 		de_resource_release(res);
+		DE_ARRAY_REMOVE(core->resources, res);
 		return NULL;
 	}
 

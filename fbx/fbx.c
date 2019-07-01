@@ -627,7 +627,7 @@ static void de_fbx_animation_curve_free(de_fbx_animation_curve_t* curve)
 	DE_ARRAY_FREE(curve->keys);
 }
 
-static de_fbx_component_t* de_fbx_read_animation_curve_node_t(de_fbx_node_t* anim_curve_fbx_node)
+static de_fbx_component_t* de_fbx_read_animation_curve_node(de_fbx_node_t* anim_curve_fbx_node)
 {
 	de_fbx_component_t* comp = de_fbx_alloc_component(DE_FBX_COMPONENT_ANIMATION_CURVE_NODE, de_fbx_get_int(anim_curve_fbx_node, 0));
 
@@ -747,7 +747,7 @@ static de_fbx_t* de_fbx_read(de_fbx_node_t* root)
 		} else if (de_str8_eq(&child->name, "AnimationCurve")) {
 			DE_ARRAY_APPEND(fbx->components, de_fbx_read_animation_curve(child));
 		} else if (de_str8_eq(&child->name, "AnimationCurveNode")) {
-			DE_ARRAY_APPEND(fbx->components, de_fbx_read_animation_curve_node_t(child));
+			DE_ARRAY_APPEND(fbx->components, de_fbx_read_animation_curve_node(child));
 		} else if (de_str8_eq(&child->name, "Deformer")) {
 			char* type = child->attributes.data[2];
 			if (strcmp(type, "Cluster") == 0) {

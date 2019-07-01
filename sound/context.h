@@ -47,6 +47,11 @@ void de_sound_context_free(de_sound_context_t* ctx);
 void de_sound_context_update(de_sound_context_t* ctx);
 
 /**
+ * @brief Internal. 
+ */
+void de_sound_context_clear(de_sound_context_t* ctx);
+
+/**
  * @brief Internal. Locks context, use with caution.
  */
 void de_sound_context_lock(de_sound_context_t* ctx);

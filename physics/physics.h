@@ -20,7 +20,7 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 #define DE_MAX_CONTACTS (8)
-#define DE_AIR_FRICTION (0.003f)
+#define DE_AIR_FRICTION (0.01f)
 
 /**
 * @class de_contact_s

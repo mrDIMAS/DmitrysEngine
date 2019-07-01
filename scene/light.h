@@ -41,14 +41,22 @@ struct de_light_t {
 	de_color_t color;     /**< Color of light */
 	float cone_angle;     /**< Angle at cone vertex in radians. Do not set directly! Use de_light_set_cone_angle.*/
 	float cone_angle_cos; /**< Precomputed cosine of angle at cone vertex. */
+	bool cast_shadows;
 };
 
 struct de_node_dispatch_table_t* de_light_get_dispatch_table(void);
 
 /**
- * @brief
+ * @brief Sets current radius of light. Radius defines maximum distance to a point
+ * at which this point can be lit. 
  */
 void de_light_set_radius(de_light_t* light, float radius);
+
+/**
+ * @brief Returns current radius of light. Radius defines maximum distance to a point
+ * at which this point can be lit. 
+ */
+float de_light_get_radius(const de_light_t* light);
 
 /**
  * @brief Sets angle in radians at cone vertex of a spot light.
@@ -61,11 +69,21 @@ void de_light_set_cone_angle(de_light_t* light, float angle);
 float de_light_get_cone_angle(const de_light_t* light);
 
 /**
-* @brief Sets current color of a light source.
-*/
+ * @brief Sets current color of a light source.
+ */
 void de_light_set_color(de_light_t* light, const de_color_t* color);
 
 /**
  * @brief Returns current color of a light source.
  */
 void de_light_get_color(const de_light_t* light, de_color_t* color);
+
+/**
+ * @brief Should light cast shadows or not.
+ */
+void de_light_set_cast_shadows(de_light_t* light, bool value);
+
+/**
+ * @brief Returns true if light should cast shadows.
+ */
+bool de_light_get_cast_shadows(const de_light_t* light);

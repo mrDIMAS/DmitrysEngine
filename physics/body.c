@@ -278,7 +278,7 @@ de_body_t* de_body_create(de_scene_t* s)
 	DE_LINKED_LIST_APPEND(s->bodies, body);
 	body->scene = s;
 	body->radius = 1.0f;
-	body->friction = 0.985f;
+	body->friction = 0.99f;
 	body->scale = (de_vec3_t) { 1, 1, 1 };
 	body->gravity = (de_vec3_t) { 0, -9.81f, 0 };
 	return body;

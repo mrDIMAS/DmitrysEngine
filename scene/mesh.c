@@ -19,13 +19,10 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/**
-* @brief Searches for root node that was instantiated from model resource.
-*/
-static de_node_t* de_mesh_get_model_root(de_node_t* node)
+de_node_t* de_mesh_get_model_root(de_node_t* node)
 {
 	do {
-		if (!node->parent && node->model_resource) {
+		if ((!node->parent || node->parent->model_resource != node->model_resource) && node->model_resource) {
 			/* node is root */
 			return node;
 		}
@@ -38,6 +35,7 @@ static void de_mesh_copy(de_node_t* src, de_node_t* dest)
 {
 	de_mesh_t* src_mesh = de_node_to_mesh(src);
 	de_mesh_t* dest_mesh = de_node_to_mesh(dest);
+	dest_mesh->cast_shadows = src_mesh->cast_shadows;
 	for (size_t i = 0; i < src_mesh->surfaces.size; ++i) {
 		DE_ARRAY_APPEND(dest_mesh->surfaces, de_surface_copy(src_mesh->surfaces.data[i]));
 	}
@@ -48,6 +46,7 @@ static void de_mesh_resolve(de_node_t* node)
 	de_mesh_t* mesh = de_node_to_mesh(node);
 	de_node_t* root = de_mesh_get_model_root(node);
 	if (!root) {
+		de_log("Mesh resolve failed - unable to find model root node for node %s. Skinning may be invalid!", de_str8_cstr(&node->name));
 		return;
 	}
 	for (size_t i = 0; i < mesh->surfaces.size; ++i) {
@@ -80,6 +79,7 @@ static bool de_mesh_visit(de_object_visitor_t* visitor, de_node_t* node)
 		}
 	}
 	bool result = true;
+	result &= de_object_visitor_visit_bool(visitor, "CastShadows", &mesh->cast_shadows);
 	/* todo: add dynamic surfaces saving */
 	return result;
 }
@@ -87,6 +87,7 @@ static bool de_mesh_visit(de_object_visitor_t* visitor, de_node_t* node)
 static void de_mesh_init(de_node_t* node)
 {
 	de_mesh_t* mesh = de_node_to_mesh(node);
+	mesh->cast_shadows = true;
 	DE_ARRAY_INIT(mesh->surfaces);
 }
 
@@ -114,8 +115,7 @@ struct de_node_dispatch_table_t* de_mesh_get_dispatch_table(void)
 
 void de_mesh_calculate_normals(de_mesh_t * mesh)
 {
-	size_t n;
-	for (n = 0; n < mesh->surfaces.size; ++n) {
+	for (size_t n = 0; n < mesh->surfaces.size; ++n) {
 		de_surface_t * surf = mesh->surfaces.data[n];
 		de_surface_calculate_normals(surf);
 	}
@@ -150,4 +150,16 @@ void de_mesh_set_texture(de_mesh_t* mesh, de_texture_t* texture)
 	for (size_t i = 0; i < mesh->surfaces.size; ++i) {
 		de_surface_set_diffuse_texture(mesh->surfaces.data[i], texture);
 	}
+}
+
+void de_mesh_set_cast_shadows(de_mesh_t* mesh, bool value)
+{
+	DE_ASSERT(mesh);
+	mesh->cast_shadows = value;
+}
+
+bool de_mesh_get_cast_shadows(const de_mesh_t* mesh)
+{
+	DE_ASSERT(mesh);
+	return mesh->cast_shadows;
 }

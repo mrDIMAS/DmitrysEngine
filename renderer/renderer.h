@@ -148,21 +148,42 @@ typedef struct de_point_shadow_map_shader_t {
 		GLint diffuse_texture;
 		GLint light_position;
 	} fs;
-}de_point_shadow_map_shader_t;
+} de_point_shadow_map_shader_t;
+
+/* Screen-Space Ambient Occlusion (SSAO) shader */
+typedef struct de_ssao_shader_t {
+	GLuint program;
+
+	struct {
+		GLint world_view_projection_matrix;
+	} vs;
+
+	struct {
+		GLint depth_texture;
+		GLint normal_texture;
+		GLint diffuse_texture;
+	} ps;
+} de_ssao_shader_t;
 
 typedef struct de_quality_settings_t {
 	/* Point shadows */
-	size_t point_shadow_map_size; /**< Size of cube map face of shadow map texture in pixels. */	
+	size_t point_shadow_map_size; /**< Size of cube map face of shadow map texture in pixels. */
 	bool point_soft_shadows; /**< Use or not percentage close filtering (smoothing) for point shadows. */
 	bool point_shadows_enabled; /**< Point shadows enabled or not. */
 	float point_shadows_distance; /**< Maximum distance from camera to draw shadows. */
 
 	/* Spot shadows */
-	size_t spot_shadow_map_size; /**< Size of square shadow map texture in pixels */	
+	size_t spot_shadow_map_size; /**< Size of square shadow map texture in pixels */
 	bool spot_soft_shadows; /**< Use or not percentage close filtering (smoothing) for spot shadows. */
 	bool spot_shadows_enabled; /**< Spot shadows enabled or not. */
 	float spot_shadows_distance; /**< Maximum distance from camera to draw shadows. */
+
+	uint32_t anisotropy_pow2; /**< Anisotropy level for textures 2^N -> 1, 2, 4, 8, 16. Maximum anisotropy level defined by GPU. */
 } de_quality_settings_t;
+
+typedef struct de_renderer_limits_t {
+	float max_anisotropy;
+} de_renderer_limits_t;
 
 struct de_renderer_t {
 	de_core_t* core;
@@ -178,9 +199,11 @@ struct de_renderer_t {
 	de_gbuffer_t gbuffer;
 	de_gbuffer_shader_t gbuffer_shader;
 	de_deferred_light_shader_t lighting_shader;
+	de_ssao_shader_t ssao_shader;
 	de_spot_shadow_map_t spot_shadow_map;
 	de_point_shadow_map_t point_shadow_map;
 	de_quality_settings_t quality_settings;
+	de_renderer_limits_t limits;
 
 	de_surface_t* quad;
 	de_surface_t* light_unit_sphere;
@@ -242,7 +265,7 @@ void de_renderer_free_surface(de_surface_t* surf);
 void de_renderer_set_framerate_limit(de_renderer_t* r, int limit);
 
 /**
- * @brief Returns pointer to quality settings structure to allow to 
+ * @brief Returns pointer to quality settings structure to allow to
  * tune renderered. \c de_renderer_apply_quality_settings must be called
  * to apply changes!
  */

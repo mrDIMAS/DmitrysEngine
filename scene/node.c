@@ -94,8 +94,6 @@
 //    Node5->Node4 and Node2->Node3 will become Node4->Node3.
 //
 
-
-
 void de_node_free(de_node_t* node)
 {
 	/* Free children first */

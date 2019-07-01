@@ -26,6 +26,7 @@
 */
 struct de_mesh_t {
 	DE_ARRAY_DECLARE(de_surface_t*, surfaces); /**< Array of pointer to surfaces */
+	bool cast_shadows;
 };
 
 struct de_node_dispatch_table_t* de_mesh_get_dispatch_table(void);
@@ -36,12 +37,26 @@ struct de_node_dispatch_table_t* de_mesh_get_dispatch_table(void);
 void de_mesh_calculate_normals(de_mesh_t * mesh);
 
 /**
-* @brief Adds surface to mesh
-* @param mesh
-* @param surf
-*
-* Uploads surface to gpu if needed
-*/
+ * @brief Adds surface to mesh.
+ */
 void de_mesh_add_surface(de_mesh_t* mesh, de_surface_t* surf);
 
+/**
+ * @brief Returns true if any of surfaces is skinned.
+ */
 bool de_mesh_is_skinned(const de_mesh_t* mesh);
+
+/**
+ * @brief Should mesh cast shadows or not.
+ */
+void de_mesh_set_cast_shadows(de_mesh_t* mesh, bool value);
+
+/**
+ * @brief Returns true if mesh should cast shadows.
+ */
+bool de_mesh_get_cast_shadows(const de_mesh_t* mesh);
+
+/**
+* @brief Searches for root node that was instantiated from model resource.
+*/
+de_node_t* de_mesh_get_model_root(de_node_t* node);

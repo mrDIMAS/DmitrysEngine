@@ -104,7 +104,7 @@ struct de_node_t {
 	de_mat4_t m_scale_pivot_inv;
 	de_aabb_t bounding_box; /**< Local bounding box of a node. */
 	de_transform_flags_t transform_flags;
-	de_node_transform_info_t transform_info;
+	de_node_transform_info_t transform_info;	
 	de_node_t* parent; /**< Pointer to parent node */
 	DE_ARRAY_DECLARE(de_node_t*, children); /**< Array of pointers to child nodes */
 	bool local_visibility; /**< Local visibility. Actual visibility defined by hierarchy. So if parent node is invisible, then child node will be too */

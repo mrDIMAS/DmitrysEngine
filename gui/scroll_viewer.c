@@ -117,7 +117,7 @@ static void de_gui_scroll_viewer_init(de_gui_node_t* n)
 	de_gui_node_attach(sv->scroll_content_presenter, sv->grid);
 
 	sv->hor_scroll_bar = de_gui_node_create(n->gui, DE_GUI_NODE_SCROLL_BAR);
-	de_gui_scroll_bar_set_orientation(sv->hor_scroll_bar, DE_GUI_SCROLL_BAR_ORIENTATION_HORIZONTAL);
+	de_gui_scroll_bar_set_orientation(sv->hor_scroll_bar, DE_GUI_ORIENTATION_HORIZONTAL);
 	de_gui_node_attach(sv->hor_scroll_bar, sv->grid);
 	de_gui_node_set_column(sv->hor_scroll_bar, 0);
 	de_gui_node_set_row(sv->hor_scroll_bar, 1);
@@ -125,7 +125,7 @@ static void de_gui_scroll_viewer_init(de_gui_node_t* n)
 	de_gui_scroll_bar_set_value_changed(sv->hor_scroll_bar, de_gui_scroll_viewer_hor_scroll_changed);
 
 	sv->ver_scroll_bar = de_gui_node_create(n->gui, DE_GUI_NODE_SCROLL_BAR);
-	de_gui_scroll_bar_set_orientation(sv->ver_scroll_bar, DE_GUI_SCROLL_BAR_ORIENTATION_VERTICAL);
+	de_gui_scroll_bar_set_orientation(sv->ver_scroll_bar, DE_GUI_ORIENTATION_VERTICAL);
 	de_gui_node_attach(sv->ver_scroll_bar, sv->grid);
 	de_gui_node_set_column(sv->ver_scroll_bar, 1);
 	de_gui_node_set_row(sv->ver_scroll_bar, 0);

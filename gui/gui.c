@@ -37,6 +37,7 @@ static bool de_gui_node_contains_point(de_gui_node_t* node, const de_vec2_t* poi
 #include "gui/slide_selector.c"
 #include "gui/image.c"
 #include "gui/check_box.c"
+#include "gui/stack_panel.c"
 
 /* Declares bubbling router for specified event callback. Bubbling router is a function which 
  * will call itself with same arguments but different caller until event marked as handled.
@@ -70,6 +71,16 @@ DE_DECLARE_ROUTED_EVENT_ROUTER(de_gui_node_route_key_up, key_up)
 
 #undef DE_DECLARE_ROUTED_EVENT_ROUTER
 
+static de_font_t* de_gui_create_default_font(de_core_t* core) {
+#define CHAR_COUNT 255
+	int char_set[CHAR_COUNT];
+	for (int i = 0; i < CHAR_COUNT; ++i) {
+		char_set[i] = i;
+	}
+	return de_font_load_ttf_from_memory(core, (void*)de_builtin_font_inconsolata, 19, char_set, CHAR_COUNT);
+#undef CHAR_COUNT
+}
+
 de_gui_t* de_gui_init(de_core_t* core)
 {
 	de_gui_t* gui = DE_NEW(de_gui_t);
@@ -84,17 +95,8 @@ de_gui_t* de_gui_init(de_core_t* core)
 	gui->tab_width = 4;
 	gui->text_buffer_size = 0x7FFF;
 	gui->text_buffer = (uint32_t*)de_calloc(gui->text_buffer_size, sizeof(*gui->text_buffer));
-
-	/* create default font */
-	{
-#define CHAR_COUNT 255
-		int char_set[CHAR_COUNT];		
-		for (int i = 0; i < CHAR_COUNT; ++i) {
-			char_set[i] = i;
-		}
-		gui->default_font = de_font_load_ttf_from_memory(core, (void*)de_builtin_font_inconsolata, 19, char_set, CHAR_COUNT);		
-#undef CHAR_COUNT
-	}
+		
+	gui->default_font = de_gui_create_default_font(core);
 
 	return gui;
 }
@@ -574,6 +576,7 @@ static de_gui_node_dispatch_table_t* de_gui_node_get_dispatch_table_by_type(de_g
 		case DE_GUI_NODE_SLIDE_SELECTOR: return de_gui_slide_selector_get_dispatch_table();
 		case DE_GUI_NODE_IMAGE: return de_gui_image_get_dispatch_table();
 		case DE_GUI_NODE_CHECK_BOX: return de_gui_check_box_get_dispatch_table();
+		case DE_GUI_NODE_STACK_PANEL: return de_gui_stack_panel_get_dispatch_table();
 		case DE_GUI_NODE_USER_CONTROL: return &stub; // TODO
         case DE_GUI_NODE_TEMPLATE: return &stub; // TODO
 	}

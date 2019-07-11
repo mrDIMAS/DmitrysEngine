@@ -35,7 +35,7 @@ static void de_gui_border_render(de_gui_draw_list_t* dl, de_gui_node_t* n, uint8
 
 	const de_vec2_t* scr_pos = &n->screen_position;
 	const de_gui_border_t* b = &n->s.border;
-	de_vec2_t tex_coords[4] = {
+	const de_vec2_t tex_coords[4] = {
 		{ 0, 0 },
 		{ 1, 0 },
 		{ 1, 1 },

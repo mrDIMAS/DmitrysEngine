@@ -32,7 +32,7 @@ static void de_gui_grid_apply_descriptor(de_gui_node_t* n, const de_gui_node_des
 	de_gui_grid_enable_draw_borders(n, grid_desc->draw_borders);
 }
 
-de_vec2_t de_gui_grid_measure_override(de_gui_node_t* n, const de_vec2_t* available_size)
+static de_vec2_t de_gui_grid_measure_override(de_gui_node_t* n, const de_vec2_t* available_size)
 {
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_GRID);
 	de_gui_grid_t* grid = &n->s.grid;
@@ -211,7 +211,7 @@ de_vec2_t de_gui_grid_measure_override(de_gui_node_t* n, const de_vec2_t* availa
 	return desired_size;
 }
 
-de_vec2_t de_gui_grid_arrange_override(de_gui_node_t* n, const de_vec2_t* final_size)
+static de_vec2_t de_gui_grid_arrange_override(de_gui_node_t* n, const de_vec2_t* final_size)
 {
 	DE_ASSERT_GUI_NODE_TYPE(n, DE_GUI_NODE_GRID);
 	de_gui_grid_t* grid = &n->s.grid;

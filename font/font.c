@@ -104,28 +104,28 @@ static void de_ttf_find_tables(de_true_type_t* ttf)
 static uint32_t de_ttf_segmented_mapping(const uint8_t* subtable, uint32_t unicode)
 {
 	const int segment_count = de_ptr_to_u16(subtable + 6) / 2;
-	const uint16_t* end_codes = (uint16_t*)(subtable + 14);
-	const uint16_t* start_codes = (uint16_t*)(subtable + 16 + 2 * segment_count);
-	const uint16_t* id_delta = (uint16_t*)(subtable + 16 + 4 * segment_count);
-	const uint16_t* id_range_offset = (uint16_t*)(subtable + 16 + 6 * segment_count);
+	const uint8_t* end_codes = subtable + 14;
+	const uint8_t* start_codes = subtable + 16 + 2 * segment_count;
+	const uint8_t* id_delta = subtable + 16 + 4 * segment_count;
+	const uint8_t* id_range_offset = subtable + 16 + 6 * segment_count;
 
 	int segment;
 	for (segment = 0; segment < segment_count; ++segment) {
-		if (de_byte_order_swap_u16(end_codes[segment]) >= unicode) {
+		if (de_ptr_to_u16(end_codes + 2 * segment) >= unicode) {
 			break;
 		}
 	}
 
 	if (segment != segment_count) {
-		const uint16_t startCode = de_byte_order_swap_u16(start_codes[segment]);
+		const uint16_t startCode = de_ptr_to_u16(start_codes + 2 * segment);
 
 		if (startCode <= unicode) {
-			const int range_offset = de_byte_order_swap_u16(id_range_offset[segment]) / 2;
+			const int range_offset = de_ptr_to_u16(id_range_offset + 2 * segment) / 2;
 
 			if (range_offset == 0) {
-				return (unicode + de_byte_order_swap_u16(id_delta[segment])) & 0xFFFF;
+				return (unicode + de_ptr_to_u16(id_delta + 2 * segment)) & 0xFFFF;
 			} else {
-				return de_byte_order_swap_u16(*(id_range_offset + segment + range_offset + (unicode - startCode)));
+				return de_ptr_to_u16(id_range_offset + 2 * (segment + range_offset + (unicode - startCode)));
 			}
 		}
 	}
@@ -147,10 +147,10 @@ static uint32_t de_ttf_dense_mapping(const uint8_t* subtable, uint32_t unicode)
 {
 	const uint16_t first = de_ptr_to_u16(subtable + 6);
 	const uint16_t entry_count = de_ptr_to_u16(subtable + 8);
-	const uint16_t* indices = (uint16_t*)(subtable + 10);
+	const uint8_t* indices = subtable + 10;
 
 	if (unicode > first && unicode < (uint16_t)(first + entry_count)) {
-		return de_byte_order_swap_u16(indices[unicode - first]);
+		return de_ptr_to_u16(indices + 2 * (unicode - first));
 	}
 
 	return 0;
@@ -248,7 +248,7 @@ static void de_ttf_prepare_contours(de_ttf_glyph_t * glyph, de_point_t* points)
 
 		for (size_t k = 0; k < to; ++k) {
 			const de_point_t * p0 = raw_contour->points.data + k;
-			const de_point_t * p1 = (k + 1 < raw_contour->points.size) ? p0 + 1 : raw_contour->points.data;
+			const de_point_t * p1 = raw_contour->points.data + (k + 1) % raw_contour->points.size;
 
 			const bool p0_off_curve = !(p0->flags & ON_CURVE_POINT);
 			const bool p1_off_curve = !(p1->flags & ON_CURVE_POINT);

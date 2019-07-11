@@ -19,14 +19,6 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-/**
-* @brief
-*/
-typedef enum de_gui_scroll_bar_orientation_t {
-	DE_GUI_SCROLL_BAR_ORIENTATION_HORIZONTAL,
-	DE_GUI_SCROLL_BAR_ORIENTATION_VERTICAL,
-} de_gui_scroll_bar_orientation_t;
-
 typedef void(*de_scroll_bar_value_changed_event_t)(de_gui_node_t*, float old_value, float new_value);
 
 typedef struct de_gui_scroll_bar_descriptor_t {
@@ -35,7 +27,7 @@ typedef struct de_gui_scroll_bar_descriptor_t {
 	float min; /**< Maximum scroll value */
 	float max; /**< Minimum scroll value */
 	float step; /**< Increment/decrement step for value. Used when user clicks on arrows */
-	de_gui_scroll_bar_orientation_t orientation; /**< Orientation: vertical or horizontal */
+	de_gui_orientation_t orientation; /**< Orientation: vertical or horizontal */
 } de_gui_scroll_bar_descriptor_t;
 
 /**
@@ -48,7 +40,7 @@ typedef struct de_gui_scroll_bar_t {
 	de_gui_node_t* indicator; /**< Lives on canvas */
 	de_gui_node_t* up_button; /**< Lives on 1st grid cell */
 	de_gui_node_t* down_button; /**< Lives on 3rd grid cell */
-	de_gui_scroll_bar_orientation_t orientation; /**< Orientation: vertical or horizontal */
+	de_gui_orientation_t orientation; /**< Orientation: vertical or horizontal */
 	float value; /**< Current scroll value */
 	float min; /**< Maximum scroll value */
 	float max; /**< Minimum scroll value */
@@ -65,7 +57,7 @@ struct de_gui_node_dispatch_table_t* de_gui_scroll_bar_get_dispatch_table(void);
 * @param node
 * @param dir
 */
-void de_gui_scroll_bar_set_orientation(de_gui_node_t* node, de_gui_scroll_bar_orientation_t dir);
+void de_gui_scroll_bar_set_orientation(de_gui_node_t* node, de_gui_orientation_t dir);
 
 /**
 * @brief

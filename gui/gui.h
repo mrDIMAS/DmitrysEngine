@@ -60,6 +60,11 @@ typedef enum de_gui_horizontal_alignment_t {
 	DE_GUI_HORIZONTAL_ALIGNMENT_RIGHT,  /**< Right alignment */
 } de_gui_horizontal_alignment_t;
 
+typedef enum de_gui_orientation_t {
+	DE_GUI_ORIENTATION_HORIZONTAL,
+	DE_GUI_ORIENTATION_VERTICAL,
+} de_gui_orientation_t;
+
 typedef void(*de_gui_callback_func_t)(de_gui_node_t*, void*);
 
 typedef struct de_gui_callback_t {
@@ -88,6 +93,7 @@ typedef struct de_gui_callback_t {
 #include "gui/slide_selector.h"
 #include "gui/image.h"
 #include "gui/check_box.h"
+#include "gui/stack_panel.h"
 
 /**
  * @brief Possible types of built-in UI nodes.
@@ -104,9 +110,10 @@ typedef enum de_gui_node_type_t {
 	DE_GUI_NODE_SCROLL_VIEWER,
 	DE_GUI_NODE_TEXT_BOX,
 	DE_GUI_NODE_IMAGE,
-	DE_GUI_NODE_GRID,                    /**< Automatically arranges children by rows and columns */
-	DE_GUI_NODE_CANVAS,                  /**< Allows user to directly set position and size of a node */
+	DE_GUI_NODE_GRID, /**< Automatically arranges children by rows and columns */
+	DE_GUI_NODE_CANVAS, /**< Allows user to directly set position and size of a node */
 	DE_GUI_NODE_SCROLL_CONTENT_PRESENTER, /**< Allows user to scroll content */
+	DE_GUI_NODE_STACK_PANEL, /**< Stacks children nodes one after each other by specified direction. */
 	DE_GUI_NODE_SLIDE_SELECTOR,
 	DE_GUI_NODE_CHECK_BOX,
 	/**
@@ -275,6 +282,7 @@ typedef struct de_gui_node_descriptor_t {
 		de_gui_image_descriptor_t image;
 		de_gui_border_descriptor_t border;
 		de_gui_check_box_descriptor_t check_box;
+		de_gui_stack_panel_descriptor_t stack_panel;
 	} s;
 } de_gui_node_descriptor_t;
 
@@ -354,6 +362,7 @@ struct de_gui_node_t {
 		de_gui_slide_selector_t slide_selector;
 		de_gui_image_t image;
 		de_gui_check_box_t check_box;
+		de_gui_stack_panel_t stack_panel;
 		void* user_control;
 	} s;
 };

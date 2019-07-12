@@ -33,7 +33,7 @@ static void de_gui_slide_selector_on_prev_click(de_gui_node_t* node, void* user_
 			ss->get_item_text(ss->items, ss->selection_index, buffer, sizeof(buffer));
 			de_gui_text_set_text_utf8(ss->current_item, buffer);
 			if (ss->selection_changed) {
-				ss->selection_changed(selector_node, ss->selection_index);
+				ss->selection_changed(selector_node, ss->items, ss->selection_index);
 			}
 		}
 	} else {
@@ -55,7 +55,7 @@ static void de_gui_slide_selector_on_next_click(de_gui_node_t* node, void* user_
 			ss->get_item_text(ss->items, ss->selection_index, buffer, sizeof(buffer));
 			de_gui_text_set_text_utf8(ss->current_item, buffer);
 			if (ss->selection_changed) {
-				ss->selection_changed(selector_node, ss->selection_index);
+				ss->selection_changed(selector_node, ss->items, ss->selection_index);
 			}
 		}
 	} else {

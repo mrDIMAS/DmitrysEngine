@@ -20,9 +20,9 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 typedef struct de_video_mode_t {
-	unsigned int width;
-	unsigned int height;
-	unsigned int bits_per_pixel;
+	uint32_t width;
+	uint32_t height;
+	uint32_t bits_per_pixel;
 	bool fullscreen;
 } de_video_mode_t;
 
@@ -59,23 +59,21 @@ bool de_core_is_running(de_core_t* core);
  */
 void de_core_stop(de_core_t* core);
 
-/**
- * @brief Returns current width of render window.
- */
-unsigned int de_core_get_window_width(de_core_t* core);
-
-/**
- * @brief Returns current height of render window.
- */
-unsigned int de_core_get_window_height(de_core_t* core);
+de_video_mode_t de_core_get_current_video_mode(de_core_t* core);
 
 /**
  * @brief Returns current renderer of the core.
  */
 de_renderer_t* de_core_get_renderer(de_core_t* core);
 
+/**
+* @brief Returns pointer to some data that was previously specified by \c de_core_get_user_pointer
+*/
 void* de_core_get_user_pointer(de_core_t* core);
 
+/**
+ * @brief Sets pointer to some data that can be used later on. Default value is NULL.
+ */
 void de_core_set_user_pointer(de_core_t* core, void* ptr);
 
 /**
@@ -132,6 +130,10 @@ de_resource_t* de_core_request_resource_with_flags(de_core_t* core, de_resource_
  */
 de_resource_t* de_core_find_resource_of_type(de_core_t* core, de_resource_type_t type, const de_path_t* path);
 
+/**
+ * @brief Prepares core for visit. Locks other threads so visit will become thread-safe.
+ * It must be called before de_core_visit!
+ */
 void de_core_begin_visit(de_core_t* core);
 
 /**
@@ -145,52 +147,15 @@ void de_core_begin_visit(de_core_t* core);
  */
 bool de_core_visit(de_object_visitor_t* visitor, de_core_t* core);
 
+/**
+ * @brief Finalizes visit of core. Unlocks threads and resumes execution.
+ */
 void de_core_end_visit(de_core_t* core);
 
 /********************************************************************
 * Platform-specific function prototypes.                            *
 * Each of below functions must be implemented for each platform.    *
 ********************************************************************/
-
-/**
- * @brief Initializes platform specific stuff.
- */
-void de_core_platform_init(de_core_t* core);
-
-/**
- * @brief Doing platform specific shutdown routine.
- */
-void de_core_platform_shutdown(de_core_t* core);
-
-/**
- * @brief Polls platform events.
- */
-void de_core_platform_poll_events(de_core_t* core);
-
-/**
- * @brief Retrieves OpenGL extension function pointer.
- */
-de_proc de_core_platform_get_proc_address(const char *name);
-
-/**
- * @brief Swaps buffers: back and front.
- */
-void de_core_platform_swap_buffers(de_core_t* core);
-
-/**
- * @brief Shows message box.
- */
-void de_core_platform_message_box(de_core_t* core, const char * msg, const char* title);
-
-/**
- * @brief Sets title of rendering window.
- */
-void de_core_platform_set_window_title(de_core_t* core, const char* title);
-
-/**
- * @brief Sets new video mode.
- */
-void de_core_set_video_mode(de_core_t* core, const de_video_mode_t* vm);
 
 /**
  * @brief Gets current desktop video mode.
@@ -201,3 +166,53 @@ void de_get_desktop_video_mode(de_video_mode_t* vm);
  * @brief Enumerates available video modes. Result array must be freed.
  */
 de_video_mode_array_t de_enum_video_modes();
+
+/**
+ * @brief Sets title of rendering window.
+ */
+void de_core_set_window_title(de_core_t* core, const char* title);
+
+/**
+ * @brief Sets new video mode. Notifies internal systems about new video mode.
+ */
+void de_core_set_video_mode(de_core_t* core, const de_video_mode_t* vm);
+
+/**
+ * @brief Shows message box.
+ */
+void de_message_box(const char * msg, const char* title);
+
+/**
+ * @brief Retrieves OpenGL extension function pointer.
+ */
+de_proc de_get_proc_address(const char *name);
+
+/**
+ * Internal functions.
+ * Do not use directly!
+ */
+
+/**
+ * @brief Internal. Initializes platform specific stuff.
+ */
+void de_core_platform_init(de_core_t* core);
+
+/**
+ * @brief Internal. Doing platform specific shutdown routine.
+ */
+void de_core_platform_shutdown(de_core_t* core);
+
+/**
+ * @brief Internal. Polls platform events.
+ */
+void de_core_platform_poll_events(de_core_t* core);
+
+/**
+ * @brief Internal. Swaps buffers: back and front.
+ */
+void de_core_platform_swap_buffers(de_core_t* core);
+
+/**
+ * @brief Internal. Sets new video mode.
+ */
+void de_core_platform_set_video_mode(de_core_t* core, const de_video_mode_t* vm);

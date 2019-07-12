@@ -406,7 +406,7 @@ void de_core_platform_init(de_core_t* core)
 	SetActiveWindow(core->platform.window);
 	SetForegroundWindow(core->platform.window);
 	if (core->params.title) {
-		de_core_platform_set_window_title(core, core->params.title);
+		de_core_set_window_title(core, core->params.title);
 	}
 	/* Initialize OpenGL */
 	de_log("Win32: Initializing OpenGL");
@@ -477,7 +477,7 @@ void de_core_platform_poll_events(de_core_t* core)
 	}
 }
 
-de_proc de_core_platform_get_proc_address(const char* name)
+de_proc de_get_proc_address(const char* name)
 {
 	return (de_proc)wglGetProcAddress(name);
 }
@@ -495,9 +495,9 @@ double de_time_get_seconds()
 	return time.QuadPart / (double)frequency.QuadPart;
 }
 
-void de_core_platform_message_box(de_core_t* core, const char* msg, const char* title)
+void de_message_box(const char* msg, const char* title)
 {
-	MessageBoxA(core->platform.window, msg, title, MB_OK | MB_ICONERROR);
+	MessageBoxA(NULL, msg, title, MB_OK | MB_ICONERROR);
 }
 
 void de_sleep(int milliseconds)
@@ -511,7 +511,7 @@ void de_sleep(int milliseconds)
 	}
 }
 
-void de_core_platform_set_window_title(de_core_t* core, const char* title)
+void de_core_set_window_title(de_core_t* core, const char* title)
 {
 	DE_ASSERT(core);
 	DE_ASSERT(title);
@@ -524,7 +524,7 @@ void de_core_platform_set_window_title(de_core_t* core, const char* title)
 	}
 }
 
-void de_core_set_video_mode(de_core_t* core, const de_video_mode_t* vm)
+void de_core_platform_set_video_mode(de_core_t* core, const de_video_mode_t* vm)
 {
 	HWND wnd = core->platform.window;
 	if (vm->fullscreen) {

@@ -22,7 +22,7 @@
 #define DE_GUI_SLIDE_SELECTOR_BUFFER_SIZE 1024
 
 typedef void(*de_gui_item_text_getter)(void* items, int n, char* out_buffer, int out_buffer_size);
-typedef void(*de_gui_selection_changed)(de_gui_node_t* node, int new_item);
+typedef void(*de_gui_selection_changed)(de_gui_node_t* node, void* items, int new_item);
 
 typedef struct de_gui_slide_selector_t {
 	de_gui_node_t* current_item;

@@ -165,7 +165,7 @@ typedef struct de_ssao_shader_t {
 	} ps;
 } de_ssao_shader_t;
 
-typedef struct de_quality_settings_t {
+typedef struct de_renderer_quality_settings_t {
 	/* Point shadows */
 	size_t point_shadow_map_size; /**< Size of cube map face of shadow map texture in pixels. */
 	bool point_soft_shadows; /**< Use or not percentage close filtering (smoothing) for point shadows. */
@@ -179,7 +179,7 @@ typedef struct de_quality_settings_t {
 	float spot_shadows_distance; /**< Maximum distance from camera to draw shadows. */
 
 	uint32_t anisotropy_pow2; /**< Anisotropy level for textures 2^N -> 1, 2, 4, 8, 16. Maximum anisotropy level defined by GPU. */
-} de_quality_settings_t;
+} de_renderer_quality_settings_t;
 
 typedef struct de_renderer_limits_t {
 	float max_anisotropy;
@@ -202,7 +202,7 @@ struct de_renderer_t {
 	de_ssao_shader_t ssao_shader;
 	de_spot_shadow_map_t spot_shadow_map;
 	de_point_shadow_map_t point_shadow_map;
-	de_quality_settings_t quality_settings;
+	de_renderer_quality_settings_t quality_settings;
 	de_renderer_limits_t limits;
 
 	de_surface_t* quad;
@@ -234,16 +234,6 @@ struct de_renderer_t {
 };
 
 /**
- * @brief Initializes rendering pipeline.
- */
-de_renderer_t* de_renderer_init(de_core_t* core);
-
-/**
- * @brief Frees all allocated resources.
- */
-void de_renderer_free(de_renderer_t* r);
-
-/**
 * @brief Creates new surface.
 *
 * Also creates buffers on GPU side.
@@ -265,22 +255,19 @@ void de_renderer_free_surface(de_surface_t* surf);
 void de_renderer_set_framerate_limit(de_renderer_t* r, int limit);
 
 /**
- * @brief Returns pointer to quality settings structure to allow to
- * tune renderered. \c de_renderer_apply_quality_settings must be called
- * to apply changes!
+ * @brief Returns copy of current quality settings of the renderer.
  */
-de_quality_settings_t* de_renderer_get_quality_settings(de_renderer_t* r);
+de_renderer_quality_settings_t de_renderer_get_quality_settings(de_renderer_t* r);
 
 /**
- * @brief Sets default quality settings. \c de_renderer_apply_quality_settings must be called
- * to apply changes!
+ * @brief Gets default quality settings.
  */
-void de_renderer_set_default_quality_settings(de_renderer_t* r);
+de_renderer_quality_settings_t de_renderer_get_default_quality_settings(de_renderer_t* r);
 
 /**
  * @brief Applies current quality settings.
  */
-void de_renderer_apply_quality_settings(de_renderer_t* r);
+void de_renderer_apply_quality_settings(de_renderer_t* r, const de_renderer_quality_settings_t* settings);
 
 /**
  * @brief Performs rendering of every scene
@@ -296,3 +283,24 @@ size_t de_renderer_get_mean_fps(de_renderer_t* r);
  * @brief Returns time consumed by the renderer to draw one frame.
  */
 double de_render_get_frame_time(de_renderer_t* r);
+
+/**
+ * Internal functions.
+ * Do not use!
+ */
+
+/**
+ * @brief Internal. Initializes rendering pipeline.
+ */
+de_renderer_t* de_renderer_init(de_core_t* core);
+
+/**
+ * @brief Internal. Frees all allocated resources.
+ */
+void de_renderer_free(de_renderer_t* r);
+
+/**
+ * @brief Internal. Notifies renderer that video mode has changed so renderer
+ * can recreate framebuffers and other video mode-dependant stuff.
+ */
+void de_renderer_notify_video_mode_changed(de_renderer_t* r, const de_video_mode_t* new_video_mode);

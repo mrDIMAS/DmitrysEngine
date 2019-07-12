@@ -159,6 +159,7 @@ typedef struct de_sound_context_t de_sound_context_t;
 typedef struct de_sound_decoder_t de_sound_decoder_t;
 typedef struct de_resource_t de_resource_t;
 typedef struct de_object_visitor_t de_object_visitor_t;
+typedef struct de_video_mode_t de_video_mode_t;
 
 /**
 * Order is important here, because some parts depends on other

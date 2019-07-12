@@ -56,13 +56,13 @@ static void de_core_clean(de_core_t* core)
 		de_resource_t* res = core->resources.data[i];
 		if (!(res->flags & DE_RESOURCE_FLAG_PERSISTENT) && !(res->flags & DE_RESOURCE_FLAG_INTERNAL)) {
 			/* If this error triggered then you have unreleased resource in your *game* code.
-			 * If resource intended to be persistent (like UI textures), then you forgot to 
-			 * set such flag. In other cases most likely that you forgot to call some 
-			 * yourgameentity_free method. This is required check because if resource does 
-			 * not released properly then you most likely will have memory leaks or event 
+			 * If resource intended to be persistent (like UI textures), then you forgot to
+			 * set such flag. In other cases most likely that you forgot to call some
+			 * yourgameentity_free method. This is required check because if resource does
+			 * not released properly then you most likely will have memory leaks or event
 			 * worse - memory corruption. Recheck your code and make sure that create/free \
 			 * calls match. */
-			de_fatal_error("core cleanup: expecting resource '%s' to have 'persistent' flag set, but it doesn't!", 
+			de_fatal_error("core cleanup: expecting resource '%s' to have 'persistent' flag set, but it doesn't!",
 				de_path_cstr(&res->source));
 		}
 	}
@@ -92,7 +92,7 @@ bool de_core_visit(de_object_visitor_t* visitor, de_core_t* core)
 	}
 	DE_ARRAY_DECLARE(de_resource_t*, visited_resources);
 	DE_ARRAY_INIT(visited_resources);
-	if (!visitor->is_reading) {		
+	if (!visitor->is_reading) {
 		/* copy only serializable resources to temp collection */
 		for (size_t i = 0; i < core->resources.size; ++i) {
 			de_resource_t* res = core->resources.data[i];
@@ -121,7 +121,7 @@ bool de_core_visit(de_object_visitor_t* visitor, de_core_t* core)
 	}
 	DE_ARRAY_FREE(visited_resources);
 	result &= de_sound_context_visit(visitor, core->sound_context);
-	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Scenes", core->scenes, de_scene_t, de_scene_visit);	
+	result &= DE_OBJECT_VISITOR_VISIT_INTRUSIVE_LINKED_LIST(visitor, "Scenes", core->scenes, de_scene_t, de_scene_visit);
 	return result;
 }
 
@@ -165,7 +165,7 @@ void de_core_shutdown(de_core_t* core)
 		de_resource_t* res = core->resources.data[i];
 		de_log("unrealeased resource found -> mem leaks. details:\n\tpath: %s\n\tref count: %d",
 			de_path_cstr(&res->source), res->ref_count);
-	}	
+	}
 	de_core_platform_shutdown(core);
 	DE_ARRAY_FREE(core->resources);
 	DE_ARRAY_FREE(core->events_queue);
@@ -184,14 +184,9 @@ void de_core_stop(de_core_t* core)
 	core->is_running = false;
 }
 
-unsigned int de_core_get_window_width(de_core_t* core)
+de_video_mode_t de_core_get_current_video_mode(de_core_t* core)
 {
-	return core->params.video_mode.width;
-}
-
-unsigned int de_core_get_window_height(de_core_t* core)
-{
-	return core->params.video_mode.height;
+	return core->params.video_mode;
 }
 
 void* de_core_get_user_pointer(de_core_t* core)
@@ -212,6 +207,15 @@ de_renderer_t* de_core_get_renderer(de_core_t* core)
 de_gui_t* de_core_get_gui(de_core_t* core)
 {
 	return core->gui;
+}
+
+void de_core_set_video_mode(de_core_t* core, const de_video_mode_t* vm)
+{
+	de_core_platform_set_video_mode(core, vm);
+
+	de_renderer_notify_video_mode_changed(core->renderer, vm);
+
+	de_log("core: video mode has changed to %dx%d@%d", vm->width, vm->height, vm->bits_per_pixel);
 }
 
 de_sound_context_t* de_core_get_sound_context(de_core_t* core)
@@ -295,7 +299,7 @@ de_resource_t* de_core_request_resource(de_core_t* core, de_resource_type_t type
 			return NULL;
 	}
 
-	if (res && !de_resource_load(res)) {		
+	if (res && !de_resource_load(res)) {
 		/* Hackery hack: adding ref and then immediately release to prevent
 		 * triggering of assert. This required because when resource failed to load it
 		 * still has ref count == 0 and de_resource_release does not allow to release

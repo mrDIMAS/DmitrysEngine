@@ -515,10 +515,12 @@ void de_gui_update(de_gui_t* gui)
 {
 	de_gui_node_t* n;
 
+	const de_video_mode_t video_mode = de_core_get_current_video_mode(gui->core);
+
 	/* Step 1. Recursive Measure pass from root nodes with screen size as constraint. */
 	const de_vec2_t size_for_child = {
-		(float)de_core_get_window_width(gui->core),
-		(float)de_core_get_window_height(gui->core)
+		(float)video_mode.width,
+		(float)video_mode.height
 	};
 	DE_LINKED_LIST_FOR_EACH(gui->nodes, n)
 	{
@@ -534,8 +536,8 @@ void de_gui_update(de_gui_t* gui)
 			const de_rectf_t rect = {
 				n->desired_local_position.x,
 				n->desired_local_position.y,
-				(float)de_core_get_window_width(gui->core),
-				(float)de_core_get_window_height(gui->core)
+				(float)video_mode.width,
+				(float)video_mode.height
 			};
 			de_gui_node_arrange(n, &rect);
 		}

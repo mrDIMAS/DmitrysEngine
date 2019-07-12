@@ -216,10 +216,10 @@ static void de_renderer_upload_surface(de_surface_t* s);
 
 static void de_renderer_load_extensions()
 {
-#define GET_GL_EXT(type, func) func = (type)de_core_platform_get_proc_address(#func); \
+#define GET_GL_EXT(type, func) func = (type)de_get_proc_address(#func); \
 								   if(!func) de_fatal_error("Unable to load "#func" function pointer");
 
-#define GET_GL_EXT_OPTIONAL(type, func) func = (type)de_core_platform_get_proc_address(#func);
+#define GET_GL_EXT_OPTIONAL(type, func) func = (type)de_get_proc_address(#func);
 
 	GET_GL_EXT(PFNGLCREATESHADERPROC, glCreateShader);
 	GET_GL_EXT(PFNGLDELETESHADERPROC, glDeleteShader);
@@ -293,12 +293,12 @@ static void de_renderer_load_extensions()
 	de_log("Extensions loaded!");
 }
 
-static void de_renderer_create_gbuffer(de_renderer_t* r, int width, int height)
+static void de_renderer_create_gbuffer(de_renderer_t* r, uint32_t width, uint32_t height)
 {
-	de_gbuffer_t * gbuf = &r->gbuffer;
+	de_gbuffer_t* gbuffer = &r->gbuffer;
 
-	DE_GL_CALL(glGenFramebuffers(1, &gbuf->fbo));
-	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, gbuf->fbo));
+	DE_GL_CALL(glGenFramebuffers(1, &gbuffer->fbo));
+	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, gbuffer->fbo));
 
 	const GLenum buffers[] = {
 		GL_COLOR_ATTACHMENT0_EXT,
@@ -307,49 +307,49 @@ static void de_renderer_create_gbuffer(de_renderer_t* r, int width, int height)
 	};
 	DE_GL_CALL(glDrawBuffers(3, buffers));
 
-	DE_GL_CALL(glGenRenderbuffers(1, &gbuf->depth_rt));
-	DE_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, gbuf->depth_rt));
+	DE_GL_CALL(glGenRenderbuffers(1, &gbuffer->depth_rt));
+	DE_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, gbuffer->depth_rt));
 	DE_GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_R32F, width, height));
-	DE_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, gbuf->depth_rt));
+	DE_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, gbuffer->depth_rt));
 
-	DE_GL_CALL(glGenRenderbuffers(1, &gbuf->color_rt));
-	DE_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, gbuf->color_rt));
+	DE_GL_CALL(glGenRenderbuffers(1, &gbuffer->color_rt));
+	DE_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, gbuffer->color_rt));
 	DE_GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height));
-	DE_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_RENDERBUFFER, gbuf->color_rt));
+	DE_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_RENDERBUFFER, gbuffer->color_rt));
 
-	DE_GL_CALL(glGenRenderbuffers(1, &gbuf->normal_rt));
-	DE_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, gbuf->normal_rt));
+	DE_GL_CALL(glGenRenderbuffers(1, &gbuffer->normal_rt));
+	DE_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, gbuffer->normal_rt));
 	DE_GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height));
-	DE_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_RENDERBUFFER, gbuf->normal_rt));
+	DE_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_RENDERBUFFER, gbuffer->normal_rt));
 
-	DE_GL_CALL(glGenRenderbuffers(1, &gbuf->depth_buffer));
-	DE_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, gbuf->depth_buffer));
+	DE_GL_CALL(glGenRenderbuffers(1, &gbuffer->depth_buffer));
+	DE_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, gbuffer->depth_buffer));
 	DE_GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height));
-	DE_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, gbuf->depth_buffer));
+	DE_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, gbuffer->depth_buffer));
 
-	DE_GL_CALL(glGenTextures(1, &gbuf->depth_texture));
-	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, gbuf->depth_texture));
+	DE_GL_CALL(glGenTextures(1, &gbuffer->depth_texture));
+	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, gbuffer->depth_texture));
 	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 	DE_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_BGRA, GL_FLOAT, NULL));
 
-	DE_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gbuf->depth_texture, 0));
+	DE_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gbuffer->depth_texture, 0));
 
-	DE_GL_CALL(glGenTextures(1, &gbuf->color_texture));
-	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, gbuf->color_texture));
+	DE_GL_CALL(glGenTextures(1, &gbuffer->color_texture));
+	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, gbuffer->color_texture));
 	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 	DE_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
 
-	DE_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gbuf->color_texture, 0));
+	DE_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, gbuffer->color_texture, 0));
 
-	DE_GL_CALL(glGenTextures(1, &gbuf->normal_texture));
-	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, gbuf->normal_texture));
+	DE_GL_CALL(glGenTextures(1, &gbuffer->normal_texture));
+	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, gbuffer->normal_texture));
 	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 	DE_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
 
-	DE_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gbuf->normal_texture, 0));
+	DE_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, gbuffer->normal_texture, 0));
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 		de_fatal_error("Unable to construct G-Buffer FBO.");
@@ -358,29 +358,58 @@ static void de_renderer_create_gbuffer(de_renderer_t* r, int width, int height)
 	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
 	/* Create another framebuffer for stencil optimizations */
-	DE_GL_CALL(glGenFramebuffers(1, &gbuf->opt_fbo));
-	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, gbuf->opt_fbo));
+	DE_GL_CALL(glGenFramebuffers(1, &gbuffer->opt_fbo));
+	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, gbuffer->opt_fbo));
 
 	const GLenum lightBuffers[] = {
 		GL_COLOR_ATTACHMENT0_EXT
 	};
 	DE_GL_CALL(glDrawBuffers(1, lightBuffers));
 
-	DE_GL_CALL(glGenTextures(1, &gbuf->frame_texture));
-	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, gbuf->frame_texture));
+	DE_GL_CALL(glGenTextures(1, &gbuffer->frame_texture));
+	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, gbuffer->frame_texture));
 	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 	DE_GL_CALL(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
 	DE_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
 
-	DE_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gbuf->frame_texture, 0));
+	DE_GL_CALL(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, gbuffer->frame_texture, 0));
 
-	DE_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, gbuf->depth_buffer));
+	DE_GL_CALL(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, gbuffer->depth_buffer));
 
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 		de_fatal_error("Unable to initialize Stencil FBO.");
 	}
 
 	DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+}
+
+static void de_renderer_set_gbuffer_size(de_renderer_t* r, uint32_t width, uint32_t height)
+{
+	de_gbuffer_t* gbuffer = &r->gbuffer;
+
+	DE_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, gbuffer->depth_rt));
+	DE_GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_R32F, width, height));
+
+	DE_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, gbuffer->color_rt));
+	DE_GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height));
+
+	DE_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, gbuffer->normal_rt));
+	DE_GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height));
+
+	DE_GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, gbuffer->depth_buffer));
+	DE_GL_CALL(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height));
+
+	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, gbuffer->depth_texture));
+	DE_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_BGRA, GL_FLOAT, NULL));
+
+	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, gbuffer->color_texture));
+	DE_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
+
+	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, gbuffer->normal_texture));
+	DE_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
+
+	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, gbuffer->frame_texture));
+	DE_GL_CALL(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, NULL));
 }
 
 static void de_renderer_create_spot_shadow_map(de_renderer_t* r, size_t size)
@@ -1094,35 +1123,37 @@ static void de_renderer_create_shaders(de_renderer_t* r)
 	de_renderer_create_point_shadow_map_shader(r);
 }
 
-void de_renderer_set_default_quality_settings(de_renderer_t* r)
+de_renderer_quality_settings_t de_renderer_get_default_quality_settings(de_renderer_t* r)
 {
-	de_quality_settings_t* settings = &r->quality_settings;
+	DE_UNUSED(r);
 
-	settings->point_shadow_map_size = 1024;
-	settings->point_shadows_distance = 10;
-	settings->point_shadows_enabled = false;
-	settings->point_soft_shadows = true;
+	return(de_renderer_quality_settings_t) {
+		.point_shadow_map_size = 1024,
+		.point_shadows_distance = 10,
+		.point_shadows_enabled = false,
+		.point_soft_shadows = true,
 
-	settings->spot_shadow_map_size = 1024;
-	settings->spot_shadows_distance = 10;
-	settings->spot_shadows_enabled = false;
-	settings->spot_soft_shadows = true;
+		.spot_shadow_map_size = 1024,
+		.spot_shadows_distance = 10,
+		.spot_shadows_enabled = false,
+		.spot_soft_shadows = true,
 
-	settings->anisotropy_pow2 = 2;
+		.anisotropy_pow2 = 2
+	};
 }
 
-de_quality_settings_t* de_renderer_get_quality_settings(de_renderer_t* r)
+de_renderer_quality_settings_t de_renderer_get_quality_settings(de_renderer_t* r)
 {
 	DE_ASSERT(r);
-	return &r->quality_settings;
+	return r->quality_settings;
 }
 
-void de_renderer_apply_quality_settings(de_renderer_t* r)
+void de_renderer_apply_quality_settings(de_renderer_t* r, const de_renderer_quality_settings_t* settings)
 {
 	DE_ASSERT(r);
 
-	const de_quality_settings_t* settings = &r->quality_settings;
-
+	r->quality_settings = *settings;
+	
 	/* Point shadow map */
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_CUBE_MAP, r->point_shadow_map.texture));
 	for (size_t i = 0; i < 6; ++i) {
@@ -1145,7 +1176,7 @@ de_renderer_t* de_renderer_init(de_core_t* core)
 	r->core = core;
 	r->min_fps = 32768;
 
-	de_renderer_set_default_quality_settings(r);
+	r->quality_settings = de_renderer_get_default_quality_settings(r);
 
 	de_log("GPU Vendor: %s", glGetString(GL_VENDOR));
 	de_log("GPU: %s", glGetString(GL_RENDERER));
@@ -1173,11 +1204,8 @@ de_renderer_t* de_renderer_init(de_core_t* core)
 	de_renderer_create_spot_shadow_map(r, r->quality_settings.spot_shadow_map_size);
 	de_renderer_create_point_shadow_map(r, r->quality_settings.point_shadow_map_size);
 
-	/* Create fullscreen quad */
+	/* Create unit quad that will be scaled to fullscreen by matrix */
 	{
-		const float w = (float)core->params.video_mode.width;
-		const float h = (float)core->params.video_mode.height;
-
 		de_surface_shared_data_t* data = de_surface_shared_data_create(4, 6);
 
 		const int faces[] = { 0, 1, 2, 0, 2, 3 };
@@ -1185,9 +1213,9 @@ de_renderer_t* de_renderer_init(de_core_t* core)
 		data->index_count = 6;
 
 		data->positions[0] = (de_vec3_t) { 0, 0, 0 };
-		data->positions[1] = (de_vec3_t) { w, 0, 0 };
-		data->positions[2] = (de_vec3_t) { w, h, 0 };
-		data->positions[3] = (de_vec3_t) { 0, h, 0 };
+		data->positions[1] = (de_vec3_t) { 1, 0, 0 };
+		data->positions[2] = (de_vec3_t) { 1, 1, 0 };
+		data->positions[3] = (de_vec3_t) { 0, 1, 0 };
 		data->tex_coords[0] = (de_vec2_t) { 0, 1 };
 		data->tex_coords[1] = (de_vec2_t) { 1, 1 };
 		data->tex_coords[2] = (de_vec2_t) { 1, 0 };
@@ -1243,6 +1271,11 @@ de_renderer_t* de_renderer_init(de_core_t* core)
 	r->render_bones = true;
 
 	return r;
+}
+
+void de_renderer_notify_video_mode_changed(de_renderer_t* r, const de_video_mode_t* new_video_mode) 
+{
+	de_renderer_set_gbuffer_size(r, new_video_mode->width, new_video_mode->height);
 }
 
 void de_renderer_free(de_renderer_t* r)
@@ -1614,10 +1647,19 @@ void de_renderer_render(de_renderer_t* r)
 {
 	de_core_t* core = r->core;
 	static int last_time_ms;
-	de_mat4_t y_flip_ortho, ortho;
-	const float w = (float)core->params.video_mode.width;
-	const float h = (float)core->params.video_mode.height;
+	
+	const uint32_t frame_width = core->params.video_mode.width;
+	const uint32_t frame_height = core->params.video_mode.height;
 	const double frame_start_time = de_time_get_seconds();
+
+	de_mat4_t y_flip_ortho;
+	de_mat4_ortho(&y_flip_ortho, 0, (float)frame_width, (float)frame_height, 0, -1, 1);
+
+	de_mat4_t frame_scale_matrix;
+	de_mat4_scale(&frame_scale_matrix, &(de_vec3_t) { (float)frame_width, (float)frame_height, 0.0 });
+
+	de_mat4_t frame_mvp_matrix;
+	de_mat4_mul(&frame_mvp_matrix, &y_flip_ortho, &frame_scale_matrix);
 
 	r->draw_calls = 0;
 
@@ -1676,7 +1718,7 @@ void de_renderer_render(de_renderer_t* r)
 		de_frustum_t frustum;
 		de_frustum_from_matrix(&frustum, &camera->view_projection_matrix);
 
-		de_renderer_set_viewport(&camera->viewport, core->params.video_mode.width, core->params.video_mode.height);
+		de_renderer_set_viewport(&camera->viewport, frame_width, frame_height);
 
 		/* Render each node */
 		for (de_node_t* node = scene->nodes.head; node; node = node->next) {
@@ -1755,9 +1797,8 @@ void de_renderer_render(de_renderer_t* r)
 
 		/* add ambient lighting */
 		DE_GL_CALL(glUseProgram(r->ambient_shader.program));
-
-		de_mat4_ortho(&y_flip_ortho, 0, w, h, 0, -1, 1);
-		DE_GL_CALL(glUniformMatrix4fv(r->ambient_shader.wvp_matrix, 1, GL_FALSE, y_flip_ortho.f));
+	
+		DE_GL_CALL(glUniformMatrix4fv(r->ambient_shader.wvp_matrix, 1, GL_FALSE, frame_mvp_matrix.f));
 
 		DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
 		DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.color_texture));
@@ -1887,7 +1928,7 @@ void de_renderer_render(de_renderer_t* r)
 					DE_GL_CALL(glDepthMask(GL_FALSE));
 					DE_GL_CALL(glEnable(GL_BLEND));
 					DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, r->gbuffer.opt_fbo));
-					de_renderer_set_viewport(&camera->viewport, core->params.video_mode.width, core->params.video_mode.height);
+					de_renderer_set_viewport(&camera->viewport, frame_width, frame_height);
 				} else if (light->type == DE_LIGHT_TYPE_POINT && r->quality_settings.point_shadows_enabled && render_shadows) {
 					const de_point_shadow_map_t* shadow_map = &r->point_shadow_map;
 
@@ -1989,7 +2030,7 @@ void de_renderer_render(de_renderer_t* r)
 					DE_GL_CALL(glDepthMask(GL_FALSE));
 					DE_GL_CALL(glEnable(GL_BLEND));
 					DE_GL_CALL(glBindFramebuffer(GL_FRAMEBUFFER, r->gbuffer.opt_fbo));
-					de_renderer_set_viewport(&camera->viewport, core->params.video_mode.width, core->params.video_mode.height);
+					de_renderer_set_viewport(&camera->viewport, frame_width, frame_height);
 				}
 
 				/* Render fullscreen quad with lighting */
@@ -2047,7 +2088,7 @@ void de_renderer_render(de_renderer_t* r)
 				DE_GL_CALL(glUniform4f(shader->light_color, clr[0], clr[1], clr[2], clr[3]));
 				DE_GL_CALL(glUniform1f(shader->light_cone_angle_cos, light->cone_angle_cos));
 				DE_GL_CALL(glUniform3f(shader->light_direction, light_emit_direction.x, light_emit_direction.y, light_emit_direction.z));
-				DE_GL_CALL(glUniformMatrix4fv(shader->wvp_matrix, 1, GL_FALSE, y_flip_ortho.f));
+				DE_GL_CALL(glUniformMatrix4fv(shader->wvp_matrix, 1, GL_FALSE, frame_mvp_matrix.f));
 
 				if (render_shadows && (r->quality_settings.spot_shadows_enabled || r->quality_settings.point_shadows_enabled)) {
 					DE_GL_CALL(glUniform1i(shader->light_type, light->type));
@@ -2079,7 +2120,7 @@ void de_renderer_render(de_renderer_t* r)
 		if (r->render_normals) {
 			DE_GL_CALL(glUseProgram(r->flat_shader.program));
 
-			de_renderer_set_viewport(&camera->viewport, core->params.video_mode.width, core->params.video_mode.height);
+			de_renderer_set_viewport(&camera->viewport, frame_width, frame_height);
 
 			/* Render each node */
 			for (de_node_t* node = scene->nodes.head; node; node = node->next) {
@@ -2097,7 +2138,7 @@ void de_renderer_render(de_renderer_t* r)
 		if (r->render_bones) {
 			DE_GL_CALL(glUseProgram(r->flat_shader.program));
 
-			de_renderer_set_viewport(&camera->viewport, core->params.video_mode.width, core->params.video_mode.height);
+			de_renderer_set_viewport(&camera->viewport, frame_width, frame_height);
 
 			/* Render each node */
 			for (de_node_t* node = scene->nodes.head; node; node = node->next) {
@@ -2215,8 +2256,8 @@ void de_renderer_render(de_renderer_t* r)
 			DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.depth_texture));
 			DE_GL_CALL(glUniform1i(shader->fs.depth_buffer_texture, 1));
 
-			const float inv_width = 1.0f / core->params.video_mode.width;
-			const float inv_height = 1.0f / core->params.video_mode.height;
+			const float inv_width = 1.0f / frame_width;
+			const float inv_height = 1.0f / frame_height;
 			DE_GL_CALL(glUniform2f(shader->fs.inv_screen_size, inv_width, inv_height));
 
 			DE_GL_CALL(glUniform2f(shader->fs.proj_params, camera->z_far, camera->z_near));
@@ -2234,11 +2275,11 @@ void de_renderer_render(de_renderer_t* r)
 	DE_GL_CALL(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));
 
 	const de_rectf_t gui_viewport = { 0, 0, 1, 1 };
-	de_renderer_set_viewport(&gui_viewport, core->params.video_mode.width, core->params.video_mode.height);
+	de_renderer_set_viewport(&gui_viewport, frame_width, frame_height);
 
 	DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
 	DE_GL_CALL(glUseProgram(r->flat_shader.program));
-	DE_GL_CALL(glUniformMatrix4fv(r->flat_shader.wvp_matrix, 1, GL_FALSE, y_flip_ortho.f));
+	DE_GL_CALL(glUniformMatrix4fv(r->flat_shader.wvp_matrix, 1, GL_FALSE, frame_mvp_matrix.f));
 	DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.frame_texture));
 
 	de_renderer_draw_fullscreen_quad(r);
@@ -2276,7 +2317,8 @@ void de_renderer_render(de_renderer_t* r)
 		DE_GL_CALL(glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(de_gui_vertex_t), (void*)offsetof(de_gui_vertex_t, color)));
 		DE_GL_CALL(glEnableVertexAttribArray(2));
 
-		de_mat4_ortho(&ortho, 0, w, h, 0, -1, 1);
+		de_mat4_t ortho;
+		de_mat4_ortho(&ortho, 0, (float)frame_width, (float)frame_height, 0, -1, 1);
 		DE_GL_CALL(glUniformMatrix4fv(r->gui_shader.wvp_matrix, 1, GL_FALSE, ortho.f));
 
 		/* draw */
@@ -2316,8 +2358,11 @@ void de_renderer_render(de_renderer_t* r)
 	DE_GL_CALL(glDisable(GL_BLEND));
 	DE_GL_CALL(glEnable(GL_DEPTH_TEST));
 
-	de_core_platform_swap_buffers(r->core);
+	const double frame_end_time = de_time_get_seconds();
+	r->frame_time = 1000.0 * (frame_end_time - frame_start_time);
 
+	de_core_platform_swap_buffers(r->core);
+	
 	/* FPS limiter */
 	if (r->frame_rate_limit > 0) {
 		const int time_limit_ms = 1000 / r->frame_rate_limit;
@@ -2327,17 +2372,16 @@ void de_renderer_render(de_renderer_t* r)
 	}
 
 	/* Measure mean, current and min FPS. */
-	const double current_time = de_time_get_seconds();
-	r->frame_time = 1000.0 * (current_time - frame_start_time);
-	r->current_fps = (size_t)(1000.0 / r->frame_time);
+	const double total_time = de_time_get_seconds() - frame_start_time;	
+	r->current_fps = (size_t)(1.0 / total_time);
 	if (r->current_fps < r->min_fps) {
 		r->min_fps = r->current_fps;
 	}
-	r->frame_time_accumulator += r->frame_time;
+	r->frame_time_accumulator += total_time;
 	++r->frame_time_measurements;
-	if (current_time - r->time_last_fps_measured >= 1.0) {
-		r->mean_fps = (size_t)(1000.0 / (r->frame_time_accumulator / r->frame_time_measurements));
-		r->time_last_fps_measured = current_time;
+	if (de_time_get_seconds() - r->time_last_fps_measured >= 1.0) {
+		r->mean_fps = (size_t)(1.0 / (r->frame_time_accumulator / r->frame_time_measurements));
+		r->time_last_fps_measured = total_time;
 		r->frame_time_measurements = 0;
 		r->frame_time_accumulator = 0;
 	}

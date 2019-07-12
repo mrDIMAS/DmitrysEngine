@@ -441,7 +441,7 @@ void de_core_platform_poll_events(de_core_t* core)
 	}
 }
 
-de_proc de_core_platform_get_proc_address(const char *name)
+de_proc de_get_proc_address(const char *name)
 {
 	return glXGetProcAddress((const GLubyte*)name);
 }
@@ -451,7 +451,7 @@ void de_core_platform_swap_buffers(de_core_t* core)
 	glXSwapBuffers(core->platform.display, core->platform.window);
 }
 
-void de_core_platform_message_box(de_core_t* core, const char * msg, const char* title)
+void de_message_box(de_core_t* core, const char * msg, const char* title)
 {
 /* Stub */
 	printf("%s", msg);
@@ -547,7 +547,7 @@ de_video_mode_array_t de_enum_video_modes()
 	return modes;
 }
 
-void de_core_set_video_mode(de_core_t* core, const de_video_mode_t* vm)
+void de_core_platform_set_video_mode(de_core_t* core, const de_video_mode_t* vm)
 {
 	XRRScreenConfiguration* config;
 	int version, i, screen;

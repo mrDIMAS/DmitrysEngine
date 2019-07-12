@@ -69,6 +69,7 @@ void de_fatal_error(const char* message, ...)
 	vsnprintf(format_buffer, sizeof(format_buffer), message, argument_list);
 	va_end(argument_list);
 	de_write_log(format_buffer, true);
+	de_message_box(format_buffer, "Fatal Error");
 #ifdef _MSC_VER
 	__debugbreak();
 #else

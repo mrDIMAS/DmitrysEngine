@@ -309,6 +309,31 @@ void de_node_detach(de_node_t* node)
 	}
 }
 
+size_t de_node_get_child_count(de_node_t* node)
+{
+	DE_ASSERT(node);
+	return node->children.size;
+}
+
+de_node_t* de_node_get_child(de_node_t* node, size_t i)
+{
+	DE_ASSERT(node);
+	DE_ASSERT(i < node->children.size);
+	return node->children.data[i];
+}
+
+de_node_t* de_node_get_next(de_node_t* node)
+{
+	DE_ASSERT(node);
+	return node->next;
+}
+
+de_node_t* de_node_get_previous(de_node_t* node)
+{
+	DE_ASSERT(node);
+	return node->prev;
+}
+
 void de_node_calculate_local_transform(de_node_t* node)
 {
 	if (node->body) {
@@ -404,6 +429,19 @@ void de_node_calculate_transforms_descending(de_node_t* node)
 	for (size_t i = 0; i < node->children.size; ++i) {
 		de_node_calculate_transforms_descending(node->children.data[i]);
 	}
+}
+
+void de_node_get_global_transform(de_node_t* node, de_mat4_t* transform)
+{
+	DE_ASSERT(node);
+	*transform = *de_node_calculate_transforms_ascending(node);	 
+}
+
+void de_nod_get_local_transform(de_node_t* node, de_mat4_t* transform)
+{
+	DE_ASSERT(node);
+	de_node_calculate_local_transform(node);
+	*transform = node->local_matrix;
 }
 
 void de_node_get_look_vector(const de_node_t* node, de_vec3_t* look)
@@ -629,7 +667,14 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node)
 
 void de_node_set_name(de_node_t* node, const char* name)
 {
+	DE_ASSERT(node);
 	de_str8_set(&node->name, name);
+}
+
+const char* de_node_get_name(de_node_t* node)
+{
+	DE_ASSERT(node);
+	return de_str8_cstr(&node->name);
 }
 
 static void de_node_find_copy_of_internal(de_node_t* root, de_node_t* node, de_node_t** out)

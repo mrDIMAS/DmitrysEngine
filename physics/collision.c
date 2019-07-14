@@ -19,7 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-bool de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c)
+bool de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c, uint32_t material_hash)
 {
 	de_vec3_t ca;
 	de_static_triangle_t triangle;
@@ -53,6 +53,7 @@ bool de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t
 	triangle.baDotba = de_vec3_dot(&triangle.ba, &triangle.ba);
 	triangle.invDenom = 1.0f / (triangle.caDotca * triangle.baDotba - triangle.caDotba * triangle.caDotba);
 	triangle.distance = -de_vec3_dot(a, &triangle.normal);
+	triangle.material_hash = material_hash;
 
 	/* Add new triangle to array */
 	DE_ARRAY_APPEND(geom->triangles, triangle);
@@ -65,10 +66,18 @@ void de_static_geometry_fill(de_static_geometry_t* geom, const de_mesh_t* mesh, 
 	DE_ASSERT(geom);
 	DE_ASSERT(mesh);
 	DE_ASSERT(transform);
-	
+
 	for (size_t i = 0; i < mesh->surfaces.size; ++i) {
-		const de_surface_shared_data_t* data = mesh->surfaces.data[i]->shared_data;
-		for (size_t k = 0; k < data->index_count; k += 3) {	
+		const de_surface_t* surf = mesh->surfaces.data[i];
+		const de_surface_shared_data_t* data = surf->shared_data;
+		uint32_t material_hash;
+		if (surf->diffuse_map) {			
+			de_resource_t* resource = de_resource_from_texture(surf->diffuse_map);
+			material_hash = de_path_hash(&resource->source);
+		} else {
+			material_hash = 0;
+		}
+		for (size_t k = 0; k < data->index_count; k += 3) {
 			const int a = data->indices[k];
 			const int b = data->indices[k + 1];
 			const int c = data->indices[k + 2];
@@ -82,7 +91,7 @@ void de_static_geometry_fill(de_static_geometry_t* geom, const de_mesh_t* mesh, 
 			de_vec3_t pc = data->positions[c];
 			de_vec3_transform(&pc, &pc, transform);
 
-			de_static_geometry_add_triangle(geom, &pa, &pb, &pc);
+			de_static_geometry_add_triangle(geom, &pa, &pb, &pc, material_hash);
 		}
 	}
 
@@ -120,7 +129,7 @@ void de_physics_step(de_core_t* core, double dt)
 				for (int i = 0; i < geom->octree->trace_buffer.size; ++i) {
 					de_octree_node_t* node = geom->octree->trace_buffer.nodes[i];
 					for (int k = 0; k < node->index_count; ++k) {
-						de_body_triangle_collision(&geom->triangles.data[node->triangle_indices[k]], body);
+						de_body_triangle_collision(geom, &geom->triangles.data[node->triangle_indices[k]], body);
 					}
 				}
 			}
@@ -139,9 +148,9 @@ static int de_ray_cast_result_distance_comparer(const void* a, const void* b)
 {
 	const de_ray_cast_result_t* result_a = a;
 	const de_ray_cast_result_t* result_b = b;
-	if(result_a->sqr_distance > result_b->sqr_distance) {
+	if (result_a->sqr_distance > result_b->sqr_distance) {
 		return 1;
-	} else if(result_a->sqr_distance < result_b->sqr_distance) {
+	} else if (result_a->sqr_distance < result_b->sqr_distance) {
 		return -1;
 	}
 	return 0;

@@ -19,21 +19,4 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-#define DE_MAX_CONTACTS (8)
-#define DE_AIR_FRICTION (0.01f)
-
-/**
-* @class de_contact_t
-* @brief Physical contact
-*/
-typedef struct de_contact_t {
-	de_body_t* body;                 /**< Handle of body with which contact is appeared */
-	de_vec3_t position;             /**< Position of contact */
-	de_vec3_t normal;               /**< Normal vector in contact point */
-	de_static_triangle_t* triangle; /**< Pointer to triangle of static geometry */
-	de_static_geometry_t* geometry;
-} de_contact_t;
-
-#include "physics/octree.h"
-#include "physics/body.h"
-#include "physics/collision.h"
+uint32_t de_hash_murmur3(const uint8_t* key, size_t len, uint32_t seed);

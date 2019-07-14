@@ -158,6 +158,27 @@ void de_node_attach(de_node_t* node_handle, de_node_t* parent_handle);
 void de_node_detach(de_node_t* node_handle);
 
 /**
+ * @brief Returns current amount of children nodes that are current attached to
+ * specified node.
+ */
+size_t de_node_get_child_count(de_node_t* node);
+
+/**
+ * @brief Returns child at specified index.
+ */
+de_node_t* de_node_get_child(de_node_t* node, size_t i);
+
+/**
+ * @brief Returns pointer to next node in linked list. 
+ */
+de_node_t* de_node_get_next(de_node_t* node);
+
+/**
+ * @brief Returns pointer to previous node in linked list. 
+ */
+de_node_t* de_node_get_previous(de_node_t* node);
+
+/**
  * @brief Calculates local transform of a node.
  */
 void de_node_calculate_local_transform(de_node_t* node);
@@ -180,6 +201,10 @@ de_mat4_t* de_node_calculate_transforms_ascending(de_node_t* node);
  * if called with root node a param then transforms of each node in tree will be calculated.
  */
 void de_node_calculate_transforms_descending(de_node_t* node);
+
+void de_node_get_global_transform(de_node_t* node, de_mat4_t* transform);
+
+void de_nod_get_local_transform(de_node_t* node, de_mat4_t* transform);
 
 /**
 * @brief Writes out look vector from node's global transform
@@ -305,6 +330,8 @@ bool de_node_visit(de_object_visitor_t* visitor, de_node_t* node);
  * @brief Sets new name for a node.
  */
 void de_node_set_name(de_node_t* node, const char* name);
+
+const char* de_node_get_name(de_node_t* node);
 
 /**
  * @brief Tries to find a copy of specified node in whole hierarchy of other node defined by root.

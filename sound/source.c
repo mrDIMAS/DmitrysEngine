@@ -35,6 +35,7 @@ de_sound_source_t* de_sound_source_create(de_sound_context_t* ctx, de_sound_sour
 	src->left_gain = 1.0f;
 	src->right_gain = 1.0f;
 	src->radius = 10.0f;
+	src->gain = 1.0f;
 	DE_ARRAY_APPEND(ctx->sounds, src);
 	de_sound_context_unlock(ctx);
 	return src;
@@ -167,27 +168,23 @@ void de_sound_source_set_type(de_sound_source_t* src, de_sound_source_type_t typ
 
 void de_sound_source_update(de_sound_source_t* src)
 {
-	float dist_gain;
-	de_listener_t* lst;
-	de_vec3_t dir;
-	float sqr_distance;
-
 	DE_ASSERT(src);
-	dist_gain = 1.0f;
-	lst = &src->ctx->listener;
+	float dist_gain = 1.0f;
+	de_listener_t* listener = &src->ctx->listener;
 	if (src->type == DE_SOUND_SOURCE_TYPE_3D) {
-		de_vec3_sub(&dir, &src->position, &lst->position);
-		sqr_distance = de_vec3_sqr_len(&dir);
+		de_vec3_t dir;
+		de_vec3_sub(&dir, &src->position, &listener->position);
+		float sqr_distance = de_vec3_sqr_len(&dir);
 		if (sqr_distance < 0.0001f) {
 			src->pan = 0;
 		} else {
 			de_vec3_normalize(&dir, &dir);
-			src->pan = de_vec3_dot(&dir, &lst->ear_axis);
+			src->pan = de_vec3_dot(&dir, &listener->ear_axis);
 		}
 		dist_gain = 1.0f / (1.0f + (sqr_distance / (src->radius * src->radius)));
 	}
-	src->left_gain = dist_gain * (1.0f + src->pan);
-	src->right_gain = dist_gain * (1.0f - src->pan);
+	src->left_gain = src->gain * dist_gain * (1.0f + src->pan);
+	src->right_gain = src->gain * dist_gain * (1.0f - src->pan);
 }
 
 void de_sound_source_set_loop(de_sound_source_t* src, bool loop)
@@ -250,4 +247,16 @@ bool de_sound_source_visit(de_object_visitor_t* visitor, de_sound_source_t* src)
 	src->current_sample_rate = 1.0f;
 	de_sound_context_unlock(src->ctx);
 	return result;
+}
+
+void de_sound_source_set_volume(de_sound_source_t* src, float vol) 
+{
+	DE_ASSERT(src);
+	src->gain = vol;
+}
+
+float de_sound_source_get_volume(de_sound_source_t* src) 
+{
+	DE_ASSERT(src);
+	return src->gain;
 }

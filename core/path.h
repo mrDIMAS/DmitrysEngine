@@ -54,6 +54,8 @@ void de_path_copy(const de_path_t* src, de_path_t* dest);
 
 bool de_path_is_empty(const de_path_t* src);
 
+uint32_t de_path_hash(const de_path_t* path);
+
 /**
  * @brief Extracts extension from file path with dot.
  *

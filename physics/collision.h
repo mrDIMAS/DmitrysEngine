@@ -38,6 +38,7 @@ struct de_static_triangle_t {
 	de_ray_t bc_ray;  /**< Precalculated edge ray */
 	de_ray_t ca_ray;  /**< Precalculated edge ray */
 	float distance;   /**< Precalculated distance to the origin (d component of plane equation) */
+	uint32_t material_hash;
 };
 
 typedef enum de_ray_cast_flags_t {
@@ -83,13 +84,10 @@ struct de_static_geometry_t {
 void de_static_geometry_fill(de_static_geometry_t* geom, const de_mesh_t* mesh, const de_mat4_t* transform);
 
 /**
-* @brief Adds new triangle to static geometry
-* @param geom pointer to static geometry
-* @param a vertex of triangle
-* @param b vertex of triangle
-* @param c vertex of triangle
-*/
-bool de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c);
+ * @brief Adds new triangle to static geometry. \c material_hash can be used to get additional info on collision detection
+ * It is useful to get information about properties of surface.
+ */
+bool de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c, uint32_t material_hash);
 
 /**
  * @brief Performs ray cast. Always return result for closest hit. Flags can be used to choose

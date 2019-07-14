@@ -107,6 +107,12 @@ de_node_t* de_scene_find_node(const de_scene_t* s, const char* name)
 	return NULL;
 }
 
+de_node_t* de_scene_get_first_node(de_scene_t* s) 
+{
+	DE_ASSERT(s);
+	return s->nodes.head;
+}
+
 void de_scene_update(de_scene_t* s, double dt)
 {
 	/* Animations prepass - reset local transform of associated track nodes for blending */

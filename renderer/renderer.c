@@ -817,7 +817,7 @@ static void de_renderer_create_deferred_lighting_shader(de_renderer_t* r)
 		"   }"
 		"   else if(lightType == 0)" /* Point light shadows */
 		"   {"
-		"      const float bias = 0.005;"
+		"      const float bias = 0.01;"
 		"      if (softShadows)"
 		"      {"
 		"         const int samples = 20;"
@@ -1130,15 +1130,15 @@ de_renderer_quality_settings_t de_renderer_get_default_quality_settings(de_rende
 	return(de_renderer_quality_settings_t) {
 		.point_shadow_map_size = 1024,
 		.point_shadows_distance = 10,
-		.point_shadows_enabled = false,
+		.point_shadows_enabled = true,
 		.point_soft_shadows = true,
 
 		.spot_shadow_map_size = 1024,
 		.spot_shadows_distance = 10,
-		.spot_shadows_enabled = false,
+		.spot_shadows_enabled = true,
 		.spot_soft_shadows = true,
 
-		.anisotropy_pow2 = 2
+		.anisotropy_pow2 = 4
 	};
 }
 
@@ -1177,6 +1177,7 @@ de_renderer_t* de_renderer_init(de_core_t* core)
 	r->min_fps = 32768;
 
 	r->quality_settings = de_renderer_get_default_quality_settings(r);
+	r->ambient_light_color = (de_color_t) { .r = 120, .g = 120, .b = 120, .a = 255 };
 
 	de_log("GPU Vendor: %s", glGetString(GL_VENDOR));
 	de_log("GPU: %s", glGetString(GL_RENDERER));
@@ -1803,7 +1804,11 @@ void de_renderer_render(de_renderer_t* r)
 		DE_GL_CALL(glActiveTexture(GL_TEXTURE0));
 		DE_GL_CALL(glBindTexture(GL_TEXTURE_2D, r->gbuffer.color_texture));
 		DE_GL_CALL(glUniform1i(r->ambient_shader.diffuse_texture, 0));
-		DE_GL_CALL(glUniform4f(r->ambient_shader.ambient_color, 0.2f, 0.2f, 0.2f, 1.0f));
+		DE_GL_CALL(glUniform4f(r->ambient_shader.ambient_color, 
+			r->ambient_light_color.r / 255.0f, 
+			r->ambient_light_color.g / 255.0f, 
+			r->ambient_light_color.b / 255.0f,
+			1.0f));
 
 		de_renderer_draw_fullscreen_quad(r);
 
@@ -2403,4 +2408,16 @@ double de_render_get_frame_time(de_renderer_t* r)
 {
 	DE_ASSERT(r);
 	return r->frame_time;
+}
+
+void de_renderer_set_ambient_light_color(de_renderer_t* r, const de_color_t* clr)
+{
+	DE_ASSERT(r);
+	r->ambient_light_color = *clr;
+}
+
+de_color_t de_renderer_get_ambient_light_color(de_renderer_t* r) 
+{
+	DE_ASSERT(r);
+	return r->ambient_light_color;
 }

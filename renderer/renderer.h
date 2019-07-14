@@ -204,6 +204,7 @@ struct de_renderer_t {
 	de_point_shadow_map_t point_shadow_map;
 	de_renderer_quality_settings_t quality_settings;
 	de_renderer_limits_t limits;
+	de_color_t ambient_light_color;
 
 	de_surface_t* quad;
 	de_surface_t* light_unit_sphere;
@@ -283,6 +284,10 @@ size_t de_renderer_get_mean_fps(de_renderer_t* r);
  * @brief Returns time consumed by the renderer to draw one frame.
  */
 double de_render_get_frame_time(de_renderer_t* r);
+
+void de_renderer_set_ambient_light_color(de_renderer_t* r, const de_color_t* clr);
+
+de_color_t de_renderer_get_ambient_light_color(de_renderer_t* r);
 
 /**
  * Internal functions.

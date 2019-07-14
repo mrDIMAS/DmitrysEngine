@@ -41,10 +41,10 @@ static float de_project_point_on_line(const de_vec3_t* point, const de_ray_t* ra
 }
 
 static bool de_body_sphere_intersection(const de_ray_t* edgeRay, const de_vec3_t* sphere_pos, float sphere_radius, de_vec3_t* intersection_pt)
-{	
+{
 	if (de_ray_sphere_intersection(edgeRay, sphere_pos, sphere_radius, NULL, NULL)) {
-		const float t = de_project_point_on_line(sphere_pos, edgeRay, intersection_pt);		
-		return t >= 0.0f && t <= 1.0f;		
+		const float t = de_project_point_on_line(sphere_pos, edgeRay, intersection_pt);
+		return t >= 0.0f && t <= 1.0f;
 	}
 	return false;
 }
@@ -118,7 +118,7 @@ static de_contact_t* de_body_add_contact(de_body_t* body)
 	return NULL;
 }
 
-void de_body_triangle_collision(de_static_triangle_t* triangle, de_body_t* sphere)
+void de_body_triangle_collision(de_static_geometry_t* geom, de_static_triangle_t* triangle, de_body_t* sphere)
 {
 	de_vec3_t intersectionPoint;
 	if (de_sphere_triangle_intersection(&sphere->position, sphere->radius, triangle, &intersectionPoint)) {
@@ -142,6 +142,7 @@ void de_body_triangle_collision(de_static_triangle_t* triangle, de_body_t* spher
 				contact->normal = orientation;
 				contact->position = intersectionPoint;
 				contact->triangle = triangle;
+				contact->geometry = geom;
 			}
 		}
 	}
@@ -169,15 +170,23 @@ void de_body_body_collision(de_body_t* body, de_body_t* other)
 			contact->normal = dir;
 			contact->position = center;
 			contact->triangle = NULL;
+			contact->geometry = NULL;
 		}
 		contact = de_body_add_contact(other);
 		if (contact) {
 			contact->body = body;
 			de_vec3_negate(&contact->normal, &dir);
 			contact->position = center;
-			contact->triangle = NULL;
+			contact->triangle = NULL;	
+			contact->geometry = NULL;
 		}
 	}
+}
+
+void de_body_add_acceleration(de_body_t* body, const de_vec3_t* acceleration)
+{
+	DE_ASSERT(body);
+	de_vec3_add(&body->acceleration, &body->acceleration, acceleration);	
 }
 
 void de_body_set_gravity(de_body_t* body, const de_vec3_t * gravity)

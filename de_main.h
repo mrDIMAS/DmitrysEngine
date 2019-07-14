@@ -166,6 +166,7 @@ typedef struct de_video_mode_t de_video_mode_t;
 * Modules with minimum dependencies should be placed before others.
 **/
 #include "core/log.h"
+#include "core/hash.h"
 #include "core/byteorder.h"
 #include "core/memmgr.h"
 #include "core/array.h"

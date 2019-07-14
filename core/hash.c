@@ -19,21 +19,41 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-#define DE_MAX_CONTACTS (8)
-#define DE_AIR_FRICTION (0.01f)
-
-/**
-* @class de_contact_t
-* @brief Physical contact
-*/
-typedef struct de_contact_t {
-	de_body_t* body;                 /**< Handle of body with which contact is appeared */
-	de_vec3_t position;             /**< Position of contact */
-	de_vec3_t normal;               /**< Normal vector in contact point */
-	de_static_triangle_t* triangle; /**< Pointer to triangle of static geometry */
-	de_static_geometry_t* geometry;
-} de_contact_t;
-
-#include "physics/octree.h"
-#include "physics/body.h"
-#include "physics/collision.h"
+/* Original algorithm by Austin Appleby */
+uint32_t de_hash_murmur3(const uint8_t* key, size_t len, uint32_t seed)
+{
+	uint32_t h = seed;
+	if (len > 3) {
+		size_t i = len >> 2;
+		do {
+			uint32_t k;
+			memcpy(&k, key, sizeof(uint32_t));
+			key += sizeof(uint32_t);
+			k *= 0xcc9e2d51;
+			k = (k << 15) | (k >> 17);
+			k *= 0x1b873593;
+			h ^= k;
+			h = (h << 13) | (h >> 19);
+			h = h * 5 + 0xe6546b64;
+		} while (--i);
+	}
+	if (len & 3) {
+		size_t i = len & 3;
+		uint32_t k = 0;
+		do {
+			k <<= 8;
+			k |= key[i - 1];
+		} while (--i);
+		k *= 0xcc9e2d51;
+		k = (k << 15) | (k >> 17);
+		k *= 0x1b873593;
+		h ^= k;
+	}
+	h ^= len;
+	h ^= h >> 16;
+	h *= 0x85ebca6b;
+	h ^= h >> 13;
+	h *= 0xc2b2ae35;
+	h ^= h >> 16;
+	return h;
+}

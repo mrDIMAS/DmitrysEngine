@@ -74,7 +74,6 @@ Please note, that this engine is at early development stage and some features ma
 ## Planned features
 * Renderer improvements
 	* Materials (probably PBR)
-	* Shadows for point lights (omnidirectional shadows)	
 	* Performance optimizations
 	* Levels of details (LODs)	
 	* Instancing optimizations (batching, etc.)
@@ -92,7 +91,7 @@ Please note, that this engine is at early development stage and some features ma
 - miniz_tinfl - to decompress FBX compressed data.
 
 ## Code statistics
-- ~21200 significant lines of code
+- ~21500 significant lines of code
 - Pure C99
 
 ## Supported compilers

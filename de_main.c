@@ -24,6 +24,7 @@
 #include "resources/image.c"
 #include "core/byteorder.c"
 #include "core/array.c"
+#include "core/hash.c"
 #include "core/color.c"
 #include "core/color_gradient.c"
 #include "core/log.c" 

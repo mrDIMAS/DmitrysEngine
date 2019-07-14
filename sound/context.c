@@ -66,7 +66,7 @@ void de_sound_context_update(de_sound_context_t* ctx)
 	for (int i = (int)ctx->sounds.size - 1; i >= 0; --i) {
 		de_sound_source_t* src = ctx->sounds.data[i];
 		if (src->play_once && (src->status & DE_SOUND_SOURCE_STATUS_STOPPED)) {
-			DE_ARRAY_REMOVE_AT(ctx->sounds, (size_t)i);
+			de_sound_source_free(src);			
 		}
 	}
 

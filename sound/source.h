@@ -117,3 +117,7 @@ bool de_sound_source_is_loop(de_sound_source_t* src);
 void de_sound_source_set_play_once(de_sound_source_t* src, bool value);
 
 bool de_sound_source_get_play_once(const de_sound_source_t* src);
+
+void de_sound_source_set_volume(de_sound_source_t* src, float vol);
+
+float de_sound_source_get_volume(de_sound_source_t* src);

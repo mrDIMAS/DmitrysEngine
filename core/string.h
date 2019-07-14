@@ -96,7 +96,7 @@ void de_str8_clear(de_str8_t* str);
 /**
  * @brief Returns true if string is empty.
  */
-bool de_str8_is_empty(de_str8_t* str);
+bool de_str8_is_empty(const de_str8_t* str);
 
 /**
  * @brief Moves @src string to @dest string. @src string will be empty!
@@ -127,6 +127,11 @@ void de_str8_append_str_view(de_str8_t* str, const de_str8_view_t* view);
  * @brief Returns length of a string.
  */
 size_t de_str8_length(const de_str8_t* str);
+
+/**
+ * @brief Returns string hash.
+ */
+uint32_t de_str8_hash(const de_str8_t* str);
 
 /**
  * @brief Checks strings for equality.

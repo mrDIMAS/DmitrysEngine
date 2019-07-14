@@ -108,6 +108,11 @@ void de_body_set_position(de_body_t* body, const de_vec3_t* pos);
 void de_body_get_position(const de_body_t* body, de_vec3_t* pos);
 
 /**
+ * @brief Applies specified amount of acceleration to specified body.
+ */
+void de_body_add_acceleration(de_body_t* body, const de_vec3_t* acceleration);
+
+/**
 * @brief Sets actual body radius.
 */
 void de_body_set_radius(de_body_t* body, float radius);

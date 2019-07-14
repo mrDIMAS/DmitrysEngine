@@ -193,8 +193,13 @@ void de_str8_append_str_view(de_str8_t* str, const de_str8_view_t* view)
 
 size_t de_str8_length(const de_str8_t* str)
 {
-/* array length without null-terminator */
+	/* array length without null-terminator */
 	return str->str.size ? str->str.size - 1 : 0;
+}
+
+uint32_t de_str8_hash(const de_str8_t* str)
+{
+	return de_str8_is_empty(str) ? 0 : de_hash_murmur3((uint8_t*)str->str.data, str->str.size - 1, 0);
 }
 
 bool de_str8_eq(const de_str8_t* str, const char* utf8str)
@@ -205,7 +210,7 @@ bool de_str8_eq(const de_str8_t* str, const char* utf8str)
 	return strcmp(str->str.data, utf8str) == 0;
 }
 
-bool de_str8_is_empty(de_str8_t* str)
+bool de_str8_is_empty(const de_str8_t* str)
 {
 	return de_str8_length(str) == 0;
 }
@@ -311,8 +316,8 @@ size_t de_str8_fread(de_str8_t* str, FILE* file, size_t len)
 		read = 0;
 		while (1) {
 			if (fread(&c, 1, 1, file) != 1) {
-                break;
-            }
+				break;
+			}
 			if (c) {
 				DE_ARRAY_APPEND(str->str, c);
 				++read;

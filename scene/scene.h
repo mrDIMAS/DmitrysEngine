@@ -68,6 +68,14 @@ void de_scene_remove_node(de_scene_t* s, de_node_t* handle);
 de_node_t* de_scene_find_node(const de_scene_t* s, const char* name);
 
 /**
+ * @brief Returns head node in the linked list of scene nodes. Typical usage is 
+ * to iterate over all nodes like this:
+ * 
+ * for(de_node_t* node = de_scene_get_first_node(scene); node; node = de_node_get_next(node->next)) { ... }
+ */
+de_node_t* de_scene_get_first_node(de_scene_t* s);
+
+/**
  * @brief Update scene components (i.e. animations)
  */
 void de_scene_update(de_scene_t* s, double dt);

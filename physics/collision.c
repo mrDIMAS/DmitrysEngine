@@ -21,41 +21,25 @@
 
 bool de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c, uint32_t material_hash)
 {
-	de_vec3_t ca;
 	de_static_triangle_t triangle;
 
-	triangle.a = *a;
-	triangle.b = *b;
-	triangle.c = *c;
+	de_vec3_t ba;
+	de_vec3_sub(&ba, b, a);
 
-	/* Find vectors from triangle vertices */
-	de_vec3_sub(&triangle.ba, b, a);
+	de_vec3_t ca;
 	de_vec3_sub(&ca, c, a);
 
-	/* Normal of triangle is a cross product of above vectors */
-	de_vec3_cross(&triangle.normal, &triangle.ba, &ca);
-	if (de_vec3_sqr_len(&triangle.normal) > FLT_EPSILON) {
-		de_vec3_normalize(&triangle.normal, &triangle.normal);
-	} else {
+	de_vec3_cross(&triangle.normal, &ba, &ca);
+	if (!de_vec3_try_normalize(&triangle.normal, &triangle.normal)) {
 		de_log("static geometry: degenerated triangle found!");
 		return false;
 	}
 
-	/* Find triangle edges */
-	de_vec3_sub(&triangle.ca, c, a);
-	de_ray_by_two_points(&triangle.ab_ray, a, b);
-	de_ray_by_two_points(&triangle.bc_ray, b, c);
-	de_ray_by_two_points(&triangle.ca_ray, c, a);
-
-	/* Precalculate dot-products for barycentric "point-in-triangle" method */
-	triangle.caDotca = de_vec3_dot(&ca, &ca);
-	triangle.caDotba = de_vec3_dot(&ca, &triangle.ba);
-	triangle.baDotba = de_vec3_dot(&triangle.ba, &triangle.ba);
-	triangle.invDenom = 1.0f / (triangle.caDotca * triangle.baDotba - triangle.caDotba * triangle.caDotba);
-	triangle.distance = -de_vec3_dot(a, &triangle.normal);
+	triangle.a = *a;
+	triangle.b = *b;
+	triangle.c = *c;
 	triangle.material_hash = material_hash;
 
-	/* Add new triangle to array */
 	DE_ARRAY_APPEND(geom->triangles, triangle);
 
 	return true;
@@ -71,7 +55,7 @@ void de_static_geometry_fill(de_static_geometry_t* geom, const de_mesh_t* mesh, 
 		const de_surface_t* surf = mesh->surfaces.data[i];
 		const de_surface_shared_data_t* data = surf->shared_data;
 		uint32_t material_hash;
-		if (surf->diffuse_map) {			
+		if (surf->diffuse_map) {
 			de_resource_t* resource = de_resource_from_texture(surf->diffuse_map);
 			material_hash = de_path_hash(&resource->source);
 		} else {
@@ -98,42 +82,54 @@ void de_static_geometry_fill(de_static_geometry_t* geom, const de_mesh_t* mesh, 
 	geom->octree = de_octree_build((char*)geom->triangles.data + offsetof(de_static_triangle_t, a), geom->triangles.size, sizeof(de_static_triangle_t), 64);
 }
 
-bool de_static_triangle_contains_point(const de_static_triangle_t* triangle, const de_vec3_t* point)
-{
-	de_vec3_t vp;
-	de_vec3_sub(&vp, point, &triangle->a);
-	const float dot02 = de_vec3_dot(&triangle->ca, &vp);
-	const float dot12 = de_vec3_dot(&triangle->ba, &vp);
-	const float u = (triangle->baDotba * dot02 - triangle->caDotba * dot12) * triangle->invDenom;
-	const float v = (triangle->caDotca * dot12 - triangle->caDotba * dot02) * triangle->invDenom;
-	return (u >= 0.0f) && (v >= 0.0f) && (u + v < 1.0f);
-}
-
 void de_physics_step(de_core_t* core, double dt)
 {
 	const float dt2 = (float)(dt * dt);
-	DE_LINKED_LIST_FOR_EACH_T(de_scene_t*, scene, core->scenes)
-	{
-		DE_LINKED_LIST_FOR_EACH_T(de_body_t*, body, scene->bodies)
-		{
+	for (de_scene_t* scene = core->scenes.head; scene; scene = scene->next) {
+		for(de_body_t* body = scene->bodies.head; body; body = body->next) {
 			/* Drop contact information */
 			body->contact_count = 0;
 			/* Apply gravity */
 			de_vec3_add(&body->acceleration, &body->acceleration, &body->gravity);
 			/* Do Verlet integration */
 			de_body_verlet(body, dt2);
-			/* Solve sphere-mesh collisions */
-			DE_LINKED_LIST_FOR_EACH_T(de_static_geometry_t*, geom, scene->static_geometries)
-			{
-				de_octree_trace_sphere(geom->octree, &body->position, body->radius);
+			/* Solve body-mesh collisions */
+			for (de_static_geometry_t* geom = scene->static_geometries.head; geom; geom = geom->next) {
+				de_octree_trace_sphere(geom->octree, &body->position, de_body_get_radius(body));
 				for (int i = 0; i < geom->octree->trace_buffer.size; ++i) {
 					de_octree_node_t* node = geom->octree->trace_buffer.nodes[i];
 					for (int k = 0; k < node->index_count; ++k) {
-						de_body_triangle_collision(geom, &geom->triangles.data[node->triangle_indices[k]], body);
+						de_static_triangle_t* triangle = &geom->triangles.data[node->triangle_indices[k]];
+						de_convex_shape_t triangle_shape = {
+							.type = DE_CONVEX_SHAPE_TYPE_TRIANGLE,
+							.s.triangle = {
+							    .vertices = { triangle->a, triangle->b, triangle->c }
+						    }
+						};
+						de_simplex_t simplex = { 0 };
+						if (de_gjk_is_intersects(&body->shape, &body->position, &triangle_shape, &(de_vec3_t) { 0, 0, 0}, &simplex)) {
+							de_vec3_t penetration_vector;
+							de_vec3_t contact_point;
+							if (de_epa_get_penetration_info(&simplex, &body->shape, &body->position, &triangle_shape, &(de_vec3_t) { 0, 0, 0}, &penetration_vector, &contact_point)) {
+								de_vec3_sub(&body->position, &body->position, &penetration_vector);
+								/* Write contact info only if we have contact that really pushes the body */
+								if (de_vec3_sqr_len(&penetration_vector)) {								    
+									de_contact_t* contact = de_body_add_contact(body);
+									if (contact) {
+										contact->body = NULL;
+										de_vec3_negate(&contact->normal, &penetration_vector);
+										de_vec3_normalize(&contact->normal, &contact->normal);
+										contact->position = contact_point;
+										contact->triangle = triangle;
+										contact->geometry = geom;
+									}
+								}
+							}
+						}
 					}
 				}
 			}
-			/* Solve sphere-sphere collisions */
+			/* Solve body-body collisions */
 			DE_LINKED_LIST_FOR_EACH_T(de_body_t*, other, scene->bodies)
 			{
 				if (other != body) {
@@ -165,13 +161,13 @@ bool de_ray_cast(de_scene_t* scene, const de_ray_t* ray, de_ray_cast_flags_t fla
 		DE_LINKED_LIST_FOR_EACH_T(de_body_t*, body, scene->bodies)
 		{
 			if (flags & DE_RAY_CAST_FLAGS_IGNORE_BODY_IN_RAY) {
-				if (de_vec3_sqr_distance(&body->position, &ray->origin) <= body->radius * body->radius) {
+				if (de_vec3_sqr_distance(&body->position, &ray->origin) <= de_body_get_radius(body) *  de_body_get_radius(body)) {
 					continue;
 				}
 			}
 
 			de_vec3_t intersection_points[2];
-			if (de_ray_sphere_intersection(ray, &body->position, body->radius, &intersection_points[0], &intersection_points[1])) {
+			if (de_ray_sphere_intersection(ray, &body->position, de_body_get_radius(body), &intersection_points[0], &intersection_points[1])) {
 				for (size_t i = 0; i < 2; ++i) {
 					de_ray_cast_result_t* result = DE_ARRAY_GROW(*result_array, 1);
 					result->position = intersection_points[i];
@@ -229,13 +225,13 @@ bool de_ray_cast_closest(de_scene_t* scene, const de_ray_t* ray, de_ray_cast_fla
 		DE_LINKED_LIST_FOR_EACH_T(de_body_t*, body, scene->bodies)
 		{
 			if (flags & DE_RAY_CAST_FLAGS_IGNORE_BODY_IN_RAY) {
-				if (de_vec3_sqr_distance(&body->position, &ray->origin) <= body->radius * body->radius) {
+				if (de_vec3_sqr_distance(&body->position, &ray->origin) <= de_body_get_radius(body) *  de_body_get_radius(body)) {
 					continue;
 				}
 			}
 
 			de_vec3_t intersection_points[2];
-			if (de_ray_sphere_intersection(ray, &body->position, body->radius, &intersection_points[0], &intersection_points[1])) {
+			if (de_ray_sphere_intersection(ray, &body->position, de_body_get_radius(body), &intersection_points[0], &intersection_points[1])) {
 				hit = true;
 				for (size_t i = 0; i < 2; ++i) {
 					const float new_distance = de_vec3_sqr_distance(&ray->origin, &intersection_points[i]);

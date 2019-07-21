@@ -170,4 +170,6 @@ de_vec3_t* de_mat4_side(const de_mat4_t* m, de_vec3_t* side);
  */
 de_vec3_t* de_mat4_look(const de_mat4_t* m, de_vec3_t* look);
 
+void de_mat4_get_translation(const de_mat4_t * m, de_vec3_t* translation);
+
 de_quat_t* de_mat4_to_quat(const de_mat4_t* m, de_quat_t* quat);

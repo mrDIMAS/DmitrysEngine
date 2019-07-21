@@ -114,11 +114,13 @@ float de_vec3_sqr_len(const de_vec3_t* a);
 
 /**
  * @brief Normalizes vector. If length of vector is zero, result is undefined.
- * @param out output vector
- * @param a input vector
- * @return normalized @a
  */
 de_vec3_t* de_vec3_normalize(de_vec3_t* out, const de_vec3_t* a);
+
+/**
+* @brief Tries to normalize a vector. If length of vector is zero, returns false.
+*/
+bool de_vec3_try_normalize(de_vec3_t* out, const de_vec3_t* a);
 
 /**
  * @brief Normalizes vector. If length of vector is less than zero, result is undefined.
@@ -231,3 +233,5 @@ int de_vec3_approx_equals(const de_vec3_t* a, const de_vec3_t* b);
  * @return non-zero if vectors are equal
  */
 int de_vec3_equals(const de_vec3_t* a, const de_vec3_t* b);
+
+bool de_vec3_same_direction(const de_vec3_t* a, const de_vec3_t* b);

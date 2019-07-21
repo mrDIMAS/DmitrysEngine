@@ -280,3 +280,39 @@ int de_irand(int min, int max)
 {
 	return min + rand() * (max - min) / (int)RAND_MAX;
 }
+
+de_vec3_t de_point_cloud_get_farthest_point(const de_vec3_t* points, int count, const de_vec3_t* dir)
+{
+	int n_farthest = 0;
+	float max_dot = -FLT_MAX;
+	for (int i = 0; i < count; ++i) {
+		float dot = de_vec3_dot(dir, &points[i]);
+		if (dot > max_dot) {
+			n_farthest = i;
+			max_dot = dot;
+		}
+	}
+	return points[n_farthest];
+}
+
+void de_get_barycentric_coords(const de_vec3_t* p, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c, float *u, float *v, float *w)
+{
+	de_vec3_t v0;
+	de_vec3_sub(&v0, b, a);
+
+	de_vec3_t v1;
+	de_vec3_sub(&v1, c, a);
+
+	de_vec3_t v2;
+	de_vec3_sub(&v2, p, a);
+
+	float d00 = de_vec3_dot(&v0, &v0);
+	float d01 = de_vec3_dot(&v0, &v1);
+	float d11 = de_vec3_dot(&v1, &v1);
+	float d20 = de_vec3_dot(&v2, &v0);
+	float d21 = de_vec3_dot(&v2, &v1);
+	float denom = d00 * d11 - d01 * d01;
+	*v = (d11 * d20 - d01 * d21) / denom;
+	*w = (d00 * d21 - d01 * d20) / denom;
+	*u = 1.0f - *v - *w;
+}

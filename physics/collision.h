@@ -24,20 +24,10 @@
 * @brief Static triangle for static collision geometry
 */
 struct de_static_triangle_t {
-	de_vec3_t normal; /**< Normal of triangle */
-	de_vec3_t a;      /**< Vertex of triangle */
-	de_vec3_t b;      /**< Vertex of triangle */
-	de_vec3_t c;      /**< Vertex of triangle */
-	de_vec3_t ca;     /**< Edge of triangle */
-	de_vec3_t ba;     /**< Edge of triangle */
-	float caDotca;    /**< Precalculated dot product between edges */
-	float caDotba;    /**< Precalculated dot product between edges */
-	float baDotba;    /**< Precalculated dot product between edges */
-	float invDenom;   /**< Inverse denominator for barycentric point-in-triangle method */
-	de_ray_t ab_ray;  /**< Precalculated edge ray */
-	de_ray_t bc_ray;  /**< Precalculated edge ray */
-	de_ray_t ca_ray;  /**< Precalculated edge ray */
-	float distance;   /**< Precalculated distance to the origin (d component of plane equation) */
+	de_vec3_t a;
+	de_vec3_t b;
+	de_vec3_t c;
+	de_vec3_t normal;
 	uint32_t material_hash;
 };
 

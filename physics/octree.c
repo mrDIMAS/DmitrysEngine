@@ -201,7 +201,9 @@ static void de_octree_node_free(de_octree_node_t* node)
 
 void de_octree_free(de_octree_t* octree)
 {
-	de_octree_node_free(octree->root);
+	if (octree) {
+		de_octree_node_free(octree->root);
+	}
 	de_free(octree->trace_buffer.nodes);
 	de_free(octree);
 }

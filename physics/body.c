@@ -19,6 +19,7 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
+#if 0
 static float de_project_point_on_line(const de_vec3_t* point, const de_ray_t* ray, de_vec3_t* out)
 {
 	const float sqr_len = de_vec3_sqr_len(&ray->dir);
@@ -78,12 +79,14 @@ static bool de_sphere_triangle_intersection(const de_vec3_t* sphere_pos, float s
 	}
 	return false;
 }
+#endif
 
 static void de_body_verlet(de_body_t* body, float dt2)
 {
 	const float velocity_limit = 0.75f;
 
-	const float friction = body->contact_count > 0 ? 1 - body->friction : DE_AIR_FRICTION;
+	//const float friction = body->contact_count > 0 ? 1 - body->friction : DE_AIR_FRICTION;
+	const float friction =0.003f;
 
 	const float k1 = 2.0f - friction;
 	const float k2 = 1.0f - friction;
@@ -118,6 +121,7 @@ static de_contact_t* de_body_add_contact(de_body_t* body)
 	return NULL;
 }
 
+#if 0
 void de_body_triangle_collision(de_static_geometry_t* geom, de_static_triangle_t* triangle, de_body_t* sphere)
 {
 	de_vec3_t intersectionPoint;
@@ -147,13 +151,14 @@ void de_body_triangle_collision(de_static_geometry_t* geom, de_static_triangle_t
 		}
 	}
 }
+#endif
 
 void de_body_body_collision(de_body_t* body, de_body_t* other)
 {
 	de_vec3_t dir;
 	de_vec3_sub(&dir, &other->position, &body->position);
 	const float distance = de_vec3_len(&dir);
-	const float radius_sum = body->radius + other->radius;
+	const float radius_sum = body->shape.s.sphere.radius + other->shape.s.sphere.radius;
 	if (distance <= radius_sum) {
 		de_vec3_t push_vec;
 		de_vec3_scale(&dir, &dir, 1.0f / distance);
@@ -211,13 +216,15 @@ void de_body_get_position(const de_body_t* body, de_vec3_t* pos)
 void de_body_set_radius(de_body_t* body, float radius)
 {
 	DE_ASSERT(body);
-	body->radius = radius;
+	DE_ASSERT(body->shape.type == DE_CONVEX_SHAPE_TYPE_SPHERE);
+	body->shape.s.sphere.radius = radius;
 }
 
 float de_body_get_radius(de_body_t* body)
 {
 	DE_ASSERT(body);
-	return body->radius;
+	DE_ASSERT(body->shape.type == DE_CONVEX_SHAPE_TYPE_SPHERE);
+	return body->shape.s.sphere.radius;
 }
 
 size_t de_body_get_contact_count(de_body_t* body)
@@ -286,10 +293,11 @@ de_body_t* de_body_create(de_scene_t* s)
 	de_body_t* body = DE_NEW(de_body_t);
 	DE_LINKED_LIST_APPEND(s->bodies, body);
 	body->scene = s;
-	body->radius = 1.0f;
+	body->shape.type = DE_CONVEX_SHAPE_TYPE_SPHERE;
+	body->shape.s.sphere.radius = 1.0f;
 	body->friction = 0.99f;
 	body->scale = (de_vec3_t) { 1, 1, 1 };
-	body->gravity = (de_vec3_t) { 0, -9.81f, 0 };
+	body->gravity = DE_DEFAULT_GRAVITY;
 	return body;
 }
 
@@ -301,7 +309,7 @@ bool de_body_visit(de_object_visitor_t* visitor, de_body_t* body)
 	result &= de_object_visitor_visit_vec3(visitor, "Position", &body->position);
 	result &= de_object_visitor_visit_vec3(visitor, "LastPosition", &body->last_position);
 	result &= de_object_visitor_visit_vec3(visitor, "Acceleration", &body->acceleration);
-	result &= de_object_visitor_visit_float(visitor, "Radius", &body->radius);
+	//result &= de_object_visitor_visit_float(visitor, "Radius", &body->radius);
 	result &= de_object_visitor_visit_float(visitor, "Friction", &body->friction);
 	result &= de_object_visitor_visit_vec3(visitor, "Scale", &body->scale);
 	return result;
@@ -317,8 +325,40 @@ de_body_t* de_body_copy(de_scene_t* dest_scene, de_body_t* body)
 	copy->position = body->position;
 	copy->last_position = body->last_position;
 	copy->acceleration = body->acceleration;
-	copy->radius = body->radius;
+	copy->shape = body->shape; // FIXME
 	copy->friction = body->friction;
 	copy->scale = body->scale;
 	return copy;
+}
+
+de_vec3_t de_convex_shape_get_farthest_point(const de_convex_shape_t* shape, const de_vec3_t* position, const de_vec3_t* dir)
+{
+	de_vec3_t farthest;
+
+	switch (shape->type) {
+		case DE_CONVEX_SHAPE_TYPE_SPHERE: {
+			const de_sphere_shape_t* sphere = &shape->s.sphere;
+			de_vec3_t norm_dir;
+			de_vec3_normalize(&norm_dir, dir);
+			de_vec3_scale(&farthest, &norm_dir, sphere->radius);
+			break;
+		}
+		case DE_CONVEX_SHAPE_TYPE_TRIANGLE: {
+			const de_triangle_shape_t* triangle = &shape->s.triangle;
+			farthest = de_point_cloud_get_farthest_point(triangle->vertices, 3, dir);
+			break;
+		}
+		case DE_CONVEX_SHAPE_TYPE_POINT_CLOUD: {
+			const de_point_cloud_shape_t* point_cloud = &shape->s.point_cloud;
+			farthest = de_point_cloud_get_farthest_point(point_cloud->vertices.data, point_cloud->vertices.size, dir);
+			break;
+		}
+		default:
+			farthest = (de_vec3_t) { 0, 0, 0 };		
+			break;
+	}
+
+	de_vec3_add(&farthest, &farthest, position);
+
+	return farthest;
 }

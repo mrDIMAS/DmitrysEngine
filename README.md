@@ -55,7 +55,7 @@ Please note, that this engine is at early development stage and some features ma
 * Path finding (classic A* algorithm)
 * TGA image loading
 * Ray casting
-* Position-based physics
+* Position-based physics (GJK-EPA based)
 * Built-in save/load functionality via object visitor - state of engine can be saved/loaded just in a single call.
 * Documentation - almost every function of the engine has description in Doxygen format.
 * Extremely fast compilation, thus very low iteration times - feature can be tested very fast.
@@ -91,7 +91,7 @@ Please note, that this engine is at early development stage and some features ma
 - miniz_tinfl - to decompress FBX compressed data.
 
 ## Code statistics
-- ~21500 significant lines of code
+- ~22000 significant lines of code
 - Pure C99
 
 ## Supported compilers

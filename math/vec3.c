@@ -108,6 +108,20 @@ de_vec3_t* de_vec3_normalize(de_vec3_t* out, const de_vec3_t* a)
 	return out;
 }
 
+bool de_vec3_try_normalize(de_vec3_t* out, const de_vec3_t* a)
+{
+	float k;
+	float len = de_vec3_len(a);
+	if (len > FLT_EPSILON) {
+		k = 1.0f / len;
+		out->x = a->x * k;
+		out->y = a->y * k;
+		out->z = a->z * k;
+		return true;
+	}
+	return false;
+}
+
 de_vec3_t* de_vec3_normalize_ex(de_vec3_t* out, const de_vec3_t* a, float* length)
 {
 	float k;
@@ -233,4 +247,9 @@ int de_vec3_approx_equals(const de_vec3_t* a, const de_vec3_t* b)
 int de_vec3_equals(const de_vec3_t* a, const de_vec3_t* b)
 {
 	return a->x == b->x && a->y == b->y && a->z == b->z;
+}
+
+bool de_vec3_same_direction(const de_vec3_t* a, const de_vec3_t* b)
+{
+	return de_vec3_dot(a, b) > 0;
 }

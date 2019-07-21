@@ -22,3 +22,4 @@
 #include "physics/octree.c"
 #include "physics/body.c"
 #include "physics/collision.c"
+#include "physics/gjk_epa.c"

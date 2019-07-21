@@ -365,3 +365,10 @@ de_vec3_t * de_mat4_look(const de_mat4_t * m, de_vec3_t * look)
 	look->z = m->f[10];
 	return look;
 }
+
+void de_mat4_get_translation(const de_mat4_t * m, de_vec3_t* translation)
+{
+	translation->x = m->f[12];
+	translation->y = m->f[13];
+	translation->z = m->f[14];
+}

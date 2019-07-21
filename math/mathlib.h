@@ -154,3 +154,7 @@ float de_frand(float min, float max);
  * @brief Returns random integer number in range [min; max]
  */
 int de_irand(int min, int max);
+
+de_vec3_t de_point_cloud_get_farthest_point(const de_vec3_t* points, int count, const de_vec3_t* dir);
+
+void de_get_barycentric_coords(const de_vec3_t* p, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c, float *u, float *v, float *w);

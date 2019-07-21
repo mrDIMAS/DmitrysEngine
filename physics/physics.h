@@ -21,6 +21,7 @@
 
 #define DE_MAX_CONTACTS (8)
 #define DE_AIR_FRICTION (0.01f)
+#define DE_DEFAULT_GRAVITY (de_vec3_t) { 0.0f, -9.81f, 0.0f }
 
 /**
 * @class de_contact_t
@@ -37,3 +38,4 @@ typedef struct de_contact_t {
 #include "physics/octree.h"
 #include "physics/body.h"
 #include "physics/collision.h"
+#include "physics/gjk_epa.h"

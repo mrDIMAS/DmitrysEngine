@@ -399,7 +399,7 @@ bool de_epa_get_penetration_info(de_simplex_t* simplex, de_convex_shape_t* shape
 							 * triangles given in CCW order.
 							 *       
 							 *       B
-							 *	    /|\
+							 *      /|\
 							 *     / | \
 							 *    /  |  \
 							 *   /   |   \
@@ -435,7 +435,7 @@ bool de_epa_get_penetration_info(de_simplex_t* simplex, de_convex_shape_t* shape
 							 *    DC, CB, BE, ED - final list of loose edges which gives us
 							 *    
 							 *       B
-							 *	    / \
+							 *      / \
 							 *     /   \
 							 *    /     \
 							 *   /       \

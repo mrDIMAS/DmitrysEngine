@@ -49,6 +49,7 @@ Please note, that this engine is at early development stage and some features ma
 	* Scroll content presenter
 	* Canvas
 	* Grid
+	* Stack panel
 	* Slide selector	
 	* Image
 	* Check box
@@ -82,7 +83,7 @@ Please note, that this engine is at early development stage and some features ma
 	* More widgets
 * Async resource loading
 * Stability	
-* Support more 3D formats (3ds for example)
+* Support more 3D formats (obj, 3ds, etc)
 * Compound character support in fonts.
 * Terrain
 * Editor

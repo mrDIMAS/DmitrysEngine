@@ -8,7 +8,7 @@ Please note, that this engine is at early development stage and some features ma
 * [Shooter](https://github.com/mrDIMAS/Shooter) - 3d shooter game that I writing using this engine.
 
 ## Tutorials
-* Can be found in `tutorials` folder. Why there is only few tutorials? Because API of engine is not stabililized yet.
+* Can be found in `tutorials` folder. Why there is only few tutorials? Because API of engine is not stabilized yet.
 
 ## Features
 * Single compilation unit - no need to build as separate library: just add `de_main.h` and `de_main.c` to your project.

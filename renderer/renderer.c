@@ -713,7 +713,7 @@ static void de_renderer_create_gbuffer_shader(de_renderer_t* r)
 	s->normal_texture = de_renderer_get_uniform(s->program, "normalTexture");
 }
 
-static void de_renderer_create_ssao_shader(de_renderer_t* r)
+void de_renderer_create_ssao_shader(de_renderer_t* r)
 {
 	de_ssao_shader_t* s = &r->ssao_shader;
 

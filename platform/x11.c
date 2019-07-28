@@ -451,9 +451,9 @@ void de_core_platform_swap_buffers(de_core_t* core)
 	glXSwapBuffers(core->platform.display, core->platform.window);
 }
 
-void de_message_box(de_core_t* core, const char * msg, const char* title)
+void de_message_box(const char * msg, const char* title)
 {
-/* Stub */
+    /* Stub */
 	printf("%s", msg);
 }
 

@@ -19,12 +19,12 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef struct de_video_mode_t {
+struct de_video_mode_t {
 	uint32_t width;
 	uint32_t height;
 	uint32_t bits_per_pixel;
 	bool fullscreen;
-} de_video_mode_t;
+};
 
 typedef DE_ARRAY_DECLARE(de_video_mode_t, de_video_mode_array_t);
 

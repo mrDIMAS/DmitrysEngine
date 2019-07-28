@@ -31,10 +31,10 @@ typedef enum de_plane_class_t {
 /**
  * @brief Arbitrary plane
  */
-typedef struct de_plane_t {
+struct de_plane_t {
 	de_vec3_t n; /**< Normal vector of the plane */
 	float d;     /**< Distance to the plane from the origin */
-} de_plane_t;
+};
 
 /**
  * @brief Creates plane directly from plane equation coefficients.

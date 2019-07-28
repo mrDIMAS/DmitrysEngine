@@ -252,7 +252,7 @@ bool de_ray_cylinder_intersection(const de_ray_t* ray, const de_vec3_t* pa, cons
 	const float C = de_vec3_sqr_len(&dpva) - r * r; /* sqr_len(dp - dot(dp, va) * va) - r ^ 2 */
 
 	/* Get roots for cylinder surfaces */
-	float cylinder_roots[2];
+	float cylinder_roots[2] = { 0, 0 };
 	const int cylinder_root_count = de_solve_quadratic(A, B, C, cylinder_roots);
 
 	switch (type) {

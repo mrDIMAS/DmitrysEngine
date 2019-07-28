@@ -80,7 +80,7 @@ bool de_wav_read_header(FILE* f, de_wav_header_t* wav)
 	if (fread(&wav->data_chunk_id, sizeof(wav->data_chunk_id), 1, f) != 1) {
 		return false;
 	}
-	if (strncmp(wav->data_chunk_id, "data", sizeof(wav->data_chunk_id)) != 0) {
+	if (strncmp((char*)wav->data_chunk_id, "data", sizeof(wav->data_chunk_id)) != 0) {
 		return false;
 	}
 	if (fread(&wav->data_chunk_size, sizeof(wav->data_chunk_size), 1, f) != 1) {
@@ -91,17 +91,17 @@ bool de_wav_read_header(FILE* f, de_wav_header_t* wav)
 
 static bool de_wav_header_is_valid(de_wav_header_t* wav)
 {
-	if (strncmp(wav->chunk_id, "RIFF", sizeof(wav->chunk_id)) != 0) {
+	if (strncmp((char*)wav->chunk_id, "RIFF", sizeof(wav->chunk_id)) != 0) {
 		de_log("wav: invalid chunk id");
 		return false;
 	}
 
-	if (strncmp(wav->fmt_chunk_id, "fmt ", sizeof(wav->fmt_chunk_id)) != 0) {
+	if (strncmp((char*)wav->fmt_chunk_id, "fmt ", sizeof(wav->fmt_chunk_id)) != 0) {
 		de_log("wav: invalid fmt chunk id");
 		return false;
 	}
 
-	if (strncmp(wav->format, "WAVE", sizeof(wav->format)) != 0) {
+	if (strncmp((char*)wav->format, "WAVE", sizeof(wav->format)) != 0) {
 		de_log("wav: invalid format");
 		return false;
 	}

@@ -80,15 +80,10 @@ void de_static_geometry_fill(de_static_geometry_t* geom, const de_mesh_t* mesh, 
 bool de_static_geometry_add_triangle(de_static_geometry_t* geom, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c, uint32_t material_hash);
 
 /**
- * @brief Performs ray cast. Always return result for closest hit. Flags can be used to choose
- * types of entities that should participate in ray cast. Returns true if there was any hit.
- */
-bool de_ray_cast_closest(de_scene_t* scene, const de_ray_t* ray, de_ray_cast_flags_t flags, de_ray_cast_result_t* result);
-
-/**
  * @brief Performs ray cast and fills array with intersection result for every picked entity.
  * Flags can be used to choose types of entities that should participate in ray cast. 
- * Returns true if there was any hit.
+ * Returns true if there was any hit. To get closest hit make sure to set DE_RAY_CAST_FLAGS_SORT_RESULTS
+ * flag and closest will be first result in list.
  */
 bool de_ray_cast(de_scene_t* scene, const de_ray_t* ray, de_ray_cast_flags_t flags, de_ray_cast_result_array_t* result_array);
 
@@ -96,5 +91,3 @@ bool de_ray_cast(de_scene_t* scene, const de_ray_t* ray, de_ray_cast_flags_t fla
 * @brief Calculates physics for one frame
 */
 void de_physics_step(de_core_t* core, double dt);
-
-bool de_static_triangle_contains_point(const de_static_triangle_t* triangle, const de_vec3_t* point);

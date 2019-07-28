@@ -10,7 +10,6 @@ Please note, that this engine is at early development stage and some features ma
 ## Tutorials
 * Can be found in `tutorials` folder. Why there is only few tutorials? Because API of engine is not stabililized yet.
 
-
 ## Features
 * Single compilation unit - no need to build as separate library: just add `de_main.h` and `de_main.c` to your project.
 * C99 with full compatibility with C++.
@@ -92,7 +91,7 @@ Please note, that this engine is at early development stage and some features ma
 - miniz_tinfl - to decompress FBX compressed data.
 
 ## Code statistics
-- ~22000 significant lines of code
+- ~22500 significant lines of code
 - Pure C99
 
 ## Supported compilers

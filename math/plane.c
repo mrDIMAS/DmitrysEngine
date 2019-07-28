@@ -29,10 +29,10 @@ de_plane_t* de_plane_set_abcd(de_plane_t* p, float a, float b, float c, float d)
 	return p;
 }
 
-de_plane_t* de_plane_set(de_plane_t* p, const de_vec3_t* n, float d)
+de_plane_t* de_plane_set(de_plane_t* p, const de_vec3_t* plane_point, const de_vec3_t* plane_normal)
 {
-	de_vec3_normalize(&p->n, n);
-	p->d = d;
+	de_vec3_normalize(&p->n, plane_normal);
+	p->d = -de_vec3_dot(plane_point, &p->n);
 	return p;
 }
 

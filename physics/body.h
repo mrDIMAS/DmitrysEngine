@@ -19,50 +19,20 @@
 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
-typedef enum de_convex_shape_type_t {
-	DE_CONVEX_SHAPE_TYPE_SPHERE,
-	DE_CONVEX_SHAPE_TYPE_TRIANGLE,
-	DE_CONVEX_SHAPE_TYPE_POINT_CLOUD
-} de_convex_shape_type_t;
-
-typedef struct de_sphere_shape_t {
-	float radius;
-} de_sphere_shape_t;
-
-typedef struct de_triangle_shape_t {
-	de_vec3_t vertices[3];
-} de_triangle_shape_t;
-
-typedef struct de_point_cloud_shape_t {
-	DE_ARRAY_DECLARE(de_vec3_t, vertices);
-} de_point_cloud_shape_t;
-
-typedef struct de_convex_shape_t {
-	de_convex_shape_type_t type;
-	union {
-		de_sphere_shape_t sphere;
-		de_triangle_shape_t triangle;
-		de_point_cloud_shape_t point_cloud;
-	} s;
-} de_convex_shape_t;
-
 /**
-* @class de_body_s
-* @brief Body type for position-based physics.
-*
-* Each body is a sphere (particle). But can represent capsule too.
-*/
+ * @class de_body_s
+ * @brief Body type for position-based physics.
+ */
 struct de_body_t {
 	de_convex_shape_t shape;
 	de_scene_t* scene;
 	de_vec3_t gravity;
-	de_vec3_t position;                     /**< Global position of body */
-	de_vec3_t last_position;                /**< Global position of previous frame */
-	de_vec3_t acceleration;                 /**< Acceleration of a body in m/s^2 */
-	float friction;                         /**< Friction coefficient [0; 1]. Zero means no friction */
+	de_vec3_t position; /**< Global position of body */
+	de_vec3_t last_position; /**< Global position of previous frame */
+	de_vec3_t acceleration; /**< Acceleration of a body in m/s^2 */
+	float friction; /**< Friction coefficient [0; 1]. Zero means no friction */
 	de_contact_t contacts[DE_MAX_CONTACTS]; /**< Array of contacts. */
-	int contact_count;                      /**< Actual count of physical contacts */
-	de_vec3_t scale;                        /**< Scaling coefficients. When != (1, 1, 1) - body is ellipsoid */
+	int contact_count; /**< Actual count of physical contacts */	
 	DE_LINKED_LIST_ITEM(de_body_t);
 };
 
@@ -75,7 +45,7 @@ void de_body_free(de_body_t* body);
 /**
 * @brief Creates new body with radius 1.0
 */
-de_body_t* de_body_create(de_scene_t* s);
+de_body_t* de_body_create(de_scene_t* s, de_convex_shape_t shape);
 
 bool de_body_visit(de_object_visitor_t* visitor, de_body_t* body);
 
@@ -140,16 +110,6 @@ void de_body_get_position(const de_body_t* body, de_vec3_t* pos);
 void de_body_add_acceleration(de_body_t* body, const de_vec3_t* acceleration);
 
 /**
-* @brief Sets actual body radius.
-*/
-void de_body_set_radius(de_body_t* body, float radius);
-
-/**
-* @brief Returns actual body radius.
-*/
-float de_body_get_radius(de_body_t* body);
-
-/**
  * @brief Returns total amount of physical contacts.
  */
 size_t de_body_get_contact_count(de_body_t* body);
@@ -159,4 +119,5 @@ size_t de_body_get_contact_count(de_body_t* body);
  */
 de_contact_t* de_body_get_contact(de_body_t* body, size_t i);
 
-de_vec3_t de_convex_shape_get_farthest_point(const de_convex_shape_t* shape, const de_vec3_t* position, const de_vec3_t* dir);
+de_convex_shape_t* de_body_get_shape(de_body_t* body);
+

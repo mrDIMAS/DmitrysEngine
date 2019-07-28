@@ -43,7 +43,7 @@ static float de_project_point_on_line(const de_vec3_t* point, const de_ray_t* ra
 
 static bool de_body_sphere_intersection(const de_ray_t* edgeRay, const de_vec3_t* sphere_pos, float sphere_radius, de_vec3_t* intersection_pt)
 {
-	if (de_ray_sphere_intersection(edgeRay, sphere_pos, sphere_radius, NULL, NULL)) {
+	if (de_ray_sphere_intersection_point(edgeRay, sphere_pos, sphere_radius, NULL, NULL)) {
 		const float t = de_project_point_on_line(sphere_pos, edgeRay, intersection_pt);
 		return t >= 0.0f && t <= 1.0f;
 	}
@@ -86,7 +86,7 @@ static void de_body_verlet(de_body_t* body, float dt2)
 	const float velocity_limit = 0.75f;
 
 	//const float friction = body->contact_count > 0 ? 1 - body->friction : DE_AIR_FRICTION;
-	const float friction =0.003f;
+	const float friction = 0.003f;
 
 	const float k1 = 2.0f - friction;
 	const float k2 = 1.0f - friction;
@@ -153,12 +153,15 @@ void de_body_triangle_collision(de_static_geometry_t* geom, de_static_triangle_t
 }
 #endif
 
-void de_body_body_collision(de_body_t* body, de_body_t* other)
+static void de_sphere_sphere_body_collision(de_body_t* body, de_body_t* other)
 {
+	const de_sphere_shape_t* shape = de_convex_shape_to_sphere(&body->shape);
+	const de_sphere_shape_t* other_shape = de_convex_shape_to_sphere(&other->shape);
+
 	de_vec3_t dir;
 	de_vec3_sub(&dir, &other->position, &body->position);
 	const float distance = de_vec3_len(&dir);
-	const float radius_sum = body->shape.s.sphere.radius + other->shape.s.sphere.radius;
+	const float radius_sum = shape->radius + other_shape->radius;
 	if (distance <= radius_sum) {
 		de_vec3_t push_vec;
 		de_vec3_scale(&dir, &dir, 1.0f / distance);
@@ -182,8 +185,56 @@ void de_body_body_collision(de_body_t* body, de_body_t* other)
 			contact->body = body;
 			de_vec3_negate(&contact->normal, &dir);
 			contact->position = center;
-			contact->triangle = NULL;	
+			contact->triangle = NULL;
 			contact->geometry = NULL;
+		}
+	}
+}
+
+void de_body_body_collision(de_body_t* body, de_body_t* other)
+{
+	if (body->shape.type == DE_CONVEX_SHAPE_TYPE_SPHERE && other->shape.type == DE_CONVEX_SHAPE_TYPE_SPHERE) {
+		/* Special, very fast method to resolve collisions between two spheres */
+		de_sphere_sphere_body_collision(body, other);
+	} else {
+		/* Generic collisions between two convex bodies */
+		de_convex_shape_t* shape1 = &body->shape;
+		de_convex_shape_t* shape2 = &other->shape;
+
+		de_simplex_t simplex;
+		if (de_gjk_is_intersects(shape1, &body->position, shape2, &other->position, &simplex)) {
+			de_vec3_t penetration_vector;
+			de_vec3_t contact_point;
+			if (de_epa_get_penetration_info(&simplex, shape1, &body->position, shape2, &other->position, &penetration_vector, &contact_point)) {
+				if (de_vec3_sqr_len(&penetration_vector)) {
+					de_vec3_t half_push;
+					de_vec3_scale(&half_push, &penetration_vector, 0.5f);
+
+					/* Push body by a half vector and write contact info */
+					de_vec3_sub(&body->position, &body->position, &half_push);
+					de_contact_t* contact = de_body_add_contact(body);
+					if (contact) {
+						contact->body = other;
+						/* Make sure that we'll get correct normal. */
+						de_vec3_negate(&contact->normal, &penetration_vector);
+						de_vec3_normalize(&contact->normal, &contact->normal);
+						contact->position = contact_point;
+						contact->triangle = NULL;
+						contact->geometry = NULL;
+					}
+
+					/* Push other body by a half vector in opposite side and write contact info */
+					de_vec3_add(&other->position, &other->position, &half_push);
+					contact = de_body_add_contact(other);
+					if (contact) {
+						contact->body = body;
+						de_vec3_normalize(&contact->normal, &penetration_vector);
+						contact->position = contact_point;
+						contact->triangle = NULL;
+						contact->geometry = NULL;
+					}
+				}
+			}
 		}
 	}
 }
@@ -191,7 +242,7 @@ void de_body_body_collision(de_body_t* body, de_body_t* other)
 void de_body_add_acceleration(de_body_t* body, const de_vec3_t* acceleration)
 {
 	DE_ASSERT(body);
-	de_vec3_add(&body->acceleration, &body->acceleration, acceleration);	
+	de_vec3_add(&body->acceleration, &body->acceleration, acceleration);
 }
 
 void de_body_set_gravity(de_body_t* body, const de_vec3_t * gravity)
@@ -213,20 +264,6 @@ void de_body_get_position(const de_body_t* body, de_vec3_t* pos)
 	*pos = body->position;
 }
 
-void de_body_set_radius(de_body_t* body, float radius)
-{
-	DE_ASSERT(body);
-	DE_ASSERT(body->shape.type == DE_CONVEX_SHAPE_TYPE_SPHERE);
-	body->shape.s.sphere.radius = radius;
-}
-
-float de_body_get_radius(de_body_t* body)
-{
-	DE_ASSERT(body);
-	DE_ASSERT(body->shape.type == DE_CONVEX_SHAPE_TYPE_SPHERE);
-	return body->shape.s.sphere.radius;
-}
-
 size_t de_body_get_contact_count(de_body_t* body)
 {
 	DE_ASSERT(body);
@@ -243,9 +280,16 @@ de_contact_t* de_body_get_contact(de_body_t* body, size_t i)
 	return body->contacts + i;
 }
 
+de_convex_shape_t* de_body_get_shape(de_body_t* body)
+{
+	DE_ASSERT(body);
+	return &body->shape;
+}
+
 void de_body_free(de_body_t* body)
 {
 	DE_ASSERT(body);
+	de_convex_shape_free(&body->shape);
 	DE_LINKED_LIST_REMOVE(body->scene->bodies, body);
 	de_free(body);
 }
@@ -287,16 +331,26 @@ void de_body_get_velocity(de_body_t* body, de_vec3_t * velocity)
 	de_vec3_sub(velocity, &body->position, &body->last_position);
 }
 
-de_body_t* de_body_create(de_scene_t* s)
+static de_convex_shape_t de_convex_shape_copy(de_convex_shape_t* shape)
+{
+	if (shape->type == DE_CONVEX_SHAPE_TYPE_POINT_CLOUD) {
+		/* Point cloud is special becuase it contains heap-allocated memory which we 
+		 * must copy, not share between multiple shapes to prevent double free. */
+		de_convex_shape_t copy;		
+		DE_ARRAY_COPY(shape->s.point_cloud.points, copy.s.point_cloud.points);
+	}
+	/* In other cases we can make byte-to-byte copy */
+	return *shape;
+}
+
+de_body_t* de_body_create(de_scene_t* s, de_convex_shape_t shape)
 {
 	DE_ASSERT(s);
 	de_body_t* body = DE_NEW(de_body_t);
 	DE_LINKED_LIST_APPEND(s->bodies, body);
 	body->scene = s;
-	body->shape.type = DE_CONVEX_SHAPE_TYPE_SPHERE;
-	body->shape.s.sphere.radius = 1.0f;
+	body->shape = shape;
 	body->friction = 0.99f;
-	body->scale = (de_vec3_t) { 1, 1, 1 };
 	body->gravity = DE_DEFAULT_GRAVITY;
 	return body;
 }
@@ -309,9 +363,8 @@ bool de_body_visit(de_object_visitor_t* visitor, de_body_t* body)
 	result &= de_object_visitor_visit_vec3(visitor, "Position", &body->position);
 	result &= de_object_visitor_visit_vec3(visitor, "LastPosition", &body->last_position);
 	result &= de_object_visitor_visit_vec3(visitor, "Acceleration", &body->acceleration);
-	//result &= de_object_visitor_visit_float(visitor, "Radius", &body->radius);
+	result &= de_convex_shape_visit(visitor, &body->shape);
 	result &= de_object_visitor_visit_float(visitor, "Friction", &body->friction);
-	result &= de_object_visitor_visit_vec3(visitor, "Scale", &body->scale);
 	return result;
 }
 
@@ -325,40 +378,7 @@ de_body_t* de_body_copy(de_scene_t* dest_scene, de_body_t* body)
 	copy->position = body->position;
 	copy->last_position = body->last_position;
 	copy->acceleration = body->acceleration;
-	copy->shape = body->shape; // FIXME
+	copy->shape = de_convex_shape_copy(&body->shape);
 	copy->friction = body->friction;
-	copy->scale = body->scale;
 	return copy;
-}
-
-de_vec3_t de_convex_shape_get_farthest_point(const de_convex_shape_t* shape, const de_vec3_t* position, const de_vec3_t* dir)
-{
-	de_vec3_t farthest;
-
-	switch (shape->type) {
-		case DE_CONVEX_SHAPE_TYPE_SPHERE: {
-			const de_sphere_shape_t* sphere = &shape->s.sphere;
-			de_vec3_t norm_dir;
-			de_vec3_normalize(&norm_dir, dir);
-			de_vec3_scale(&farthest, &norm_dir, sphere->radius);
-			break;
-		}
-		case DE_CONVEX_SHAPE_TYPE_TRIANGLE: {
-			const de_triangle_shape_t* triangle = &shape->s.triangle;
-			farthest = de_point_cloud_get_farthest_point(triangle->vertices, 3, dir);
-			break;
-		}
-		case DE_CONVEX_SHAPE_TYPE_POINT_CLOUD: {
-			const de_point_cloud_shape_t* point_cloud = &shape->s.point_cloud;
-			farthest = de_point_cloud_get_farthest_point(point_cloud->vertices.data, point_cloud->vertices.size, dir);
-			break;
-		}
-		default:
-			farthest = (de_vec3_t) { 0, 0, 0 };		
-			break;
-	}
-
-	de_vec3_add(&farthest, &farthest, position);
-
-	return farthest;
 }

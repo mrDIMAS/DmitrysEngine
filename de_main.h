@@ -60,6 +60,10 @@ extern "C" {
  * useless warning, because project is C99, where this limitation
  * was dropped */
 #  pragma warning(disable: 4204) 
+/* force enable "enum element is not handled" warning, which is very
+ * useful since we using enums for types a lot. gcc have this warning
+ * when compiling with -pedantic */
+#  pragma warning(default : 4062)
 #elif defined __GNUC__
 #  define _POSIX_C_SOURCE 200809L
 #  pragma GCC diagnostic ignored "-Wunused-local-typedefs"

@@ -20,6 +20,7 @@
 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. */
 
 #include "physics/octree.c"
+#include "physics/shape.c"
 #include "physics/body.c"
 #include "physics/collision.c"
 #include "physics/gjk_epa.c"

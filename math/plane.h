@@ -44,7 +44,7 @@ de_plane_t* de_plane_set_abcd(de_plane_t* p, float a, float b, float c, float d)
 /**
  * @brief Creates plane from point and normal in that point.
  */
-de_plane_t* de_plane_set(de_plane_t* p, const de_vec3_t* n, float d);
+de_plane_t* de_plane_set(de_plane_t* p, const de_vec3_t* plane_point, const de_vec3_t* plane_normal);
 
 /**
  * @brief Returns unsigned distance from point to plane.

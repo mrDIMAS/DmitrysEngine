@@ -316,3 +316,38 @@ void de_get_barycentric_coords(const de_vec3_t* p, const de_vec3_t* a, const de_
 	*w = (d00 * d21 - d01 * d20) / denom;
 	*u = 1.0f - *v - *w;
 }
+
+bool de_try_get_triangle_normal(de_vec3_t* out_normal, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c)
+{
+	de_vec3_t ba;
+	de_vec3_sub(&ba, b, a);
+
+	de_vec3_t ca;
+	de_vec3_sub(&ca, c, a);
+		
+	de_vec3_cross(out_normal, &ba, &ca);
+
+	return de_vec3_try_normalize(out_normal, out_normal);
+}
+
+bool de_solve_quadratic(float a, float b, float c, float roots[2])
+{
+	const float discriminant = b * b - 4 * a * c;
+
+	if (discriminant < 0) {
+		/* no real roots */
+		return false;
+	}
+
+	const float _2a = 2 * a;
+
+	/* Dont care if quadratic equation has only one root (discriminant == 0), this is edge-case
+	* which requires additional branching instructions which is not good for branch-predictor in CPU. */
+
+	const float discr_root = (float)sqrt(discriminant);
+
+	roots[0] = (-b + discr_root) / _2a;
+	roots[1] = (-b - discr_root) / _2a;
+
+	return true;
+}

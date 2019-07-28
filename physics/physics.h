@@ -36,6 +36,7 @@ typedef struct de_contact_t {
 } de_contact_t;
 
 #include "physics/octree.h"
+#include "physics/shape.h"
 #include "physics/body.h"
 #include "physics/collision.h"
 #include "physics/gjk_epa.h"

@@ -40,6 +40,12 @@ typedef struct de_vec4_t {
 typedef struct de_quat_t de_quat_t;
 typedef struct de_plane_t de_plane_t;
 
+typedef enum de_cylinder_type_t {
+	DE_CYLINDER_TYPE_INFINITE,
+	DE_CYLINDER_TYPE_FINITE,
+	DE_CYLINDER_TYPE_CAPPED
+} de_cylinder_type_t;
+
 #include "math/quat.h"
 #include "math/mat3.h"
 #include "math/mat4.h"
@@ -158,3 +164,14 @@ int de_irand(int min, int max);
 de_vec3_t de_point_cloud_get_farthest_point(const de_vec3_t* points, int count, const de_vec3_t* dir);
 
 void de_get_barycentric_coords(const de_vec3_t* p, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c, float *u, float *v, float *w);
+
+/**
+ * @brief Tries to calculate normalized triangle normal. Will return false if points a b c forms degenerated
+ * triangle (line or even point).
+ */
+bool de_try_get_triangle_normal(de_vec3_t* out_normal, const de_vec3_t* a, const de_vec3_t* b, const de_vec3_t* c);
+
+/**
+ * @brief Solves quadratic equation a*x^2 + b*x + c = 0, returns true if there is real roots.
+ */
+bool de_solve_quadratic(float a, float b, float c, float roots[2]);
